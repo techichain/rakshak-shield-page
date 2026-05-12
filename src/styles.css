@@ -165,8 +165,8 @@
   --sh-lg:0 12px 32px rgba(0,0,0,.10),0 4px 8px rgba(0,0,0,.05);
   --detail-w:370px;
 }
-html,body{height:100%;overflow:hidden}
-.rk-app{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;display:flex;flex-direction:column;height:100vh;width:100vw;overflow:hidden}
+html:has(.rk-app), body:has(.rk-app){height:100%;overflow:hidden;overscroll-behavior:none}
+.rk-app{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;display:flex;flex-direction:column;height:100dvh;width:100vw;overflow:hidden;position:fixed;inset:0;isolation:isolate}
 
 
 /* ============ NAV — 3 column grid ============ */
