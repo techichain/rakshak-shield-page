@@ -98,12 +98,15 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
         });
         const inner = el.firstElementChild as HTMLElement | null;
         if (inner) {
-          const ics = getComputedStyle(inner);
-          console.log("[MapView] inner", {
-            tag: inner.tagName, html: inner.outerHTML.slice(0, 200),
-            display: ics.display, width: ics.width, height: ics.height,
-            background: ics.background.slice(0, 80),
-          });
+          const r = inner.getBoundingClientRect();
+          console.log("[MapView] inner rect", r.x, r.y, r.width, r.height);
+          const r2 = el.getBoundingClientRect();
+          console.log("[MapView] outer rect", r2.x, r2.y, r2.width, r2.height);
+          const pane = document.querySelector(".leaflet-marker-pane") as HTMLElement;
+          if (pane) {
+            const pcs = getComputedStyle(pane);
+            console.log("[MapView] pane", { transform: pcs.transform, zIndex: pcs.zIndex, opacity: pcs.opacity, display: pcs.display, position: pcs.position, rect: JSON.stringify(pane.getBoundingClientRect()) });
+          }
         }
       }
     }, 1500);
