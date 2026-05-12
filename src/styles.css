@@ -149,7 +149,7 @@
    ============================================================ */
 
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Montserrat:wght@400;500;600;700&display=swap");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css");
+/* Leaflet CSS is imported from JS in MapView.tsx (CSS @import here would be ignored — must precede all rules) */
 
 .rk-app, .rk-app *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -395,6 +395,11 @@ html:has(.rk-app), body:has(.rk-app){height:100%;overflow:hidden;overscroll-beha
 .mt-status{font-size:10px;margin-top:4px;font-weight:500}
 .mt-cta{font-size:10px;color:var(--text3);margin-top:5px}
 .leaflet-container{cursor:default}
+
+/* Risk-level dot markers (override leaflet div-icon defaults) */
+.leaflet-marker-icon.rk-marker{background:transparent!important;border:none!important;width:20px!important;height:20px!important;display:block!important}
+.rk-marker .rk-marker-dot{display:block;width:20px;height:20px;border-radius:50%;border:2.5px solid rgba(255,255,255,.95);box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer;box-sizing:border-box}
+.leaflet-marker-pane{z-index:600}
 
 /* Site Map section */
 .sitemap-wrap{padding:0;border-top:1px solid var(--rk-border)}
