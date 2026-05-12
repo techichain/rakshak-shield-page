@@ -52,6 +52,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
     mapRef.current = map;
 
     // Markers
+    console.log("[MapView] creating markers, count:", LOC.length);
     LOC.forEach((loc) => {
       const m = L.marker([loc.lat, loc.lng], { icon: makeIcon(loc.risk), riseOnHover: true }).addTo(map);
       const s = ST[loc.status];
