@@ -85,7 +85,28 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
       m.on("mouseout", () => m.closePopup());
       markersRef.current[loc.id] = { m, vis: true };
     });
-    console.log("[MapView] DOM markers:", document.querySelectorAll(".leaflet-marker-icon").length);
+    setTimeout(() => {
+      const el = document.querySelector(".leaflet-marker-icon") as HTMLElement | null;
+      if (el) {
+        const cs = getComputedStyle(el);
+        console.log("[MapView] first marker", {
+          html: el.outerHTML.slice(0, 300),
+          rect: el.getBoundingClientRect(),
+          display: cs.display, width: cs.width, height: cs.height,
+          opacity: cs.opacity, visibility: cs.visibility, transform: cs.transform,
+          background: cs.background.slice(0, 80),
+        });
+        const inner = el.firstElementChild as HTMLElement | null;
+        if (inner) {
+          const ics = getComputedStyle(inner);
+          console.log("[MapView] inner", {
+            tag: inner.tagName, html: inner.outerHTML.slice(0, 200),
+            display: ics.display, width: ics.width, height: ics.height,
+            background: ics.background.slice(0, 80),
+          });
+        }
+      }
+    }, 1500);
 
     // India GeoJSON
     (async () => {
