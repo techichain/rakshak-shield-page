@@ -85,6 +85,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
       m.on("mouseout", () => m.closePopup());
       markersRef.current[loc.id] = { m, vis: true };
     });
+    console.log("[MapView] DOM markers:", document.querySelectorAll(".leaflet-marker-icon").length);
 
     // India GeoJSON
     (async () => {
