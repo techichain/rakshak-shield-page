@@ -18,8 +18,8 @@ const GEO_URLS = [
 
 function makeIcon(risk: Location["risk"]) {
   return L.divIcon({
-    className: "",
-    html: `<div style="width:20px;height:20px;background:${RC[risk]};border-radius:50%;border:2.5px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.32);cursor:pointer;"></div>`,
+    className: "rk-marker",
+    html: `<span class="rk-marker-dot" style="background:${RC[risk]}"></span>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
     popupAnchor: [0, -13],
