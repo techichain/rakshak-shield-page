@@ -149,7 +149,7 @@
    ============================================================ */
 
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Montserrat:wght@400;500;600;700&display=swap");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css");
+/* Leaflet CSS is imported from JS in MapView.tsx (CSS @import here would be ignored — must precede all rules) */
 
 .rk-app, .rk-app *{box-sizing:border-box;margin:0;padding:0}
 :root{
