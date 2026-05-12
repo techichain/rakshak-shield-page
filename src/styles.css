@@ -396,6 +396,11 @@ html:has(.rk-app), body:has(.rk-app){height:100%;overflow:hidden;overscroll-beha
 .mt-cta{font-size:10px;color:var(--text3);margin-top:5px}
 .leaflet-container{cursor:default}
 
+/* Risk-level dot markers (override leaflet div-icon defaults) */
+.leaflet-marker-icon.rk-marker{background:transparent!important;border:none!important;width:20px!important;height:20px!important;display:block!important}
+.rk-marker .rk-marker-dot{display:block;width:20px;height:20px;border-radius:50%;border:2.5px solid rgba(255,255,255,.95);box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer;box-sizing:border-box}
+.leaflet-marker-pane{z-index:600}
+
 /* Site Map section */
 .sitemap-wrap{padding:0;border-top:1px solid var(--rk-border)}
 .sitemap-hdr{padding:11px 16px 8px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px}
