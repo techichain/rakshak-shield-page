@@ -53,7 +53,6 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
     mapRef.current = map;
 
     // Markers
-    console.log("[MapView] creating markers, count:", LOC.length);
     LOC.forEach((loc) => {
       const m = L.marker([loc.lat, loc.lng], { icon: makeIcon(loc.risk), riseOnHover: true }).addTo(map);
       const s = ST[loc.status];
@@ -86,31 +85,6 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
       m.on("mouseout", () => m.closePopup());
       markersRef.current[loc.id] = { m, vis: true };
     });
-    setTimeout(() => {
-      const el = document.querySelector(".leaflet-marker-icon") as HTMLElement | null;
-      if (el) {
-        const cs = getComputedStyle(el);
-        console.log("[MapView] first marker", {
-          html: el.outerHTML.slice(0, 300),
-          rect: el.getBoundingClientRect(),
-          display: cs.display, width: cs.width, height: cs.height,
-          opacity: cs.opacity, visibility: cs.visibility, transform: cs.transform,
-          background: cs.background.slice(0, 80),
-        });
-        const inner = el.firstElementChild as HTMLElement | null;
-        if (inner) {
-          const r = inner.getBoundingClientRect();
-          console.log("[MapView] inner rect", r.x, r.y, r.width, r.height);
-          const r2 = el.getBoundingClientRect();
-          console.log("[MapView] outer rect", r2.x, r2.y, r2.width, r2.height);
-          const pane = document.querySelector(".leaflet-marker-pane") as HTMLElement;
-          if (pane) {
-            const pcs = getComputedStyle(pane);
-            console.log("[MapView] pane", { transform: pcs.transform, zIndex: pcs.zIndex, opacity: pcs.opacity, display: pcs.display, position: pcs.position, rect: JSON.stringify(pane.getBoundingClientRect()) });
-          }
-        }
-      }
-    }, 1500);
 
     // India GeoJSON
     (async () => {
