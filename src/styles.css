@@ -241,7 +241,7 @@ html:has(.rk-app), body:has(.rk-app){height:100%;overflow:hidden;overscroll-beha
 .state-chips-wrap::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 .sb-section.states-section{padding-bottom:10px}
 /* Filter area above location list — scrollable as a block */
-.sb-filters{flex-shrink:0;overflow-y:auto;max-height:52%;border-bottom:1px solid var(--rk-border)}
+.sb-filters{flex-shrink:0;overflow-y:auto;overscroll-behavior:contain;max-height:52%;border-bottom:1px solid var(--rk-border)}
 .sb-filters::-webkit-scrollbar{width:3px}
 .sb-filters::-webkit-scrollbar-thumb{background:var(--rk-border2);border-radius:2px}
 .loc-row{display:flex;align-items:center;gap:8px;padding:7px 13px;cursor:pointer;border-bottom:1px solid var(--rk-border);transition:background .12s}
