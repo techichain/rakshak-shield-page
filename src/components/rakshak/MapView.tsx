@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import type { Location } from "./types";
 import { LOC, RC, RL, ST, SB, GEO_NAME_MAP } from "./data";
 
