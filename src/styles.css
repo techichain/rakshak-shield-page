@@ -332,10 +332,10 @@ html:has(.rk-app), body:has(.rk-app){height:100%;overflow:hidden;overscroll-beha
 .footer-top{padding:8px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rk-border)}
 .footer-copy{font-size:10px;color:var(--text3)}
 .footer-partners-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;padding-right:12px;border-right:1px solid var(--rk-border);margin-right:12px}
-.footer-logos{display:flex;align-items:center;gap:8px;overflow-x:auto;flex:1;padding:2px 0}
+.footer-logos{display:flex;align-items:center;gap:12px;overflow-x:auto;flex:1;padding:4px 0}
 .footer-logos::-webkit-scrollbar{display:none}
 .uni-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;cursor:default}
-.uni-logo{height:26px;width:26px;object-fit:contain;border-radius:4px;background:#fff;padding:2px;mix-blend-mode:multiply}
+.uni-logo{height:42px;width:42px;object-fit:contain;border-radius:6px;background:#fff;padding:3px;mix-blend-mode:multiply}
 .uni-badge{height:26px;width:26px;border-radius:4px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;text-align:center;line-height:1.2;padding:2px}
 .uni-name{font-size:8px;color:var(--text3);text-align:center;max-width:50px;line-height:1.2;display:none}
 
