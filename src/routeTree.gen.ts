@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as GigriderChecklistRouteImport } from './routes/gigrider-checklist'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
+import { Route as GigriderChecklistObserverRouteImport } from './routes/gigrider-checklist.observer'
 import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
+import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
 
 const GigriderChecklistRoute = GigriderChecklistRouteImport.update({
   id: '/gigrider-checklist',
@@ -29,28 +31,45 @@ const GigriderChecklistIndexRoute = GigriderChecklistIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GigriderChecklistRoute,
 } as any)
+const GigriderChecklistObserverRoute =
+  GigriderChecklistObserverRouteImport.update({
+    id: '/observer',
+    path: '/observer',
+    getParentRoute: () => GigriderChecklistRoute,
+  } as any)
 const GigriderChecklistLoginRoute = GigriderChecklistLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => GigriderChecklistRoute,
+} as any)
+const GigriderChecklistAdminRoute = GigriderChecklistAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => GigriderChecklistRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
+  '/gigrider-checklist/admin': typeof GigriderChecklistAdminRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
+  '/gigrider-checklist/observer': typeof GigriderChecklistObserverRoute
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gigrider-checklist/admin': typeof GigriderChecklistAdminRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
+  '/gigrider-checklist/observer': typeof GigriderChecklistObserverRoute
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
+  '/gigrider-checklist/admin': typeof GigriderChecklistAdminRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
+  '/gigrider-checklist/observer': typeof GigriderChecklistObserverRoute
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
 }
 export interface FileRouteTypes {
@@ -58,15 +77,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/gigrider-checklist'
+    | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
+    | '/gigrider-checklist/observer'
     | '/gigrider-checklist/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gigrider-checklist/login' | '/gigrider-checklist'
+  to:
+    | '/'
+    | '/gigrider-checklist/admin'
+    | '/gigrider-checklist/login'
+    | '/gigrider-checklist/observer'
+    | '/gigrider-checklist'
   id:
     | '__root__'
     | '/'
     | '/gigrider-checklist'
+    | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
+    | '/gigrider-checklist/observer'
     | '/gigrider-checklist/'
   fileRoutesById: FileRoutesById
 }
@@ -98,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistIndexRouteImport
       parentRoute: typeof GigriderChecklistRoute
     }
+    '/gigrider-checklist/observer': {
+      id: '/gigrider-checklist/observer'
+      path: '/observer'
+      fullPath: '/gigrider-checklist/observer'
+      preLoaderRoute: typeof GigriderChecklistObserverRouteImport
+      parentRoute: typeof GigriderChecklistRoute
+    }
     '/gigrider-checklist/login': {
       id: '/gigrider-checklist/login'
       path: '/login'
@@ -105,16 +140,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistLoginRouteImport
       parentRoute: typeof GigriderChecklistRoute
     }
+    '/gigrider-checklist/admin': {
+      id: '/gigrider-checklist/admin'
+      path: '/admin'
+      fullPath: '/gigrider-checklist/admin'
+      preLoaderRoute: typeof GigriderChecklistAdminRouteImport
+      parentRoute: typeof GigriderChecklistRoute
+    }
   }
 }
 
 interface GigriderChecklistRouteChildren {
+  GigriderChecklistAdminRoute: typeof GigriderChecklistAdminRoute
   GigriderChecklistLoginRoute: typeof GigriderChecklistLoginRoute
+  GigriderChecklistObserverRoute: typeof GigriderChecklistObserverRoute
   GigriderChecklistIndexRoute: typeof GigriderChecklistIndexRoute
 }
 
 const GigriderChecklistRouteChildren: GigriderChecklistRouteChildren = {
+  GigriderChecklistAdminRoute: GigriderChecklistAdminRoute,
   GigriderChecklistLoginRoute: GigriderChecklistLoginRoute,
+  GigriderChecklistObserverRoute: GigriderChecklistObserverRoute,
   GigriderChecklistIndexRoute: GigriderChecklistIndexRoute,
 }
 
