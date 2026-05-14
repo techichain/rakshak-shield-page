@@ -9,38 +9,81 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as GigriderChecklistRouteImport } from './routes/gigrider-checklist'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
+import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
 
+const GigriderChecklistRoute = GigriderChecklistRouteImport.update({
+  id: '/gigrider-checklist',
+  path: '/gigrider-checklist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GigriderChecklistIndexRoute = GigriderChecklistIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GigriderChecklistRoute,
+} as any)
+const GigriderChecklistLoginRoute = GigriderChecklistLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => GigriderChecklistRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
+  '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
+  '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
+  '/gigrider-checklist': typeof GigriderChecklistIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
+  '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
+  '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/gigrider-checklist'
+    | '/gigrider-checklist/login'
+    | '/gigrider-checklist/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/gigrider-checklist/login' | '/gigrider-checklist'
+  id:
+    | '__root__'
+    | '/'
+    | '/gigrider-checklist'
+    | '/gigrider-checklist/login'
+    | '/gigrider-checklist/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GigriderChecklistRoute: typeof GigriderChecklistRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/gigrider-checklist': {
+      id: '/gigrider-checklist'
+      path: '/gigrider-checklist'
+      fullPath: '/gigrider-checklist'
+      preLoaderRoute: typeof GigriderChecklistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +91,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gigrider-checklist/': {
+      id: '/gigrider-checklist/'
+      path: '/'
+      fullPath: '/gigrider-checklist/'
+      preLoaderRoute: typeof GigriderChecklistIndexRouteImport
+      parentRoute: typeof GigriderChecklistRoute
+    }
+    '/gigrider-checklist/login': {
+      id: '/gigrider-checklist/login'
+      path: '/login'
+      fullPath: '/gigrider-checklist/login'
+      preLoaderRoute: typeof GigriderChecklistLoginRouteImport
+      parentRoute: typeof GigriderChecklistRoute
+    }
   }
 }
 
+interface GigriderChecklistRouteChildren {
+  GigriderChecklistLoginRoute: typeof GigriderChecklistLoginRoute
+  GigriderChecklistIndexRoute: typeof GigriderChecklistIndexRoute
+}
+
+const GigriderChecklistRouteChildren: GigriderChecklistRouteChildren = {
+  GigriderChecklistLoginRoute: GigriderChecklistLoginRoute,
+  GigriderChecklistIndexRoute: GigriderChecklistIndexRoute,
+}
+
+const GigriderChecklistRouteWithChildren =
+  GigriderChecklistRoute._addFileChildren(GigriderChecklistRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GigriderChecklistRoute: GigriderChecklistRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
