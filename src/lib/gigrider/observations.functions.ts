@@ -91,12 +91,20 @@ export const listMyObservations = createServerFn({ method: "GET" })
 export const listLookups = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { data: roles } = await supabase
+      .from("user_roles").select("role").eq("user_id", userId);
+    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+    let q = supabase.from("hotspots").select("id, name, city, sublabel").eq("is_active", true).order("city").order("name");
+    if (!isAdmin) {
+      // Hide crash-incidence hotspots from observers
+      q = q.not("sublabel", "ilike", "%crash%");
+    }
     const [{ data: hotspots }, { data: surveyors }] = await Promise.all([
-      supabase.from("hotspots").select("id, name, city, sublabel").eq("is_active", true).order("sort_order"),
+      q,
       supabase.from("surveyors").select("id, name").eq("is_active", true).order("name"),
     ]);
-    return { hotspots: hotspots ?? [], surveyors: surveyors ?? [] };
+    return { hotspots: hotspots ?? [], surveyors: surveyors ?? [], isAdmin };
   });
 
 export const getObservation = createServerFn({ method: "GET" })
