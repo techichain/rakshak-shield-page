@@ -124,10 +124,12 @@ export type Database = {
           consent_interview:
             | Database["public"]["Enums"]["consent_answer"]
             | null
+          consent_interview_notes: string | null
           consent_optional_items: string[]
           consent_screenshot:
             | Database["public"]["Enums"]["consent_answer"]
             | null
+          consent_screenshot_notes: string | null
           created_at: string
           flag_reason: string | null
           flagged: boolean
@@ -142,6 +144,8 @@ export type Database = {
           observer_id: string
           platform_gear: string[]
           platform_gear_other: string | null
+          response_consistency: string | null
+          response_consistency_notes: string | null
           rider_engagement:
             | Database["public"]["Enums"]["rider_engagement"]
             | null
@@ -167,10 +171,12 @@ export type Database = {
           consent_interview?:
             | Database["public"]["Enums"]["consent_answer"]
             | null
+          consent_interview_notes?: string | null
           consent_optional_items?: string[]
           consent_screenshot?:
             | Database["public"]["Enums"]["consent_answer"]
             | null
+          consent_screenshot_notes?: string | null
           created_at?: string
           flag_reason?: string | null
           flagged?: boolean
@@ -185,6 +191,8 @@ export type Database = {
           observer_id: string
           platform_gear?: string[]
           platform_gear_other?: string | null
+          response_consistency?: string | null
+          response_consistency_notes?: string | null
           rider_engagement?:
             | Database["public"]["Enums"]["rider_engagement"]
             | null
@@ -212,10 +220,12 @@ export type Database = {
           consent_interview?:
             | Database["public"]["Enums"]["consent_answer"]
             | null
+          consent_interview_notes?: string | null
           consent_optional_items?: string[]
           consent_screenshot?:
             | Database["public"]["Enums"]["consent_answer"]
             | null
+          consent_screenshot_notes?: string | null
           created_at?: string
           flag_reason?: string | null
           flagged?: boolean
@@ -230,6 +240,8 @@ export type Database = {
           observer_id?: string
           platform_gear?: string[]
           platform_gear_other?: string | null
+          response_consistency?: string | null
+          response_consistency_notes?: string | null
           rider_engagement?:
             | Database["public"]["Enums"]["rider_engagement"]
             | null
@@ -374,6 +386,12 @@ export type Database = {
         | "zoned_out_distracted"
         | "uncomfortable_resistant"
         | "going_through_motions"
+        | "genuinely_engaged"
+        | "cooperative"
+        | "passive"
+        | "visibly_rushed"
+        | "uncomfortable_guarded"
+        | "resistant"
       road_env_type:
         | "intersection_signal"
         | "mid_road_no_signal"
@@ -543,6 +561,12 @@ export const Constants = {
         "zoned_out_distracted",
         "uncomfortable_resistant",
         "going_through_motions",
+        "genuinely_engaged",
+        "cooperative",
+        "passive",
+        "visibly_rushed",
+        "uncomfortable_guarded",
+        "resistant",
       ],
       road_env_type: [
         "intersection_signal",
