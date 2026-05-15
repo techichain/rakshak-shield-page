@@ -239,10 +239,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     try {
       const obsId = await ensureDraftId();
       if (!obsId) return;
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in");
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${obsId}/${Date.now()}.${ext}`;
+      const path = `${obsId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
         contentType: file.type, upsert: false,
       });
@@ -252,9 +250,17 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         file_name: file.name.slice(0, 200), mime_type: file.type || "image/jpeg",
         size_bytes: file.size,
       }});
+      setPhotos((p) => [...p, { name: file.name, path }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Photo upload failed");
     } finally { setUploading(false); }
+  };
+
+  const handlePhotos = async (files: FileList) => {
+    for (const f of Array.from(files)) {
+      // eslint-disable-next-line no-await-in-loop
+      await handlePhoto(f);
+    }
   };
 
   const discardDraft = async () => {
