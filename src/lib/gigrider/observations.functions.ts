@@ -70,6 +70,10 @@ function validateForSubmit(data: z.infer<typeof saveSchema>): string | null {
   if (!data.surveyor_rating) return "Surveyor rating is required";
   if (!data.helmet_status) return "Helmet status is required";
   if (!data.rider_engagement) return "Rider engagement is required";
+  if (!data.response_consistency) return "Response consistency is required";
+  if ((data.response_consistency === "minor_doubts" || data.response_consistency === "strong_doubts") && !data.response_consistency_notes?.trim()) {
+    return "Note briefly what didn't add up.";
+  }
   if (data.flagged && !data.flag_reason?.trim()) return "Flag reason is required when flagged";
   return null;
 }
