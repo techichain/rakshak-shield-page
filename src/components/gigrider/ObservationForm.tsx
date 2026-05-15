@@ -519,14 +519,11 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
             </Field>
             <Field label="Photos">
-              {!form.id && <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">Save draft first to attach photos.</p>}
-              {form.id && (
-                <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                  📷 {uploading ? "Uploading…" : "Add photo"}
-                  <input type="file" accept="image/*" capture="environment" className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
-                </label>
-              )}
+              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+                📷 {uploading ? "Uploading…" : "Add photo"}
+                <input type="file" accept="image/*" capture="environment" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
+              </label>
             </Field>
             <Field label="Flag this observation for admin review?">
               <Segmented options={[{v:"no",l:"No"},{v:"yes",l:"Yes"}]}
