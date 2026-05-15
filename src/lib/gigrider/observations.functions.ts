@@ -11,7 +11,7 @@ const obsCore = {
   gps_lng: z.number().nullable().optional(),
   gps_accuracy_meters: z.number().nullable().optional(),
   gps_captured_at: z.string().nullable().optional(),
-  road_env_type: z.enum(["intersection_signal","mid_road_no_signal","commercial_market","residential_lane","highway_arterial","other"]).nullable().optional(),
+  road_env_type: z.enum(["intersection_signal","mid_road_no_signal","commercial_market","residential_lane","highway_arterial","restaurant_food_outlet","dark_store","mall_entrance","informal_rest_spot","petrol_pump","residential_society","highway_service_lane","other"]).nullable().optional(),
   road_env_type_other: z.string().trim().max(200).nullable().optional(),
   road_hazards: z.array(z.string().max(100)).max(20).optional(),
   vehicle_observed: z.boolean().optional(),
@@ -55,8 +55,9 @@ async function ensureSurveyor(name: string | null | undefined): Promise<string |
 function validateForSubmit(data: z.infer<typeof saveSchema>): string | null {
   if (!data.hotspot_id) return "Hotspot is required";
   if (data.gps_lat == null || data.gps_lng == null) return "GPS location is required";
-  if (!data.road_env_type) return "Road environment type is required";
-  if (data.road_env_type === "other" && !data.road_env_type_other?.trim()) return "Specify the road environment";
+  if (!data.road_env_type) return "Interview location is required";
+  if (data.road_env_type === "other" && !data.road_env_type_other?.trim()) return "Specify the interview location";
+  if (!data.road_hazards || data.road_hazards.length === 0) return "Select at least one road hazard (or 'None visible')";
   if (!data.surveyor_name?.trim()) return "Surveyor name is required";
   if (!data.consent_interview) return "Consent for interview is required";
   if (!data.consent_screenshot) return "Consent for screenshot is required";
@@ -90,12 +91,20 @@ export const listMyObservations = createServerFn({ method: "GET" })
 export const listLookups = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { data: roles } = await supabase
+      .from("user_roles").select("role").eq("user_id", userId);
+    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+    let q = supabase.from("hotspots").select("id, name, city, sublabel").eq("is_active", true).order("city").order("name");
+    if (!isAdmin) {
+      // Hide crash-incidence hotspots from observers
+      q = q.not("sublabel", "ilike", "%crash%");
+    }
     const [{ data: hotspots }, { data: surveyors }] = await Promise.all([
-      supabase.from("hotspots").select("id, name, city, sublabel").eq("is_active", true).order("sort_order"),
+      q,
       supabase.from("surveyors").select("id, name").eq("is_active", true).order("name"),
     ]);
-    return { hotspots: hotspots ?? [], surveyors: surveyors ?? [] };
+    return { hotspots: hotspots ?? [], surveyors: surveyors ?? [], isAdmin };
   });
 
 export const getObservation = createServerFn({ method: "GET" })
