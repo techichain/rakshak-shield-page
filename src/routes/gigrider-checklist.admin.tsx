@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -54,9 +54,6 @@ function AdminDashboard() {
           </p>
         </section>
 
-        <p className="text-xs text-slate-400 text-center">
-          <Link to="/" className="underline">← Back to Rakshak home</Link>
-        </p>
       </main>
     </div>
   );

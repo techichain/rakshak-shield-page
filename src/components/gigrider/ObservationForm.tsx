@@ -87,6 +87,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [photos, setPhotos] = useState<{ name: string; path: string }[]>([]);
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
 
@@ -238,10 +239,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     try {
       const obsId = await ensureDraftId();
       if (!obsId) return;
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not signed in");
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${obsId}/${Date.now()}.${ext}`;
+      const path = `${obsId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
         contentType: file.type, upsert: false,
       });
@@ -251,9 +250,17 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         file_name: file.name.slice(0, 200), mime_type: file.type || "image/jpeg",
         size_bytes: file.size,
       }});
+      setPhotos((p) => [...p, { name: file.name, path }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Photo upload failed");
     } finally { setUploading(false); }
+  };
+
+  const handlePhotos = async (files: FileList) => {
+    for (const f of Array.from(files)) {
+      // eslint-disable-next-line no-await-in-loop
+      await handlePhoto(f);
+    }
   };
 
   const discardDraft = async () => {
@@ -361,10 +368,17 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
 
             <Field label="Road environment photos (optional, 3–4 photos)">
               <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                📷 {uploading ? "Uploading…" : "Add road photo"}
-                <input type="file" accept="image/*" capture="environment" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
+                📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add road photo"}
+                <input type="file" accept="image/*" capture="environment" multiple className="hidden"
+                  onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
               </label>
+              {photos.length > 0 && (
+                <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
+                  {photos.map((p, i) => (
+                    <li key={p.path}>✓ {i + 1}. {p.name}</li>
+                  ))}
+                </ul>
+              )}
               <p className="text-xs text-slate-500 mt-1.5 leading-snug">
                 Take 3–4 photos facing different directions around you — front, back, left, right. Capture what the road and surroundings look like. You can do this during the first few intro questions with the rider.
               </p>
@@ -520,10 +534,17 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             </Field>
             <Field label="Photos">
               <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                📷 {uploading ? "Uploading…" : "Add photo"}
-                <input type="file" accept="image/*" capture="environment" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
+                📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add photo"}
+                <input type="file" accept="image/*" capture="environment" multiple className="hidden"
+                  onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
               </label>
+              {photos.length > 0 && (
+                <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
+                  {photos.map((p, i) => (
+                    <li key={p.path}>✓ {i + 1}. {p.name}</li>
+                  ))}
+                </ul>
+              )}
             </Field>
             <Field label="Flag this observation for admin review?">
               <Segmented options={[{v:"no",l:"No"},{v:"yes",l:"Yes"}]}

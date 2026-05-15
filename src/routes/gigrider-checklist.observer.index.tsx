@@ -72,9 +72,6 @@ function ObserverDashboard() {
         )}
       </section>
 
-      <p className="text-xs text-slate-400 text-center pt-2">
-        <Link to="/" className="underline">← Back to Rakshak home</Link>
-      </p>
     </main>
   );
 }
