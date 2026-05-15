@@ -381,6 +381,13 @@ export type Database = {
         | "residential_lane"
         | "highway_arterial"
         | "other"
+        | "restaurant_food_outlet"
+        | "dark_store"
+        | "mall_entrance"
+        | "informal_rest_spot"
+        | "petrol_pump"
+        | "residential_society"
+        | "highway_service_lane"
       rushed_answer: "yes" | "no" | "somewhat"
       surveyor_rating: "satisfactory" | "needs_improvement" | "unacceptable"
       vehicle_type:
@@ -544,6 +551,13 @@ export const Constants = {
         "residential_lane",
         "highway_arterial",
         "other",
+        "restaurant_food_outlet",
+        "dark_store",
+        "mall_entrance",
+        "informal_rest_spot",
+        "petrol_pump",
+        "residential_society",
+        "highway_service_lane",
       ],
       rushed_answer: ["yes", "no", "somewhat"],
       surveyor_rating: ["satisfactory", "needs_improvement", "unacceptable"],
