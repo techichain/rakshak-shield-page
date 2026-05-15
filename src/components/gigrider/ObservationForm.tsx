@@ -474,27 +474,45 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         {section === 3 && (
           <Section title="Rider Gear & Helmet">
             <Field label="Platform gear visible (multi-select)">
-              <Chips multi options={PLATFORM_GEAR.map((g) => ({ v: g, l: g }))}
-                values={form.platform_gear} onToggle={(v) => toggleArr("platform_gear", v)} />
-              {form.platform_gear.includes("Other") && (
+              <PlatformGearPicker
+                gearOptions={PLATFORM_GEAR}
+                platforms={PLATFORMS}
+                values={form.platform_gear}
+                onChange={(next) => update("platform_gear", next)}
+              />
+              {form.platform_gear.some((v) => v.startsWith("Other")) && (
                 <input value={form.platform_gear_other} maxLength={200}
                   onChange={(e) => update("platform_gear_other", e.target.value)}
-                  placeholder="Specify…"
+                  placeholder="Specify other gear…"
                   className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
               )}
             </Field>
-            <Field label="Helmet status *">
+            <Field label="Helmet type / status *">
               <ChipGroup options={HELMET_STATUS.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.helmet_status} onChange={(v) => update("helmet_status", v)} />
+              <p className="text-xs text-slate-500 mt-1.5">Riders typically remove helmets during the interview — record what you saw on arrival.</p>
             </Field>
           </Section>
         )}
 
         {section === 4 && (
           <Section title="Rider Engagement">
-            <Field label="How was the rider engaging? *">
+            <Field label="How would you describe the rider's engagement during the interview? *">
               <ChipGroup options={ENGAGEMENT.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.rider_engagement} onChange={(v) => update("rider_engagement", v)} />
+            </Field>
+            <Field label="Did the rider's responses seem internally consistent? *">
+              <ChipGroup options={RESPONSE_CONSISTENCY.map((o) => ({ v: o.v, l: o.l }))}
+                value={form.response_consistency} onChange={(v) => update("response_consistency", v)} />
+              <p className="text-xs text-slate-500 mt-1.5">
+                Quick logic checks — e.g. hours worked don't align with schedule mentioned, income figure doesn't match platform described, claims to work for a platform not operating in this area.
+              </p>
+              {(form.response_consistency === "minor_doubts" || form.response_consistency === "strong_doubts") && (
+                <textarea value={form.response_consistency_notes} maxLength={1000} rows={2}
+                  onChange={(e) => update("response_consistency_notes", e.target.value)}
+                  placeholder="Note briefly what didn't add up."
+                  className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+              )}
             </Field>
           </Section>
         )}
