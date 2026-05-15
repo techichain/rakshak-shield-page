@@ -254,7 +254,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
               >
                 <option value="">Select hotspot…</option>
                 {(lookups?.hotspots ?? []).map((h) => (
-                  <option key={h.id} value={h.id}>{h.city} — {h.name}{h.sublabel ? ` (${h.sublabel})` : ""}</option>
+                  <option key={h.id} value={h.id}>{h.city} — {h.name}</option>
                 ))}
               </select>
             </Field>
@@ -268,12 +268,42 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
               ) : gpsState === "capturing" ? (
                 <p className="text-sm text-slate-500">Capturing GPS…</p>
               ) : (
-                <p className="text-sm text-red-600">{gpsError ?? "Not captured"}</p>
+                <div className="text-sm text-red-600">
+                  <p>{gpsError ?? "Not captured"}</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    If you denied location, allow it in your browser site settings (lock icon → Permissions → Location), then tap Re-capture. Or enter coordinates manually below.
+                  </p>
+                </div>
               )}
-              <button type="button" onClick={recapture} className="mt-2 text-xs text-emerald-700 underline">Re-capture</button>
+              <div className="mt-2 flex flex-wrap gap-2 items-center">
+                <button type="button" onClick={recapture}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-md bg-emerald-600 text-white">
+                  Re-capture GPS
+                </button>
+              </div>
+              {gpsState !== "ok" && (
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <input type="number" step="any" placeholder="Latitude"
+                    value={form.gps_lat ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value === "" ? null : Number(e.target.value);
+                      setForm((f) => ({ ...f, gps_lat: v, gps_captured_at: new Date().toISOString() }));
+                      if (v != null && form.gps_lng != null) setGpsState("ok");
+                    }}
+                    className="px-2 py-1.5 border border-slate-300 rounded-md text-sm" />
+                  <input type="number" step="any" placeholder="Longitude"
+                    value={form.gps_lng ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value === "" ? null : Number(e.target.value);
+                      setForm((f) => ({ ...f, gps_lng: v, gps_captured_at: new Date().toISOString() }));
+                      if (v != null && form.gps_lat != null) setGpsState("ok");
+                    }}
+                    className="px-2 py-1.5 border border-slate-300 rounded-md text-sm" />
+                </div>
+              )}
             </Field>
 
-            <Field label="Road environment *">
+            <Field label="Where is the interview taking place? *">
               <ChipGroup options={ROAD_ENV.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.road_env_type} onChange={(v) => update("road_env_type", v)} />
               {form.road_env_type === "other" && (
@@ -283,9 +313,26 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
               )}
             </Field>
 
-            <Field label="Road hazards (multi-select)">
+            <Field label="What road hazards are visible nearby? * (select at least one)">
               <Chips multi options={ROAD_HAZARDS.map((h) => ({ v: h, l: h }))}
                 values={form.road_hazards} onToggle={(v) => toggleArr("road_hazards", v)} />
+            </Field>
+
+            <Field label="Road environment photos (optional, 3–4 photos)">
+              {!form.id ? (
+                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+                  Save draft first to attach photos.
+                </p>
+              ) : (
+                <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+                  📷 {uploading ? "Uploading…" : "Add road photo"}
+                  <input type="file" accept="image/*" capture="environment" className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
+                </label>
+              )}
+              <p className="text-xs text-slate-500 mt-1.5 leading-snug">
+                Take 3–4 photos facing different directions around you — front, back, left, right. Capture what the road and surroundings look like. You can do this while the surveyor is getting consent from the rider.
+              </p>
             </Field>
 
             <Field label="Vehicle observed?">
