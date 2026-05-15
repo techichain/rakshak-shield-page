@@ -174,9 +174,12 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         gig_worker_id: form.gig_worker_id || null,
         road_env_type_other: form.road_env_type_other || null,
         vehicle_brand_model: form.vehicle_brand_model || null,
+        consent_interview_notes: form.consent_interview_notes || null,
+        consent_screenshot_notes: form.consent_screenshot_notes || null,
         surveyor_rushed_notes: form.surveyor_rushed_notes || null,
         surveyor_led_notes: form.surveyor_led_notes || null,
         platform_gear_other: form.platform_gear_other || null,
+        response_consistency_notes: form.response_consistency_notes || null,
         additional_notes: form.additional_notes || null,
         flag_reason: form.flag_reason || null,
       };
@@ -190,8 +193,10 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
           navigate({ to: "/gigrider-checklist/observer/$id", params: { id: res.id } });
         }
       }
+      return res?.id ?? form.id ?? null;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
+      throw e;
     } finally { setBusy(false); }
   };
 
