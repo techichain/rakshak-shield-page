@@ -95,11 +95,7 @@ export const listLookups = createServerFn({ method: "GET" })
     const { data: roles } = await supabase
       .from("user_roles").select("role").eq("user_id", userId);
     const isAdmin = (roles ?? []).some((r) => r.role === "admin");
-    let q = supabase.from("hotspots").select("id, name, city, sublabel").eq("is_active", true).order("city").order("name");
-    if (!isAdmin) {
-      // Hide crash-incidence hotspots from observers
-      q = q.not("sublabel", "ilike", "%crash%");
-    }
+    const q = supabase.from("hotspots").select("id, name, city, sublabel").eq("is_active", true).order("city").order("name");
     const [{ data: hotspots }, { data: surveyors }] = await Promise.all([
       q,
       supabase.from("surveyors").select("id, name").eq("is_active", true).order("name"),
