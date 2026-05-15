@@ -7,7 +7,8 @@ import {
 } from "@/lib/gigrider/observations.functions";
 import {
   ROAD_ENV, ROAD_HAZARDS, VEHICLE_TYPE, CONSENT, CONSENT_OPTIONAL,
-  RUSHED, LED, RATING, PLATFORM_GEAR, HELMET_STATUS, ENGAGEMENT,
+  RUSHED, LED, RATING, PLATFORM_GEAR, PLATFORMS, HELMET_STATUS, ENGAGEMENT,
+  RESPONSE_CONSISTENCY,
 } from "@/lib/gigrider/constants";
 
 type Lookups = Awaited<ReturnType<typeof listLookups>>;
