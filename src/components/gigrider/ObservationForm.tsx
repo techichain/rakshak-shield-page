@@ -196,7 +196,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
       return res?.id ?? form.id ?? null;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
-      throw e;
+      return null;
     } finally { setBusy(false); }
   };
 
