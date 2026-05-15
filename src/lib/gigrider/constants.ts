@@ -1,21 +1,23 @@
 export const ROAD_ENV = [
-  { v: "intersection_signal", l: "Intersection w/ signal" },
-  { v: "mid_road_no_signal", l: "Mid-road, no signal" },
-  { v: "commercial_market", l: "Commercial / market" },
-  { v: "residential_lane", l: "Residential lane" },
-  { v: "highway_arterial", l: "Highway / arterial" },
+  { v: "restaurant_food_outlet", l: "Outside a restaurant / café / food outlet" },
+  { v: "dark_store", l: "Outside a dark store / quick commerce warehouse (Blinkit, Zepto, etc.)" },
+  { v: "mall_entrance", l: "Near a mall / shopping complex entrance" },
+  { v: "informal_rest_spot", l: "Informal rest spot (chai stall, roadside shade, under flyover, etc.)" },
+  { v: "petrol_pump", l: "Near a petrol pump / service lane" },
+  { v: "residential_society", l: "Outside a residential society / apartment gate" },
+  { v: "highway_service_lane", l: "Near a highway or arterial road service lane" },
   { v: "other", l: "Other" },
 ] as const;
 
 export const ROAD_HAZARDS = [
-  "Potholes",
-  "Construction / debris",
-  "Animals on road",
-  "Waterlogging",
-  "Poor lighting",
-  "Heavy congestion",
-  "No footpath",
-  "Encroachment",
+  "Potholes or broken road surface",
+  "No footpath — pedestrians or workers on road",
+  "Heavy encroachment on road (vendors, parked vehicles blocking lane)",
+  "Poor or absent street lighting (only mark if evening or night)",
+  "Absence of road markings or lane lines",
+  "Unmarked speed breakers or sudden road changes",
+  "Loose gravel, mud, or waterlogging",
+  "None visible",
 ] as const;
 
 export const VEHICLE_TYPE = [
