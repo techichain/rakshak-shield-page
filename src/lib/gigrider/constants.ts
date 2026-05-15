@@ -34,12 +34,17 @@ export const CONSENT = [
   { v: "unclear", l: "Unclear" },
 ] as const;
 
+// Optional asks the surveyor must request once (rider can decline)
 export const CONSENT_OPTIONAL = [
-  "Asked permission for photo",
-  "Explained survey purpose",
-  "Mentioned data use",
-  "Offered to skip questions",
-  "Provided contact info",
+  "Asked to take photo of helmet",
+  "Asked to take photo of vehicle plate number",
+  "Asked permission to record one or two answers",
+] as const;
+
+// Platforms a rider may have gear for
+export const PLATFORMS = [
+  "Swiggy", "Zomato", "Zepto", "Blinkit", "Instamart",
+  "Dunzo", "BigBasket", "Uber Eats", "Rapido", "Other",
 ] as const;
 
 export const RUSHED = [
