@@ -457,10 +457,10 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             <Field label="Did the surveyor lead the rider's answers? *">
               <Segmented options={LED.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.surveyor_led} onChange={(v) => update("surveyor_led", v)} />
-              {form.surveyor_led === "yes" && (
+              {(form.surveyor_led === "yes" || form.surveyor_led === "unsure") && (
                 <textarea value={form.surveyor_led_notes} maxLength={1000} rows={2}
                   onChange={(e) => update("surveyor_led_notes", e.target.value)}
-                  placeholder="Describe…"
+                  placeholder={form.surveyor_led === "yes" ? "Describe how…" : "What made you unsure?"}
                   className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
               )}
             </Field>
