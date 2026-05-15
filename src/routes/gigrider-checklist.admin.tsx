@@ -54,9 +54,6 @@ function AdminDashboard() {
           </p>
         </section>
 
-        <p className="text-xs text-slate-400 text-center">
-          <Link to="/" className="underline">← Back to Rakshak home</Link>
-        </p>
       </main>
     </div>
   );
