@@ -11,7 +11,7 @@ const obsCore = {
   gps_lng: z.number().nullable().optional(),
   gps_accuracy_meters: z.number().nullable().optional(),
   gps_captured_at: z.string().nullable().optional(),
-  road_env_type: z.enum(["intersection_signal","mid_road_no_signal","commercial_market","residential_lane","highway_arterial","other"]).nullable().optional(),
+  road_env_type: z.enum(["intersection_signal","mid_road_no_signal","commercial_market","residential_lane","highway_arterial","restaurant_food_outlet","dark_store","mall_entrance","informal_rest_spot","petrol_pump","residential_society","highway_service_lane","other"]).nullable().optional(),
   road_env_type_other: z.string().trim().max(200).nullable().optional(),
   road_hazards: z.array(z.string().max(100)).max(20).optional(),
   vehicle_observed: z.boolean().optional(),
