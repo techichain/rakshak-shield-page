@@ -29,7 +29,9 @@ export type ObsFormData = {
   vehicle_type: string | null;
   vehicle_brand_model: string;
   consent_interview: string | null;
+  consent_interview_notes: string;
   consent_screenshot: string | null;
+  consent_screenshot_notes: string;
   consent_optional_items: string[];
   surveyor_rushed: string | null;
   surveyor_rushed_notes: string;
@@ -40,6 +42,8 @@ export type ObsFormData = {
   platform_gear_other: string;
   helmet_status: string | null;
   rider_engagement: string | null;
+  response_consistency: string | null;
+  response_consistency_notes: string;
   additional_notes: string;
   flagged: boolean;
   flag_reason: string;
