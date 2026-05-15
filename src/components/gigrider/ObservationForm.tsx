@@ -417,14 +417,27 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             <Field label="Consent for interview *">
               <Segmented options={CONSENT.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.consent_interview} onChange={(v) => update("consent_interview", v)} />
+              {(form.consent_interview === "no" || form.consent_interview === "unclear") && (
+                <textarea value={form.consent_interview_notes} maxLength={1000} rows={2}
+                  onChange={(e) => update("consent_interview_notes", e.target.value)}
+                  placeholder="What happened? (e.g. rider declined, surveyor didn't ask clearly)"
+                  className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+              )}
             </Field>
             <Field label="Consent for screenshot *">
               <Segmented options={CONSENT.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.consent_screenshot} onChange={(v) => update("consent_screenshot", v)} />
+              {(form.consent_screenshot === "no" || form.consent_screenshot === "unclear") && (
+                <textarea value={form.consent_screenshot_notes} maxLength={1000} rows={2}
+                  onChange={(e) => update("consent_screenshot_notes", e.target.value)}
+                  placeholder="What happened? (e.g. rider declined, surveyor didn't ask clearly)"
+                  className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+              )}
             </Field>
-            <Field label="Optional consent steps observed">
+            <Field label="Optional asks (surveyor must request once — rider may decline)">
               <Chips multi options={CONSENT_OPTIONAL.map((c) => ({ v: c, l: c }))}
                 values={form.consent_optional_items} onToggle={(v) => toggleArr("consent_optional_items", v)} />
+              <p className="text-xs text-slate-500 mt-1.5">Tick each one the surveyor actually asked for, regardless of whether the rider agreed.</p>
             </Field>
           </Section>
         )}
