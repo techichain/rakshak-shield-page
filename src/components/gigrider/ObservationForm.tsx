@@ -331,7 +331,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
                 </label>
               )}
               <p className="text-xs text-slate-500 mt-1.5 leading-snug">
-                Take 3–4 photos facing different directions around you — front, back, left, right. Capture what the road and surroundings look like. You can do this while the surveyor is getting consent from the rider.
+                Take 3–4 photos facing different directions around you — front, back, left, right. Capture what the road and surroundings look like. You can do this during the first few intro questions with the rider.
               </p>
             </Field>
 
