@@ -200,26 +200,54 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     } finally { setBusy(false); }
   };
 
-  const handlePhoto = async (file: File) => {
-    if (!form.id) {
-      setError("Save the draft first to attach photos.");
-      return;
+  // Silently create/update draft and return id, without navigating
+  const ensureDraftId = async (): Promise<string | null> => {
+    if (form.id) return form.id;
+    try {
+      const payload = {
+        ...form,
+        id: null,
+        submit: false,
+        surveyor_name: form.surveyor_name || null,
+        gig_worker_id: form.gig_worker_id || null,
+        road_env_type_other: form.road_env_type_other || null,
+        vehicle_brand_model: form.vehicle_brand_model || null,
+        consent_interview_notes: form.consent_interview_notes || null,
+        consent_screenshot_notes: form.consent_screenshot_notes || null,
+        surveyor_rushed_notes: form.surveyor_rushed_notes || null,
+        surveyor_led_notes: form.surveyor_led_notes || null,
+        platform_gear_other: form.platform_gear_other || null,
+        response_consistency_notes: form.response_consistency_notes || null,
+        additional_notes: form.additional_notes || null,
+        flag_reason: form.flag_reason || null,
+      };
+      const res = await save({ data: payload });
+      setForm((f) => ({ ...f, id: res.id }));
+      return res.id;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not start draft");
+      return null;
     }
+  };
+
+  const handlePhoto = async (file: File) => {
     if (file.size > 20 * 1024 * 1024) {
       setError("Photo must be under 20MB."); return;
     }
     setUploading(true); setError(null);
     try {
+      const obsId = await ensureDraftId();
+      if (!obsId) return;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in");
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${form.id}/${Date.now()}.${ext}`;
+      const path = `${user.id}/${obsId}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
         contentType: file.type, upsert: false,
       });
       if (upErr) throw upErr;
       await photoFn({ data: {
-        observation_id: form.id, storage_path: path,
+        observation_id: obsId, storage_path: path,
         file_name: file.name.slice(0, 200), mime_type: file.type || "image/jpeg",
         size_bytes: file.size,
       }});
