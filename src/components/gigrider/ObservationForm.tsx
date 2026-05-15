@@ -55,12 +55,15 @@ export const emptyForm: ObsFormData = {
   gps_lat: null, gps_lng: null, gps_accuracy_meters: null, gps_captured_at: null,
   road_env_type: null, road_env_type_other: "", road_hazards: [],
   vehicle_observed: false, vehicle_type: null, vehicle_brand_model: "",
-  consent_interview: null, consent_screenshot: null, consent_optional_items: [],
+  consent_interview: null, consent_interview_notes: "",
+  consent_screenshot: null, consent_screenshot_notes: "",
+  consent_optional_items: [],
   surveyor_rushed: null, surveyor_rushed_notes: "",
   surveyor_led: null, surveyor_led_notes: "",
   surveyor_rating: null,
   platform_gear: [], platform_gear_other: "",
   helmet_status: null, rider_engagement: null,
+  response_consistency: null, response_consistency_notes: "",
   additional_notes: "", flagged: false, flag_reason: "",
 };
 
