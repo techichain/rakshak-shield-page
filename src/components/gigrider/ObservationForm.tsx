@@ -660,4 +660,74 @@ function Segmented({ options, value, onChange }: {
   );
 }
 
+// Composite values stored as either "Gear" or "Gear|Platform"
+function PlatformGearPicker({
+  gearOptions, platforms, values, onChange,
+}: {
+  gearOptions: ReadonlyArray<string>;
+  platforms: ReadonlyArray<string>;
+  values: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const isGearActive = (g: string) => values.some((v) => v === g || v.startsWith(`${g}|`));
+  const platformsForGear = (g: string) =>
+    values.filter((v) => v.startsWith(`${g}|`)).map((v) => v.split("|")[1]);
+
+  const toggleGear = (g: string) => {
+    if (isGearActive(g)) {
+      onChange(values.filter((v) => v !== g && !v.startsWith(`${g}|`)));
+    } else {
+      onChange([...values, g]);
+    }
+  };
+
+  const togglePlatform = (g: string, p: string) => {
+    const composite = `${g}|${p}`;
+    if (values.includes(composite)) {
+      const next = values.filter((v) => v !== composite);
+      // if no platforms left for this gear, keep gear selected as bare
+      const stillHasPlatform = next.some((v) => v.startsWith(`${g}|`));
+      if (!stillHasPlatform && !next.includes(g)) next.push(g);
+      onChange(next);
+    } else {
+      // add composite, remove bare gear marker if present
+      onChange([...values.filter((v) => v !== g), composite]);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        {gearOptions.map((g) => {
+          const active = isGearActive(g);
+          return (
+            <button type="button" key={g} onClick={() => toggleGear(g)}
+              className={`px-3 py-1.5 text-sm rounded-full border transition ${
+                active ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
+              }`}>{g}</button>
+          );
+        })}
+      </div>
+      {gearOptions.filter(isGearActive).map((g) => {
+        const selected = platformsForGear(g);
+        return (
+          <div key={g} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+            <p className="text-xs font-semibold text-slate-600 mb-1.5">{g} — which platform(s)?</p>
+            <div className="flex flex-wrap gap-1.5">
+              {platforms.map((p) => {
+                const active = selected.includes(p);
+                return (
+                  <button type="button" key={p} onClick={() => togglePlatform(g, p)}
+                    className={`px-2.5 py-1 text-xs rounded-full border transition ${
+                      active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
+                    }`}>{p}</button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
