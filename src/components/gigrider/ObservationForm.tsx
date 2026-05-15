@@ -7,7 +7,8 @@ import {
 } from "@/lib/gigrider/observations.functions";
 import {
   ROAD_ENV, ROAD_HAZARDS, VEHICLE_TYPE, CONSENT, CONSENT_OPTIONAL,
-  RUSHED, LED, RATING, PLATFORM_GEAR, HELMET_STATUS, ENGAGEMENT,
+  RUSHED, LED, RATING, PLATFORM_GEAR, PLATFORMS, HELMET_STATUS, ENGAGEMENT,
+  RESPONSE_CONSISTENCY,
 } from "@/lib/gigrider/constants";
 
 type Lookups = Awaited<ReturnType<typeof listLookups>>;
@@ -28,7 +29,9 @@ export type ObsFormData = {
   vehicle_type: string | null;
   vehicle_brand_model: string;
   consent_interview: string | null;
+  consent_interview_notes: string;
   consent_screenshot: string | null;
+  consent_screenshot_notes: string;
   consent_optional_items: string[];
   surveyor_rushed: string | null;
   surveyor_rushed_notes: string;
@@ -39,6 +42,8 @@ export type ObsFormData = {
   platform_gear_other: string;
   helmet_status: string | null;
   rider_engagement: string | null;
+  response_consistency: string | null;
+  response_consistency_notes: string;
   additional_notes: string;
   flagged: boolean;
   flag_reason: string;
@@ -50,12 +55,15 @@ export const emptyForm: ObsFormData = {
   gps_lat: null, gps_lng: null, gps_accuracy_meters: null, gps_captured_at: null,
   road_env_type: null, road_env_type_other: "", road_hazards: [],
   vehicle_observed: false, vehicle_type: null, vehicle_brand_model: "",
-  consent_interview: null, consent_screenshot: null, consent_optional_items: [],
+  consent_interview: null, consent_interview_notes: "",
+  consent_screenshot: null, consent_screenshot_notes: "",
+  consent_optional_items: [],
   surveyor_rushed: null, surveyor_rushed_notes: "",
   surveyor_led: null, surveyor_led_notes: "",
   surveyor_rating: null,
   platform_gear: [], platform_gear_other: "",
   helmet_status: null, rider_engagement: null,
+  response_consistency: null, response_consistency_notes: "",
   additional_notes: "", flagged: false, flag_reason: "",
 };
 
@@ -166,9 +174,12 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         gig_worker_id: form.gig_worker_id || null,
         road_env_type_other: form.road_env_type_other || null,
         vehicle_brand_model: form.vehicle_brand_model || null,
+        consent_interview_notes: form.consent_interview_notes || null,
+        consent_screenshot_notes: form.consent_screenshot_notes || null,
         surveyor_rushed_notes: form.surveyor_rushed_notes || null,
         surveyor_led_notes: form.surveyor_led_notes || null,
         platform_gear_other: form.platform_gear_other || null,
+        response_consistency_notes: form.response_consistency_notes || null,
         additional_notes: form.additional_notes || null,
         flag_reason: form.flag_reason || null,
       };
@@ -182,31 +193,61 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
           navigate({ to: "/gigrider-checklist/observer/$id", params: { id: res.id } });
         }
       }
+      return res?.id ?? form.id ?? null;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
+      return null;
     } finally { setBusy(false); }
   };
 
-  const handlePhoto = async (file: File) => {
-    if (!form.id) {
-      setError("Save the draft first to attach photos.");
-      return;
+  // Silently create/update draft and return id, without navigating
+  const ensureDraftId = async (): Promise<string | null> => {
+    if (form.id) return form.id;
+    try {
+      const payload = {
+        ...form,
+        id: null,
+        submit: false,
+        surveyor_name: form.surveyor_name || null,
+        gig_worker_id: form.gig_worker_id || null,
+        road_env_type_other: form.road_env_type_other || null,
+        vehicle_brand_model: form.vehicle_brand_model || null,
+        consent_interview_notes: form.consent_interview_notes || null,
+        consent_screenshot_notes: form.consent_screenshot_notes || null,
+        surveyor_rushed_notes: form.surveyor_rushed_notes || null,
+        surveyor_led_notes: form.surveyor_led_notes || null,
+        platform_gear_other: form.platform_gear_other || null,
+        response_consistency_notes: form.response_consistency_notes || null,
+        additional_notes: form.additional_notes || null,
+        flag_reason: form.flag_reason || null,
+      };
+      const res = await save({ data: payload });
+      setForm((f) => ({ ...f, id: res.id }));
+      return res.id;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not start draft");
+      return null;
     }
+  };
+
+  const handlePhoto = async (file: File) => {
     if (file.size > 20 * 1024 * 1024) {
       setError("Photo must be under 20MB."); return;
     }
     setUploading(true); setError(null);
     try {
+      const obsId = await ensureDraftId();
+      if (!obsId) return;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in");
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${form.id}/${Date.now()}.${ext}`;
+      const path = `${user.id}/${obsId}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
         contentType: file.type, upsert: false,
       });
       if (upErr) throw upErr;
       await photoFn({ data: {
-        observation_id: form.id, storage_path: path,
+        observation_id: obsId, storage_path: path,
         file_name: file.name.slice(0, 200), mime_type: file.type || "image/jpeg",
         size_bytes: file.size,
       }});
@@ -319,17 +360,11 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             </Field>
 
             <Field label="Road environment photos (optional, 3–4 photos)">
-              {!form.id ? (
-                <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
-                  Save draft first to attach photos.
-                </p>
-              ) : (
-                <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                  📷 {uploading ? "Uploading…" : "Add road photo"}
-                  <input type="file" accept="image/*" capture="environment" className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
-                </label>
-              )}
+              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+                📷 {uploading ? "Uploading…" : "Add road photo"}
+                <input type="file" accept="image/*" capture="environment" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
+              </label>
               <p className="text-xs text-slate-500 mt-1.5 leading-snug">
                 Take 3–4 photos facing different directions around you — front, back, left, right. Capture what the road and surroundings look like. You can do this during the first few intro questions with the rider.
               </p>
@@ -376,14 +411,27 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             <Field label="Consent for interview *">
               <Segmented options={CONSENT.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.consent_interview} onChange={(v) => update("consent_interview", v)} />
+              {(form.consent_interview === "no" || form.consent_interview === "unclear") && (
+                <textarea value={form.consent_interview_notes} maxLength={1000} rows={2}
+                  onChange={(e) => update("consent_interview_notes", e.target.value)}
+                  placeholder="What happened? (e.g. rider declined, surveyor didn't ask clearly)"
+                  className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+              )}
             </Field>
             <Field label="Consent for screenshot *">
               <Segmented options={CONSENT.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.consent_screenshot} onChange={(v) => update("consent_screenshot", v)} />
+              {(form.consent_screenshot === "no" || form.consent_screenshot === "unclear") && (
+                <textarea value={form.consent_screenshot_notes} maxLength={1000} rows={2}
+                  onChange={(e) => update("consent_screenshot_notes", e.target.value)}
+                  placeholder="What happened? (e.g. rider declined, surveyor didn't ask clearly)"
+                  className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+              )}
             </Field>
-            <Field label="Optional consent steps observed">
+            <Field label="Optional asks (surveyor must request once — rider may decline)">
               <Chips multi options={CONSENT_OPTIONAL.map((c) => ({ v: c, l: c }))}
                 values={form.consent_optional_items} onToggle={(v) => toggleArr("consent_optional_items", v)} />
+              <p className="text-xs text-slate-500 mt-1.5">Tick each one the surveyor actually asked for, regardless of whether the rider agreed.</p>
             </Field>
           </Section>
         )}
@@ -403,10 +451,10 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             <Field label="Did the surveyor lead the rider's answers? *">
               <Segmented options={LED.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.surveyor_led} onChange={(v) => update("surveyor_led", v)} />
-              {form.surveyor_led === "yes" && (
+              {(form.surveyor_led === "yes" || form.surveyor_led === "unsure") && (
                 <textarea value={form.surveyor_led_notes} maxLength={1000} rows={2}
                   onChange={(e) => update("surveyor_led_notes", e.target.value)}
-                  placeholder="Describe…"
+                  placeholder={form.surveyor_led === "yes" ? "Describe how…" : "What made you unsure?"}
                   className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
               )}
             </Field>
@@ -420,27 +468,45 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         {section === 3 && (
           <Section title="Rider Gear & Helmet">
             <Field label="Platform gear visible (multi-select)">
-              <Chips multi options={PLATFORM_GEAR.map((g) => ({ v: g, l: g }))}
-                values={form.platform_gear} onToggle={(v) => toggleArr("platform_gear", v)} />
-              {form.platform_gear.includes("Other") && (
+              <PlatformGearPicker
+                gearOptions={PLATFORM_GEAR}
+                platforms={PLATFORMS}
+                values={form.platform_gear}
+                onChange={(next) => update("platform_gear", next)}
+              />
+              {form.platform_gear.some((v) => v.startsWith("Other")) && (
                 <input value={form.platform_gear_other} maxLength={200}
                   onChange={(e) => update("platform_gear_other", e.target.value)}
-                  placeholder="Specify…"
+                  placeholder="Specify other gear…"
                   className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
               )}
             </Field>
-            <Field label="Helmet status *">
+            <Field label="Helmet type / status *">
               <ChipGroup options={HELMET_STATUS.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.helmet_status} onChange={(v) => update("helmet_status", v)} />
+              <p className="text-xs text-slate-500 mt-1.5">Riders typically remove helmets during the interview — record what you saw on arrival.</p>
             </Field>
           </Section>
         )}
 
         {section === 4 && (
           <Section title="Rider Engagement">
-            <Field label="How was the rider engaging? *">
+            <Field label="How would you describe the rider's engagement during the interview? *">
               <ChipGroup options={ENGAGEMENT.map((o) => ({ v: o.v, l: o.l }))}
                 value={form.rider_engagement} onChange={(v) => update("rider_engagement", v)} />
+            </Field>
+            <Field label="Did the rider's responses seem internally consistent? *">
+              <ChipGroup options={RESPONSE_CONSISTENCY.map((o) => ({ v: o.v, l: o.l }))}
+                value={form.response_consistency} onChange={(v) => update("response_consistency", v)} />
+              <p className="text-xs text-slate-500 mt-1.5">
+                Quick logic checks — e.g. hours worked don't align with schedule mentioned, income figure doesn't match platform described, claims to work for a platform not operating in this area.
+              </p>
+              {(form.response_consistency === "minor_doubts" || form.response_consistency === "strong_doubts") && (
+                <textarea value={form.response_consistency_notes} maxLength={1000} rows={2}
+                  onChange={(e) => update("response_consistency_notes", e.target.value)}
+                  placeholder="Note briefly what didn't add up."
+                  className="mt-2 w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
+              )}
             </Field>
           </Section>
         )}
@@ -453,14 +519,11 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
             </Field>
             <Field label="Photos">
-              {!form.id && <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">Save draft first to attach photos.</p>}
-              {form.id && (
-                <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                  📷 {uploading ? "Uploading…" : "Add photo"}
-                  <input type="file" accept="image/*" capture="environment" className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
-                </label>
-              )}
+              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+                📷 {uploading ? "Uploading…" : "Add photo"}
+                <input type="file" accept="image/*" capture="environment" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }} />
+              </label>
             </Field>
             <Field label="Flag this observation for admin review?">
               <Segmented options={[{v:"no",l:"No"},{v:"yes",l:"Yes"}]}
@@ -597,4 +660,74 @@ function Segmented({ options, value, onChange }: {
   );
 }
 
+// Composite values stored as either "Gear" or "Gear|Platform"
+function PlatformGearPicker({
+  gearOptions, platforms, values, onChange,
+}: {
+  gearOptions: ReadonlyArray<string>;
+  platforms: ReadonlyArray<string>;
+  values: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const isGearActive = (g: string) => values.some((v) => v === g || v.startsWith(`${g}|`));
+  const platformsForGear = (g: string) =>
+    values.filter((v) => v.startsWith(`${g}|`)).map((v) => v.split("|")[1]);
+
+  const toggleGear = (g: string) => {
+    if (isGearActive(g)) {
+      onChange(values.filter((v) => v !== g && !v.startsWith(`${g}|`)));
+    } else {
+      onChange([...values, g]);
+    }
+  };
+
+  const togglePlatform = (g: string, p: string) => {
+    const composite = `${g}|${p}`;
+    if (values.includes(composite)) {
+      const next = values.filter((v) => v !== composite);
+      // if no platforms left for this gear, keep gear selected as bare
+      const stillHasPlatform = next.some((v) => v.startsWith(`${g}|`));
+      if (!stillHasPlatform && !next.includes(g)) next.push(g);
+      onChange(next);
+    } else {
+      // add composite, remove bare gear marker if present
+      onChange([...values.filter((v) => v !== g), composite]);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        {gearOptions.map((g) => {
+          const active = isGearActive(g);
+          return (
+            <button type="button" key={g} onClick={() => toggleGear(g)}
+              className={`px-3 py-1.5 text-sm rounded-full border transition ${
+                active ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
+              }`}>{g}</button>
+          );
+        })}
+      </div>
+      {gearOptions.filter(isGearActive).map((g) => {
+        const selected = platformsForGear(g);
+        return (
+          <div key={g} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+            <p className="text-xs font-semibold text-slate-600 mb-1.5">{g} — which platform(s)?</p>
+            <div className="flex flex-wrap gap-1.5">
+              {platforms.map((p) => {
+                const active = selected.includes(p);
+                return (
+                  <button type="button" key={p} onClick={() => togglePlatform(g, p)}
+                    className={`px-2.5 py-1 text-xs rounded-full border transition ${
+                      active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
+                    }`}>{p}</button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 

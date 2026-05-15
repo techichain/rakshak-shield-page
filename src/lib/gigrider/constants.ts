@@ -34,12 +34,17 @@ export const CONSENT = [
   { v: "unclear", l: "Unclear" },
 ] as const;
 
+// Optional asks the surveyor must request once (rider can decline)
 export const CONSENT_OPTIONAL = [
-  "Asked permission for photo",
-  "Explained survey purpose",
-  "Mentioned data use",
-  "Offered to skip questions",
-  "Provided contact info",
+  "Asked to take photo of helmet",
+  "Asked to take photo of vehicle plate number",
+  "Asked permission to record one or two answers",
+] as const;
+
+// Platforms a rider may have gear for
+export const PLATFORMS = [
+  "Swiggy", "Zomato", "Zepto", "Blinkit", "Instamart",
+  "Dunzo", "BigBasket", "Uber Eats", "Rapido", "Other",
 ] as const;
 
 export const RUSHED = [
@@ -64,25 +69,33 @@ export const PLATFORM_GEAR = [
   "Branded jacket",
   "Branded helmet",
   "Branded delivery bag",
-  "ID card visible",
+  "Branded T-shirt",
   "Reflective vest",
+  "ID card visible",
   "Other",
 ] as const;
 
 export const HELMET_STATUS = [
-  { v: "wearing_full_face", l: "Wearing — full face" },
-  { v: "wearing_half_open_face", l: "Wearing — half / open face" },
-  { v: "wearing_no_visor", l: "Wearing — no visor" },
-  { v: "carrying", l: "Carrying (not on head)" },
+  { v: "wearing_full_face", l: "Full-face helmet" },
+  { v: "wearing_half_open_face", l: "Half / open-face helmet" },
+  { v: "wearing_no_visor", l: "Helmet without visor" },
   { v: "not_wearing_not_carrying", l: "Not wearing, not carrying" },
   { v: "cannot_observe", l: "Cannot observe" },
 ] as const;
 
 export const ENGAGEMENT = [
-  { v: "actively_engaged", l: "Actively engaged" },
-  { v: "adequately_engaged", l: "Adequately engaged" },
-  { v: "rushing_for_incentive", l: "Rushing for incentive" },
-  { v: "zoned_out_distracted", l: "Zoned out / distracted" },
-  { v: "uncomfortable_resistant", l: "Uncomfortable / resistant" },
-  { v: "going_through_motions", l: "Going through motions" },
+  { v: "genuinely_engaged", l: "Genuinely engaged — volunteered information, asked questions" },
+  { v: "cooperative", l: "Cooperative — answering willingly, reasonably attentive" },
+  { v: "passive", l: "Passive — going along with it, not particularly invested" },
+  { v: "visibly_rushed", l: "Visibly rushed — checking phone, eager to finish" },
+  { v: "zoned_out_distracted", l: "Distracted or zoned out — slow to respond, seemed elsewhere" },
+  { v: "uncomfortable_guarded", l: "Uncomfortable or guarded — hesitant, short closed answers" },
+  { v: "resistant", l: "Resistant — agreed to interview but unwilling throughout" },
 ] as const;
+
+export const RESPONSE_CONSISTENCY = [
+  { v: "yes_nothing_off", l: "Yes, nothing seemed off" },
+  { v: "minor_doubts", l: "Minor doubts" },
+  { v: "strong_doubts", l: "Strong doubts" },
+] as const;
+

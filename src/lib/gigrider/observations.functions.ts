@@ -18,17 +18,21 @@ const obsCore = {
   vehicle_type: z.enum(["petrol_ice","ev_low_speed","ev_high_speed_green_plate","cng","not_visible"]).nullable().optional(),
   vehicle_brand_model: z.string().trim().max(120).nullable().optional(),
   consent_interview: z.enum(["yes","no","unclear"]).nullable().optional(),
+  consent_interview_notes: z.string().trim().max(1000).nullable().optional(),
   consent_screenshot: z.enum(["yes","no","unclear"]).nullable().optional(),
+  consent_screenshot_notes: z.string().trim().max(1000).nullable().optional(),
   consent_optional_items: z.array(z.string().max(120)).max(20).optional(),
   surveyor_rushed: z.enum(["yes","no","somewhat"]).nullable().optional(),
   surveyor_rushed_notes: z.string().trim().max(1000).nullable().optional(),
   surveyor_led: z.enum(["yes","no","unsure"]).nullable().optional(),
   surveyor_led_notes: z.string().trim().max(1000).nullable().optional(),
   surveyor_rating: z.enum(["satisfactory","needs_improvement","unacceptable"]).nullable().optional(),
-  platform_gear: z.array(z.string().max(120)).max(20).optional(),
+  platform_gear: z.array(z.string().max(160)).max(40).optional(),
   platform_gear_other: z.string().trim().max(200).nullable().optional(),
   helmet_status: z.enum(["wearing_full_face","wearing_half_open_face","wearing_no_visor","carrying","not_wearing_not_carrying","cannot_observe"]).nullable().optional(),
-  rider_engagement: z.enum(["actively_engaged","adequately_engaged","rushing_for_incentive","zoned_out_distracted","uncomfortable_resistant","going_through_motions"]).nullable().optional(),
+  rider_engagement: z.enum(["actively_engaged","adequately_engaged","rushing_for_incentive","zoned_out_distracted","uncomfortable_resistant","going_through_motions","genuinely_engaged","cooperative","passive","visibly_rushed","uncomfortable_guarded","resistant"]).nullable().optional(),
+  response_consistency: z.enum(["yes_nothing_off","minor_doubts","strong_doubts"]).nullable().optional(),
+  response_consistency_notes: z.string().trim().max(1000).nullable().optional(),
   additional_notes: z.string().trim().max(2000).nullable().optional(),
   flagged: z.boolean().optional(),
   flag_reason: z.string().trim().max(500).nullable().optional(),
@@ -66,6 +70,10 @@ function validateForSubmit(data: z.infer<typeof saveSchema>): string | null {
   if (!data.surveyor_rating) return "Surveyor rating is required";
   if (!data.helmet_status) return "Helmet status is required";
   if (!data.rider_engagement) return "Rider engagement is required";
+  if (!data.response_consistency) return "Response consistency is required";
+  if ((data.response_consistency === "minor_doubts" || data.response_consistency === "strong_doubts") && !data.response_consistency_notes?.trim()) {
+    return "Note briefly what didn't add up.";
+  }
   if (data.flagged && !data.flag_reason?.trim()) return "Flag reason is required when flagged";
   return null;
 }
@@ -149,7 +157,9 @@ export const saveObservation = createServerFn({ method: "POST" })
       vehicle_type: data.vehicle_type ?? null,
       vehicle_brand_model: data.vehicle_brand_model ?? null,
       consent_interview: data.consent_interview ?? null,
+      consent_interview_notes: data.consent_interview_notes ?? null,
       consent_screenshot: data.consent_screenshot ?? null,
+      consent_screenshot_notes: data.consent_screenshot_notes ?? null,
       consent_optional_items: data.consent_optional_items ?? [],
       surveyor_rushed: data.surveyor_rushed ?? null,
       surveyor_rushed_notes: data.surveyor_rushed_notes ?? null,
@@ -160,6 +170,8 @@ export const saveObservation = createServerFn({ method: "POST" })
       platform_gear_other: data.platform_gear_other ?? null,
       helmet_status: data.helmet_status ?? null,
       rider_engagement: data.rider_engagement ?? null,
+      response_consistency: data.response_consistency ?? null,
+      response_consistency_notes: data.response_consistency_notes ?? null,
       additional_notes: data.additional_notes ?? null,
       flagged: data.flagged ?? false,
       flag_reason: data.flag_reason ?? null,
