@@ -87,6 +87,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [photos, setPhotos] = useState<{ name: string; path: string }[]>([]);
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
 
