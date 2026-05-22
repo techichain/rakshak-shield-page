@@ -275,9 +275,11 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     <div className="pb-32">
       {/* Progress */}
       <div className="bg-white border-b border-slate-200 px-4 py-2 sticky top-[57px] z-10">
-        <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-700">{section + 1} of {SECTIONS.length}</span>
-          <span className="text-slate-500 truncate ml-2">{SECTIONS[section]}</span>
+        <div className="flex items-center justify-between text-xs gap-2">
+          <Link to="/gigrider-checklist/observer" className="text-slate-600 hover:text-slate-900 font-medium shrink-0">
+            ← Dashboard
+          </Link>
+          <span className="text-slate-500 truncate">{section + 1}/{SECTIONS.length} · {SECTIONS[section]}</span>
           <GpsBadge state={gpsState} />
         </div>
         <div className="mt-1.5 flex gap-1">
