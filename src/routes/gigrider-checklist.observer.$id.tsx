@@ -19,11 +19,6 @@ function EditObservation() {
     fetchOne({ data: { id } })
       .then((o) => {
         if (!o) { setError("Observation not found"); return; }
-        if (o.status !== "draft") {
-          // Read-only future enhancement; for now redirect to dashboard
-          navigate({ to: "/gigrider-checklist/observer" });
-          return;
-        }
         setInitial({
           ...emptyForm,
           id: o.id,
