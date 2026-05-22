@@ -86,3 +86,38 @@ export const listObservers = createServerFn({ method: "GET" })
 
     return { observers: profiles ?? [] };
   });
+
+async function assertAdmin(supabase: any, userId: string) {
+  const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  if (!(roles ?? []).some((r: any) => r.role === "admin")) {
+    throw new Error("Forbidden: admin only");
+  }
+}
+
+export const listAllObservations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+
+    const [{ data: obs, error }, { data: hotspots }, { data: surveyors }, { data: profiles }] = await Promise.all([
+      supabaseAdmin
+        .from("observations")
+        .select("id, status, flagged, flag_reason, hotspot_id, surveyor_id, observer_id, gig_worker_id, gps_lat, gps_lng, gps_accuracy_meters, started_at, submitted_at, updated_at, road_env_type")
+        .order("updated_at", { ascending: false }),
+      supabaseAdmin.from("hotspots").select("id, name, city, sublabel"),
+      supabaseAdmin.from("surveyors").select("id, name"),
+      supabaseAdmin.from("profiles").select("id, name, username"),
+    ]);
+    if (error) throw new Error(error.message);
+
+    const hMap = new Map((hotspots ?? []).map((h) => [h.id, h]));
+    const sMap = new Map((surveyors ?? []).map((s) => [s.id, s]));
+    const pMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+    return (obs ?? []).map((o) => ({
+      ...o,
+      hotspot: o.hotspot_id ? hMap.get(o.hotspot_id) ?? null : null,
+      surveyor: o.surveyor_id ? sMap.get(o.surveyor_id) ?? null : null,
+      observer: o.observer_id ? pMap.get(o.observer_id) ?? null : null,
+    }));
+  });
