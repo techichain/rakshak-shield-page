@@ -253,7 +253,11 @@ function ObservationsPanel() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={8} className="px-3 py-6 text-center text-slate-500">No observations match.</td></tr>
             ) : filtered.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50">
+              <tr
+                key={r.id}
+                onClick={() => navigate({ to: "/gigrider-checklist/admin/$id", params: { id: r.id } })}
+                className="border-t border-slate-100 hover:bg-slate-50 cursor-pointer"
+              >
                 <td className="px-3 py-2 text-xs text-slate-600 whitespace-nowrap">{new Date(r.updated_at).toLocaleString()}</td>
                 <td className="px-3 py-2">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${r.status === "submitted" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
