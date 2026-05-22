@@ -16,6 +16,7 @@ import { Route as GigriderChecklistObserverRouteImport } from './routes/gigrider
 import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
 import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
 import { Route as GigriderChecklistObserverIndexRouteImport } from './routes/gigrider-checklist.observer.index'
+import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrider-checklist.admin.index'
 import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
 import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
 import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
@@ -57,6 +58,12 @@ const GigriderChecklistObserverIndexRoute =
     path: '/',
     getParentRoute: () => GigriderChecklistObserverRoute,
   } as any)
+const GigriderChecklistAdminIndexRoute =
+  GigriderChecklistAdminIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => GigriderChecklistAdminRoute,
+  } as any)
 const GigriderChecklistObserverNewRoute =
   GigriderChecklistObserverNewRouteImport.update({
     id: '/new',
@@ -86,16 +93,17 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer/': typeof GigriderChecklistObserverIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverIndexRoute
 }
 export interface FileRoutesById {
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer/': typeof GigriderChecklistObserverIndexRoute
 }
 export interface FileRouteTypes {
@@ -123,16 +132,17 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/gigrider-checklist/admin/'
     | '/gigrider-checklist/observer/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
     | '/gigrider-checklist'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/gigrider-checklist/admin'
     | '/gigrider-checklist/observer'
   id:
     | '__root__'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/gigrider-checklist/admin/'
     | '/gigrider-checklist/observer/'
   fileRoutesById: FileRoutesById
 }
@@ -204,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistObserverIndexRouteImport
       parentRoute: typeof GigriderChecklistObserverRoute
     }
+    '/gigrider-checklist/admin/': {
+      id: '/gigrider-checklist/admin/'
+      path: '/'
+      fullPath: '/gigrider-checklist/admin/'
+      preLoaderRoute: typeof GigriderChecklistAdminIndexRouteImport
+      parentRoute: typeof GigriderChecklistAdminRoute
+    }
     '/gigrider-checklist/observer/new': {
       id: '/gigrider-checklist/observer/new'
       path: '/new'
@@ -230,11 +248,13 @@ declare module '@tanstack/react-router' {
 
 interface GigriderChecklistAdminRouteChildren {
   GigriderChecklistAdminIdRoute: typeof GigriderChecklistAdminIdRoute
+  GigriderChecklistAdminIndexRoute: typeof GigriderChecklistAdminIndexRoute
 }
 
 const GigriderChecklistAdminRouteChildren: GigriderChecklistAdminRouteChildren =
   {
     GigriderChecklistAdminIdRoute: GigriderChecklistAdminIdRoute,
+    GigriderChecklistAdminIndexRoute: GigriderChecklistAdminIndexRoute,
   }
 
 const GigriderChecklistAdminRouteWithChildren =
