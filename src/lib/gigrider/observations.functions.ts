@@ -60,7 +60,7 @@ function validateForSubmit(data: z.infer<typeof saveSchema>): string | null {
   if (!data.hotspot_id) return "Hotspot is required";
   if (data.gps_lat == null || data.gps_lng == null) return "GPS location is required";
   if (!data.road_env_type) return "Interview location is required";
-  if (data.road_env_type === "other" && !data.road_env_type_other?.trim()) return "Specify the interview location";
+  // "other" specifier text is optional
   if (!data.road_hazards || data.road_hazards.length === 0) return "Select at least one road hazard (or 'None visible')";
   if (!data.surveyor_name?.trim()) return "Surveyor name is required";
   if (!data.consent_interview) return "Consent for interview is required";
