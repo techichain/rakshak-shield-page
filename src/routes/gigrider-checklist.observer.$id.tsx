@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getObservation } from "@/lib/gigrider/observations.functions";
@@ -10,7 +10,6 @@ export const Route = createFileRoute("/gigrider-checklist/observer/$id")({
 
 function EditObservation() {
   const { id } = Route.useParams();
-  const navigate = useNavigate();
   const fetchOne = useServerFn(getObservation);
   const [initial, setInitial] = useState<ObsFormData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +18,6 @@ function EditObservation() {
     fetchOne({ data: { id } })
       .then((o) => {
         if (!o) { setError("Observation not found"); return; }
-        if (o.status !== "draft") {
-          // Read-only future enhancement; for now redirect to dashboard
-          navigate({ to: "/gigrider-checklist/observer" });
-          return;
-        }
         setInitial({
           ...emptyForm,
           id: o.id,
@@ -58,7 +52,7 @@ function EditObservation() {
         });
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
-  }, [id, fetchOne, navigate]);
+  }, [id, fetchOne]);
 
   if (error) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-red-600">{error}</p></main>;
   if (!initial) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-slate-500">Loading…</p></main>;
