@@ -7,7 +7,7 @@ import { useRole } from "@/lib/gigrider/useRole";
 import { createObserver, listObservers, listAllObservations, USERNAME_EMAIL_DOMAIN } from "@/lib/gigrider/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/gigrider-checklist/admin")({
+export const Route = createFileRoute("/gigrider-checklist/admin/")({
   component: AdminDashboard,
 });
 
