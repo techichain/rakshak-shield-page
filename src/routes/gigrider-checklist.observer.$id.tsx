@@ -11,7 +11,6 @@ export const Route = createFileRoute("/gigrider-checklist/observer/$id")({
 function EditObservation() {
   const { id } = Route.useParams();
   const fetchOne = useServerFn(getObservation);
-  const fetchOne = useServerFn(getObservation);
   const [initial, setInitial] = useState<ObsFormData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
