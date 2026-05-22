@@ -197,6 +197,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
       return res?.id ?? form.id ?? null;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
+      if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
       return null;
     } finally { setBusy(false); }
   };
