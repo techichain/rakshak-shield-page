@@ -75,6 +75,7 @@ type Row = {
 };
 
 function ObservationsPanel() {
+  const navigate = useNavigate();
   const list = useServerFn(listAllObservations);
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
