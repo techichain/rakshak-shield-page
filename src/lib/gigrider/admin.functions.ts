@@ -121,3 +121,37 @@ export const listAllObservations = createServerFn({ method: "GET" })
       observer: o.observer_id ? pMap.get(o.observer_id) ?? null : null,
     }));
   });
+
+export const getObservationAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.supabase, context.userId);
+
+    const { data: obs, error } = await supabaseAdmin
+      .from("observations").select("*").eq("id", data.id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!obs) return null;
+
+    const [hotspot, surveyor, observer, photos] = await Promise.all([
+      obs.hotspot_id
+        ? supabaseAdmin.from("hotspots").select("id, name, city, sublabel").eq("id", obs.hotspot_id).maybeSingle().then((r) => r.data)
+        : Promise.resolve(null),
+      obs.surveyor_id
+        ? supabaseAdmin.from("surveyors").select("id, name").eq("id", obs.surveyor_id).maybeSingle().then((r) => r.data)
+        : Promise.resolve(null),
+      supabaseAdmin.from("profiles").select("id, name, username").eq("id", obs.observer_id).maybeSingle().then((r) => r.data),
+      supabaseAdmin.from("observation_photos").select("id, storage_path, file_name").eq("observation_id", data.id),
+    ]);
+
+    const photoList = photos.data ?? [];
+    const signed = await Promise.all(
+      photoList.map(async (p) => {
+        const { data: s } = await supabaseAdmin.storage
+          .from("observation-photos").createSignedUrl(p.storage_path, 60 * 60);
+        return { id: p.id, file_name: p.file_name, url: s?.signedUrl ?? null };
+      })
+    );
+
+    return { ...obs, hotspot, surveyor, observer, photos: signed };
+  });
