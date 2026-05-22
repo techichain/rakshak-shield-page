@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getObservation } from "@/lib/gigrider/observations.functions";
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/gigrider-checklist/observer/$id")({
 
 function EditObservation() {
   const { id } = Route.useParams();
-  const navigate = useNavigate();
+  const fetchOne = useServerFn(getObservation);
   const fetchOne = useServerFn(getObservation);
   const [initial, setInitial] = useState<ObsFormData | null>(null);
   const [error, setError] = useState<string | null>(null);
