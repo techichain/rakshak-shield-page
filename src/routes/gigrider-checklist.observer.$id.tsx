@@ -52,7 +52,7 @@ function EditObservation() {
         });
       })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
-  }, [id, fetchOne, navigate]);
+  }, [id, fetchOne]);
 
   if (error) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-red-600">{error}</p></main>;
   if (!initial) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-slate-500">Loading…</p></main>;
