@@ -114,12 +114,39 @@ export const listAllObservations = createServerFn({ method: "GET" })
     const sMap = new Map((surveyors ?? []).map((s) => [s.id, s]));
     const pMap = new Map((profiles ?? []).map((p) => [p.id, p]));
 
-    return (obs ?? []).map((o) => ({
-      ...o,
-      hotspot: o.hotspot_id ? hMap.get(o.hotspot_id) ?? null : null,
-      surveyor: o.surveyor_id ? sMap.get(o.surveyor_id) ?? null : null,
-      observer: o.observer_id ? pMap.get(o.observer_id) ?? null : null,
-    }));
+    // Fetch photos for all observations + sign URLs (valid 7 days)
+    const obsIds = (obs ?? []).map((o) => o.id);
+    const photoMap = new Map<string, { file_name: string; url: string | null }[]>();
+    if (obsIds.length) {
+      const { data: photos } = await supabaseAdmin
+        .from("observation_photos")
+        .select("observation_id, storage_path, file_name")
+        .in("observation_id", obsIds);
+      const SEVEN_DAYS = 60 * 60 * 24 * 7;
+      await Promise.all(
+        (photos ?? []).map(async (p) => {
+          const { data: s } = await supabaseAdmin.storage
+            .from("observation-photos")
+            .createSignedUrl(p.storage_path, SEVEN_DAYS);
+          const arr = photoMap.get(p.observation_id) ?? [];
+          arr.push({ file_name: p.file_name, url: s?.signedUrl ?? null });
+          photoMap.set(p.observation_id, arr);
+        })
+      );
+    }
+
+    return (obs ?? []).map((o) => {
+      const photos = photoMap.get(o.id) ?? [];
+      return {
+        ...o,
+        hotspot: o.hotspot_id ? hMap.get(o.hotspot_id) ?? null : null,
+        surveyor: o.surveyor_id ? sMap.get(o.surveyor_id) ?? null : null,
+        observer: o.observer_id ? pMap.get(o.observer_id) ?? null : null,
+        photos,
+        photo_count: photos.length,
+        photo_urls: photos.map((p) => p.url).filter(Boolean).join(" | "),
+      };
+    });
   });
 
 export const getObservationAdmin = createServerFn({ method: "GET" })
