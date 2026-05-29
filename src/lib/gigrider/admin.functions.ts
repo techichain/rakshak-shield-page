@@ -102,7 +102,7 @@ export const listAllObservations = createServerFn({ method: "GET" })
     const [{ data: obs, error }, { data: hotspots }, { data: surveyors }, { data: profiles }] = await Promise.all([
       supabaseAdmin
         .from("observations")
-        .select("id, status, flagged, flag_reason, hotspot_id, surveyor_id, observer_id, gig_worker_id, gps_lat, gps_lng, gps_accuracy_meters, started_at, submitted_at, updated_at, road_env_type")
+        .select("*")
         .order("updated_at", { ascending: false }),
       supabaseAdmin.from("hotspots").select("id, name, city, sublabel"),
       supabaseAdmin.from("surveyors").select("id, name"),
