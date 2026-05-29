@@ -152,7 +152,7 @@ function ObservationsPanel() {
     const baseKeys = new Set<string>();
     filtered.forEach((r) => {
       Object.keys(r).forEach((k) => {
-        if (k === "hotspot" || k === "surveyor" || k === "observer") return;
+        if (k === "hotspot" || k === "surveyor" || k === "observer" || k === "photos") return;
         baseKeys.add(k);
       });
     });
