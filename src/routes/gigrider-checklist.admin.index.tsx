@@ -148,26 +148,43 @@ function ObservationsPanel() {
   }, [rows, status, flagged, observerId, surveyor, hotspotId, search]);
 
   const downloadCSV = () => {
-    const headers = [
-      "id","status","flagged","flag_reason","observer","observer_username",
-      "surveyor","gig_worker_id","hotspot_city","hotspot_name","hotspot_sublabel",
-      "gps_lat","gps_lng","gps_accuracy_m","started_at","submitted_at","updated_at","road_env_type",
+    // Collect every key present on any observation row, plus joined name columns.
+    const baseKeys = new Set<string>();
+    filtered.forEach((r) => {
+      Object.keys(r).forEach((k) => {
+        if (k === "hotspot" || k === "surveyor" || k === "observer") return;
+        baseKeys.add(k);
+      });
+    });
+    const dataKeys = Array.from(baseKeys);
+    const joinedKeys = [
+      "observer_name", "observer_username",
+      "surveyor_name",
+      "hotspot_name", "hotspot_city", "hotspot_sublabel",
     ];
+    const headers = [...dataKeys, ...joinedKeys];
+
     const esc = (v: unknown) => {
       if (v == null) return "";
-      const s = String(v).replace(/"/g, '""');
-      return /[",\n]/.test(s) ? `"${s}"` : s;
+      const s = Array.isArray(v) || (typeof v === "object")
+        ? JSON.stringify(v)
+        : String(v);
+      const safe = s.replace(/"/g, '""');
+      return /[",\n]/.test(safe) ? `"${safe}"` : safe;
     };
+
     const lines = [headers.join(",")];
-    filtered.forEach((r) => {
-      lines.push([
-        r.id, r.status, r.flagged, r.flag_reason,
-        r.observer?.name, r.observer?.username,
-        r.surveyor?.name, r.gig_worker_id,
-        r.hotspot?.city, r.hotspot?.name, r.hotspot?.sublabel,
-        r.gps_lat, r.gps_lng, r.gps_accuracy_meters,
-        r.started_at, r.submitted_at, r.updated_at, r.road_env_type,
-      ].map(esc).join(","));
+    filtered.forEach((r: any) => {
+      const row = [
+        ...dataKeys.map((k) => esc(r[k])),
+        esc(r.observer?.name),
+        esc(r.observer?.username),
+        esc(r.surveyor?.name),
+        esc(r.hotspot?.name),
+        esc(r.hotspot?.city),
+        esc(r.hotspot?.sublabel),
+      ];
+      lines.push(row.join(","));
     });
     const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
