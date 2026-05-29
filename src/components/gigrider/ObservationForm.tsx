@@ -164,9 +164,40 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     });
   };
 
+  const validateClient = (f: ObsFormData): string | null => {
+    if (!f.hotspot_id) return "Hotspot is required";
+    if (f.gps_lat == null || f.gps_lng == null) return "GPS location is required";
+    if (!f.road_env_type) return "Interview location is required";
+    if (!f.road_hazards || f.road_hazards.length === 0) return "Select at least one road hazard (or 'None visible')";
+    if (!f.surveyor_name?.trim()) return "Surveyor name is required";
+    if (!f.consent_interview) return "Consent for interview is required";
+    if (!f.consent_screenshot) return "Consent for screenshot is required";
+    if (!f.surveyor_rushed) return "Was the surveyor rushed?";
+    if (!f.surveyor_led) return "Did the surveyor lead the rider?";
+    if (!f.surveyor_rating) return "Surveyor rating is required";
+    if (!f.helmet_status) return "Helmet status is required";
+    if (!f.rider_engagement) return "Rider engagement is required";
+    if (!f.response_consistency) return "Response consistency is required";
+    if ((f.response_consistency === "minor_doubts" || f.response_consistency === "strong_doubts") && !f.response_consistency_notes?.trim()) {
+      return "Note briefly what didn't add up.";
+    }
+    if (f.flagged && !f.flag_reason?.trim()) return "Flag reason is required when flagged";
+    return null;
+  };
+
   const submit = async (asSubmit: boolean) => {
     setBusy(true); setError(null);
+    if (asSubmit) {
+      const v = validateClient(form);
+      if (v) {
+        setError(v);
+        if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+        setBusy(false);
+        return null;
+      }
+    }
     try {
+
       const payload = {
         ...form,
         id: form.id ?? null,
