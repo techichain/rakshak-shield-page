@@ -88,43 +88,6 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* PROGRAMME OVERVIEW */}
-      <section id="programme" className="border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-5 py-16">
-          <div className="max-w-3xl">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              The programme
-            </h2>
-            <p className="mt-4 text-slate-600 leading-relaxed">
-              Project Rakshak was conceptualised under Dr. Geetam Tiwari
-              (TRIPC, IIT Delhi) and Dr. Richa Ahuja (IIT Kharagpur). Cohort 2
-              evolves the programme from a youth audit initiative into an{" "}
-              <strong>audit, accountability and implementation</strong>{" "}
-              platform — bridging the gap between road-safety diagnosis and
-              the institutional action that follows.
-            </p>
-          </div>
-
-          <div className="mt-10 grid md:grid-cols-3 gap-5">
-            <Pillar
-              n="01"
-              title="Audit"
-              body="Student teams conduct on-ground audits of identified blackspots using standard road-safety methodologies."
-            />
-            <Pillar
-              n="02"
-              title="Accountability"
-              body="Findings are documented, peer-reviewed, and presented to relevant municipal and state authorities."
-            />
-            <Pillar
-              n="03"
-              title="Implementation"
-              body="Recommendations are tracked through to short-term mitigation and longer-term infrastructure change."
-            />
-          </div>
-        </div>
-      </section>
-
       {/* THE ROLE */}
       <section id="role" className="border-b border-slate-200 bg-slate-50">
         <div className="max-w-6xl mx-auto px-5 py-16 grid md:grid-cols-12 gap-10">
