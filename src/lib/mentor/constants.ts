@@ -46,11 +46,13 @@ export const BRAND = {
   primarySoft: "#F3F1FF",
 } as const;
 
-// Public document URLs — admin can replace these by dropping new files
-// into /public/rakshak/ (or wire to a settings table later).
+// Public document URLs — served from Cloud storage (public-docs bucket)
+// so they remain accessible on both preview (auth-gated) and published sites.
 export const DOCUMENTS = {
-  mentorJD: "/rakshak/Project_Rakshak_Mentor_JD.pdf",
-  mentorAssignment: "/rakshak/Project_Rakshak_Mentor_Assignment.pdf",
+  mentorJD:
+    "https://fvxxibbryzibfqiifyav.supabase.co/storage/v1/object/public/public-docs/Project_Rakshak_Mentor_JD.pdf",
+  mentorAssignment:
+    "https://fvxxibbryzibfqiifyav.supabase.co/storage/v1/object/public/public-docs/Project_Rakshak_Mentor_Assignment.pdf",
 } as const;
 
 export const EXPERTISE_DOMAINS = [
