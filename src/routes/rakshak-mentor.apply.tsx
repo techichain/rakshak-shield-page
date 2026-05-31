@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { EXPERTISE_DOMAINS } from "@/lib/mentor/constants";
 import { logEvent } from "@/lib/mentor/auth";
+import { PublicShell } from "@/components/mentor/PublicShell";
 
 export const Route = createFileRoute("/rakshak-mentor/apply")({
   head: () => ({
