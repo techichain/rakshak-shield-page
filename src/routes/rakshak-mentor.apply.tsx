@@ -192,9 +192,12 @@ function ApplyPage() {
         search: { ref: inserted.id.slice(0, 8).toUpperCase() } as never,
       });
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again.",
-      );
+      const msg =
+        (err as { message?: string } | null)?.message ??
+        (typeof err === "string" ? err : null) ??
+        "Something went wrong. Please try again.";
+      console.error("Application submission failed:", err);
+      setSubmitError(msg);
       setSubmitting(false);
     }
   };
