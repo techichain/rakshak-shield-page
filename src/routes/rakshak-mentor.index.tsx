@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { DOCUMENTS } from "@/lib/mentor/constants";
 import { logEvent } from "@/lib/mentor/auth";
+import { PublicShell } from "@/components/mentor/PublicShell";
 
 export const Route = createFileRoute("/rakshak-mentor/")({
   head: () => ({
