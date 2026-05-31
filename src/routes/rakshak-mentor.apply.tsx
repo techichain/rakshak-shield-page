@@ -200,6 +200,7 @@ function ApplyPage() {
   };
 
   return (
+    <PublicShell>
     <div className="max-w-3xl mx-auto px-5 py-12">
       <div className="mb-8">
         <Link to="/rakshak-mentor" className="text-sm text-slate-500 hover:text-slate-900">
