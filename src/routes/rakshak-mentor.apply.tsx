@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,8 +81,34 @@ const initial: FormState = {
 
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 
+function getErrorMessage(err: unknown) {
+  return (
+    (err as { message?: string } | null)?.message ??
+    (typeof err === "string" ? err : null) ??
+    "Something went wrong. Please try again."
+  );
+}
+
+async function withTimeout<T>(label: string, promise: PromiseLike<T>, ms = 30000): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Promise.resolve(promise),
+      new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(
+          () => reject(new Error(`${label} timed out. Please check your connection and try again.`)),
+          ms,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 function ApplyPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState<FormState>(initial);
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -116,16 +142,6 @@ function ApplyPage() {
     setFile(f);
   };
 
-  useEffect(() => {
-    if (!submitting) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [submitting]);
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -157,64 +173,90 @@ function ApplyPage() {
         typeof crypto !== "undefined" && "randomUUID" in crypto
           ? crypto.randomUUID()
           : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const applicationRef = applicationId.replaceAll("-", "").slice(0, 8).toUpperCase();
 
-      const { error: insErr } = await supabase.from("applications").insert({
-        id: applicationId,
-        track: "mentor",
-        full_name: rest.full_name,
-        email: rest.email.toLowerCase(),
-        phone: rest.phone,
-        city: rest.city,
-        state: rest.state || null,
-        country: rest.country,
-        organisation: rest.organisation || null,
-        designation: rest.designation || null,
-        linkedin_url: rest.linkedin_url || null,
-        years_experience: rest.years_experience,
-        expertise_domain: rest.expertise_domain,
-        track_data: { motivation, relevant_experience },
-      });
+      const { error: insErr } = await withTimeout(
+        "Creating the application record",
+        supabase.from("applications").insert({
+          id: applicationId,
+          track: "mentor",
+          full_name: rest.full_name,
+          email: rest.email.toLowerCase(),
+          phone: rest.phone,
+          city: rest.city,
+          state: rest.state || null,
+          country: rest.country,
+          organisation: rest.organisation || null,
+          designation: rest.designation || null,
+          linkedin_url: rest.linkedin_url || null,
+          years_experience: rest.years_experience,
+          expertise_domain: rest.expertise_domain,
+          track_data: { motivation, relevant_experience, application_reference: applicationRef },
+        }),
+      );
 
       if (insErr) throw insErr;
 
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `${applicationId}/assignment_${Date.now()}_${safeName}`;
 
-      const { error: upErr } = await supabase.storage
-        .from("mentor-applications")
-        .upload(path, file, {
-          contentType: file.type,
-          upsert: false,
-        });
+      const { error: upErr } = await withTimeout(
+        "Uploading the assignment file",
+        supabase.storage
+          .from("mentor-applications")
+          .upload(path, file, {
+            contentType: file.type,
+            upsert: false,
+          }),
+        60000,
+      );
       if (upErr) throw upErr;
 
-      const { error: fileErr } = await supabase.from("application_files").insert({
-        application_id: applicationId,
-        kind: "assignment",
-        storage_bucket: "mentor-applications",
-        storage_path: path,
-        file_name: file.name,
-        mime_type: file.type,
-        size_bytes: file.size,
-      });
+      const { error: fileErr } = await withTimeout(
+        "Recording the assignment upload",
+        supabase.from("application_files").insert({
+          application_id: applicationId,
+          kind: "assignment",
+          storage_bucket: "mentor-applications",
+          storage_path: path,
+          file_name: file.name,
+          mime_type: file.type,
+          size_bytes: file.size,
+        }),
+      );
       if (fileErr) throw fileErr;
 
-      await logEvent("apply_submit", "/rakshak-mentor/apply", "mentor");
+      void logEvent("apply_submit", "/rakshak-mentor/apply", "mentor");
 
-      navigate({
-        to: "/rakshak-mentor/apply/success",
-        search: { ref: applicationId.slice(0, 8).toUpperCase() } as never,
-      });
+      const successUrl = `/rakshak-mentor/apply/success?ref=${encodeURIComponent(applicationRef)}`;
+      const redirectFallback = window.setTimeout(() => {
+        setSubmitting(false);
+        window.location.assign(successUrl);
+      }, 1200);
+
+      try {
+        await navigate({
+          to: "/rakshak-mentor/apply/success",
+          search: { ref: applicationRef } as never,
+        });
+        window.clearTimeout(redirectFallback);
+      } catch (navErr) {
+        console.error("Application success redirect failed:", navErr);
+        window.clearTimeout(redirectFallback);
+        setSubmitting(false);
+        window.location.assign(successUrl);
+      }
     } catch (err) {
-      const msg =
-        (err as { message?: string } | null)?.message ??
-        (typeof err === "string" ? err : null) ??
-        "Something went wrong. Please try again.";
+      const msg = getErrorMessage(err);
       console.error("Application submission failed:", err);
       setSubmitError(msg);
       setSubmitting(false);
     }
   };
+
+  if (location.pathname.endsWith("/success")) {
+    return <Outlet />;
+  }
 
   return (
     <PublicShell>
