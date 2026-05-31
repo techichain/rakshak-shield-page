@@ -141,16 +141,6 @@ function ApplyPage() {
     setFile(f);
   };
 
-  useEffect(() => {
-    if (!submitting) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [submitting]);
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -239,6 +229,7 @@ function ApplyPage() {
 
       const successUrl = `/rakshak-mentor/apply/success?ref=${encodeURIComponent(applicationRef)}`;
       const redirectFallback = window.setTimeout(() => {
+        setSubmitting(false);
         window.location.assign(successUrl);
       }, 1200);
 
@@ -251,6 +242,7 @@ function ApplyPage() {
       } catch (navErr) {
         console.error("Application success redirect failed:", navErr);
         window.clearTimeout(redirectFallback);
+        setSubmitting(false);
         window.location.assign(successUrl);
       }
     } catch (err) {
