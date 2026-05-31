@@ -230,7 +230,8 @@ function LandingPage() {
           </Link>
         </div>
       </section>
-    </div>
+      </div>
+    </PublicShell>
   );
 }
 
