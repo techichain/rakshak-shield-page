@@ -140,32 +140,32 @@ function ApplyPage() {
     try {
       const d = parsed.data;
       const { motivation, relevant_experience, ...rest } = d;
+      const applicationId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-      const { data: inserted, error: insErr } = await supabase
-        .from("applications")
-        .insert({
-          track: "mentor",
-          full_name: rest.full_name,
-          email: rest.email.toLowerCase(),
-          phone: rest.phone,
-          city: rest.city,
-          state: rest.state || null,
-          country: rest.country,
-          organisation: rest.organisation || null,
-          designation: rest.designation || null,
-          linkedin_url: rest.linkedin_url || null,
-          years_experience: rest.years_experience,
-          expertise_domain: rest.expertise_domain,
-          track_data: { motivation, relevant_experience },
-        })
-        .select("id")
-        .single();
+      const { error: insErr } = await supabase.from("applications").insert({
+        id: applicationId,
+        track: "mentor",
+        full_name: rest.full_name,
+        email: rest.email.toLowerCase(),
+        phone: rest.phone,
+        city: rest.city,
+        state: rest.state || null,
+        country: rest.country,
+        organisation: rest.organisation || null,
+        designation: rest.designation || null,
+        linkedin_url: rest.linkedin_url || null,
+        years_experience: rest.years_experience,
+        expertise_domain: rest.expertise_domain,
+        track_data: { motivation, relevant_experience },
+      });
 
-      if (insErr || !inserted) throw insErr ?? new Error("Submission failed");
+      if (insErr) throw insErr;
 
-      const ext = file.name.split(".").pop() ?? "pdf";
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${inserted.id}/assignment_${Date.now()}_${safeName}`;
+      const path = `${applicationId}/assignment_${Date.now()}_${safeName}`;
 
       const { error: upErr } = await supabase.storage
         .from("mentor-applications")
@@ -175,8 +175,8 @@ function ApplyPage() {
         });
       if (upErr) throw upErr;
 
-      await supabase.from("application_files").insert({
-        application_id: inserted.id,
+      const { error: fileErr } = await supabase.from("application_files").insert({
+        application_id: applicationId,
         kind: "assignment",
         storage_bucket: "mentor-applications",
         storage_path: path,
@@ -184,12 +184,13 @@ function ApplyPage() {
         mime_type: file.type,
         size_bytes: file.size,
       });
+      if (fileErr) throw fileErr;
 
       await logEvent("apply_submit", "/rakshak-mentor/apply", "mentor");
 
       navigate({
         to: "/rakshak-mentor/apply/success",
-        search: { ref: inserted.id.slice(0, 8).toUpperCase() } as never,
+        search: { ref: applicationId.slice(0, 8).toUpperCase() } as never,
       });
     } catch (err) {
       const msg =
