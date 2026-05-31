@@ -116,10 +116,23 @@ function ApplyPage() {
     setFile(f);
   };
 
+  useEffect(() => {
+    if (!submitting) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [submitting]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setErrors({});
     setSubmitError(null);
+
+
 
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
