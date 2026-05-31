@@ -116,10 +116,23 @@ function ApplyPage() {
     setFile(f);
   };
 
+  useEffect(() => {
+    if (!submitting) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [submitting]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setErrors({});
     setSubmitError(null);
+
+
 
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
@@ -329,24 +342,38 @@ function ApplyPage() {
 
         {submitError && (
           <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-4 py-3">
-            {submitError}
+            <div className="font-semibold mb-1">Submission failed</div>
+            <div>{submitError}</div>
+            <div className="mt-1 text-xs text-red-600">
+              Your information has been kept. Please try again.
+            </div>
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-xs text-slate-500">
-            By submitting, you agree to your information being used solely for the
-            Project Rakshak mentor selection process.
-          </p>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-6 py-3 rounded-md bg-[#4A35FF] text-white font-semibold hover:bg-[#3A28D9] disabled:opacity-50 transition"
-          >
-            {submitting ? "Submitting…" : "Submit Application"}
-          </button>
-        </div>
+        <fieldset disabled={submitting} className="contents">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-xs text-slate-500">
+              By submitting, you agree to your information being used solely for the
+              Project Rakshak mentor selection process.
+            </p>
+            <button
+              type="submit"
+              disabled={submitting}
+              aria-busy={submitting}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-[#4A35FF] text-white font-semibold hover:bg-[#3A28D9] disabled:opacity-60 disabled:cursor-not-allowed transition"
+            >
+              {submitting && (
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                  <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+              )}
+              {submitting ? "Submitting your application…" : "Submit Application"}
+            </button>
+          </div>
+        </fieldset>
       </form>
+
     </div>
     </PublicShell>
   );
