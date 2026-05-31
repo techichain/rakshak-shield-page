@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -108,6 +108,7 @@ async function withTimeout<T>(label: string, promise: PromiseLike<T>, ms = 30000
 
 function ApplyPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState<FormState>(initial);
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -252,6 +253,10 @@ function ApplyPage() {
       setSubmitting(false);
     }
   };
+
+  if (location.pathname.endsWith("/success")) {
+    return <Outlet />;
+  }
 
   return (
     <PublicShell>
