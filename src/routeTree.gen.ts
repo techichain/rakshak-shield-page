@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RakshakMentorRouteImport } from './routes/rakshak-mentor'
 import { Route as GigriderChecklistRouteImport } from './routes/gigrider-checklist'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
@@ -21,6 +22,11 @@ import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigri
 import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
 import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
 
+const RakshakMentorRoute = RakshakMentorRouteImport.update({
+  id: '/rakshak-mentor',
+  path: '/rakshak-mentor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GigriderChecklistRoute = GigriderChecklistRouteImport.update({
   id: '/gigrider-checklist',
   path: '/gigrider-checklist',
@@ -86,6 +92,7 @@ const GigriderChecklistAdminIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
+  '/rakshak-mentor': typeof RakshakMentorRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverRouteWithChildren
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/rakshak-mentor': typeof RakshakMentorRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
+  '/rakshak-mentor': typeof RakshakMentorRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverRouteWithChildren
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/gigrider-checklist'
+    | '/rakshak-mentor'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
     | '/gigrider-checklist/observer'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/rakshak-mentor'
     | '/gigrider-checklist/login'
     | '/gigrider-checklist'
     | '/gigrider-checklist/admin/$id'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/gigrider-checklist'
+    | '/rakshak-mentor'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
     | '/gigrider-checklist/observer'
@@ -162,10 +174,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GigriderChecklistRoute: typeof GigriderChecklistRouteWithChildren
+  RakshakMentorRoute: typeof RakshakMentorRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/rakshak-mentor': {
+      id: '/rakshak-mentor'
+      path: '/rakshak-mentor'
+      fullPath: '/rakshak-mentor'
+      preLoaderRoute: typeof RakshakMentorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gigrider-checklist': {
       id: '/gigrider-checklist'
       path: '/gigrider-checklist'
@@ -300,7 +320,18 @@ const GigriderChecklistRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GigriderChecklistRoute: GigriderChecklistRouteWithChildren,
+  RakshakMentorRoute: RakshakMentorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
