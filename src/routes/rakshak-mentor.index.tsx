@@ -207,15 +207,6 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Pillar({ n, title, body }: { n: string; title: string; body: string }) {
-  return (
-    <div className="border border-slate-200 rounded-xl p-6 hover:border-slate-900 transition">
-      <div className="text-xs font-mono text-[#4A35FF]">{n}</div>
-      <div className="mt-2 font-bold text-lg text-slate-900">{title}</div>
-      <p className="mt-2 text-sm text-slate-600 leading-relaxed">{body}</p>
-    </div>
-  );
-}
 
 function DownloadIcon() {
   return (
