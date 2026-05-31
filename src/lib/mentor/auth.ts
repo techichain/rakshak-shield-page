@@ -43,7 +43,7 @@ export function useIsAdmin() {
 export async function logEvent(
   event_type: string,
   path: string,
-  track: string | null = "mentor",
+  track: "mentor" | "auditor" | "ngo_partner" | "student_team" | null = "mentor",
 ) {
   try {
     await supabase.from("page_events").insert({
