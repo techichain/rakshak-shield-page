@@ -71,9 +71,6 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       <footer className="mt-auto border-t border-slate-200 bg-slate-50">
         <div className="max-w-6xl mx-auto px-5 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <span>© {new Date().getFullYear()} Crashfree India · All rights reserved</span>
-          <a className="text-[#4A35FF] hover:underline" href="mailto:rakshak@crashfreeindia.org">
-            rakshak@crashfreeindia.org
-          </a>
         </div>
       </footer>
     </div>
