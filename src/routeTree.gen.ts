@@ -20,6 +20,7 @@ import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-ch
 import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
 import { Route as GigriderChecklistObserverIndexRouteImport } from './routes/gigrider-checklist.observer.index'
 import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrider-checklist.admin.index'
+import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-mentor.apply.success'
 import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
 import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
 import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
@@ -82,6 +83,12 @@ const GigriderChecklistAdminIndexRoute =
     path: '/',
     getParentRoute: () => GigriderChecklistAdminRoute,
   } as any)
+const RakshakMentorApplySuccessRoute =
+  RakshakMentorApplySuccessRouteImport.update({
+    id: '/success',
+    path: '/success',
+    getParentRoute: () => RakshakMentorApplyRoute,
+  } as any)
 const GigriderChecklistObserverNewRoute =
   GigriderChecklistObserverNewRouteImport.update({
     id: '/new',
@@ -108,24 +115,26 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverRouteWithChildren
-  '/rakshak-mentor/apply': typeof RakshakMentorApplyRoute
+  '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer/': typeof GigriderChecklistObserverIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
-  '/rakshak-mentor/apply': typeof RakshakMentorApplyRoute
+  '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor': typeof RakshakMentorIndexRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverIndexRoute
 }
@@ -137,12 +146,13 @@ export interface FileRoutesById {
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverRouteWithChildren
-  '/rakshak-mentor/apply': typeof RakshakMentorApplyRoute
+  '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer/': typeof GigriderChecklistObserverIndexRoute
 }
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/rakshak-mentor/apply/success'
     | '/gigrider-checklist/admin/'
     | '/gigrider-checklist/observer/'
   fileRoutesByTo: FileRoutesByTo
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/rakshak-mentor/apply/success'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/observer'
   id:
@@ -189,6 +201,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/rakshak-mentor/apply/success'
     | '/gigrider-checklist/admin/'
     | '/gigrider-checklist/observer/'
   fileRoutesById: FileRoutesById
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistAdminIndexRouteImport
       parentRoute: typeof GigriderChecklistAdminRoute
     }
+    '/rakshak-mentor/apply/success': {
+      id: '/rakshak-mentor/apply/success'
+      path: '/success'
+      fullPath: '/rakshak-mentor/apply/success'
+      preLoaderRoute: typeof RakshakMentorApplySuccessRouteImport
+      parentRoute: typeof RakshakMentorApplyRoute
+    }
     '/gigrider-checklist/observer/new': {
       id: '/gigrider-checklist/observer/new'
       path: '/new'
@@ -353,13 +373,24 @@ const GigriderChecklistRouteChildren: GigriderChecklistRouteChildren = {
 const GigriderChecklistRouteWithChildren =
   GigriderChecklistRoute._addFileChildren(GigriderChecklistRouteChildren)
 
+interface RakshakMentorApplyRouteChildren {
+  RakshakMentorApplySuccessRoute: typeof RakshakMentorApplySuccessRoute
+}
+
+const RakshakMentorApplyRouteChildren: RakshakMentorApplyRouteChildren = {
+  RakshakMentorApplySuccessRoute: RakshakMentorApplySuccessRoute,
+}
+
+const RakshakMentorApplyRouteWithChildren =
+  RakshakMentorApplyRoute._addFileChildren(RakshakMentorApplyRouteChildren)
+
 interface RakshakMentorRouteChildren {
-  RakshakMentorApplyRoute: typeof RakshakMentorApplyRoute
+  RakshakMentorApplyRoute: typeof RakshakMentorApplyRouteWithChildren
   RakshakMentorIndexRoute: typeof RakshakMentorIndexRoute
 }
 
 const RakshakMentorRouteChildren: RakshakMentorRouteChildren = {
-  RakshakMentorApplyRoute: RakshakMentorApplyRoute,
+  RakshakMentorApplyRoute: RakshakMentorApplyRouteWithChildren,
   RakshakMentorIndexRoute: RakshakMentorIndexRoute,
 }
 
