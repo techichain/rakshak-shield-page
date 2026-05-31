@@ -30,7 +30,8 @@ function LandingPage() {
   }, []);
 
   return (
-    <div>
+    <PublicShell>
+      <div>
       {/* HERO */}
       <section className="border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-12 gap-10 items-start">
