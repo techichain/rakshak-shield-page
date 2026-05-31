@@ -344,6 +344,7 @@ function ApplyPage() {
         </div>
       </form>
     </div>
+    </PublicShell>
   );
 }
 
