@@ -14,6 +14,201 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_files: {
+        Row: {
+          application_id: string
+          file_name: string
+          id: string
+          kind: Database["public"]["Enums"]["application_file_kind"]
+          mime_type: string
+          size_bytes: number
+          storage_bucket: string
+          storage_path: string
+          uploaded_at: string
+        }
+        Insert: {
+          application_id: string
+          file_name: string
+          id?: string
+          kind: Database["public"]["Enums"]["application_file_kind"]
+          mime_type: string
+          size_bytes?: number
+          storage_bucket?: string
+          storage_path: string
+          uploaded_at?: string
+        }
+        Update: {
+          application_id?: string
+          file_name?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["application_file_kind"]
+          mime_type?: string
+          size_bytes?: number
+          storage_bucket?: string
+          storage_path?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_files_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_reviews: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          recommendation: string | null
+          reviewer_id: string
+          score: number | null
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          recommendation?: string | null
+          reviewer_id: string
+          score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          recommendation?: string | null
+          reviewer_id?: string
+          score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_reviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_status_events: {
+        Row: {
+          application_id: string
+          changed_by: string | null
+          created_at: string
+          from_status: Database["public"]["Enums"]["application_status"] | null
+          id: string
+          note: string | null
+          to_status: Database["public"]["Enums"]["application_status"]
+        }
+        Insert: {
+          application_id: string
+          changed_by?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["application_status"] | null
+          id?: string
+          note?: string | null
+          to_status: Database["public"]["Enums"]["application_status"]
+        }
+        Update: {
+          application_id?: string
+          changed_by?: string | null
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["application_status"] | null
+          id?: string
+          note?: string | null
+          to_status?: Database["public"]["Enums"]["application_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_status_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applications: {
+        Row: {
+          assigned_reviewer_id: string | null
+          city: string
+          country: string
+          created_at: string
+          decision_notes: string | null
+          designation: string | null
+          email: string
+          expertise_domain: string | null
+          full_name: string
+          id: string
+          internal_score: number | null
+          linkedin_url: string | null
+          organisation: string | null
+          phone: string
+          state: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          submitted_at: string
+          track: Database["public"]["Enums"]["application_track"]
+          track_data: Json
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
+          assigned_reviewer_id?: string | null
+          city: string
+          country?: string
+          created_at?: string
+          decision_notes?: string | null
+          designation?: string | null
+          email: string
+          expertise_domain?: string | null
+          full_name: string
+          id?: string
+          internal_score?: number | null
+          linkedin_url?: string | null
+          organisation?: string | null
+          phone: string
+          state?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string
+          track: Database["public"]["Enums"]["application_track"]
+          track_data?: Json
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          assigned_reviewer_id?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          decision_notes?: string | null
+          designation?: string | null
+          email?: string
+          expertise_domain?: string | null
+          full_name?: string
+          id?: string
+          internal_score?: number | null
+          linkedin_url?: string | null
+          organisation?: string | null
+          phone?: string
+          state?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string
+          track?: Database["public"]["Enums"]["application_track"]
+          track_data?: Json
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -281,6 +476,48 @@ export type Database = {
           },
         ]
       }
+      page_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          path: string
+          referrer: string | null
+          session_id: string | null
+          track: Database["public"]["Enums"]["application_track"] | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          path: string
+          referrer?: string | null
+          session_id?: string | null
+          track?: Database["public"]["Enums"]["application_track"] | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          path?: string
+          referrer?: string | null
+          session_id?: string | null
+          track?: Database["public"]["Enums"]["application_track"] | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -368,6 +605,16 @@ export type Database = {
     }
     Enums: {
       app_role: "observer" | "admin"
+      application_file_kind: "assignment" | "cv" | "other"
+      application_status:
+        | "submitted"
+        | "under_review"
+        | "shortlisted"
+        | "interview"
+        | "selected"
+        | "rejected"
+        | "withdrawn"
+      application_track: "mentor" | "auditor" | "ngo_partner" | "student_team"
       consent_answer: "yes" | "no" | "unclear"
       helmet_status:
         | "wearing_full_face"
@@ -542,6 +789,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["observer", "admin"],
+      application_file_kind: ["assignment", "cv", "other"],
+      application_status: [
+        "submitted",
+        "under_review",
+        "shortlisted",
+        "interview",
+        "selected",
+        "rejected",
+        "withdrawn",
+      ],
+      application_track: ["mentor", "auditor", "ngo_partner", "student_team"],
       consent_answer: ["yes", "no", "unclear"],
       helmet_status: [
         "wearing_full_face",
