@@ -13,7 +13,7 @@ export const Route = createFileRoute("/rakshak-mentor/apply")({
       {
         name: "description",
         content:
-          "Submit your application to mentor Project Rakshak Cohort 2 student audit teams.",
+          "Submit your application to mentor Project Rakshak Cohort 2 student teams.",
       },
     ],
   }),
@@ -332,7 +332,7 @@ function ApplyPage() {
             <textarea className={textareaCls} rows={5} value={form.motivation} onChange={(e) => set("motivation", e.target.value)} maxLength={2000} />
             <CharCount value={form.motivation} max={2000} />
           </Field>
-          <Field label="Relevant road-safety / audit / mentoring experience" error={errors.relevant_experience} required>
+          <Field label="Relevant road safety / mentoring experience" error={errors.relevant_experience} required>
             <textarea className={textareaCls} rows={5} value={form.relevant_experience} onChange={(e) => set("relevant_experience", e.target.value)} maxLength={2000} />
             <CharCount value={form.relevant_experience} max={2000} />
           </Field>

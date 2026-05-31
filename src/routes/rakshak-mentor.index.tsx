@@ -11,13 +11,13 @@ export const Route = createFileRoute("/rakshak-mentor/")({
       {
         name: "description",
         content:
-          "Apply to mentor the next cohort of Project Rakshak: a national road-safety audit, accountability and implementation programme by Crashfree India.",
+          "Apply to mentor the next cohort of Project Rakshak: a national road safety and infrastructure initiative by Crashfree India.",
       },
       { property: "og:title", content: "Project Rakshak — Mentor Application Portal" },
       {
         property: "og:description",
         content:
-          "Senior road-safety professionals: guide 4 student audit teams over a 3-month engagement.",
+          "Senior road safety professionals: guide 4 student teams over a 3-month engagement.",
       },
     ],
   }),
@@ -41,14 +41,10 @@ function LandingPage() {
               Cohort 2 · Mentor Recruitment Open
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] text-slate-900">
-              Mentor the next cohort of India's road-safety auditors.
+              Mentor the next generation of road safety leaders.
             </h1>
             <p className="mt-5 text-lg text-slate-600 leading-relaxed max-w-2xl">
-              Project Rakshak is a national programme by Crashfree India that
-              trains undergraduate teams in civil engineering and urban
-              planning to conduct on-ground audits of blackspots, engage
-              government and community stakeholders, and produce
-              implementation-ready recommendations.
+              Project Rakshak is a youth-anchored road safety and infrastructure initiative by Crashfree India. The programme enables students to identify and assess high-risk locations, engage government and community stakeholders, and develop implementation-oriented recommendations to improve road safety outcomes.
             </p>
             <p className="mt-3 text-lg text-slate-600 leading-relaxed max-w-2xl">
               We are recruiting senior professionals to guide{" "}
@@ -82,7 +78,6 @@ function LandingPage() {
               <Fact label="Time commitment" value="~4–6 hrs / week" />
               <Fact label="Format" value="Remote · structured milestones" />
               <Fact label="Honorarium" value="As per CFI mentor policy" />
-              <Fact label="Cohort start" value="Q3 2026" />
             </dl>
           </aside>
         </div>
@@ -93,13 +88,13 @@ function LandingPage() {
         <div className="max-w-6xl mx-auto px-5 py-16 grid md:grid-cols-12 gap-10">
           <div className="md:col-span-5">
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-              The mentor role
+              Role & Responsibilities
             </h2>
             <p className="mt-4 text-slate-600 leading-relaxed">
               Mentors are central to programme quality. You will guide four
               student teams from intake through final presentation, review
-              milestone deliverables, and evaluate the rigour of their audit
-              process and recommendations.
+              milestone deliverables, and evaluate the rigour of their field
+              assessment process and recommendations.
             </p>
             <a
               href={DOCUMENTS.mentorJD}
@@ -108,14 +103,14 @@ function LandingPage() {
               onClick={() => logEvent("jd_download", "/rakshak-mentor", "mentor")}
               className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-md border-2 border-slate-900 text-slate-900 font-semibold hover:bg-slate-900 hover:text-white transition"
             >
-              <DownloadIcon /> Download Mentor JD (PDF)
+              <DownloadIcon /> Download Mentor JD (PDF, 149 KB)
             </a>
           </div>
           <div className="md:col-span-7">
             <ul className="space-y-3 text-sm">
               {[
                 "Conduct structured intake interviews with each assigned student team",
-                "Review milestone deliverables: literature review, field plan, audit findings, recommendations",
+                "Review milestone deliverables: literature review, field plan, field assessment findings, recommendations",
                 "Provide technical guidance grounded in road-safety standards and Indian context",
                 "Evaluate the final presentation and contribute to programme-level reporting",
                 "Participate in periodic mentor convenings with the CFI core team",
@@ -136,31 +131,30 @@ function LandingPage() {
           <div className="grid md:grid-cols-12 gap-10 items-start">
             <div className="md:col-span-7">
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-                The technical assignment
+                Assessment Exercise
               </h2>
               <p className="mt-4 text-slate-600 leading-relaxed">
-                Applications include a short technical assignment that lets
-                us evaluate analytical depth and field judgement. Plan for
-                roughly <strong>3–4 hours</strong> of focused work.
-                Submissions are reviewed by the CFI core team and selected
-                mentors are invited to a follow-up conversation.
+                As part of the selection process, applicants are required to
+                complete a short assessment exercise demonstrating their
+                observation, analysis, and road safety review capabilities. Plan
+                for roughly <strong>3–4 hours</strong> of focused work.
               </p>
               <ul className="mt-5 space-y-2 text-sm text-slate-700">
                 <li>· Read the brief carefully before starting</li>
                 <li>· Submit as a single PDF or DOC, ≤ 25 MB</li>
-                <li>· File name format: <code className="bg-slate-100 px-1.5 py-0.5 rounded">Lastname_Firstname_Rakshak_Assignment.pdf</code></li>
+                <li>· File name format: <code className="bg-slate-100 px-1.5 py-0.5 rounded">Lastname_Firstname_Rakshak_Assessment.pdf</code></li>
               </ul>
             </div>
             <div className="md:col-span-5 bg-[#F3F1FF] border border-[#4A35FF]/20 rounded-2xl p-6">
               <div className="text-xs uppercase tracking-wider text-[#4A35FF] font-semibold">
-                Assignment Brief
+                Assessment Brief
               </div>
               <div className="mt-2 font-bold text-slate-900">
-                Project Rakshak — Mentor Assignment
+                Project Rakshak — Assessment Exercise
               </div>
               <p className="mt-2 text-sm text-slate-600">
-                Download the brief, complete the assignment, and upload it
-                with your application.
+                Download the brief, complete the assessment exercise, and
+                upload it with your application.
               </p>
               <a
                 href={DOCUMENTS.mentorAssignment}
@@ -169,7 +163,7 @@ function LandingPage() {
                 onClick={() => logEvent("assignment_download", "/rakshak-mentor", "mentor")}
                 className="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-md bg-[#4A35FF] text-white font-semibold hover:bg-[#3A28D9] transition"
               >
-                <DownloadIcon /> Download Assignment (PDF)
+                <DownloadIcon /> Download Exercise (PDF, 97 KB)
               </a>
             </div>
           </div>
