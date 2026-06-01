@@ -13,6 +13,13 @@ export const Route = createFileRoute("/gigrider-checklist/observer/$id")({
   component: EditObservation,
 });
 
+type StoredObservationPhoto = {
+  id?: string;
+  file_name: string;
+  storage_path: string;
+  photo_context?: ObservationPhoto["context"] | null;
+};
+
 function EditObservation() {
   const { id } = Route.useParams();
   const fetchOne = useServerFn(getObservation);
@@ -64,7 +71,7 @@ function EditObservation() {
           flagged: o.flagged ?? false,
           flag_reason: o.flag_reason ?? "",
         });
-        const photos = (o.photos ?? []).map((p) => ({
+        const photos = ((o.photos ?? []) as StoredObservationPhoto[]).map((p) => ({
           id: p.id,
           name: p.file_name,
           path: p.storage_path,
