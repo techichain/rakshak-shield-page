@@ -474,15 +474,16 @@ export function ObservationForm({
 
             <Field label="What road hazards are visible nearby? * (select at least one)">
               <Chips multi options={ROAD_HAZARDS.map((h) => ({ v: h, l: h }))}
-                values={form.road_hazards} onToggle={(v) => toggleArr("road_hazards", v)} />
+                values={form.road_hazards} onToggle={toggleRoadHazard}
+                disabledValues={form.road_hazards.includes(NO_ROAD_HAZARDS) ? ROAD_HAZARDS.filter((h) => h !== NO_ROAD_HAZARDS) : []} />
             </Field>
 
             <Field label="Road environment photos (optional, 3–4 photos)">
-              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
-                onFiles={handlePhotos} idPrefix="road" />
-              {photos.length > 0 && (
+              <PhotoPicker uploading={uploading} hasPhotos={photos.some((p) => p.context === "road_environment")}
+                onFiles={(files) => handlePhotos(files, "road_environment")} idPrefix="road" />
+              {photos.some((p) => p.context === "road_environment") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
-                  {photos.map((p, i) => (
+                  {photos.filter((p) => p.context === "road_environment").map((p, i) => (
                     <li key={p.path}>✓ {i + 1}. {p.name}</li>
                   ))}
                 </ul>
@@ -641,11 +642,11 @@ export function ObservationForm({
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
             </Field>
             <Field label="Photos">
-              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
-                onFiles={handlePhotos} idPrefix="notes" />
-              {photos.length > 0 && (
+              <PhotoPicker uploading={uploading} hasPhotos={photos.some((p) => p.context === "notes")}
+                onFiles={(files) => handlePhotos(files, "notes")} idPrefix="notes" />
+              {photos.some((p) => p.context === "notes") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
-                  {photos.map((p, i) => (
+                  {photos.filter((p) => p.context === "notes").map((p, i) => (
                     <li key={p.path}>✓ {i + 1}. {p.name}</li>
                   ))}
                 </ul>
