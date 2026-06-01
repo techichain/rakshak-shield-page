@@ -126,7 +126,7 @@ export const getObservation = createServerFn({ method: "GET" })
       surveyor_name = s?.name ?? null;
     }
     const { data: photos } = await supabase
-      .from("observation_photos").select("id, storage_path, file_name").eq("observation_id", data.id);
+      .from("observation_photos").select("id, storage_path, file_name, photo_context").eq("observation_id", data.id);
     return { ...obs, surveyor_name, photos: photos ?? [] };
   });
 
@@ -209,17 +209,19 @@ export const recordPhoto = createServerFn({ method: "POST" })
     file_name: z.string().min(1).max(255),
     mime_type: z.string().min(1).max(100),
     size_bytes: z.number().int().min(0).max(20 * 1024 * 1024),
+    photo_context: z.enum(["road_environment", "notes"]).default("road_environment"),
   }).parse(d))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const { data: obs } = await supabase.from("observations").select("id").eq("id", data.observation_id).eq("observer_id", userId).maybeSingle();
     if (!obs) throw new Error("Observation not found");
-    const { error } = await supabase.from("observation_photos").insert({
+    const { error } = await (supabase.from("observation_photos") as any).insert({
       observation_id: data.observation_id,
       storage_path: data.storage_path,
       file_name: data.file_name,
       mime_type: data.mime_type,
       size_bytes: data.size_bytes,
+      photo_context: data.photo_context,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
