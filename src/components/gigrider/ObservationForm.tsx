@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,16 @@ import {
 } from "@/lib/gigrider/constants";
 
 type Lookups = Awaited<ReturnType<typeof listLookups>>;
+type PhotoContext = "road_environment" | "notes";
+type ObservationPhoto = {
+  id?: string;
+  name: string;
+  path: string;
+  context: PhotoContext;
+  url?: string | null;
+};
+
+const NO_ROAD_HAZARDS = "None visible";
 
 export type ObsFormData = {
   id?: string | null;
@@ -72,7 +82,15 @@ const SECTIONS = [
   "Rider Gear & Helmet", "Rider Engagement", "Notes & Photos",
 ];
 
-export function ObservationForm({ initial }: { initial: ObsFormData }) {
+export function ObservationForm({
+  initial,
+  initialPhotos = [],
+  initialStatus = "draft",
+}: {
+  initial: ObsFormData;
+  initialPhotos?: ObservationPhoto[];
+  initialStatus?: string;
+}) {
   const navigate = useNavigate();
   const fetchLookups = useServerFn(listLookups);
   const save = useServerFn(saveObservation);
@@ -87,9 +105,11 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [photos, setPhotos] = useState<{ name: string; path: string }[]>([]);
+  const [photos, setPhotos] = useState<ObservationPhoto[]>(initialPhotos);
+  const isDraftObservation = initialStatus !== "submitted" && initialStatus !== "reviewed";
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
+  const sectionKey = `gigrider:draft-section:${form.id ?? "new"}`;
 
   // Load lookups
   useEffect(() => { fetchLookups({}).then(setLookups).catch(() => {}); }, [fetchLookups]);
