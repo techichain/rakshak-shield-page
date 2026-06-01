@@ -111,6 +111,8 @@ export function ObservationForm({
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
   const sectionKey = `gigrider:draft-section:${form.id ?? "new"}`;
   const latestFormRef = useRef(form);
+  const draftSavePromiseRef = useRef<Promise<string | null> | null>(null);
+  const mountedRef = useRef(false);
 
   useEffect(() => {
     latestFormRef.current = form;
@@ -252,6 +254,42 @@ export function ObservationForm({
     }
     if (f.flagged && !f.flag_reason?.trim()) return "Flag reason is required when flagged";
     return null;
+  };
+
+  const toSavePayload = (source: ObsFormData, asSubmit: boolean) => ({
+    ...source,
+    id: source.id ?? null,
+    submit: asSubmit,
+    surveyor_name: source.surveyor_name || null,
+    gig_worker_id: source.gig_worker_id || null,
+    road_env_type_other: source.road_env_type_other || null,
+    vehicle_brand_model: source.vehicle_brand_model || null,
+    consent_interview_notes: source.consent_interview_notes || null,
+    consent_screenshot_notes: source.consent_screenshot_notes || null,
+    surveyor_rushed_notes: source.surveyor_rushed_notes || null,
+    surveyor_led_notes: source.surveyor_led_notes || null,
+    platform_gear_other: source.platform_gear_other || null,
+    response_consistency_notes: source.response_consistency_notes || null,
+    additional_notes: source.additional_notes || null,
+    flag_reason: source.flag_reason || null,
+  });
+
+  const saveDraftSilently = async (): Promise<string | null> => {
+    if (draftSavePromiseRef.current) return draftSavePromiseRef.current;
+    const run = (async () => {
+      const latestForm = latestFormRef.current;
+      const res = await save({ data: toSavePayload(latestForm, false) });
+      if (!latestForm.id && res?.id) {
+        setForm((f) => ({ ...f, id: res.id }));
+      }
+      return res?.id ?? latestForm.id ?? null;
+    })();
+    draftSavePromiseRef.current = run;
+    try {
+      return await run;
+    } finally {
+      draftSavePromiseRef.current = null;
+    }
   };
 
   const submit = async (asSubmit: boolean) => {
