@@ -152,36 +152,42 @@ export function ObservationForm({
   const draftSaveQueuedRef = useRef(false);
   const initialLocalDraftKeyRef = useRef(initial.id ? null : "gigrider:draft:new");
 
-  const persistDraftLocally = useCallback((source = latestFormRef.current) => {
-    if (!isDraftObservation) return;
-    try {
-      const keys = new Set([`gigrider:draft:${source.id ?? "new"}`]);
-      if (initialLocalDraftKeyRef.current) keys.add(initialLocalDraftKeyRef.current);
-      keys.forEach((key) => localStorage.setItem(key, JSON.stringify(source)));
-    } catch {
-      /* ignore */
-    }
-  }, [isDraftObservation]);
-
-  const clearLocalDraft = useCallback((source = latestFormRef.current) => {
-    try {
-      localStorage.removeItem(`gigrider:draft:${source.id ?? "new"}`);
-    } catch {
-      /* ignore */
-    }
-    try {
-      localStorage.removeItem(draftKey);
-    } catch {
-      /* ignore */
-    }
-    if (initialLocalDraftKeyRef.current) {
+  const persistDraftLocally = useCallback(
+    (source = latestFormRef.current) => {
+      if (!isDraftObservation) return;
       try {
-        localStorage.removeItem(initialLocalDraftKeyRef.current);
+        const keys = new Set([`gigrider:draft:${source.id ?? "new"}`]);
+        if (initialLocalDraftKeyRef.current) keys.add(initialLocalDraftKeyRef.current);
+        keys.forEach((key) => localStorage.setItem(key, JSON.stringify(source)));
       } catch {
         /* ignore */
       }
-    }
-  }, [draftKey]);
+    },
+    [isDraftObservation],
+  );
+
+  const clearLocalDraft = useCallback(
+    (source = latestFormRef.current) => {
+      try {
+        localStorage.removeItem(`gigrider:draft:${source.id ?? "new"}`);
+      } catch {
+        /* ignore */
+      }
+      try {
+        localStorage.removeItem(draftKey);
+      } catch {
+        /* ignore */
+      }
+      if (initialLocalDraftKeyRef.current) {
+        try {
+          localStorage.removeItem(initialLocalDraftKeyRef.current);
+        } catch {
+          /* ignore */
+        }
+      }
+    },
+    [draftKey],
+  );
 
   useEffect(() => {
     latestFormRef.current = form;
