@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,7 @@ import {
 
 type Lookups = Awaited<ReturnType<typeof listLookups>>;
 type PhotoContext = "road_environment" | "notes";
-type ObservationPhoto = {
+export type ObservationPhoto = {
   id?: string;
   name: string;
   path: string;
@@ -152,7 +152,7 @@ export function ObservationForm({
   const draftSaveQueuedRef = useRef(false);
   const initialLocalDraftKeyRef = useRef(initial.id ? null : "gigrider:draft:new");
 
-  const persistDraftLocally = (source = latestFormRef.current) => {
+  const persistDraftLocally = useCallback((source = latestFormRef.current) => {
     if (!isDraftObservation) return;
     try {
       const keys = new Set([`gigrider:draft:${source.id ?? "new"}`]);
@@ -161,9 +161,9 @@ export function ObservationForm({
     } catch {
       /* ignore */
     }
-  };
+  }, [isDraftObservation]);
 
-  const clearLocalDraft = (source = latestFormRef.current) => {
+  const clearLocalDraft = useCallback((source = latestFormRef.current) => {
     try {
       localStorage.removeItem(`gigrider:draft:${source.id ?? "new"}`);
     } catch {
@@ -181,7 +181,7 @@ export function ObservationForm({
         /* ignore */
       }
     }
-  };
+  }, [draftKey]);
 
   useEffect(() => {
     latestFormRef.current = form;
@@ -217,7 +217,7 @@ export function ObservationForm({
   useEffect(() => {
     if (!isDraftObservation) return;
     persistDraftLocally(form);
-  }, [form, isDraftObservation]);
+  }, [form, isDraftObservation, persistDraftLocally]);
 
   useEffect(() => {
     if (!isDraftObservation) return;
@@ -501,7 +501,6 @@ export function ObservationForm({
 
   const handlePhotos = async (files: FileList, context: PhotoContext) => {
     for (const f of Array.from(files)) {
-      // eslint-disable-next-line no-await-in-loop
       await handlePhoto(f, context);
     }
   };
