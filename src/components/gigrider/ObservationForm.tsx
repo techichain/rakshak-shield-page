@@ -881,22 +881,61 @@ function PhotoPicker({
   const reactId = useId().replace(/:/g, "");
   const cameraId = `${idPrefix}-${reactId}-camera`;
   const galleryId = `${idPrefix}-${reactId}-gallery`;
-  const cameraRef = useRef<HTMLInputElement | null>(null);
-  const galleryRef = useRef<HTMLInputElement | null>(null);
+  // Use <label htmlFor> instead of programmatic .click() — this is a native
+  // user gesture that works reliably across Android (Realme/MIUI/Samsung/etc.),
+  // iOS Safari, and in-app webviews where programmatic clicks on hidden
+  // capture inputs are often silently blocked.
+  const btn =
+    "inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer select-none";
+  const disabledBtn = uploading ? " opacity-50 pointer-events-none" : "";
+  // Visually-hidden but still focusable & clickable input (not display:none —
+  // some browsers ignore inputs that are display:none).
+  const hiddenInput: React.CSSProperties = {
+    position: "absolute",
+    width: 1,
+    height: 1,
+    padding: 0,
+    margin: -1,
+    overflow: "hidden",
+    clip: "rect(0 0 0 0)",
+    whiteSpace: "nowrap",
+    border: 0,
+  };
   return (
     <div className="flex flex-wrap gap-2">
-      <button type="button" onClick={() => cameraRef.current?.click()} disabled={uploading}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 disabled:opacity-50">
+      <label htmlFor={cameraId} className={btn + disabledBtn}>
         📷 {uploading ? "Uploading…" : "Take photo"}
-      </button>
-      <input ref={cameraRef} id={cameraId} type="file" accept="image/*" capture="environment" className="sr-only"
-        onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
-      <button type="button" onClick={() => galleryRef.current?.click()} disabled={uploading}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 disabled:opacity-50">
+      </label>
+      <input
+        id={cameraId}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        disabled={uploading}
+        style={hiddenInput}
+        onChange={(e) => {
+          const fs = e.target.files;
+          if (fs && fs.length) onFiles(fs);
+          // Reset so selecting the same file again still fires change.
+          e.target.value = "";
+        }}
+      />
+      <label htmlFor={galleryId} className={btn + disabledBtn}>
         🖼️ {hasPhotos ? "Add from gallery" : "Choose from gallery"}
-      </button>
-      <input ref={galleryRef} id={galleryId} type="file" accept="image/*" multiple className="sr-only"
-        onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      </label>
+      <input
+        id={galleryId}
+        type="file"
+        accept="image/*"
+        multiple
+        disabled={uploading}
+        style={hiddenInput}
+        onChange={(e) => {
+          const fs = e.target.files;
+          if (fs && fs.length) onFiles(fs);
+          e.target.value = "";
+        }}
+      />
     </div>
   );
 }
