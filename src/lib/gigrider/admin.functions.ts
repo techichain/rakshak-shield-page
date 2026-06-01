@@ -116,18 +116,18 @@ export const listAllObservations = createServerFn({ method: "GET" })
 
     // Fetch photos for all observations + build public URLs (bucket is public)
     const obsIds = (obs ?? []).map((o) => o.id);
-    const photoMap = new Map<string, { file_name: string; url: string | null }[]>();
+    const photoMap = new Map<string, { file_name: string; url: string | null; photo_context: string }[]>();
     if (obsIds.length) {
       const { data: photos } = await supabaseAdmin
         .from("observation_photos")
-        .select("observation_id, storage_path, file_name")
+        .select("observation_id, storage_path, file_name, photo_context")
         .in("observation_id", obsIds);
       for (const p of photos ?? []) {
         const { data: pub } = supabaseAdmin.storage
           .from("observation-photos")
           .getPublicUrl(p.storage_path);
         const arr = photoMap.get(p.observation_id) ?? [];
-        arr.push({ file_name: p.file_name, url: pub?.publicUrl ?? null });
+        arr.push({ file_name: p.file_name, url: pub?.publicUrl ?? null, photo_context: (p as any).photo_context ?? "road_environment" });
         photoMap.set(p.observation_id, arr);
       }
     }
@@ -165,14 +165,14 @@ export const getObservationAdmin = createServerFn({ method: "GET" })
         ? supabaseAdmin.from("surveyors").select("id, name").eq("id", obs.surveyor_id).maybeSingle().then((r) => r.data)
         : Promise.resolve(null),
       supabaseAdmin.from("profiles").select("id, name, username").eq("id", obs.observer_id).maybeSingle().then((r) => r.data),
-      supabaseAdmin.from("observation_photos").select("id, storage_path, file_name").eq("observation_id", data.id),
+      supabaseAdmin.from("observation_photos").select("id, storage_path, file_name, photo_context").eq("observation_id", data.id),
     ]);
 
     const photoList = photos.data ?? [];
     const signed = photoList.map((p) => {
       const { data: pub } = supabaseAdmin.storage
         .from("observation-photos").getPublicUrl(p.storage_path);
-      return { id: p.id, file_name: p.file_name, url: pub?.publicUrl ?? null };
+      return { id: p.id, file_name: p.file_name, photo_context: (p as any).photo_context ?? "road_environment", url: pub?.publicUrl ?? null };
     });
 
     return { ...obs, hotspot, surveyor, observer, photos: signed };
