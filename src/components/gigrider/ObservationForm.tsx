@@ -223,6 +223,16 @@ export function ObservationForm({
     });
   };
 
+  const toggleRoadHazard = (v: string) => {
+    setForm((f) => {
+      if (v === NO_ROAD_HAZARDS) {
+        return { ...f, road_hazards: f.road_hazards.includes(NO_ROAD_HAZARDS) ? [] : [NO_ROAD_HAZARDS] };
+      }
+      const current = f.road_hazards.filter((x) => x !== NO_ROAD_HAZARDS);
+      return { ...f, road_hazards: current.includes(v) ? current.filter((x) => x !== v) : [...current, v] };
+    });
+  };
+
   const validateClient = (f: ObsFormData): string | null => {
     if (!f.hotspot_id) return "Hotspot is required";
     if (f.gps_lat == null || f.gps_lng == null) return "GPS location is required";
@@ -257,22 +267,23 @@ export function ObservationForm({
     }
     try {
 
+      const latestForm = latestFormRef.current;
       const payload = {
-        ...form,
-        id: form.id ?? null,
+        ...latestForm,
+        id: latestForm.id ?? null,
         submit: asSubmit,
-        surveyor_name: form.surveyor_name || null,
-        gig_worker_id: form.gig_worker_id || null,
-        road_env_type_other: form.road_env_type_other || null,
-        vehicle_brand_model: form.vehicle_brand_model || null,
-        consent_interview_notes: form.consent_interview_notes || null,
-        consent_screenshot_notes: form.consent_screenshot_notes || null,
-        surveyor_rushed_notes: form.surveyor_rushed_notes || null,
-        surveyor_led_notes: form.surveyor_led_notes || null,
-        platform_gear_other: form.platform_gear_other || null,
-        response_consistency_notes: form.response_consistency_notes || null,
-        additional_notes: form.additional_notes || null,
-        flag_reason: form.flag_reason || null,
+        surveyor_name: latestForm.surveyor_name || null,
+        gig_worker_id: latestForm.gig_worker_id || null,
+        road_env_type_other: latestForm.road_env_type_other || null,
+        vehicle_brand_model: latestForm.vehicle_brand_model || null,
+        consent_interview_notes: latestForm.consent_interview_notes || null,
+        consent_screenshot_notes: latestForm.consent_screenshot_notes || null,
+        surveyor_rushed_notes: latestForm.surveyor_rushed_notes || null,
+        surveyor_led_notes: latestForm.surveyor_led_notes || null,
+        platform_gear_other: latestForm.platform_gear_other || null,
+        response_consistency_notes: latestForm.response_consistency_notes || null,
+        additional_notes: latestForm.additional_notes || null,
+        flag_reason: latestForm.flag_reason || null,
       };
       const res = await save({ data: payload });
       if (asSubmit) {
