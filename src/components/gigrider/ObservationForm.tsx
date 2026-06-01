@@ -110,13 +110,18 @@ export function ObservationForm({
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
   const sectionKey = `gigrider:draft-section:${form.id ?? "new"}`;
+  const latestFormRef = useRef(form);
+
+  useEffect(() => {
+    latestFormRef.current = form;
+  }, [form]);
 
   // Load lookups
   useEffect(() => { fetchLookups({}).then(setLookups).catch(() => {}); }, [fetchLookups]);
 
-  // Hydrate from localStorage if no id (new draft)
+  // Hydrate unsaved draft progress from localStorage.
   useEffect(() => {
-    if (form.id) return;
+    if (!isDraftObservation) return;
     try {
       const cached = localStorage.getItem(draftKey);
       if (cached) {
@@ -124,14 +129,22 @@ export function ObservationForm({
         setForm((f) => ({ ...f, ...parsed }));
         if (parsed.gps_lat != null) setGpsState("ok");
       }
+      const cachedSection = localStorage.getItem(sectionKey);
+      if (cachedSection != null) setSection(Math.min(SECTIONS.length - 1, Math.max(0, Number(cachedSection) || 0)));
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist to localStorage on change
   useEffect(() => {
+    if (!isDraftObservation) return;
     try { localStorage.setItem(draftKey, JSON.stringify(form)); } catch { /* ignore */ }
-  }, [form, draftKey]);
+  }, [form, draftKey, isDraftObservation]);
+
+  useEffect(() => {
+    if (!isDraftObservation) return;
+    try { localStorage.setItem(sectionKey, String(section)); } catch { /* ignore */ }
+  }, [section, sectionKey, isDraftObservation]);
 
   // Attempt auto-capture once; if browser blocks without a user gesture,
   // the user can tap "Capture GPS" to trigger the permission pop-up.
