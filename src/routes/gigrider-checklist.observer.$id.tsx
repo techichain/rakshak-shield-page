@@ -2,24 +2,39 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getObservation } from "@/lib/gigrider/observations.functions";
-import { ObservationForm, emptyForm, type ObsFormData } from "@/components/gigrider/ObservationForm";
+import {
+  ObservationForm,
+  emptyForm,
+  type ObservationPhoto,
+  type ObsFormData,
+} from "@/components/gigrider/ObservationForm";
 
 export const Route = createFileRoute("/gigrider-checklist/observer/$id")({
   component: EditObservation,
 });
 
+type StoredObservationPhoto = {
+  id?: string;
+  file_name: string;
+  storage_path: string;
+  photo_context?: ObservationPhoto["context"] | null;
+};
+
 function EditObservation() {
   const { id } = Route.useParams();
   const fetchOne = useServerFn(getObservation);
   const [initial, setInitial] = useState<ObsFormData | null>(null);
-  const [initialPhotos, setInitialPhotos] = useState<any[]>([]);
+  const [initialPhotos, setInitialPhotos] = useState<ObservationPhoto[]>([]);
   const [initialStatus, setInitialStatus] = useState("draft");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOne({ data: { id } })
       .then((o) => {
-        if (!o) { setError("Observation not found"); return; }
+        if (!o) {
+          setError("Observation not found");
+          return;
+        }
         setInitial({
           ...emptyForm,
           id: o.id,
@@ -37,7 +52,9 @@ function EditObservation() {
           vehicle_type: o.vehicle_type,
           vehicle_brand_model: o.vehicle_brand_model ?? "",
           consent_interview: o.consent_interview,
+          consent_interview_notes: o.consent_interview_notes ?? "",
           consent_screenshot: o.consent_screenshot,
+          consent_screenshot_notes: o.consent_screenshot_notes ?? "",
           consent_optional_items: o.consent_optional_items ?? [],
           surveyor_rushed: o.surveyor_rushed,
           surveyor_rushed_notes: o.surveyor_rushed_notes ?? "",
@@ -48,11 +65,13 @@ function EditObservation() {
           platform_gear_other: o.platform_gear_other ?? "",
           helmet_status: o.helmet_status,
           rider_engagement: o.rider_engagement,
+          response_consistency: o.response_consistency,
+          response_consistency_notes: o.response_consistency_notes ?? "",
           additional_notes: o.additional_notes ?? "",
           flagged: o.flagged ?? false,
           flag_reason: o.flag_reason ?? "",
         });
-        const photos = (o.photos ?? []).map((p: any) => ({
+        const photos = ((o.photos ?? []) as StoredObservationPhoto[]).map((p) => ({
           id: p.id,
           name: p.file_name,
           path: p.storage_path,
@@ -64,7 +83,23 @@ function EditObservation() {
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
   }, [id, fetchOne]);
 
-  if (error) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-red-600">{error}</p></main>;
-  if (!initial) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-slate-500">Loading…</p></main>;
-  return <ObservationForm initial={initial} initialPhotos={initialPhotos} initialStatus={initialStatus} />;
+  if (error)
+    return (
+      <main className="max-w-2xl mx-auto p-6">
+        <p className="text-sm text-red-600">{error}</p>
+      </main>
+    );
+  if (!initial)
+    return (
+      <main className="max-w-2xl mx-auto p-6">
+        <p className="text-sm text-slate-500">Loading…</p>
+      </main>
+    );
+  return (
+    <ObservationForm
+      initial={initial}
+      initialPhotos={initialPhotos}
+      initialStatus={initialStatus}
+    />
+  );
 }
