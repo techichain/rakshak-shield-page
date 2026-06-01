@@ -281,6 +281,7 @@ export type Database = {
           id: string
           mime_type: string
           observation_id: string
+          photo_context: string
           size_bytes: number
           storage_path: string
           uploaded_at: string
@@ -290,6 +291,7 @@ export type Database = {
           id?: string
           mime_type: string
           observation_id: string
+          photo_context?: string
           size_bytes?: number
           storage_path: string
           uploaded_at?: string
@@ -299,6 +301,7 @@ export type Database = {
           id?: string
           mime_type?: string
           observation_id?: string
+          photo_context?: string
           size_bytes?: number
           storage_path?: string
           uploaded_at?: string
