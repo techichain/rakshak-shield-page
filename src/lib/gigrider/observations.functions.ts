@@ -125,8 +125,8 @@ export const getObservation = createServerFn({ method: "GET" })
       const { data: s } = await supabase.from("surveyors").select("name").eq("id", obs.surveyor_id).maybeSingle();
       surveyor_name = s?.name ?? null;
     }
-    const { data: photos } = await supabase
-      .from("observation_photos").select("id, storage_path, file_name, photo_context").eq("observation_id", data.id);
+    const { data: photos } = await (supabase.from("observation_photos") as any)
+      .select("id, storage_path, file_name, photo_context").eq("observation_id", data.id);
     return { ...obs, surveyor_name, photos: photos ?? [] };
   });
 
