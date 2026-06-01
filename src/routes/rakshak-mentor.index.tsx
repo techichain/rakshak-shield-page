@@ -103,7 +103,7 @@ function LandingPage() {
               onClick={() => logEvent("jd_download", "/rakshak-mentor", "mentor")}
               className="mt-6 inline-flex items-center gap-2 px-5 py-3 rounded-md border-2 border-slate-900 text-slate-900 font-semibold hover:bg-slate-900 hover:text-white transition"
             >
-              <DownloadIcon /> Download Mentor JD (PDF, 149 KB)
+              <DownloadIcon /> Download Mentor JD (PDF, 148 KB)
             </a>
           </div>
           <div className="md:col-span-7">
