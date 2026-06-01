@@ -2,7 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getObservation } from "@/lib/gigrider/observations.functions";
-import { ObservationForm, emptyForm, type ObsFormData } from "@/components/gigrider/ObservationForm";
+import {
+  ObservationForm,
+  emptyForm,
+  type ObsFormData,
+} from "@/components/gigrider/ObservationForm";
 
 export const Route = createFileRoute("/gigrider-checklist/observer/$id")({
   component: EditObservation,
@@ -19,7 +23,10 @@ function EditObservation() {
   useEffect(() => {
     fetchOne({ data: { id } })
       .then((o) => {
-        if (!o) { setError("Observation not found"); return; }
+        if (!o) {
+          setError("Observation not found");
+          return;
+        }
         setInitial({
           ...emptyForm,
           id: o.id,
@@ -68,7 +75,23 @@ function EditObservation() {
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
   }, [id, fetchOne]);
 
-  if (error) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-red-600">{error}</p></main>;
-  if (!initial) return <main className="max-w-2xl mx-auto p-6"><p className="text-sm text-slate-500">Loading…</p></main>;
-  return <ObservationForm initial={initial} initialPhotos={initialPhotos} initialStatus={initialStatus} />;
+  if (error)
+    return (
+      <main className="max-w-2xl mx-auto p-6">
+        <p className="text-sm text-red-600">{error}</p>
+      </main>
+    );
+  if (!initial)
+    return (
+      <main className="max-w-2xl mx-auto p-6">
+        <p className="text-sm text-slate-500">Loading…</p>
+      </main>
+    );
+  return (
+    <ObservationForm
+      initial={initial}
+      initialPhotos={initialPhotos}
+      initialStatus={initialStatus}
+    />
+  );
 }
