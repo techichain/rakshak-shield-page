@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -884,22 +884,25 @@ function PhotoPicker({
   onFiles: (files: FileList) => void;
   idPrefix: string;
 }) {
-  const cameraId = `${idPrefix}-camera`;
-  const galleryId = `${idPrefix}-gallery`;
+  const reactId = useId().replace(/:/g, "");
+  const cameraId = `${idPrefix}-${reactId}-camera`;
+  const galleryId = `${idPrefix}-${reactId}-gallery`;
+  const cameraRef = useRef<HTMLInputElement | null>(null);
+  const galleryRef = useRef<HTMLInputElement | null>(null);
   return (
     <div className="flex flex-wrap gap-2">
-      <label htmlFor={cameraId}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+      <button type="button" onClick={() => cameraRef.current?.click()} disabled={uploading}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 disabled:opacity-50">
         📷 {uploading ? "Uploading…" : "Take photo"}
-        <input id={cameraId} type="file" accept="image/*" capture="environment" className="hidden"
-          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
-      </label>
-      <label htmlFor={galleryId}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+      </button>
+      <input ref={cameraRef} id={cameraId} type="file" accept="image/*" capture="environment" className="sr-only"
+        onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      <button type="button" onClick={() => galleryRef.current?.click()} disabled={uploading}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 disabled:opacity-50">
         🖼️ {hasPhotos ? "Add from gallery" : "Choose from gallery"}
-        <input id={galleryId} type="file" accept="image/*" multiple className="hidden"
-          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
-      </label>
+      </button>
+      <input ref={galleryRef} id={galleryId} type="file" accept="image/*" multiple className="sr-only"
+        onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
     </div>
   );
 }
