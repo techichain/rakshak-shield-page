@@ -174,6 +174,10 @@ function ApplyPage() {
       setFileError("Please upload your completed assignment");
       return;
     }
+    if (!resume) {
+      setResumeError("Please upload your resume / CV");
+      return;
+    }
 
     setSubmitting(true);
     try {
