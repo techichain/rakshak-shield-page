@@ -302,12 +302,17 @@ export function ObservationForm({
   });
 
   const saveDraftSilently = async (): Promise<string | null> => {
-    if (draftSavePromiseRef.current) return draftSavePromiseRef.current;
+    if (draftSavePromiseRef.current) {
+      draftSaveQueuedRef.current = true;
+      return draftSavePromiseRef.current;
+    }
     const run = (async () => {
       const latestForm = latestFormRef.current;
       const res = await save({ data: toSavePayload(latestForm, false) });
       if (!latestForm.id && res?.id) {
-        latestFormRef.current = { ...latestFormRef.current, id: res.id };
+        const next = { ...latestFormRef.current, id: res.id };
+        latestFormRef.current = next;
+        persistDraftLocally(next);
         setForm((f) => ({ ...f, id: res.id }));
       }
       return res?.id ?? latestForm.id ?? null;
@@ -317,6 +322,10 @@ export function ObservationForm({
       return await run;
     } finally {
       draftSavePromiseRef.current = null;
+      if (draftSaveQueuedRef.current) {
+        draftSaveQueuedRef.current = false;
+        void saveDraftSilently().catch(() => {});
+      }
     }
   };
 
@@ -335,12 +344,12 @@ export function ObservationForm({
     try {
       const res = await save({ data: toSavePayload(latestForm, asSubmit) });
       if (asSubmit) {
-        try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+        clearLocalDraft(latestForm);
         try { localStorage.removeItem(sectionKey); } catch { /* ignore */ }
         navigate({ to: "/gigrider-checklist/observer" });
       } else {
         if (!latestForm.id) {
-          try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+          clearLocalDraft(latestForm);
           navigate({ to: "/gigrider-checklist/observer/$id", params: { id: res.id } });
         }
       }
@@ -366,6 +375,7 @@ export function ObservationForm({
     if (file.size > 20 * 1024 * 1024) {
       setError("Photo must be under 20MB."); return;
     }
+    persistDraftLocally();
     setUploading(true); setError(null);
     try {
       const obsId = await ensureDraftId();
@@ -399,7 +409,7 @@ export function ObservationForm({
 
   const discardDraft = async () => {
     if (!confirm("Discard this draft?")) return;
-    try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+    clearLocalDraft();
     if (form.id) await del({ data: { id: form.id } }).catch(() => {});
     navigate({ to: "/gigrider-checklist/observer" });
   };
