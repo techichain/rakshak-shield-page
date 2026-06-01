@@ -748,19 +748,21 @@ function ChipGroup({ options, value, onChange }: {
   );
 }
 
-function Chips({ options, values, onToggle, multi }: {
+function Chips({ options, values, onToggle, disabledValues = [], multi }: {
   options: ReadonlyArray<{ v: string; l: string }>;
   values: string[]; onToggle: (v: string) => void; multi?: boolean;
+  disabledValues?: ReadonlyArray<string>;
 }) {
   void multi;
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((o) => {
         const active = values.includes(o.v);
+        const disabled = disabledValues.includes(o.v) && !active;
         return (
-          <button type="button" key={o.v} onClick={() => onToggle(o.v)}
+          <button type="button" key={o.v} onClick={() => onToggle(o.v)} disabled={disabled}
             className={`px-3 py-1.5 text-sm rounded-full border transition ${
-              active ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
+              active ? "bg-emerald-600 text-white border-emerald-600" : disabled ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
             }`}>{o.l}</button>
         );
       })}
