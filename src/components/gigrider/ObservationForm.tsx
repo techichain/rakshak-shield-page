@@ -305,24 +305,25 @@ export function ObservationForm({
 
   // Silently create/update draft and return id, without navigating
   const ensureDraftId = async (): Promise<string | null> => {
-    if (form.id) return form.id;
+    const latestForm = latestFormRef.current;
+    if (latestForm.id) return latestForm.id;
     try {
       const payload = {
-        ...form,
+        ...latestForm,
         id: null,
         submit: false,
-        surveyor_name: form.surveyor_name || null,
-        gig_worker_id: form.gig_worker_id || null,
-        road_env_type_other: form.road_env_type_other || null,
-        vehicle_brand_model: form.vehicle_brand_model || null,
-        consent_interview_notes: form.consent_interview_notes || null,
-        consent_screenshot_notes: form.consent_screenshot_notes || null,
-        surveyor_rushed_notes: form.surveyor_rushed_notes || null,
-        surveyor_led_notes: form.surveyor_led_notes || null,
-        platform_gear_other: form.platform_gear_other || null,
-        response_consistency_notes: form.response_consistency_notes || null,
-        additional_notes: form.additional_notes || null,
-        flag_reason: form.flag_reason || null,
+        surveyor_name: latestForm.surveyor_name || null,
+        gig_worker_id: latestForm.gig_worker_id || null,
+        road_env_type_other: latestForm.road_env_type_other || null,
+        vehicle_brand_model: latestForm.vehicle_brand_model || null,
+        consent_interview_notes: latestForm.consent_interview_notes || null,
+        consent_screenshot_notes: latestForm.consent_screenshot_notes || null,
+        surveyor_rushed_notes: latestForm.surveyor_rushed_notes || null,
+        surveyor_led_notes: latestForm.surveyor_led_notes || null,
+        platform_gear_other: latestForm.platform_gear_other || null,
+        response_consistency_notes: latestForm.response_consistency_notes || null,
+        additional_notes: latestForm.additional_notes || null,
+        flag_reason: latestForm.flag_reason || null,
       };
       const res = await save({ data: payload });
       setForm((f) => ({ ...f, id: res.id }));
@@ -333,7 +334,7 @@ export function ObservationForm({
     }
   };
 
-  const handlePhoto = async (file: File) => {
+  const handlePhoto = async (file: File, context: PhotoContext) => {
     if (file.size > 20 * 1024 * 1024) {
       setError("Photo must be under 20MB."); return;
     }
@@ -341,27 +342,30 @@ export function ObservationForm({
     try {
       const obsId = await ensureDraftId();
       if (!obsId) return;
-      const ext = file.name.split(".").pop() || "jpg";
+      const fallbackExt = file.type.includes("png") ? "png" : file.type.includes("heic") ? "heic" : "jpg";
+      const ext = file.name.includes(".") ? file.name.split(".").pop() || fallbackExt : fallbackExt;
       const path = `${obsId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
-        contentType: file.type, upsert: false,
+        contentType: file.type || "image/jpeg", upsert: false,
       });
       if (upErr) throw upErr;
       await photoFn({ data: {
         observation_id: obsId, storage_path: path,
-        file_name: file.name.slice(0, 200), mime_type: file.type || "image/jpeg",
+        file_name: (file.name || `photo-${new Date().toISOString()}.${ext}`).slice(0, 200),
+        mime_type: file.type || "image/jpeg",
         size_bytes: file.size,
+        photo_context: context,
       }});
-      setPhotos((p) => [...p, { name: file.name, path }]);
+      setPhotos((p) => [...p, { name: file.name || `Photo ${p.length + 1}`, path, context }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Photo upload failed");
     } finally { setUploading(false); }
   };
 
-  const handlePhotos = async (files: FileList) => {
+  const handlePhotos = async (files: FileList, context: PhotoContext) => {
     for (const f of Array.from(files)) {
       // eslint-disable-next-line no-await-in-loop
-      await handlePhoto(f);
+      await handlePhoto(f, context);
     }
   };
 
