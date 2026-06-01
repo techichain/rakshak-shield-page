@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsAdmin } from "@/lib/mentor/auth";
@@ -9,14 +9,20 @@ export const Route = createFileRoute("/rakshak-mentor/admin")({
 
 function AdminLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { loading, isAdmin, userId } = useIsAdmin();
+  const isLoginRoute = location.pathname === "/rakshak-mentor/admin/login";
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || isLoginRoute) return;
     if (!userId || !isAdmin) {
       navigate({ to: "/rakshak-mentor/admin/login" });
     }
-  }, [loading, isAdmin, userId, navigate]);
+  }, [loading, isAdmin, userId, navigate, isLoginRoute]);
+
+  if (isLoginRoute) {
+    return <Outlet />;
+  }
 
   if (loading) {
     return (
