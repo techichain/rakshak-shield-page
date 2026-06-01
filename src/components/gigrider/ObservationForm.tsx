@@ -403,7 +403,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             <Field label="Road environment photos (optional, 3–4 photos)">
               <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
                 📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add road photo"}
-                <input type="file" accept="image/*" capture="environment" multiple className="hidden"
+                <input type="file" accept="image/*" multiple className="hidden"
                   onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
               </label>
               {photos.length > 0 && (
@@ -569,7 +569,7 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             <Field label="Photos">
               <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
                 📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add photo"}
-                <input type="file" accept="image/*" capture="environment" multiple className="hidden"
+                <input type="file" accept="image/*" multiple className="hidden"
                   onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
               </label>
               {photos.length > 0 && (
