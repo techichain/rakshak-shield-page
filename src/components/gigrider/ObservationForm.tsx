@@ -112,6 +112,25 @@ export function ObservationForm({
   const sectionKey = `gigrider:draft-section:${form.id ?? "new"}`;
   const latestFormRef = useRef(form);
   const draftSavePromiseRef = useRef<Promise<string | null> | null>(null);
+  const draftSaveQueuedRef = useRef(false);
+  const initialLocalDraftKeyRef = useRef(initial.id ? null : "gigrider:draft:new");
+
+  const persistDraftLocally = (source = latestFormRef.current) => {
+    if (!isDraftObservation) return;
+    try {
+      const keys = new Set([`gigrider:draft:${source.id ?? "new"}`]);
+      if (initialLocalDraftKeyRef.current) keys.add(initialLocalDraftKeyRef.current);
+      keys.forEach((key) => localStorage.setItem(key, JSON.stringify(source)));
+    } catch { /* ignore */ }
+  };
+
+  const clearLocalDraft = (source = latestFormRef.current) => {
+    try { localStorage.removeItem(`gigrider:draft:${source.id ?? "new"}`); } catch { /* ignore */ }
+    try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+    if (initialLocalDraftKeyRef.current) {
+      try { localStorage.removeItem(initialLocalDraftKeyRef.current); } catch { /* ignore */ }
+    }
+  };
 
   useEffect(() => {
     latestFormRef.current = form;
@@ -139,8 +158,8 @@ export function ObservationForm({
   // Persist to localStorage on change
   useEffect(() => {
     if (!isDraftObservation) return;
-    try { localStorage.setItem(draftKey, JSON.stringify(form)); } catch { /* ignore */ }
-  }, [form, draftKey, isDraftObservation]);
+    persistDraftLocally(form);
+  }, [form, isDraftObservation]);
 
   useEffect(() => {
     if (!isDraftObservation) return;
