@@ -294,6 +294,7 @@ export function ObservationForm({
       const latestForm = latestFormRef.current;
       const res = await save({ data: toSavePayload(latestForm, false) });
       if (!latestForm.id && res?.id) {
+        latestFormRef.current = { ...latestFormRef.current, id: res.id };
         setForm((f) => ({ ...f, id: res.id }));
       }
       return res?.id ?? latestForm.id ?? null;
