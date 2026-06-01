@@ -118,6 +118,11 @@ export function ObservationForm({
     latestFormRef.current = form;
   }, [form]);
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
   // Load lookups
   useEffect(() => { fetchLookups({}).then(setLookups).catch(() => {}); }, [fetchLookups]);
 
@@ -147,6 +152,15 @@ export function ObservationForm({
     if (!isDraftObservation) return;
     try { localStorage.setItem(sectionKey, String(section)); } catch { /* ignore */ }
   }, [section, sectionKey, isDraftObservation]);
+
+  useEffect(() => {
+    if (!isDraftObservation) return;
+    const timer = window.setTimeout(() => {
+      saveDraftSilently().catch(() => {});
+    }, 1200);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, isDraftObservation]);
 
   // Attempt auto-capture once; if browser blocks without a user gesture,
   // the user can tap "Capture GPS" to trigger the permission pop-up.
