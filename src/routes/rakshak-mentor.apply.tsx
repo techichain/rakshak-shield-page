@@ -240,6 +240,30 @@ function ApplyPage() {
       );
       if (fileErr) throw fileErr;
 
+      const safeResumeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const resumePath = `${applicationId}/resume_${Date.now()}_${safeResumeName}`;
+      const { error: rUpErr } = await withTimeout(
+        "Uploading the resume",
+        supabase.storage
+          .from("mentor-applications")
+          .upload(resumePath, resume, { contentType: resume.type, upsert: false }),
+        60000,
+      );
+      if (rUpErr) throw rUpErr;
+      const { error: rFileErr } = await withTimeout(
+        "Recording the resume upload",
+        supabase.from("application_files").insert({
+          application_id: applicationId,
+          kind: "cv",
+          storage_bucket: "mentor-applications",
+          storage_path: resumePath,
+          file_name: resume.name,
+          mime_type: resume.type,
+          size_bytes: resume.size,
+        }),
+      );
+      if (rFileErr) throw rFileErr;
+
       void logEvent("apply_submit", "/rakshak-mentor/apply", "mentor");
 
       const successUrl = `/rakshak-mentor/apply/success?ref=${encodeURIComponent(applicationRef)}`;
