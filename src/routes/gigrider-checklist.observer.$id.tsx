@@ -5,6 +5,7 @@ import { getObservation } from "@/lib/gigrider/observations.functions";
 import {
   ObservationForm,
   emptyForm,
+  type ObservationPhoto,
   type ObsFormData,
 } from "@/components/gigrider/ObservationForm";
 
@@ -16,7 +17,7 @@ function EditObservation() {
   const { id } = Route.useParams();
   const fetchOne = useServerFn(getObservation);
   const [initial, setInitial] = useState<ObsFormData | null>(null);
-  const [initialPhotos, setInitialPhotos] = useState<any[]>([]);
+  const [initialPhotos, setInitialPhotos] = useState<ObservationPhoto[]>([]);
   const [initialStatus, setInitialStatus] = useState("draft");
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +64,7 @@ function EditObservation() {
           flagged: o.flagged ?? false,
           flag_reason: o.flag_reason ?? "",
         });
-        const photos = (o.photos ?? []).map((p: any) => ({
+        const photos = (o.photos ?? []).map((p) => ({
           id: p.id,
           name: p.file_name,
           path: p.storage_path,
