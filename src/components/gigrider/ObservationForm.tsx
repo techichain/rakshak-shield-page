@@ -113,7 +113,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     try { localStorage.setItem(draftKey, JSON.stringify(form)); } catch { /* ignore */ }
   }, [form, draftKey]);
 
-  // Auto-capture GPS
+  // Attempt auto-capture once; if browser blocks without a user gesture,
+  // the user can tap "Capture GPS" to trigger the permission pop-up.
   useEffect(() => {
     if (form.gps_lat != null) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -131,15 +132,28 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         }));
         setGpsState("ok");
       },
-      (err) => { setGpsState("failed"); setGpsError(err.message); },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
+      (err) => {
+        setGpsState("failed");
+        setGpsError(
+          err.code === 1
+            ? "Location permission denied. Tap 'Capture GPS' and allow access in the pop-up."
+            : err.code === 2
+            ? "Location unavailable. Move outdoors and tap 'Capture GPS' again."
+            : err.code === 3
+            ? "Location request timed out. Tap 'Capture GPS' to retry."
+            : err.message,
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const recapture = () => {
     setGpsError(null);
-    if (!navigator.geolocation) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGpsState("failed"); setGpsError("Geolocation not supported by this browser"); return;
+    }
     setGpsState("capturing");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -149,10 +163,22 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         }));
         setGpsState("ok");
       },
-      (err) => { setGpsState("failed"); setGpsError(err.message); },
-      { enableHighAccuracy: true, timeout: 10000 },
+      (err) => {
+        setGpsState("failed");
+        setGpsError(
+          err.code === 1
+            ? "Permission denied. Open browser site settings (lock icon → Permissions → Location), set to Allow, then tap 'Capture GPS' again."
+            : err.code === 2
+            ? "Location unavailable. Move outdoors or near a window and try again."
+            : err.code === 3
+            ? "Timed out getting location. Try again."
+            : err.message,
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   };
+
 
   const update = <K extends keyof ObsFormData>(k: K, v: ObsFormData[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -359,9 +385,12 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
               )}
               <div className="mt-2 flex flex-wrap gap-2 items-center">
                 <button type="button" onClick={recapture}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-md bg-emerald-600 text-white">
-                  Re-capture GPS
+                  className={`text-sm font-semibold px-4 py-2 rounded-md text-white ${gpsState === "ok" ? "bg-emerald-600" : "bg-emerald-600 shadow-md"}`}>
+                  {gpsState === "capturing" ? "Capturing…" : gpsState === "ok" ? "Re-capture GPS" : "📍 Capture GPS"}
                 </button>
+                {gpsState !== "ok" && (
+                  <span className="text-xs text-slate-500">Your browser will ask for location permission.</span>
+                )}
               </div>
               {gpsState !== "ok" && (
                 <div className="mt-3 grid grid-cols-2 gap-2">
@@ -401,11 +430,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             </Field>
 
             <Field label="Road environment photos (optional, 3–4 photos)">
-              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add road photo"}
-                <input type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
-              </label>
+              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
+                onFiles={handlePhotos} idPrefix="road" />
               {photos.length > 0 && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
                   {photos.map((p, i) => (
@@ -567,11 +593,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
             </Field>
             <Field label="Photos">
-              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add photo"}
-                <input type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
-              </label>
+              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
+                onFiles={handlePhotos} idPrefix="notes" />
               {photos.length > 0 && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
                   {photos.map((p, i) => (
@@ -786,3 +809,31 @@ function PlatformGearPicker({
   );
 }
 
+
+function PhotoPicker({
+  uploading, hasPhotos, onFiles, idPrefix,
+}: {
+  uploading: boolean;
+  hasPhotos: boolean;
+  onFiles: (files: FileList) => void;
+  idPrefix: string;
+}) {
+  const cameraId = `${idPrefix}-camera`;
+  const galleryId = `${idPrefix}-gallery`;
+  return (
+    <div className="flex flex-wrap gap-2">
+      <label htmlFor={cameraId}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+        📷 {uploading ? "Uploading…" : "Take photo"}
+        <input id={cameraId} type="file" accept="image/*" capture="environment" className="hidden"
+          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      </label>
+      <label htmlFor={galleryId}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+        🖼️ {hasPhotos ? "Add from gallery" : "Choose from gallery"}
+        <input id={galleryId} type="file" accept="image/*" multiple className="hidden"
+          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      </label>
+    </div>
+  );
+}
