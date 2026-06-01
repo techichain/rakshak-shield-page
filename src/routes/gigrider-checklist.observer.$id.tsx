@@ -12,6 +12,8 @@ function EditObservation() {
   const { id } = Route.useParams();
   const fetchOne = useServerFn(getObservation);
   const [initial, setInitial] = useState<ObsFormData | null>(null);
+  const [initialPhotos, setInitialPhotos] = useState<any[]>([]);
+  const [initialStatus, setInitialStatus] = useState("draft");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
