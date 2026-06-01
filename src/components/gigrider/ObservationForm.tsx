@@ -112,16 +112,10 @@ export function ObservationForm({
   const sectionKey = `gigrider:draft-section:${form.id ?? "new"}`;
   const latestFormRef = useRef(form);
   const draftSavePromiseRef = useRef<Promise<string | null> | null>(null);
-  const mountedRef = useRef(false);
 
   useEffect(() => {
     latestFormRef.current = form;
   }, [form]);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
 
   // Load lookups
   useEffect(() => { fetchLookups({}).then(setLookups).catch(() => {}); }, [fetchLookups]);
