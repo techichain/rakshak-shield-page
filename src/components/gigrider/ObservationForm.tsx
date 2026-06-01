@@ -809,3 +809,31 @@ function PlatformGearPicker({
   );
 }
 
+
+function PhotoPicker({
+  uploading, hasPhotos, onFiles, idPrefix,
+}: {
+  uploading: boolean;
+  hasPhotos: boolean;
+  onFiles: (files: FileList) => void;
+  idPrefix: string;
+}) {
+  const cameraId = `${idPrefix}-camera`;
+  const galleryId = `${idPrefix}-gallery`;
+  return (
+    <div className="flex flex-wrap gap-2">
+      <label htmlFor={cameraId}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+        📷 {uploading ? "Uploading…" : "Take photo"}
+        <input id={cameraId} type="file" accept="image/*" capture="environment" className="hidden"
+          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      </label>
+      <label htmlFor={galleryId}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+        🖼️ {hasPhotos ? "Add from gallery" : "Choose from gallery"}
+        <input id={galleryId} type="file" accept="image/*" multiple className="hidden"
+          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      </label>
+    </div>
+  );
+}
