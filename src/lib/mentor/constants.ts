@@ -48,11 +48,13 @@ export const BRAND = {
 
 // Public document URLs — served from Cloud storage (public-docs bucket)
 // so they remain accessible on both preview (auth-gated) and published sites.
+// Served from our own origin via /api/docs/* so ad-blockers and corporate
+// filters that block "*.supabase.co" (ERR_BLOCKED_BY_CLIENT) don't break
+// downloads. The route proxies the file from Cloud storage and sets
+// Content-Disposition: attachment so the browser triggers a direct download.
 export const DOCUMENTS = {
-  mentorJD:
-    "https://fvxxibbryzibfqiifyav.supabase.co/storage/v1/object/public/public-docs/Project_Rakshak_Mentor_JD.pdf",
-  mentorAssignment:
-    "https://fvxxibbryzibfqiifyav.supabase.co/storage/v1/object/public/public-docs/Project_Rakshak_Mentor_Assignment.pdf",
+  mentorJD: "/api/docs/mentor-jd.pdf",
+  mentorAssignment: "/api/docs/mentor-assignment.pdf",
 } as const;
 
 export const EXPERTISE_DOMAINS = [
