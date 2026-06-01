@@ -111,8 +111,10 @@ function ApplyPage() {
   const location = useLocation();
   const [form, setForm] = useState<FormState>(initial);
   const [file, setFile] = useState<File | null>(null);
+  const [resume, setResume] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [fileError, setFileError] = useState<string | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -123,23 +125,31 @@ function ApplyPage() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
 
-  const onFile = (f: File | null) => {
-    setFileError(null);
-    if (!f) return setFile(null);
-    if (f.size > MAX_FILE_BYTES) {
-      setFileError("File must be ≤ 25 MB");
-      return;
-    }
+  const validateDoc = (f: File): string | null => {
+    if (f.size > MAX_FILE_BYTES) return "File must be ≤ 25 MB";
     const ok = [
       "application/pdf",
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ].includes(f.type);
-    if (!ok) {
-      setFileError("Only PDF or DOC/DOCX allowed");
-      return;
-    }
+    if (!ok) return "Only PDF or DOC/DOCX allowed";
+    return null;
+  };
+
+  const onFile = (f: File | null) => {
+    setFileError(null);
+    if (!f) return setFile(null);
+    const err = validateDoc(f);
+    if (err) { setFileError(err); return; }
     setFile(f);
+  };
+
+  const onResume = (f: File | null) => {
+    setResumeError(null);
+    if (!f) return setResume(null);
+    const err = validateDoc(f);
+    if (err) { setResumeError(err); return; }
+    setResume(f);
   };
 
   const submit = async (e: React.FormEvent) => {
