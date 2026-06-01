@@ -430,11 +430,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
             </Field>
 
             <Field label="Road environment photos (optional, 3–4 photos)">
-              <label className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
-                📷 {uploading ? "Uploading…" : photos.length > 0 ? "Add another photo" : "Add road photo"}
-                <input type="file" accept="image/*" multiple className="hidden"
-                  onChange={(e) => { const fs = e.target.files; if (fs?.length) handlePhotos(fs); e.target.value = ""; }} />
-              </label>
+              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
+                onFiles={handlePhotos} idPrefix="road" />
               {photos.length > 0 && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
                   {photos.map((p, i) => (
