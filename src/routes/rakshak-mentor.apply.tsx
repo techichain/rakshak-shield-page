@@ -111,8 +111,10 @@ function ApplyPage() {
   const location = useLocation();
   const [form, setForm] = useState<FormState>(initial);
   const [file, setFile] = useState<File | null>(null);
+  const [resume, setResume] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [fileError, setFileError] = useState<string | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -123,23 +125,31 @@ function ApplyPage() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
 
-  const onFile = (f: File | null) => {
-    setFileError(null);
-    if (!f) return setFile(null);
-    if (f.size > MAX_FILE_BYTES) {
-      setFileError("File must be ≤ 25 MB");
-      return;
-    }
+  const validateDoc = (f: File): string | null => {
+    if (f.size > MAX_FILE_BYTES) return "File must be ≤ 25 MB";
     const ok = [
       "application/pdf",
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ].includes(f.type);
-    if (!ok) {
-      setFileError("Only PDF or DOC/DOCX allowed");
-      return;
-    }
+    if (!ok) return "Only PDF or DOC/DOCX allowed";
+    return null;
+  };
+
+  const onFile = (f: File | null) => {
+    setFileError(null);
+    if (!f) return setFile(null);
+    const err = validateDoc(f);
+    if (err) { setFileError(err); return; }
     setFile(f);
+  };
+
+  const onResume = (f: File | null) => {
+    setResumeError(null);
+    if (!f) return setResume(null);
+    const err = validateDoc(f);
+    if (err) { setResumeError(err); return; }
+    setResume(f);
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -162,6 +172,10 @@ function ApplyPage() {
     }
     if (!file) {
       setFileError("Please upload your completed assignment");
+      return;
+    }
+    if (!resume) {
+      setResumeError("Please upload your resume / CV");
       return;
     }
 
@@ -225,6 +239,30 @@ function ApplyPage() {
         }),
       );
       if (fileErr) throw fileErr;
+
+      const safeResumeName = resume.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const resumePath = `${applicationId}/resume_${Date.now()}_${safeResumeName}`;
+      const { error: rUpErr } = await withTimeout(
+        "Uploading the resume",
+        supabase.storage
+          .from("mentor-applications")
+          .upload(resumePath, resume, { contentType: resume.type, upsert: false }),
+        60000,
+      );
+      if (rUpErr) throw rUpErr;
+      const { error: rFileErr } = await withTimeout(
+        "Recording the resume upload",
+        supabase.from("application_files").insert({
+          application_id: applicationId,
+          kind: "cv",
+          storage_bucket: "mentor-applications",
+          storage_path: resumePath,
+          file_name: resume.name,
+          mime_type: resume.type,
+          size_bytes: resume.size,
+        }),
+      );
+      if (rFileErr) throw rFileErr;
 
       void logEvent("apply_submit", "/rakshak-mentor/apply", "mentor");
 
@@ -363,6 +401,33 @@ function ApplyPage() {
           </div>
           {fileError && <div className="text-sm text-red-600 mt-2">{fileError}</div>}
         </Section>
+
+        <Section title="Resume / CV upload">
+          <p className="text-sm text-slate-600">
+            Upload your latest resume or CV as a single PDF or DOC/DOCX. Maximum 25 MB.
+          </p>
+          <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-[#4A35FF] transition">
+            <input
+              id="resume-file"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              className="hidden"
+              onChange={(e) => onResume(e.target.files?.[0] ?? null)}
+            />
+            <label htmlFor="resume-file" className="cursor-pointer">
+              <div className="text-sm font-semibold text-slate-900">
+                {resume ? resume.name : "Click to choose file"}
+              </div>
+              <div className="text-xs text-slate-500 mt-1">
+                {resume
+                  ? `${(resume.size / 1024 / 1024).toFixed(2)} MB`
+                  : "PDF or DOC/DOCX · max 25 MB"}
+              </div>
+            </label>
+          </div>
+          {resumeError && <div className="text-sm text-red-600 mt-2">{resumeError}</div>}
+        </Section>
+
 
         <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
           <label className="flex gap-3 items-start text-sm text-slate-700">
