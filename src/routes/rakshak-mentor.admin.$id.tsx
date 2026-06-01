@@ -246,7 +246,7 @@ function ReviewPage() {
                   <div>
                     <div className="text-sm font-semibold text-slate-900">{f.file_name}</div>
                     <div className="text-xs text-slate-500">
-                      {f.kind} · {(f.size_bytes / 1024 / 1024).toFixed(2)} MB ·{" "}
+                      {f.kind === "cv" ? "Resume / CV" : f.kind === "assignment" ? "Assignment" : f.kind} · {(f.size_bytes / 1024 / 1024).toFixed(2)} MB ·{" "}
                       {new Date(f.uploaded_at).toLocaleString("en-IN")}
                     </div>
                   </div>
