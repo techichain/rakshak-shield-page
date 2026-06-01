@@ -426,6 +426,8 @@ function ApplyPage() {
             </label>
           </div>
           {resumeError && <div className="text-sm text-red-600 mt-2">{resumeError}</div>}
+        </Section>
+
 
         <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
           <label className="flex gap-3 items-start text-sm text-slate-700">
