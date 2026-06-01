@@ -385,9 +385,12 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
               )}
               <div className="mt-2 flex flex-wrap gap-2 items-center">
                 <button type="button" onClick={recapture}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-md bg-emerald-600 text-white">
-                  Re-capture GPS
+                  className={`text-sm font-semibold px-4 py-2 rounded-md text-white ${gpsState === "ok" ? "bg-emerald-600" : "bg-emerald-600 shadow-md"}`}>
+                  {gpsState === "capturing" ? "Capturing…" : gpsState === "ok" ? "Re-capture GPS" : "📍 Capture GPS"}
                 </button>
+                {gpsState !== "ok" && (
+                  <span className="text-xs text-slate-500">Your browser will ask for location permission.</span>
+                )}
               </div>
               {gpsState !== "ok" && (
                 <div className="mt-3 grid grid-cols-2 gap-2">
