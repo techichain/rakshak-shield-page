@@ -402,6 +402,31 @@ function ApplyPage() {
           {fileError && <div className="text-sm text-red-600 mt-2">{fileError}</div>}
         </Section>
 
+        <Section title="Resume / CV upload">
+          <p className="text-sm text-slate-600">
+            Upload your latest resume or CV as a single PDF or DOC/DOCX. Maximum 25 MB.
+          </p>
+          <div className="mt-2 border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-[#4A35FF] transition">
+            <input
+              id="resume-file"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              className="hidden"
+              onChange={(e) => onResume(e.target.files?.[0] ?? null)}
+            />
+            <label htmlFor="resume-file" className="cursor-pointer">
+              <div className="text-sm font-semibold text-slate-900">
+                {resume ? resume.name : "Click to choose file"}
+              </div>
+              <div className="text-xs text-slate-500 mt-1">
+                {resume
+                  ? `${(resume.size / 1024 / 1024).toFixed(2)} MB`
+                  : "PDF or DOC/DOCX · max 25 MB"}
+              </div>
+            </label>
+          </div>
+          {resumeError && <div className="text-sm text-red-600 mt-2">{resumeError}</div>}
+
         <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
           <label className="flex gap-3 items-start text-sm text-slate-700">
             <input
