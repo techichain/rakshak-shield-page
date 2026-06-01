@@ -294,8 +294,9 @@ export function ObservationForm({
 
   const submit = async (asSubmit: boolean) => {
     setBusy(true); setError(null);
+    const latestForm = latestFormRef.current;
     if (asSubmit) {
-      const v = validateClient(form);
+      const v = validateClient(latestForm);
       if (v) {
         setError(v);
         if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
@@ -304,36 +305,18 @@ export function ObservationForm({
       }
     }
     try {
-
-      const latestForm = latestFormRef.current;
-      const payload = {
-        ...latestForm,
-        id: latestForm.id ?? null,
-        submit: asSubmit,
-        surveyor_name: latestForm.surveyor_name || null,
-        gig_worker_id: latestForm.gig_worker_id || null,
-        road_env_type_other: latestForm.road_env_type_other || null,
-        vehicle_brand_model: latestForm.vehicle_brand_model || null,
-        consent_interview_notes: latestForm.consent_interview_notes || null,
-        consent_screenshot_notes: latestForm.consent_screenshot_notes || null,
-        surveyor_rushed_notes: latestForm.surveyor_rushed_notes || null,
-        surveyor_led_notes: latestForm.surveyor_led_notes || null,
-        platform_gear_other: latestForm.platform_gear_other || null,
-        response_consistency_notes: latestForm.response_consistency_notes || null,
-        additional_notes: latestForm.additional_notes || null,
-        flag_reason: latestForm.flag_reason || null,
-      };
-      const res = await save({ data: payload });
+      const res = await save({ data: toSavePayload(latestForm, asSubmit) });
       if (asSubmit) {
         try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+        try { localStorage.removeItem(sectionKey); } catch { /* ignore */ }
         navigate({ to: "/gigrider-checklist/observer" });
       } else {
-        if (!form.id) {
+        if (!latestForm.id) {
           try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
           navigate({ to: "/gigrider-checklist/observer/$id", params: { id: res.id } });
         }
       }
-      return res?.id ?? form.id ?? null;
+      return res?.id ?? latestForm.id ?? null;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
@@ -343,29 +326,8 @@ export function ObservationForm({
 
   // Silently create/update draft and return id, without navigating
   const ensureDraftId = async (): Promise<string | null> => {
-    const latestForm = latestFormRef.current;
-    if (latestForm.id) return latestForm.id;
     try {
-      const payload = {
-        ...latestForm,
-        id: null,
-        submit: false,
-        surveyor_name: latestForm.surveyor_name || null,
-        gig_worker_id: latestForm.gig_worker_id || null,
-        road_env_type_other: latestForm.road_env_type_other || null,
-        vehicle_brand_model: latestForm.vehicle_brand_model || null,
-        consent_interview_notes: latestForm.consent_interview_notes || null,
-        consent_screenshot_notes: latestForm.consent_screenshot_notes || null,
-        surveyor_rushed_notes: latestForm.surveyor_rushed_notes || null,
-        surveyor_led_notes: latestForm.surveyor_led_notes || null,
-        platform_gear_other: latestForm.platform_gear_other || null,
-        response_consistency_notes: latestForm.response_consistency_notes || null,
-        additional_notes: latestForm.additional_notes || null,
-        flag_reason: latestForm.flag_reason || null,
-      };
-      const res = await save({ data: payload });
-      setForm((f) => ({ ...f, id: res.id }));
-      return res.id;
+      return await saveDraftSilently();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start draft");
       return null;
@@ -382,7 +344,7 @@ export function ObservationForm({
       if (!obsId) return;
       const fallbackExt = file.type.includes("png") ? "png" : file.type.includes("heic") ? "heic" : "jpg";
       const ext = file.name.includes(".") ? file.name.split(".").pop() || fallbackExt : fallbackExt;
-      const path = `${obsId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const path = `${obsId}/${context}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
         contentType: file.type || "image/jpeg", upsert: false,
       });
