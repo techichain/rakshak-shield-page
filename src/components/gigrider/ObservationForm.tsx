@@ -113,7 +113,8 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     try { localStorage.setItem(draftKey, JSON.stringify(form)); } catch { /* ignore */ }
   }, [form, draftKey]);
 
-  // Auto-capture GPS
+  // Attempt auto-capture once; if browser blocks without a user gesture,
+  // the user can tap "Capture GPS" to trigger the permission pop-up.
   useEffect(() => {
     if (form.gps_lat != null) return;
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -131,15 +132,28 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         }));
         setGpsState("ok");
       },
-      (err) => { setGpsState("failed"); setGpsError(err.message); },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
+      (err) => {
+        setGpsState("failed");
+        setGpsError(
+          err.code === 1
+            ? "Location permission denied. Tap 'Capture GPS' and allow access in the pop-up."
+            : err.code === 2
+            ? "Location unavailable. Move outdoors and tap 'Capture GPS' again."
+            : err.code === 3
+            ? "Location request timed out. Tap 'Capture GPS' to retry."
+            : err.message,
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const recapture = () => {
     setGpsError(null);
-    if (!navigator.geolocation) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGpsState("failed"); setGpsError("Geolocation not supported by this browser"); return;
+    }
     setGpsState("capturing");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -149,10 +163,22 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         }));
         setGpsState("ok");
       },
-      (err) => { setGpsState("failed"); setGpsError(err.message); },
-      { enableHighAccuracy: true, timeout: 10000 },
+      (err) => {
+        setGpsState("failed");
+        setGpsError(
+          err.code === 1
+            ? "Permission denied. Open browser site settings (lock icon → Permissions → Location), set to Allow, then tap 'Capture GPS' again."
+            : err.code === 2
+            ? "Location unavailable. Move outdoors or near a window and try again."
+            : err.code === 3
+            ? "Timed out getting location. Try again."
+            : err.message,
+        );
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   };
+
 
   const update = <K extends keyof ObsFormData>(k: K, v: ObsFormData[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
