@@ -57,6 +57,8 @@ function AdminObservationDetail() {
   const o: any = data;
   const fmt = (v: unknown) => (v == null || v === "" ? "—" : String(v));
   const fmtArr = (a: string[] | null | undefined) => (a && a.length ? a.join(", ") : null);
+  const roadPhotos = (o.photos ?? []).filter((p: any) => (p.photo_context ?? "road_environment") === "road_environment");
+  const notePhotos = (o.photos ?? []).filter((p: any) => p.photo_context === "notes");
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -132,24 +134,33 @@ function AdminObservationDetail() {
           <Row label="Flag reason" value={o.flag_reason} />
         </Section>
 
-        <Section title={`Photos (${o.photos?.length ?? 0})`}>
-          {o.photos?.length ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-              {o.photos.map((p: any) => (
-                <a key={p.id} href={p.url ?? "#"} target="_blank" rel="noreferrer" className="block">
-                  {p.url ? (
-                    <img src={p.url} alt={p.file_name} className="w-full h-32 object-cover rounded-md border border-slate-200" />
-                  ) : (
-                    <div className="w-full h-32 flex items-center justify-center bg-slate-100 text-xs text-slate-500 rounded-md">{p.file_name}</div>
-                  )}
-                </a>
-              ))}
-            </div>
-          ) : <p className="text-sm text-slate-500">No photos uploaded.</p>}
+        <Section title={`Road environment photos (${roadPhotos.length})`}>
+          <PhotoGrid photos={roadPhotos} empty="No road environment photos uploaded." />
+        </Section>
+
+        <Section title={`Notes photos (${notePhotos.length})`}>
+          <PhotoGrid photos={notePhotos} empty="No notes photos uploaded." />
         </Section>
 
         <p className="text-xs text-slate-400 text-center pt-2">ID: {fmt(o.id)}</p>
       </main>
+    </div>
+  );
+}
+
+function PhotoGrid({ photos, empty }: { photos: any[]; empty: string }) {
+  if (!photos.length) return <p className="text-sm text-slate-500">{empty}</p>;
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+      {photos.map((p: any) => (
+        <a key={p.id} href={p.url ?? "#"} target="_blank" rel="noreferrer" className="block">
+          {p.url ? (
+            <img src={p.url} alt={p.file_name} className="w-full h-32 object-cover rounded-md border border-slate-200" />
+          ) : (
+            <div className="w-full h-32 flex items-center justify-center bg-slate-100 text-xs text-slate-500 rounded-md">{p.file_name}</div>
+          )}
+        </a>
+      ))}
     </div>
   );
 }

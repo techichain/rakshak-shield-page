@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,16 @@ import {
 } from "@/lib/gigrider/constants";
 
 type Lookups = Awaited<ReturnType<typeof listLookups>>;
+type PhotoContext = "road_environment" | "notes";
+type ObservationPhoto = {
+  id?: string;
+  name: string;
+  path: string;
+  context: PhotoContext;
+  url?: string | null;
+};
+
+const NO_ROAD_HAZARDS = "None visible";
 
 export type ObsFormData = {
   id?: string | null;
@@ -72,7 +82,15 @@ const SECTIONS = [
   "Rider Gear & Helmet", "Rider Engagement", "Notes & Photos",
 ];
 
-export function ObservationForm({ initial }: { initial: ObsFormData }) {
+export function ObservationForm({
+  initial,
+  initialPhotos = [],
+  initialStatus = "draft",
+}: {
+  initial: ObsFormData;
+  initialPhotos?: ObservationPhoto[];
+  initialStatus?: string;
+}) {
   const navigate = useNavigate();
   const fetchLookups = useServerFn(listLookups);
   const save = useServerFn(saveObservation);
@@ -87,16 +105,24 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [photos, setPhotos] = useState<{ name: string; path: string }[]>([]);
+  const [photos, setPhotos] = useState<ObservationPhoto[]>(initialPhotos);
+  const isDraftObservation = initialStatus !== "submitted" && initialStatus !== "reviewed";
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
+  const sectionKey = `gigrider:draft-section:${form.id ?? "new"}`;
+  const latestFormRef = useRef(form);
+  const draftSavePromiseRef = useRef<Promise<string | null> | null>(null);
+
+  useEffect(() => {
+    latestFormRef.current = form;
+  }, [form]);
 
   // Load lookups
   useEffect(() => { fetchLookups({}).then(setLookups).catch(() => {}); }, [fetchLookups]);
 
-  // Hydrate from localStorage if no id (new draft)
+  // Hydrate unsaved draft progress from localStorage.
   useEffect(() => {
-    if (form.id) return;
+    if (!isDraftObservation) return;
     try {
       const cached = localStorage.getItem(draftKey);
       if (cached) {
@@ -104,14 +130,31 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
         setForm((f) => ({ ...f, ...parsed }));
         if (parsed.gps_lat != null) setGpsState("ok");
       }
+      const cachedSection = localStorage.getItem(sectionKey);
+      if (cachedSection != null) setSection(Math.min(SECTIONS.length - 1, Math.max(0, Number(cachedSection) || 0)));
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist to localStorage on change
   useEffect(() => {
+    if (!isDraftObservation) return;
     try { localStorage.setItem(draftKey, JSON.stringify(form)); } catch { /* ignore */ }
-  }, [form, draftKey]);
+  }, [form, draftKey, isDraftObservation]);
+
+  useEffect(() => {
+    if (!isDraftObservation) return;
+    try { localStorage.setItem(sectionKey, String(section)); } catch { /* ignore */ }
+  }, [section, sectionKey, isDraftObservation]);
+
+  useEffect(() => {
+    if (!isDraftObservation) return;
+    const timer = window.setTimeout(() => {
+      saveDraftSilently().catch(() => {});
+    }, 1200);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, isDraftObservation]);
 
   // Attempt auto-capture once; if browser blocks without a user gesture,
   // the user can tap "Capture GPS" to trigger the permission pop-up.
@@ -190,6 +233,16 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     });
   };
 
+  const toggleRoadHazard = (v: string) => {
+    setForm((f) => {
+      if (v === NO_ROAD_HAZARDS) {
+        return { ...f, road_hazards: f.road_hazards.includes(NO_ROAD_HAZARDS) ? [] : [NO_ROAD_HAZARDS] };
+      }
+      const current = f.road_hazards.filter((x) => x !== NO_ROAD_HAZARDS);
+      return { ...f, road_hazards: current.includes(v) ? current.filter((x) => x !== v) : [...current, v] };
+    });
+  };
+
   const validateClient = (f: ObsFormData): string | null => {
     if (!f.hotspot_id) return "Hotspot is required";
     if (f.gps_lat == null || f.gps_lng == null) return "GPS location is required";
@@ -211,10 +264,48 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     return null;
   };
 
+  const toSavePayload = (source: ObsFormData, asSubmit: boolean) => ({
+    ...source,
+    id: source.id ?? null,
+    submit: asSubmit,
+    surveyor_name: source.surveyor_name || null,
+    gig_worker_id: source.gig_worker_id || null,
+    road_env_type_other: source.road_env_type_other || null,
+    vehicle_brand_model: source.vehicle_brand_model || null,
+    consent_interview_notes: source.consent_interview_notes || null,
+    consent_screenshot_notes: source.consent_screenshot_notes || null,
+    surveyor_rushed_notes: source.surveyor_rushed_notes || null,
+    surveyor_led_notes: source.surveyor_led_notes || null,
+    platform_gear_other: source.platform_gear_other || null,
+    response_consistency_notes: source.response_consistency_notes || null,
+    additional_notes: source.additional_notes || null,
+    flag_reason: source.flag_reason || null,
+  });
+
+  const saveDraftSilently = async (): Promise<string | null> => {
+    if (draftSavePromiseRef.current) return draftSavePromiseRef.current;
+    const run = (async () => {
+      const latestForm = latestFormRef.current;
+      const res = await save({ data: toSavePayload(latestForm, false) });
+      if (!latestForm.id && res?.id) {
+        latestFormRef.current = { ...latestFormRef.current, id: res.id };
+        setForm((f) => ({ ...f, id: res.id }));
+      }
+      return res?.id ?? latestForm.id ?? null;
+    })();
+    draftSavePromiseRef.current = run;
+    try {
+      return await run;
+    } finally {
+      draftSavePromiseRef.current = null;
+    }
+  };
+
   const submit = async (asSubmit: boolean) => {
     setBusy(true); setError(null);
+    const latestForm = latestFormRef.current;
     if (asSubmit) {
-      const v = validateClient(form);
+      const v = validateClient(latestForm);
       if (v) {
         setError(v);
         if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
@@ -223,35 +314,18 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
       }
     }
     try {
-
-      const payload = {
-        ...form,
-        id: form.id ?? null,
-        submit: asSubmit,
-        surveyor_name: form.surveyor_name || null,
-        gig_worker_id: form.gig_worker_id || null,
-        road_env_type_other: form.road_env_type_other || null,
-        vehicle_brand_model: form.vehicle_brand_model || null,
-        consent_interview_notes: form.consent_interview_notes || null,
-        consent_screenshot_notes: form.consent_screenshot_notes || null,
-        surveyor_rushed_notes: form.surveyor_rushed_notes || null,
-        surveyor_led_notes: form.surveyor_led_notes || null,
-        platform_gear_other: form.platform_gear_other || null,
-        response_consistency_notes: form.response_consistency_notes || null,
-        additional_notes: form.additional_notes || null,
-        flag_reason: form.flag_reason || null,
-      };
-      const res = await save({ data: payload });
+      const res = await save({ data: toSavePayload(latestForm, asSubmit) });
       if (asSubmit) {
         try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+        try { localStorage.removeItem(sectionKey); } catch { /* ignore */ }
         navigate({ to: "/gigrider-checklist/observer" });
       } else {
-        if (!form.id) {
+        if (!latestForm.id) {
           try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
           navigate({ to: "/gigrider-checklist/observer/$id", params: { id: res.id } });
         }
       }
-      return res?.id ?? form.id ?? null;
+      return res?.id ?? latestForm.id ?? null;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
@@ -261,35 +335,15 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
 
   // Silently create/update draft and return id, without navigating
   const ensureDraftId = async (): Promise<string | null> => {
-    if (form.id) return form.id;
     try {
-      const payload = {
-        ...form,
-        id: null,
-        submit: false,
-        surveyor_name: form.surveyor_name || null,
-        gig_worker_id: form.gig_worker_id || null,
-        road_env_type_other: form.road_env_type_other || null,
-        vehicle_brand_model: form.vehicle_brand_model || null,
-        consent_interview_notes: form.consent_interview_notes || null,
-        consent_screenshot_notes: form.consent_screenshot_notes || null,
-        surveyor_rushed_notes: form.surveyor_rushed_notes || null,
-        surveyor_led_notes: form.surveyor_led_notes || null,
-        platform_gear_other: form.platform_gear_other || null,
-        response_consistency_notes: form.response_consistency_notes || null,
-        additional_notes: form.additional_notes || null,
-        flag_reason: form.flag_reason || null,
-      };
-      const res = await save({ data: payload });
-      setForm((f) => ({ ...f, id: res.id }));
-      return res.id;
+      return await saveDraftSilently();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start draft");
       return null;
     }
   };
 
-  const handlePhoto = async (file: File) => {
+  const handlePhoto = async (file: File, context: PhotoContext) => {
     if (file.size > 20 * 1024 * 1024) {
       setError("Photo must be under 20MB."); return;
     }
@@ -297,27 +351,30 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
     try {
       const obsId = await ensureDraftId();
       if (!obsId) return;
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `${obsId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const fallbackExt = file.type.includes("png") ? "png" : file.type.includes("heic") ? "heic" : "jpg";
+      const ext = file.name.includes(".") ? file.name.split(".").pop() || fallbackExt : fallbackExt;
+      const path = `${obsId}/${context}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
       const { error: upErr } = await supabase.storage.from("observation-photos").upload(path, file, {
-        contentType: file.type, upsert: false,
+        contentType: file.type || "image/jpeg", upsert: false,
       });
       if (upErr) throw upErr;
       await photoFn({ data: {
         observation_id: obsId, storage_path: path,
-        file_name: file.name.slice(0, 200), mime_type: file.type || "image/jpeg",
+        file_name: (file.name || `photo-${new Date().toISOString()}.${ext}`).slice(0, 200),
+        mime_type: file.type || "image/jpeg",
         size_bytes: file.size,
+        photo_context: context,
       }});
-      setPhotos((p) => [...p, { name: file.name, path }]);
+      setPhotos((p) => [...p, { name: file.name || `Photo ${p.length + 1}`, path, context }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Photo upload failed");
     } finally { setUploading(false); }
   };
 
-  const handlePhotos = async (files: FileList) => {
+  const handlePhotos = async (files: FileList, context: PhotoContext) => {
     for (const f of Array.from(files)) {
       // eslint-disable-next-line no-await-in-loop
-      await handlePhoto(f);
+      await handlePhoto(f, context);
     }
   };
 
@@ -426,15 +483,16 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
 
             <Field label="What road hazards are visible nearby? * (select at least one)">
               <Chips multi options={ROAD_HAZARDS.map((h) => ({ v: h, l: h }))}
-                values={form.road_hazards} onToggle={(v) => toggleArr("road_hazards", v)} />
+                values={form.road_hazards} onToggle={toggleRoadHazard}
+                disabledValues={form.road_hazards.includes(NO_ROAD_HAZARDS) ? ROAD_HAZARDS.filter((h) => h !== NO_ROAD_HAZARDS) : []} />
             </Field>
 
             <Field label="Road environment photos (optional, 3–4 photos)">
-              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
-                onFiles={handlePhotos} idPrefix="road" />
-              {photos.length > 0 && (
+              <PhotoPicker uploading={uploading} hasPhotos={photos.some((p) => p.context === "road_environment")}
+                onFiles={(files) => handlePhotos(files, "road_environment")} idPrefix="road" />
+              {photos.some((p) => p.context === "road_environment") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
-                  {photos.map((p, i) => (
+                  {photos.filter((p) => p.context === "road_environment").map((p, i) => (
                     <li key={p.path}>✓ {i + 1}. {p.name}</li>
                   ))}
                 </ul>
@@ -593,11 +651,11 @@ export function ObservationForm({ initial }: { initial: ObsFormData }) {
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm" />
             </Field>
             <Field label="Photos">
-              <PhotoPicker uploading={uploading} hasPhotos={photos.length > 0}
-                onFiles={handlePhotos} idPrefix="notes" />
-              {photos.length > 0 && (
+              <PhotoPicker uploading={uploading} hasPhotos={photos.some((p) => p.context === "notes")}
+                onFiles={(files) => handlePhotos(files, "notes")} idPrefix="notes" />
+              {photos.some((p) => p.context === "notes") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
-                  {photos.map((p, i) => (
+                  {photos.filter((p) => p.context === "notes").map((p, i) => (
                     <li key={p.path}>✓ {i + 1}. {p.name}</li>
                   ))}
                 </ul>
@@ -699,19 +757,21 @@ function ChipGroup({ options, value, onChange }: {
   );
 }
 
-function Chips({ options, values, onToggle, multi }: {
+function Chips({ options, values, onToggle, disabledValues = [], multi }: {
   options: ReadonlyArray<{ v: string; l: string }>;
   values: string[]; onToggle: (v: string) => void; multi?: boolean;
+  disabledValues?: ReadonlyArray<string>;
 }) {
   void multi;
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((o) => {
         const active = values.includes(o.v);
+        const disabled = disabledValues.includes(o.v) && !active;
         return (
-          <button type="button" key={o.v} onClick={() => onToggle(o.v)}
+          <button type="button" key={o.v} onClick={() => onToggle(o.v)} disabled={disabled}
             className={`px-3 py-1.5 text-sm rounded-full border transition ${
-              active ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
+              active ? "bg-emerald-600 text-white border-emerald-600" : disabled ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white text-slate-700 border-slate-300 hover:border-slate-400"
             }`}>{o.l}</button>
         );
       })}
@@ -818,22 +878,25 @@ function PhotoPicker({
   onFiles: (files: FileList) => void;
   idPrefix: string;
 }) {
-  const cameraId = `${idPrefix}-camera`;
-  const galleryId = `${idPrefix}-gallery`;
+  const reactId = useId().replace(/:/g, "");
+  const cameraId = `${idPrefix}-${reactId}-camera`;
+  const galleryId = `${idPrefix}-${reactId}-gallery`;
+  const cameraRef = useRef<HTMLInputElement | null>(null);
+  const galleryRef = useRef<HTMLInputElement | null>(null);
   return (
     <div className="flex flex-wrap gap-2">
-      <label htmlFor={cameraId}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+      <button type="button" onClick={() => cameraRef.current?.click()} disabled={uploading}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 disabled:opacity-50">
         📷 {uploading ? "Uploading…" : "Take photo"}
-        <input id={cameraId} type="file" accept="image/*" capture="environment" className="hidden"
-          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
-      </label>
-      <label htmlFor={galleryId}
-        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer">
+      </button>
+      <input ref={cameraRef} id={cameraId} type="file" accept="image/*" capture="environment" className="sr-only"
+        onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
+      <button type="button" onClick={() => galleryRef.current?.click()} disabled={uploading}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 disabled:opacity-50">
         🖼️ {hasPhotos ? "Add from gallery" : "Choose from gallery"}
-        <input id={galleryId} type="file" accept="image/*" multiple className="hidden"
-          onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
-      </label>
+      </button>
+      <input ref={galleryRef} id={galleryId} type="file" accept="image/*" multiple className="sr-only"
+        onChange={(e) => { const fs = e.target.files; if (fs?.length) onFiles(fs); e.target.value = ""; }} />
     </div>
   );
 }
