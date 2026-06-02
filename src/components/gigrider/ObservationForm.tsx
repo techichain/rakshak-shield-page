@@ -2,11 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  listLookups,
-  saveObservation,
-  deleteDraft,
-} from "@/lib/gigrider/observations.functions";
+import { listLookups, saveObservation, deleteDraft } from "@/lib/gigrider/observations.functions";
 import {
   ROAD_ENV,
   ROAD_HAZARDS,
@@ -478,7 +474,8 @@ export function ObservationForm({
       setUploadStatus("Preparing draft…");
       const obsId = await ensureDraftId();
       if (!obsId) {
-        const msg = "Couldn't create draft to attach the photo to. Save the form once, then try again.";
+        const msg =
+          "Couldn't create draft to attach the photo to. Save the form once, then try again.";
         setPhotoError(msg);
         setError(msg);
         return;
@@ -504,14 +501,19 @@ export function ObservationForm({
         headers: { Authorization: `Bearer ${token}` },
         body,
       });
-      const result = (await response.json().catch(() => null)) as
-        | { storage_path?: string; file_name?: string; error?: string }
-        | null;
+      const result = (await response.json().catch(() => null)) as {
+        storage_path?: string;
+        file_name?: string;
+        error?: string;
+      } | null;
       if (!response.ok || !result?.storage_path) {
         throw new Error(result?.error || "Photo upload failed");
       }
       const path = result.storage_path;
-      setPhotos((p) => [...p, { name: result.file_name || file.name || `Photo ${p.length + 1}`, path, context }]);
+      setPhotos((p) => [
+        ...p,
+        { name: result.file_name || file.name || `Photo ${p.length + 1}`, path, context },
+      ]);
       setUploadStatus(null);
       console.log("[photo] uploaded ok", path);
     } catch (e) {
@@ -705,9 +707,7 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "road_environment")}
                 idPrefix="road"
               />
-              {uploadStatus && (
-                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
-              )}
+              {uploadStatus && <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>}
               {photoError && (
                 <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
               )}
@@ -970,9 +970,7 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "notes")}
                 idPrefix="notes"
               />
-              {uploadStatus && (
-                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
-              )}
+              {uploadStatus && <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>}
               {photoError && (
                 <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
               )}
