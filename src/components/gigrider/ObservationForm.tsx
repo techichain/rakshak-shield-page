@@ -142,6 +142,8 @@ export function ObservationForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [photos, setPhotos] = useState<ObservationPhoto[]>(initialPhotos);
   const isDraftObservation = initialStatus !== "submitted" && initialStatus !== "reviewed";
 
@@ -463,16 +465,26 @@ export function ObservationForm({
   };
 
   const handlePhoto = async (file: File, context: PhotoContext) => {
+    console.log("[photo] selected", { name: file.name, size: file.size, type: file.type, context });
+    setPhotoError(null);
     if (file.size > 20 * 1024 * 1024) {
-      setError("Photo must be under 20MB.");
+      const msg = `Photo "${file.name}" is ${(file.size / 1024 / 1024).toFixed(1)}MB — must be under 20MB.`;
+      setPhotoError(msg);
+      setError(msg);
       return;
     }
     persistDraftLocally();
     setUploading(true);
     setError(null);
     try {
+      setUploadStatus("Preparing draft…");
       const obsId = await ensureDraftId();
-      if (!obsId) return;
+      if (!obsId) {
+        const msg = "Couldn't create draft to attach the photo to. Save the form once, then try again.";
+        setPhotoError(msg);
+        setError(msg);
+        return;
+      }
       const fallbackExt = file.type.includes("png")
         ? "png"
         : file.type.includes("heic")
@@ -480,13 +492,19 @@ export function ObservationForm({
           : "jpg";
       const ext = file.name.includes(".") ? file.name.split(".").pop() || fallbackExt : fallbackExt;
       const path = `${obsId}/${context}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      setUploadStatus(`Uploading ${file.name || "photo"}…`);
+      console.log("[photo] uploading to", path);
       const { error: upErr } = await supabase.storage
         .from("observation-photos")
         .upload(path, file, {
           contentType: file.type || "image/jpeg",
           upsert: false,
         });
-      if (upErr) throw upErr;
+      if (upErr) {
+        console.error("[photo] storage upload error", upErr);
+        throw upErr;
+      }
+      setUploadStatus("Saving photo record…");
       await photoFn({
         data: {
           observation_id: obsId,
@@ -498,10 +516,16 @@ export function ObservationForm({
         },
       });
       setPhotos((p) => [...p, { name: file.name || `Photo ${p.length + 1}`, path, context }]);
+      setUploadStatus(null);
+      console.log("[photo] uploaded ok", path);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Photo upload failed");
+      const msg = e instanceof Error ? e.message : "Photo upload failed";
+      console.error("[photo] failed", e);
+      setPhotoError(msg);
+      setError(msg);
     } finally {
       setUploading(false);
+      setUploadStatus(null);
     }
   };
 
@@ -685,6 +709,12 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "road_environment")}
                 idPrefix="road"
               />
+              {uploadStatus && (
+                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
+              )}
+              {photoError && (
+                <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
+              )}
               {photos.some((p) => p.context === "road_environment") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
                   {photos
@@ -944,6 +974,12 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "notes")}
                 idPrefix="notes"
               />
+              {uploadStatus && (
+                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
+              )}
+              {photoError && (
+                <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
+              )}
               {photos.some((p) => p.context === "notes") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
                   {photos
