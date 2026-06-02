@@ -974,6 +974,12 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "notes")}
                 idPrefix="notes"
               />
+              {uploadStatus && (
+                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
+              )}
+              {photoError && (
+                <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
+              )}
               {photos.some((p) => p.context === "notes") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
                   {photos
