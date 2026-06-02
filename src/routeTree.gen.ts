@@ -29,6 +29,7 @@ import { Route as RakshakMentorAdminIdRouteImport } from './routes/rakshak-mento
 import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
 import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
 import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
+import { Route as ApiGigriderPhotoUploadRouteImport } from './routes/api/gigrider.photo-upload'
 import { Route as ApiDocsFileRouteImport } from './routes/api/docs.$file'
 
 const RakshakMentorRoute = RakshakMentorRouteImport.update({
@@ -139,6 +140,11 @@ const GigriderChecklistAdminIdRoute =
     path: '/$id',
     getParentRoute: () => GigriderChecklistAdminRoute,
   } as any)
+const ApiGigriderPhotoUploadRoute = ApiGigriderPhotoUploadRouteImport.update({
+  id: '/api/gigrider/photo-upload',
+  path: '/api/gigrider/photo-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDocsFileRoute = ApiDocsFileRouteImport.update({
   id: '/api/docs/$file',
   path: '/api/docs/$file',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
   '/api/docs/$file': typeof ApiDocsFileRoute
+  '/api/gigrider/photo-upload': typeof ApiGigriderPhotoUploadRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor': typeof RakshakMentorIndexRoute
   '/api/docs/$file': typeof ApiDocsFileRoute
+  '/api/gigrider/photo-upload': typeof ApiGigriderPhotoUploadRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
   '/api/docs/$file': typeof ApiDocsFileRoute
+  '/api/gigrider/photo-upload': typeof ApiGigriderPhotoUploadRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/'
     | '/rakshak-mentor/'
     | '/api/docs/$file'
+    | '/api/gigrider/photo-upload'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist'
     | '/rakshak-mentor'
     | '/api/docs/$file'
+    | '/api/gigrider/photo-upload'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/'
     | '/rakshak-mentor/'
     | '/api/docs/$file'
+    | '/api/gigrider/photo-upload'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   GigriderChecklistRoute: typeof GigriderChecklistRouteWithChildren
   RakshakMentorRoute: typeof RakshakMentorRouteWithChildren
   ApiDocsFileRoute: typeof ApiDocsFileRoute
+  ApiGigriderPhotoUploadRoute: typeof ApiGigriderPhotoUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -426,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistAdminIdRouteImport
       parentRoute: typeof GigriderChecklistAdminRoute
     }
+    '/api/gigrider/photo-upload': {
+      id: '/api/gigrider/photo-upload'
+      path: '/api/gigrider/photo-upload'
+      fullPath: '/api/gigrider/photo-upload'
+      preLoaderRoute: typeof ApiGigriderPhotoUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/docs/$file': {
       id: '/api/docs/$file'
       path: '/api/docs/$file'
@@ -536,6 +556,7 @@ const rootRouteChildren: RootRouteChildren = {
   GigriderChecklistRoute: GigriderChecklistRouteWithChildren,
   RakshakMentorRoute: RakshakMentorRouteWithChildren,
   ApiDocsFileRoute: ApiDocsFileRoute,
+  ApiGigriderPhotoUploadRoute: ApiGigriderPhotoUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

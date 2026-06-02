@@ -2,12 +2,7 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  listLookups,
-  saveObservation,
-  deleteDraft,
-  recordPhoto,
-} from "@/lib/gigrider/observations.functions";
+import { listLookups, saveObservation, deleteDraft } from "@/lib/gigrider/observations.functions";
 import {
   ROAD_ENV,
   ROAD_HAZARDS,
@@ -130,7 +125,6 @@ export function ObservationForm({
   const fetchLookups = useServerFn(listLookups);
   const save = useServerFn(saveObservation);
   const del = useServerFn(deleteDraft);
-  const photoFn = useServerFn(recordPhoto);
 
   const [form, setForm] = useState<ObsFormData>(initial);
   const [section, setSection] = useState(0);
@@ -480,7 +474,8 @@ export function ObservationForm({
       setUploadStatus("Preparing draft…");
       const obsId = await ensureDraftId();
       if (!obsId) {
-        const msg = "Couldn't create draft to attach the photo to. Save the form once, then try again.";
+        const msg =
+          "Couldn't create draft to attach the photo to. Save the form once, then try again.";
         setPhotoError(msg);
         setError(msg);
         return;
@@ -491,31 +486,34 @@ export function ObservationForm({
           ? "heic"
           : "jpg";
       const ext = file.name.includes(".") ? file.name.split(".").pop() || fallbackExt : fallbackExt;
-      const path = `${obsId}/${context}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       setUploadStatus(`Uploading ${file.name || "photo"}…`);
-      console.log("[photo] uploading to", path);
-      const { error: upErr } = await supabase.storage
-        .from("observation-photos")
-        .upload(path, file, {
-          contentType: file.type || "image/jpeg",
-          upsert: false,
-        });
-      if (upErr) {
-        console.error("[photo] storage upload error", upErr);
-        throw upErr;
-      }
-      setUploadStatus("Saving photo record…");
-      await photoFn({
-        data: {
-          observation_id: obsId,
-          storage_path: path,
-          file_name: (file.name || `photo-${new Date().toISOString()}.${ext}`).slice(0, 200),
-          mime_type: file.type || "image/jpeg",
-          size_bytes: file.size,
-          photo_context: context,
-        },
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Session expired. Please sign in again, then retry the photo.");
+
+      const body = new FormData();
+      body.append("observation_id", obsId);
+      body.append("context", context);
+      body.append("photo", file, file.name || `photo-${Date.now()}.${ext}`);
+
+      const response = await fetch("/api/gigrider/photo-upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body,
       });
-      setPhotos((p) => [...p, { name: file.name || `Photo ${p.length + 1}`, path, context }]);
+      const result = (await response.json().catch(() => null)) as {
+        storage_path?: string;
+        file_name?: string;
+        error?: string;
+      } | null;
+      if (!response.ok || !result?.storage_path) {
+        throw new Error(result?.error || "Photo upload failed");
+      }
+      const path = result.storage_path;
+      setPhotos((p) => [
+        ...p,
+        { name: result.file_name || file.name || `Photo ${p.length + 1}`, path, context },
+      ]);
       setUploadStatus(null);
       console.log("[photo] uploaded ok", path);
     } catch (e) {
@@ -709,9 +707,7 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "road_environment")}
                 idPrefix="road"
               />
-              {uploadStatus && (
-                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
-              )}
+              {uploadStatus && <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>}
               {photoError && (
                 <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
               )}
@@ -974,9 +970,7 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "notes")}
                 idPrefix="notes"
               />
-              {uploadStatus && (
-                <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>
-              )}
+              {uploadStatus && <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>}
               {photoError && (
                 <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
               )}
