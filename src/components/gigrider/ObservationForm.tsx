@@ -1296,17 +1296,12 @@ function PhotoPicker({
   idPrefix: string;
 }) {
   const reactId = useId().replace(/:/g, "");
-  const cameraId = `${idPrefix}-${reactId}-camera`;
   const galleryId = `${idPrefix}-${reactId}-gallery`;
-  // Use <label htmlFor> instead of programmatic .click() — this is a native
-  // user gesture that works reliably across Android (Realme/MIUI/Samsung/etc.),
-  // iOS Safari, and in-app webviews where programmatic clicks on hidden
-  // capture inputs are often silently blocked.
+  const fallbackCameraId = `${idPrefix}-${reactId}-camera-fallback`;
+  const [cameraOpen, setCameraOpen] = useState(false);
   const btn =
     "inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm font-medium bg-white hover:bg-slate-50 cursor-pointer select-none";
   const disabledBtn = uploading ? " opacity-50 pointer-events-none" : "";
-  // Visually-hidden but still focusable & clickable input (not display:none —
-  // some browsers ignore inputs that are display:none).
   const hiddenInput: React.CSSProperties = {
     position: "absolute",
     width: 1,
@@ -1318,13 +1313,29 @@ function PhotoPicker({
     whiteSpace: "nowrap",
     border: 0,
   };
+
+  const supportsInPageCamera =
+    typeof navigator !== "undefined" &&
+    !!navigator.mediaDevices &&
+    typeof navigator.mediaDevices.getUserMedia === "function";
+
+  const handleTakePhoto = () => {
+    if (uploading) return;
+    if (supportsInPageCamera) {
+      setCameraOpen(true);
+    } else {
+      document.getElementById(fallbackCameraId)?.click();
+    }
+  };
+
   return (
     <div className="flex flex-wrap gap-2">
-      <label htmlFor={cameraId} className={btn + disabledBtn}>
+      <button type="button" onClick={handleTakePhoto} className={btn + disabledBtn}>
         📷 {uploading ? "Uploading…" : "Take photo"}
-      </label>
+      </button>
+      {/* Fallback native capture input — used only if getUserMedia is unavailable */}
       <input
-        id={cameraId}
+        id={fallbackCameraId}
         type="file"
         accept="image/*"
         capture="environment"
@@ -1333,7 +1344,6 @@ function PhotoPicker({
         onChange={(e) => {
           const fs = e.target.files;
           if (fs && fs.length) onFiles(fs);
-          // Reset so selecting the same file again still fires change.
           e.target.value = "";
         }}
       />
@@ -1353,6 +1363,130 @@ function PhotoPicker({
           e.target.value = "";
         }}
       />
+      {cameraOpen && (
+        <InPageCamera
+          onCancel={() => setCameraOpen(false)}
+          onCapture={(file) => {
+            setCameraOpen(false);
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            onFiles(dt.files);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function InPageCamera({
+  onCapture,
+  onCancel,
+}: {
+  onCapture: (file: File) => void;
+  onCancel: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  const [capturing, setCapturing] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false,
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        streamRef.current = stream;
+        const v = videoRef.current;
+        if (v) {
+          v.srcObject = stream;
+          v.onloadedmetadata = () => {
+            v.play().then(() => setReady(true)).catch(() => setReady(true));
+          };
+        }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Could not access camera";
+        setError(
+          /NotAllowed|Permission/i.test(msg)
+            ? "Camera permission denied. Enable camera access for this site in your browser settings, then tap Take photo again."
+            : `Camera unavailable: ${msg}. You can still pick from gallery.`,
+        );
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
+  const shoot = async () => {
+    const v = videoRef.current;
+    if (!v || capturing) return;
+    setCapturing(true);
+    try {
+      const w = v.videoWidth;
+      const h = v.videoHeight;
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas unsupported");
+      ctx.drawImage(v, 0, 0, w, h);
+      const blob: Blob | null = await new Promise((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/jpeg", 0.9),
+      );
+      if (!blob) throw new Error("Could not capture image");
+      const file = new File([blob], `photo-${Date.now()}.jpg`, { type: "image/jpeg" });
+      onCapture(file);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Capture failed");
+      setCapturing(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+      <div className="flex items-center justify-between px-4 py-3 text-white">
+        <button type="button" onClick={onCancel} className="text-sm px-3 py-1.5 rounded bg-white/10">
+          Cancel
+        </button>
+        <span className="text-sm opacity-80">Take photo</span>
+        <span className="w-[68px]" />
+      </div>
+      <div className="flex-1 flex items-center justify-center overflow-hidden">
+        {error ? (
+          <p className="px-6 text-center text-sm text-red-200">{error}</p>
+        ) : (
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            autoPlay
+            className="max-h-full max-w-full"
+          />
+        )}
+      </div>
+      <div className="flex items-center justify-center py-6 bg-black">
+        {!error && (
+          <button
+            type="button"
+            onClick={shoot}
+            disabled={!ready || capturing}
+            aria-label="Shutter"
+            className="w-16 h-16 rounded-full bg-white border-4 border-white/40 disabled:opacity-50 active:scale-95 transition"
+          />
+        )}
+      </div>
     </div>
   );
 }
