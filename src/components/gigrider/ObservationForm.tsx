@@ -142,6 +142,8 @@ export function ObservationForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [photos, setPhotos] = useState<ObservationPhoto[]>(initialPhotos);
   const isDraftObservation = initialStatus !== "submitted" && initialStatus !== "reviewed";
 
