@@ -203,7 +203,10 @@ export function ObservationForm({
       const cached = localStorage.getItem(draftKey);
       if (cached) {
         const parsed = JSON.parse(cached);
-        setForm((f) => ({ ...f, ...parsed }));
+        // On /observer/new, never resurrect an id from a prior draft — the row may
+        // have been submitted, discarded, or belong to a different account on this device.
+        if (!initial.id) delete parsed.id;
+        setForm((f) => ({ ...f, ...parsed, id: initial.id ?? undefined }));
         if (parsed.gps_lat != null) setGpsState("ok");
       }
       const cachedSection = localStorage.getItem(sectionKey);

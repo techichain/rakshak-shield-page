@@ -180,9 +180,10 @@ export const saveObservation = createServerFn({ method: "POST" })
     };
     if (data.id) {
       const { data: updated, error } = await supabase
-        .from("observations").update(payload).eq("id", data.id).eq("observer_id", userId).select("id").single();
+        .from("observations").update(payload).eq("id", data.id).eq("observer_id", userId).select("id").maybeSingle();
       if (error) throw new Error(error.message);
-      return { id: updated.id };
+      if (updated?.id) return { id: updated.id };
+      // Row no longer exists (e.g. stale local draft id) — fall through and insert fresh.
     }
     const { data: inserted, error } = await supabase
       .from("observations").insert(payload).select("id").single();
