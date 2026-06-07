@@ -163,7 +163,7 @@ function LandingPage() {
                 onClick={() => logEvent("assignment_download", "/rakshak-mentor", "mentor")}
                 className="mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-md bg-[#4A35FF] text-white font-semibold hover:bg-[#3A28D9] transition"
               >
-                <DownloadIcon /> Download Exercise (PDF, 98 KB)
+                <DownloadIcon /> View Exercise (Google Drive)
               </a>
             </div>
           </div>
