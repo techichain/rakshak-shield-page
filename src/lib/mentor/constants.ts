@@ -54,7 +54,7 @@ export const BRAND = {
 // Content-Disposition: attachment so the browser triggers a direct download.
 export const DOCUMENTS = {
   mentorJD: "/api/docs/mentor-jd.pdf",
-  mentorAssignment: "/api/docs/mentor-assignment.pdf",
+  mentorAssignment: "https://drive.google.com/file/d/1RP_lZuOHrR5599CESHkCv4eocv4IgM2u/view?usp=drivesdk",
 } as const;
 
 export const EXPERTISE_DOMAINS = [
