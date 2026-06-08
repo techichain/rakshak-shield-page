@@ -143,6 +143,40 @@
   }
 }
 
+/* ============================================================
+   Crashfree India — Project Rakshak Platform design tokens
+   ============================================================ */
+:root {
+  --brand: #4A35FF;
+  --brand-lite: #F8F7FF;
+  --brand-foreground: #FFFFFF;
+  --rp-danger: #F10015;
+  --rp-success: #91E88A;
+  --rp-border: #EDEEF2;
+}
+.dark {
+  --brand: #6E5BFF;
+  --brand-lite: #1A1530;
+  --brand-foreground: #FFFFFF;
+  --rp-border: #2A2A35;
+}
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-lite: var(--brand-lite);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-rp-danger: var(--rp-danger);
+  --color-rp-success: var(--rp-success);
+  --font-heading: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Scope a clean body font to the platform shell so it doesn't disturb existing routes */
+.rp-platform { font-family: var(--font-body); color: var(--color-foreground); background: var(--color-background); }
+.rp-platform .font-heading { font-family: var(--font-heading); }
+.rp-platform * { border-color: var(--rp-border); }
+
+
+
 
 /* ============================================================
    Project Rakshak — legacy styles (ported from public/legacy.html)
