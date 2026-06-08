@@ -128,7 +128,18 @@ function ReviewRow({
         >
           <XCircle className="h-4 w-4" /> Request changes
         </button>
+        <button
+          onClick={() => setShowTimeline((v) => !v)}
+          className="ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border text-sm font-medium hover:bg-muted"
+        >
+          <History className="h-4 w-4" /> {showTimeline ? "Hide" : "Timeline"}
+        </button>
       </div>
+      {showTimeline && (
+        <div className="mt-4">
+          <SubmissionTimeline submissionId={sub.id} />
+        </div>
+      )}
     </li>
   );
 }
