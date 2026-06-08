@@ -548,6 +548,760 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_role?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+        }
+        Relationships: []
+      }
+      rp_cohorts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          participating_states: string[] | null
+          region: string | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["rp_cohort_status"]
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          participating_states?: string[] | null
+          region?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["rp_cohort_status"]
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          participating_states?: string[] | null
+          region?: string | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["rp_cohort_status"]
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      rp_feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string
+          id: string
+          phase_number: number
+          reviewer_id: string | null
+          reviewer_role: string
+          rubric_scores: Json | null
+          score: number | null
+          status: string
+          submission_id: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_text: string
+          id?: string
+          phase_number: number
+          reviewer_id?: string | null
+          reviewer_role: string
+          rubric_scores?: Json | null
+          score?: number | null
+          status?: string
+          submission_id: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string
+          id?: string
+          phase_number?: number
+          reviewer_id?: string | null
+          reviewer_role?: string
+          rubric_scores?: Json | null
+          score?: number | null
+          status?: string
+          submission_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_feedback_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_feedback_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "rp_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_feedback_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_locations: {
+        Row: {
+          address: string | null
+          authority_jurisdiction: string | null
+          city: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_final_selected: boolean
+          issue_type: string | null
+          latitude: number | null
+          location_name: string
+          longitude: number | null
+          phase_number: number
+          severity: Database["public"]["Enums"]["rp_severity"] | null
+          state: string | null
+          team_id: string
+        }
+        Insert: {
+          address?: string | null
+          authority_jurisdiction?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_final_selected?: boolean
+          issue_type?: string | null
+          latitude?: number | null
+          location_name: string
+          longitude?: number | null
+          phase_number?: number
+          severity?: Database["public"]["Enums"]["rp_severity"] | null
+          state?: string | null
+          team_id: string
+        }
+        Update: {
+          address?: string | null
+          authority_jurisdiction?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_final_selected?: boolean
+          issue_type?: string | null
+          latitude?: number | null
+          location_name?: string
+          longitude?: number | null
+          phase_number?: number
+          severity?: Database["public"]["Enums"]["rp_severity"] | null
+          state?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_locations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_mentors: {
+        Row: {
+          avg_response_time_hours: number | null
+          created_at: string
+          current_team_count: number
+          expertise: string | null
+          id: string
+          max_teams: number
+          organization: string | null
+          profile_id: string
+          rating: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avg_response_time_hours?: number | null
+          created_at?: string
+          current_team_count?: number
+          expertise?: string | null
+          id?: string
+          max_teams?: number
+          organization?: string | null
+          profile_id: string
+          rating?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_response_time_hours?: number | null
+          created_at?: string
+          current_team_count?: number
+          expertise?: string | null
+          id?: string
+          max_teams?: number
+          organization?: string | null
+          profile_id?: string
+          rating?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mentors_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_notifications: {
+        Row: {
+          action_link: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string | null
+          recipient_id: string
+          related_entity_id: string | null
+          related_entity_type: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          action_link?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          recipient_id: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          action_link?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string | null
+          recipient_id?: string
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      rp_phase_templates: {
+        Row: {
+          checklist: Json
+          created_at: string
+          default_duration_days: number
+          description: string
+          id: string
+          phase_number: number
+          required_deliverables: Json
+          title: string
+        }
+        Insert: {
+          checklist?: Json
+          created_at?: string
+          default_duration_days?: number
+          description: string
+          id?: string
+          phase_number: number
+          required_deliverables?: Json
+          title: string
+        }
+        Update: {
+          checklist?: Json
+          created_at?: string
+          default_duration_days?: number
+          description?: string
+          id?: string
+          phase_number?: number
+          required_deliverables?: Json
+          title?: string
+        }
+        Relationships: []
+      }
+      rp_profiles: {
+        Row: {
+          avatar_url: string | null
+          city: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          organization: string | null
+          phone: string | null
+          state: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          organization?: string | null
+          phone?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          organization?: string | null
+          phone?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rp_submission_files: {
+        Row: {
+          caption: string | null
+          created_at: string
+          evidence_type: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          storage_path: string | null
+          submission_id: string
+          team_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          evidence_type?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          storage_path?: string | null
+          submission_id: string
+          team_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          evidence_type?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          storage_path?: string | null
+          submission_id?: string
+          team_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_submission_files_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "rp_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_submission_files_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_submission_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_submissions: {
+        Row: {
+          admin_review_status: string | null
+          created_at: string
+          evaluator_score: number | null
+          id: string
+          mentor_review_status: string | null
+          phase_number: number
+          revision_number: number
+          status: Database["public"]["Enums"]["rp_phase_status"]
+          submitted_at: string | null
+          submitted_by: string | null
+          summary: string | null
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_review_status?: string | null
+          created_at?: string
+          evaluator_score?: number | null
+          id?: string
+          mentor_review_status?: string | null
+          phase_number: number
+          revision_number?: number
+          status?: Database["public"]["Enums"]["rp_phase_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_review_status?: string | null
+          created_at?: string
+          evaluator_score?: number | null
+          id?: string
+          mentor_review_status?: string | null
+          phase_number?: number
+          revision_number?: number
+          status?: Database["public"]["Enums"]["rp_phase_status"]
+          submitted_at?: string | null
+          submitted_by?: string | null
+          summary?: string | null
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_submissions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_submissions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_team_members: {
+        Row: {
+          college: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          profile_id: string | null
+          role_in_team: string
+          team_id: string
+          year: string | null
+        }
+        Insert: {
+          college?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          profile_id?: string | null
+          role_in_team?: string
+          team_id: string
+          year?: string | null
+        }
+        Update: {
+          college?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          profile_id?: string | null
+          role_in_team?: string
+          team_id?: string
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_team_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_team_phase_progress: {
+        Row: {
+          admin_reviewed_at: string | null
+          admin_status: string | null
+          at_risk_reason: string | null
+          completed_at: string | null
+          completion_percentage: number
+          created_at: string
+          deadline: string | null
+          id: string
+          is_at_risk: boolean
+          last_activity_at: string
+          mentor_reviewed_at: string | null
+          mentor_status: string | null
+          phase_number: number
+          revision_count: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["rp_phase_status"]
+          submitted_at: string | null
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_reviewed_at?: string | null
+          admin_status?: string | null
+          at_risk_reason?: string | null
+          completed_at?: string | null
+          completion_percentage?: number
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          is_at_risk?: boolean
+          last_activity_at?: string
+          mentor_reviewed_at?: string | null
+          mentor_status?: string | null
+          phase_number: number
+          revision_count?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["rp_phase_status"]
+          submitted_at?: string | null
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_reviewed_at?: string | null
+          admin_status?: string | null
+          at_risk_reason?: string | null
+          completed_at?: string | null
+          completion_percentage?: number
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          is_at_risk?: boolean
+          last_activity_at?: string
+          mentor_reviewed_at?: string | null
+          mentor_status?: string | null
+          phase_number?: number
+          revision_count?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["rp_phase_status"]
+          submitted_at?: string | null
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_team_phase_progress_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_teams: {
+        Row: {
+          assigned_evaluator_id: string | null
+          assigned_mentor_id: string | null
+          city: string | null
+          cohort_id: string
+          college: string | null
+          completion_percentage: number
+          created_at: string
+          current_phase: number
+          health_score: number
+          id: string
+          last_activity_at: string
+          risk_reason: string | null
+          risk_status: Database["public"]["Enums"]["rp_risk_status"]
+          state: string | null
+          status: Database["public"]["Enums"]["rp_team_status"]
+          team_leader_id: string | null
+          team_name: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_evaluator_id?: string | null
+          assigned_mentor_id?: string | null
+          city?: string | null
+          cohort_id: string
+          college?: string | null
+          completion_percentage?: number
+          created_at?: string
+          current_phase?: number
+          health_score?: number
+          id?: string
+          last_activity_at?: string
+          risk_reason?: string | null
+          risk_status?: Database["public"]["Enums"]["rp_risk_status"]
+          state?: string | null
+          status?: Database["public"]["Enums"]["rp_team_status"]
+          team_leader_id?: string | null
+          team_name: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_evaluator_id?: string | null
+          assigned_mentor_id?: string | null
+          city?: string | null
+          cohort_id?: string
+          college?: string | null
+          completion_percentage?: number
+          created_at?: string
+          current_phase?: number
+          health_score?: number
+          id?: string
+          last_activity_at?: string
+          risk_reason?: string | null
+          risk_status?: Database["public"]["Enums"]["rp_risk_status"]
+          state?: string | null
+          status?: Database["public"]["Enums"]["rp_team_status"]
+          team_leader_id?: string | null
+          team_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_teams_assigned_evaluator_id_fkey"
+            columns: ["assigned_evaluator_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_teams_assigned_mentor_id_fkey"
+            columns: ["assigned_mentor_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_teams_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "rp_cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_teams_team_leader_id_fkey"
+            columns: ["team_leader_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["rp_app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["rp_app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["rp_app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       surveyors: {
         Row: {
           created_at: string
@@ -605,6 +1359,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      rp_has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["rp_app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      rp_is_admin: { Args: { _user_id: string }; Returns: boolean }
+      rp_is_team_member: {
+        Args: { _team: string; _user: string }
+        Returns: boolean
+      }
+      rp_is_team_mentor: {
+        Args: { _team: string; _user: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "observer" | "admin"
@@ -656,6 +1426,41 @@ export type Database = {
         | "petrol_pump"
         | "residential_society"
         | "highway_service_lane"
+      rp_app_role:
+        | "super_admin"
+        | "cfi_admin"
+        | "team_leader"
+        | "team_member"
+        | "mentor"
+        | "evaluator"
+        | "authority"
+        | "finance"
+        | "leadership_viewer"
+      rp_cohort_status: "draft" | "active" | "completed" | "archived"
+      rp_phase_status:
+        | "not_started"
+        | "draft"
+        | "submitted"
+        | "under_mentor_review"
+        | "changes_requested"
+        | "resubmitted"
+        | "mentor_approved"
+        | "under_admin_review"
+        | "admin_approved"
+        | "rejected"
+        | "completed"
+      rp_risk_status: "on_track" | "attention" | "at_risk"
+      rp_severity: "low" | "medium" | "high" | "critical"
+      rp_team_status:
+        | "pending_approval"
+        | "approved"
+        | "active"
+        | "delayed"
+        | "at_risk"
+        | "completed"
+        | "dropped"
+        | "disqualified"
+        | "archived"
       rushed_answer: "yes" | "no" | "somewhat"
       surveyor_rating: "satisfactory" | "needs_improvement" | "unacceptable"
       vehicle_type:
@@ -843,6 +1648,44 @@ export const Constants = {
         "petrol_pump",
         "residential_society",
         "highway_service_lane",
+      ],
+      rp_app_role: [
+        "super_admin",
+        "cfi_admin",
+        "team_leader",
+        "team_member",
+        "mentor",
+        "evaluator",
+        "authority",
+        "finance",
+        "leadership_viewer",
+      ],
+      rp_cohort_status: ["draft", "active", "completed", "archived"],
+      rp_phase_status: [
+        "not_started",
+        "draft",
+        "submitted",
+        "under_mentor_review",
+        "changes_requested",
+        "resubmitted",
+        "mentor_approved",
+        "under_admin_review",
+        "admin_approved",
+        "rejected",
+        "completed",
+      ],
+      rp_risk_status: ["on_track", "attention", "at_risk"],
+      rp_severity: ["low", "medium", "high", "critical"],
+      rp_team_status: [
+        "pending_approval",
+        "approved",
+        "active",
+        "delayed",
+        "at_risk",
+        "completed",
+        "dropped",
+        "disqualified",
+        "archived",
       ],
       rushed_answer: ["yes", "no", "somewhat"],
       surveyor_rating: ["satisfactory", "needs_improvement", "unacceptable"],
