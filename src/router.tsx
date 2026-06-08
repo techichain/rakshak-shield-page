@@ -18,16 +18,17 @@ function DefaultPending() {
 }
 
 function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+  report("route-error", error);
   const router = useRouter();
+  const dev = isDevMode();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-2xl text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {error?.message ? error.message : "Something went wrong on our end."}
+          {dev ? error?.message || "Unknown error" : "Something went wrong on our end."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -46,6 +47,18 @@ function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => vo
             Go home
           </a>
         </div>
+        {dev && error?.stack && (
+          <details className="mt-6 text-left">
+            <summary className="cursor-pointer text-xs text-muted-foreground">
+              Error details (development only)
+            </summary>
+            <pre className="mt-2 max-h-72 overflow-auto rounded-md bg-muted/40 p-3 text-[11px] leading-relaxed">
+              {error.name}: {error.message}
+              {"\n\n"}
+              {error.stack}
+            </pre>
+          </details>
+        )}
       </div>
     </div>
   );
