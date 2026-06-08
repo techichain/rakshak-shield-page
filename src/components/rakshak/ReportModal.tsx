@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { X } from "lucide-react";
 import type { Location } from "./types";
 import { RC, RL } from "./data";
 
