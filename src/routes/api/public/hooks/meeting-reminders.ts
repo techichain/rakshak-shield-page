@@ -93,18 +93,21 @@ export const Route = createFileRoute("/api/public/hooks/meeting-reminders")({
               .filter((e): e is string => Boolean(e));
             const subject = `Reminder: ${m.title} in ${w.label}`;
             await sendEmail(recipients, subject, html(m, w.label));
-            await supabaseAdmin
-              .from("rp_meetings")
-              .update({ [w.col]: new Date().toISOString() })
+            const patch: Record<string, string> = {};
+            patch[w.col] = new Date().toISOString();
+            await (supabaseAdmin.from("rp_meetings") as any)
+              .update(patch)
               .eq("id", m.id);
             // also write in-app notifications
-            for (const a of m.rp_meeting_attendees ?? []) {
+            for (const a of (m.rp_meeting_attendees ?? []) as any[]) {
               await supabaseAdmin.from("rp_notifications").insert({
-                user_id: a.profile_id,
-                kind: "meeting_reminder",
+                recipient_id: a.profile_id,
+                type: "meeting_reminder",
                 title: subject,
-                body: `Starts ${new Date(m.scheduled_start).toLocaleString()}`,
-                link: m.meeting_link ?? null,
+                message: `Starts ${new Date(m.scheduled_start).toLocaleString()}`,
+                action_link: m.meeting_link ?? null,
+                related_entity_type: "meeting",
+                related_entity_id: m.id,
               }).then(() => {}, () => {});
             }
             sent++;
