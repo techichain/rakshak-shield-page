@@ -78,6 +78,7 @@ function ReviewRow({
 }) {
   const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
   const teamName = sub.team_name ?? sub.rp_teams?.team_name ?? "Team";
   return (
     <li className="rounded-2xl border border-border bg-card p-5">
