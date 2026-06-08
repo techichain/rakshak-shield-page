@@ -127,7 +127,6 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
       setGeoStatus("failed");
     };
     loadGeoRef.current = loadGeo;
-    const geoCtl = new AbortController();
     loadGeo(geoCtl.signal);
 
 
