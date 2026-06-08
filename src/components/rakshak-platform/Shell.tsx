@@ -118,6 +118,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/qa-checklist" className="text-muted-foreground hover:text-brand">
                   QA checklist
                 </Link>
+                <Link to="/rakshak-platform/admin/reviews" className="text-muted-foreground hover:text-brand">
+                  Reviews
+                </Link>
                 <Link to="/rakshak-platform/admin/badges" className="text-muted-foreground hover:text-brand">
                   Badges
                 </Link>
