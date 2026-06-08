@@ -12,9 +12,12 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="rp-platform min-h-screen">
+    <div className="rp-platform min-h-dvh">
+      <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
+        Skip to main content
+      </a>
       <header className="border-b border-border bg-background sticky top-0 z-40">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 md:px-10 h-16">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2">
           <Link to="/rakshak-platform" className="flex items-center gap-2">
             <span className="inline-block h-2 w-2 rounded-sm bg-brand" />
             <span className="font-heading text-base font-bold tracking-tight">
