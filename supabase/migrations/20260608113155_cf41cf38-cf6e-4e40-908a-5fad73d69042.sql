@@ -1,0 +1,1 @@
+ALTER VIEW public.rp_leaderboard_view SET (security_invoker = true);
