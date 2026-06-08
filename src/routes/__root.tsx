@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -9,6 +10,11 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import {
+  installClientErrorReporter,
+  isDevMode,
+  report,
+} from "@/lib/client-error-reporter";
 
 function NotFoundComponent() {
   return (
@@ -33,17 +39,23 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
+  useEffect(() => {
+    report("route-error", error);
+  }, [error]);
+
+  const dev = isDevMode();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-2xl text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {dev
+            ? error?.message || "Unknown error"
+            : "Something went wrong on our end. You can try refreshing or head back home."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -62,6 +74,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             Go home
           </a>
         </div>
+        {dev && error?.stack && (
+          <details className="mt-6 text-left">
+            <summary className="cursor-pointer text-xs text-muted-foreground">
+              Error details (development only)
+            </summary>
+            <pre className="mt-2 max-h-72 overflow-auto rounded-md bg-muted/40 p-3 text-[11px] leading-relaxed">
+              {error.name}: {error.message}
+              {"\n\n"}
+              {error.stack}
+            </pre>
+          </details>
+        )}
       </div>
     </div>
   );
@@ -120,6 +144,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    installClientErrorReporter();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

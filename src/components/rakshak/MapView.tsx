@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type * as Leaflet from "leaflet";
 import type { Location } from "./types";
 import { LOC, RC, RL, ST, SB, GEO_NAME_MAP } from "./data";
+import { report } from "@/lib/client-error-reporter";
 
 interface Props {
   visibleIds: Set<number>;
@@ -29,19 +30,25 @@ function makeIcon(L: typeof Leaflet, risk: Location["risk"]) {
 
 export function MapView({ visibleIds, onSelect, registerApi }: Props) {
   const mapEl = useRef<HTMLDivElement>(null);
-  const loadingEl = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<typeof Leaflet | null>(null);
   const mapRef = useRef<Leaflet.Map | null>(null);
   const markersRef = useRef<Record<number, { m: Leaflet.Marker; vis: boolean }>>({});
   const indiaGeoRef = useRef<Leaflet.GeoJSON | null>(null);
   const stateLayerMapRef = useRef<Record<string, Leaflet.Layer[]>>({});
+  const loadGeoRef = useRef<((signal?: AbortSignal) => Promise<void>) | null>(null);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+
+  const [geoStatus, setGeoStatus] = useState<"loading" | "loaded" | "failed">("loading");
+  const [geoError, setGeoError] = useState<string | null>(null);
+
 
   // Init map once
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
     let disposed = false;
+    const geoCtl = new AbortController();
+
 
     (async () => {
       const L = await import("leaflet");
@@ -94,23 +101,35 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
       markersRef.current[loc.id] = { m, vis: true };
     });
 
-    // India GeoJSON
-    (async () => {
+    // India GeoJSON loader (with multi-URL fallback + retry support)
+    const loadGeo = async (signal?: AbortSignal) => {
+      setGeoStatus("loading");
+      setGeoError(null);
+      const errs: string[] = [];
       for (const url of GEO_URLS) {
         try {
-          const r = await fetch(url);
-          if (!r.ok) continue;
+          const r = await fetch(url, { signal });
+          if (!r.ok) { errs.push(`${url} → HTTP ${r.status}`); continue; }
           const data = await r.json();
-          if (!data.features?.length) continue;
+          if (!data?.features?.length) { errs.push(`${url} → empty features`); continue; }
+          if (signal?.aborted) return;
           renderIndia(data);
-          loadingEl.current?.classList.add("hide");
+          setGeoStatus("loaded");
           return;
-        } catch {
-          /* try next */
+        } catch (e) {
+          if ((e as any)?.name === "AbortError") return;
+          errs.push(`${url} → ${(e as Error).message}`);
         }
       }
-      loadingEl.current?.classList.add("hide");
-    })();
+      const msg = errs.join(" | ");
+      report("geojson-fetch-failed", new Error(msg));
+      setGeoError(msg);
+      setGeoStatus("failed");
+    };
+    loadGeoRef.current = loadGeo;
+    loadGeo(geoCtl.signal);
+
+
 
     function renderIndia(data: any) {
       if (!mapRef.current) return;
@@ -170,6 +189,8 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
 
     return () => {
       disposed = true;
+      geoCtl.abort();
+      loadGeoRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
       leafletRef.current = null;
@@ -200,9 +221,51 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
   return (
     <div className="map-wrap">
       <div id="map" ref={mapEl} />
-      <div className="map-loading" ref={loadingEl}>
-        🗺️ Loading India map…
-      </div>
+      {geoStatus === "loading" && (
+        <div className="map-loading">🗺️ Loading India map…</div>
+      )}
+      {geoStatus === "failed" && (
+        <div
+          className="map-loading"
+          role="alert"
+          style={{ textAlign: "center", maxWidth: 320, lineHeight: 1.4 }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>
+            Couldn't load the India map outline
+          </div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 10 }}>
+            Markers are still usable. Check your connection and retry.
+          </div>
+          <button
+            type="button"
+            onClick={() => loadGeoRef.current?.()}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              border: "1px solid currentColor",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Retry
+          </button>
+          {geoError && import.meta.env.DEV && (
+            <pre
+              style={{
+                marginTop: 10,
+                fontSize: 10,
+                opacity: 0.7,
+                whiteSpace: "pre-wrap",
+                textAlign: "left",
+              }}
+            >
+              {geoError}
+            </pre>
+          )}
+        </div>
+      )}
       <button
         className="map-reset"
         onClick={() => {
