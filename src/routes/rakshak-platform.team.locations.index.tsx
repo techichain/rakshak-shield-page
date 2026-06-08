@@ -116,7 +116,7 @@ function TeamLocationsIndex() {
     setShowForm(false);
     setForm({
       location_name: "", address: "",
-      city: team.city, state: team.state,
+      city: team.city ?? "", state: team.state ?? "",
       issue_type: ISSUE_TYPES[0], severity: "medium",
       description: "", latitude: null, longitude: null,
     });
