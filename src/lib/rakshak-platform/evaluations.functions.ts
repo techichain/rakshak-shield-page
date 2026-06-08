@@ -3,27 +3,107 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 /**
- * Public leaderboard (no auth required). Returns ranked teams safe for public display.
+ * Public leaderboard (no auth). Optional filters: cohortId, phase (0–4),
+ * submittedFrom / submittedTo (ISO). When phase or date is set we recompute
+ * standings from rp_evaluations instead of using the materialised view.
  */
 export const getLeaderboard = createServerFn({ method: "GET" })
-  .inputValidator((input: { cohortId?: string } | undefined) => input ?? {})
+  .inputValidator((input: {
+    cohortId?: string;
+    phase?: number | null;
+    submittedFrom?: string | null;
+    submittedTo?: string | null;
+  } | undefined) => input ?? {})
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let q = supabaseAdmin
-      .from("rp_leaderboard_view")
-      .select("*")
-      .order("overall_rank", { ascending: true })
-      .limit(200);
-    if (data.cohortId) q = q.eq("cohort_id", data.cohortId);
-    const { data: rows, error } = await q;
-    if (error) throw error;
 
     const { data: cohorts } = await supabaseAdmin
       .from("rp_cohorts")
       .select("id, name, year, region")
       .order("year", { ascending: false });
 
-    return { rows: rows ?? [], cohorts: cohorts ?? [] };
+    const hasPhase = data.phase !== undefined && data.phase !== null;
+    const hasDate = !!(data.submittedFrom || data.submittedTo);
+
+    if (!hasPhase && !hasDate) {
+      let q = supabaseAdmin
+        .from("rp_leaderboard_view")
+        .select("*")
+        .order("overall_rank", { ascending: true })
+        .limit(200);
+      if (data.cohortId) q = q.eq("cohort_id", data.cohortId);
+      const { data: rows, error } = await q;
+      if (error) throw error;
+      return { rows: rows ?? [], cohorts: cohorts ?? [], filters: data };
+    }
+
+    let eq = supabaseAdmin
+      .from("rp_evaluations")
+      .select("team_id, phase_number, weighted_score, submitted_at, status")
+      .eq("status", "submitted");
+    if (hasPhase) eq = eq.eq("phase_number", data.phase as number);
+    if (data.submittedFrom) eq = eq.gte("submitted_at", data.submittedFrom);
+    if (data.submittedTo) eq = eq.lte("submitted_at", data.submittedTo);
+    const { data: evals, error: evErr } = await eq;
+    if (evErr) throw evErr;
+
+    const best = new Map<string, number>();
+    for (const e of evals ?? []) {
+      const k = `${e.team_id}|${e.phase_number}`;
+      const w = Number(e.weighted_score) || 0;
+      if (w > (best.get(k) ?? -Infinity)) best.set(k, w);
+    }
+    const agg = new Map<string, { score: number; phases: Set<number> }>();
+    for (const [k, w] of best) {
+      const [teamId, p] = k.split("|");
+      const cur = agg.get(teamId) ?? { score: 0, phases: new Set<number>() };
+      cur.score += w;
+      cur.phases.add(Number(p));
+      agg.set(teamId, cur);
+    }
+
+    const teamIds = Array.from(agg.keys());
+    if (teamIds.length === 0) return { rows: [], cohorts: cohorts ?? [], filters: data };
+
+    let tq = supabaseAdmin
+      .from("rp_teams")
+      .select("id, team_name, city, state, college, cohort_id, current_phase, rp_cohorts(name)")
+      .in("id", teamIds);
+    if (data.cohortId) tq = tq.eq("cohort_id", data.cohortId);
+    const { data: teams, error: tErr } = await tq;
+    if (tErr) throw tErr;
+
+    const rows = (teams ?? [])
+      .map((t: any) => {
+        const a = agg.get(t.id)!;
+        return {
+          team_id: t.id,
+          team_name: t.team_name,
+          city: t.city,
+          state: t.state,
+          college: t.college,
+          cohort_id: t.cohort_id,
+          cohort_name: t.rp_cohorts?.name ?? null,
+          current_phase: t.current_phase,
+          final_score: Number(a.score.toFixed(2)),
+          evaluated_phases: a.phases.size,
+          cohort_rank: 0,
+          overall_rank: 0,
+        };
+      })
+      .sort((a, b) => b.final_score - a.final_score)
+      .slice(0, 200)
+      .map((r, i) => ({ ...r, overall_rank: i + 1 }));
+
+    const byCohort = new Map<string, number>();
+    for (const r of rows) {
+      const k = r.cohort_id ?? "_";
+      const next = (byCohort.get(k) ?? 0) + 1;
+      byCohort.set(k, next);
+      r.cohort_rank = next;
+    }
+
+    return { rows, cohorts: cohorts ?? [], filters: data };
   });
 
 /**
