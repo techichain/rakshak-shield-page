@@ -629,6 +629,83 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_evaluations: {
+        Row: {
+          comments: string | null
+          created_at: string
+          evaluator_id: string | null
+          id: string
+          phase_number: number
+          rubric_scores: Json
+          status: string
+          submission_id: string
+          submitted_at: string | null
+          team_id: string
+          total_score: number
+          updated_at: string
+          weighted_score: number
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          evaluator_id?: string | null
+          id?: string
+          phase_number: number
+          rubric_scores?: Json
+          status?: string
+          submission_id: string
+          submitted_at?: string | null
+          team_id: string
+          total_score?: number
+          updated_at?: string
+          weighted_score?: number
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          evaluator_id?: string | null
+          id?: string
+          phase_number?: number
+          rubric_scores?: Json
+          status?: string
+          submission_id?: string
+          submitted_at?: string | null
+          team_id?: string
+          total_score?: number
+          updated_at?: string
+          weighted_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_evaluations_evaluator_id_fkey"
+            columns: ["evaluator_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_evaluations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "rp_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_evaluations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_evaluations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_feedback: {
         Row: {
           created_at: string
@@ -683,6 +760,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "rp_submissions"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_feedback_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
           },
           {
             foreignKeyName: "rp_feedback_team_id_fkey"
@@ -746,6 +830,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "rp_locations"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_location_photos_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
           },
           {
             foreignKeyName: "rp_location_photos_team_id_fkey"
@@ -821,6 +912,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rp_locations_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
           {
             foreignKeyName: "rp_locations_team_id_fkey"
             columns: ["team_id"]
@@ -994,6 +1092,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_rubrics: {
+        Row: {
+          created_at: string
+          criteria: Json
+          description: string | null
+          id: string
+          max_total_score: number
+          phase_number: number
+          phase_weight: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          criteria: Json
+          description?: string | null
+          id?: string
+          max_total_score?: number
+          phase_number: number
+          phase_weight?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          id?: string
+          max_total_score?: number
+          phase_number?: number
+          phase_weight?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rp_submission_files: {
         Row: {
           caption: string | null
@@ -1050,6 +1184,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "rp_submissions"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_submission_files_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
           },
           {
             foreignKeyName: "rp_submission_files_team_id_fkey"
@@ -1128,6 +1269,13 @@ export type Database = {
             foreignKeyName: "rp_submissions_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_submissions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
             referencedRelation: "rp_teams"
             referencedColumns: ["id"]
           },
@@ -1180,6 +1328,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
           },
           {
             foreignKeyName: "rp_team_members_team_id_fkey"
@@ -1259,6 +1414,13 @@ export type Database = {
             foreignKeyName: "rp_team_phase_progress_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_team_phase_progress_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
             referencedRelation: "rp_teams"
             referencedColumns: ["id"]
           },
@@ -1274,6 +1436,8 @@ export type Database = {
           completion_percentage: number
           created_at: string
           current_phase: number
+          evaluated_phases: number
+          final_score: number
           health_score: number
           id: string
           last_activity_at: string
@@ -1294,6 +1458,8 @@ export type Database = {
           completion_percentage?: number
           created_at?: string
           current_phase?: number
+          evaluated_phases?: number
+          final_score?: number
           health_score?: number
           id?: string
           last_activity_at?: string
@@ -1314,6 +1480,8 @@ export type Database = {
           completion_percentage?: number
           created_at?: string
           current_phase?: number
+          evaluated_phases?: number
+          final_score?: number
           health_score?: number
           id?: string
           last_activity_at?: string
@@ -1424,7 +1592,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      rp_leaderboard_view: {
+        Row: {
+          city: string | null
+          cohort_id: string | null
+          cohort_name: string | null
+          cohort_rank: number | null
+          college: string | null
+          current_phase: number | null
+          evaluated_phases: number | null
+          final_score: number | null
+          overall_rank: number | null
+          state: string | null
+          team_id: string | null
+          team_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_teams_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "rp_cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
@@ -1449,6 +1641,10 @@ export type Database = {
       rp_is_team_mentor: {
         Args: { _team: string; _user: string }
         Returns: boolean
+      }
+      rp_recompute_team_score: {
+        Args: { _team_id: string }
+        Returns: undefined
       }
     }
     Enums: {
