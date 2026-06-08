@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+import { useState } from "react";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
 
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="rp-platform min-h-screen">
