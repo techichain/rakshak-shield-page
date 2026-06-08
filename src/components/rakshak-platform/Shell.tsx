@@ -3,6 +3,7 @@ import { LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
+import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
 
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -59,6 +60,15 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/map" className="text-muted-foreground hover:text-brand">
                   Programme map
                 </Link>
+                <Link to="/rakshak-platform/admin/analytics" className="text-muted-foreground hover:text-brand">
+                  Analytics
+                </Link>
+                <Link to="/rakshak-platform/admin/mentor-applications" className="text-muted-foreground hover:text-brand">
+                  Mentor apps
+                </Link>
+                <Link to="/rakshak-platform/admin/bulk-import" className="text-muted-foreground hover:text-brand">
+                  Import
+                </Link>
                 <Link to="/rakshak-platform/admin/exports" className="text-muted-foreground hover:text-brand">
                   Exports
                 </Link>
@@ -111,6 +121,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             )}
           </nav>
           <div className="flex items-center gap-3">
+            {isAdmin && (
+              <div className="hidden lg:block w-72"><GlobalSearch /></div>
+            )}
             {userId ? (
               <>
                 <NotificationBell userId={userId} />
@@ -174,6 +187,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isAdmin && (
                 <>
                   <Link to="/rakshak-platform/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
+                  <Link to="/rakshak-platform/admin/analytics" onClick={() => setMenuOpen(false)}>Analytics</Link>
+                  <Link to="/rakshak-platform/admin/mentor-applications" onClick={() => setMenuOpen(false)}>Mentor applications</Link>
+                  <Link to="/rakshak-platform/admin/bulk-import" onClick={() => setMenuOpen(false)}>Bulk import</Link>
                   <Link to="/rakshak-platform/admin/exports" onClick={() => setMenuOpen(false)}>Exports</Link>
                   <Link to="/rakshak-platform/admin/audit" onClick={() => setMenuOpen(false)}>Audit</Link>
                   <Link to="/rakshak-platform/admin/meetings" onClick={() => setMenuOpen(false)}>All meetings</Link>
@@ -202,6 +218,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
               <li><Link to="/rakshak-platform/impact">Impact</Link></li>
               <li><Link to="/rakshak-platform/sponsor">Sponsor</Link></li>
+              <li><Link to="/rakshak-platform/mentor-apply">Become a mentor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
             </ul>
           </div>
