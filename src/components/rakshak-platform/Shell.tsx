@@ -62,6 +62,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/team/locations" className="text-muted-foreground hover:text-brand">
                   Locations
                 </Link>
+                <Link to="/rakshak-platform/team/reports" className="text-muted-foreground hover:text-brand">
+                  Reports
+                </Link>
               </>
             )}
           </nav>
