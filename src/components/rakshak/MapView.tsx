@@ -242,6 +242,6 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
 /**
  * Invalidate map size after the detail panel opens/closes (parent should call).
  */
-export function invalidateMapSize(map: L.Map | null) {
+export function invalidateMapSize(map: Leaflet.Map | null) {
   if (map) map.invalidateSize();
 }
