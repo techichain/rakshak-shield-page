@@ -2204,6 +2204,19 @@ export type Database = {
         Args: { _team: string; _user: string }
         Returns: boolean
       }
+      rp_public_team_locations: {
+        Args: { _team_id: string }
+        Returns: {
+          city: string
+          id: string
+          issue_type: string
+          latitude: number
+          location_name: string
+          longitude: number
+          severity: string
+          state: string
+        }[]
+      }
       rp_recompute_team_score: {
         Args: { _team_id: string }
         Returns: undefined
