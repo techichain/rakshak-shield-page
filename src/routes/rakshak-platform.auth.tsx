@@ -33,7 +33,7 @@ function AuthPage() {
 
   const setMode = (m: "login" | "register") =>
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
-  const setRole = (r: "team" | "mentor") =>
+  const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
   async function handleSubmit(e: React.FormEvent) {
