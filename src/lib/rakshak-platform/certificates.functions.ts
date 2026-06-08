@@ -82,14 +82,19 @@ export const verifyCertificate = createServerFn({ method: "GET" })
   });
 
 export const listTeamCertificates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: { teamId: string }) =>
     z.object({ teamId: z.string().uuid() }).parse(d),
   )
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows, error } = await supabaseAdmin
+  .handler(async ({ data, context }) => {
+    // RLS on rp_certificates scopes results to certificates the caller is
+    // entitled to see (team members / mentor / admins). Project only the
+    // non-sensitive fields needed by the UI.
+    const { data: rows, error } = await context.supabase
       .from("rp_certificates")
-      .select("*")
+      .select(
+        "id, team_id, certificate_type, phase_number, title, recipient_name, public_slug, serial_no, issued_at, is_revoked",
+      )
       .eq("team_id", data.teamId)
       .order("issued_at", { ascending: false });
     if (error) throw error;
