@@ -23,12 +23,14 @@ function CronHealthPage() {
   const qc = useQueryClient();
   const { loading, userId, isAdmin } = useRPAuth();
   const fn = useServerFn(getCronHealth);
+  const escalate = useServerFn(escalateAlerts);
 
   useEffect(() => {
     if (loading) return;
     if (!userId) navigate({ to: "/rakshak-platform/auth" });
     else if (!isAdmin) navigate({ to: "/rakshak-platform/dashboard" });
-  }, [loading, userId, isAdmin, navigate]);
+    else escalate().catch(() => {});
+  }, [loading, userId, isAdmin, navigate, escalate]);
 
   const { data } = useSuspenseQuery({
     queryKey: ["rp-cron-health"],
