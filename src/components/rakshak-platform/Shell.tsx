@@ -57,6 +57,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/exports" className="text-muted-foreground hover:text-brand">
                   Exports
                 </Link>
+                <Link to="/rakshak-platform/admin/audit" className="text-muted-foreground hover:text-brand">
+                  Audit
+                </Link>
               </>
             )}
             {(isAdmin || isFinance) && (
@@ -68,6 +71,11 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   Sponsorships
                 </Link>
               </>
+            )}
+            {(isMentor || isTeam) && (
+              <Link to="/rakshak-platform/meetings" className="text-muted-foreground hover:text-brand">
+                Meetings
+              </Link>
             )}
             {isMentor && (
               <Link to="/rakshak-platform/mentor" className="text-muted-foreground hover:text-brand">
