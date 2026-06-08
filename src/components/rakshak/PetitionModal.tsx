@@ -1,4 +1,4 @@
-import type { Location } from "./types";
+import { useMemo, useState } from "react";
 import { getAuthShort } from "./data";
 
 interface Props {
