@@ -88,6 +88,12 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/cron-health" className="text-muted-foreground hover:text-brand">
                   Cron
                 </Link>
+                <Link to="/rakshak-platform/admin/roles" className="text-muted-foreground hover:text-brand">
+                  Roles
+                </Link>
+                <Link to="/rakshak-platform/admin/evaluator-queue" className="text-muted-foreground hover:text-brand">
+                  Evaluator queue
+                </Link>
                 <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
                   Seed
                 </Link>

@@ -59,13 +59,28 @@ function AuthPage() {
         const dbRole = ROLE_OPTIONS.find((r) => r.value === role)?.dbRole ?? "team_leader";
         if (userId) {
           await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
-          await supabase.from("rp_user_roles").insert({ user_id: userId, role: dbRole });
-          if (role === "mentor") {
-            await supabase.from("rp_mentors").insert({ profile_id: userId });
+          if (role === "evaluator" || role === "admin") {
+            // Pending approval — do NOT grant the privileged role yet.
+            await supabase.from("rp_role_approvals").insert({
+              user_id: userId,
+              requested_role: dbRole,
+              status: "pending",
+              notes: `Self-requested ${dbRole} access at sign-up.`,
+            });
+          } else {
+            await supabase.from("rp_user_roles").insert({ user_id: userId, role: dbRole });
+            if (role === "mentor") {
+              await supabase.from("rp_mentors").insert({ profile_id: userId });
+            }
           }
         }
         if (data.session) {
-          navigate({ to: "/rakshak-platform/dashboard" });
+          if (role === "evaluator" || role === "admin") {
+            setError("Account created. Your " + (role === "admin" ? "CFI Admin" : "Evaluator") + " access request is pending super-admin approval.");
+            setMode("login");
+          } else {
+            navigate({ to: "/rakshak-platform/dashboard" });
+          }
         } else {
           setError("Account created. Please check your email to confirm, then sign in.");
           setMode("login");

@@ -1709,6 +1709,45 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_role_approvals: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          requested_at: string
+          requested_role: Database["public"]["Enums"]["rp_app_role"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          requested_at?: string
+          requested_role: Database["public"]["Enums"]["rp_app_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          requested_at?: string
+          requested_role?: Database["public"]["Enums"]["rp_app_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rp_rubrics: {
         Row: {
           created_at: string
@@ -2308,6 +2347,7 @@ export type Database = {
         Returns: boolean
       }
       rp_is_admin: { Args: { _user_id: string }; Returns: boolean }
+      rp_is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       rp_is_team_member: {
         Args: { _team: string; _user: string }
         Returns: boolean
