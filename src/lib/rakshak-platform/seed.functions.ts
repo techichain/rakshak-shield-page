@@ -2,13 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const DEMO_USERS: Array<{ email: string; password: string; full_name: string; role: string }> = [
-  { email: "demo.admin@rakshak.test",     password: "RakshakDemo!23", full_name: "Demo Admin",     role: "cfi_admin" },
-  { email: "demo.mentor@rakshak.test",    password: "RakshakDemo!23", full_name: "Demo Mentor",    role: "mentor" },
-  { email: "demo.team@rakshak.test",      password: "RakshakDemo!23", full_name: "Demo Team Lead", role: "team_leader" },
-  { email: "demo.evaluator@rakshak.test", password: "RakshakDemo!23", full_name: "Demo Evaluator", role: "evaluator" },
-  { email: "demo.finance@rakshak.test",   password: "RakshakDemo!23", full_name: "Demo Finance",   role: "finance" },
-  { email: "demo.authority@rakshak.test", password: "RakshakDemo!23", full_name: "Demo Authority", role: "authority" },
+function demoPassword(): string {
+  // Prefer an env-provided password; fall back to a random per-run password
+  // so a leaked source file never reveals real demo credentials.
+  return (
+    process.env.DEMO_SEED_PASSWORD ||
+    `Rakshak-${Math.random().toString(36).slice(2, 10)}!${Date.now().toString(36).slice(-4)}`
+  );
+}
+
+const DEMO_USERS: Array<{ email: string; full_name: string; role: string }> = [
+  { email: "demo.admin@rakshak.test",     full_name: "Demo Admin",     role: "cfi_admin" },
+  { email: "demo.mentor@rakshak.test",    full_name: "Demo Mentor",    role: "mentor" },
+  { email: "demo.team@rakshak.test",      full_name: "Demo Team Lead", role: "team_leader" },
+  { email: "demo.evaluator@rakshak.test", full_name: "Demo Evaluator", role: "evaluator" },
+  { email: "demo.finance@rakshak.test",   full_name: "Demo Finance",   role: "finance" },
+  { email: "demo.authority@rakshak.test", full_name: "Demo Authority", role: "authority" },
 ];
 
 async function assertAdmin(ctx: any) {
