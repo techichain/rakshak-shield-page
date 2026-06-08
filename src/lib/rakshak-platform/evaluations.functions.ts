@@ -81,7 +81,9 @@ export const getEvaluatorQueue = createServerFn({ method: "GET" })
  */
 export const getSubmissionForScoring = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { submissionId: string }) => input)
+  .inputValidator((input: unknown) =>
+    z.object({ submissionId: z.string().uuid() }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
