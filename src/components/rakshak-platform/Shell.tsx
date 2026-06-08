@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
+import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
 
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -53,6 +54,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/map" className="text-muted-foreground hover:text-brand">
                   Programme map
                 </Link>
+                <Link to="/rakshak-platform/admin/exports" className="text-muted-foreground hover:text-brand">
+                  Exports
+                </Link>
               </>
             )}
             {(isAdmin || isFinance) && (
@@ -81,18 +85,16 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/team/reports" className="text-muted-foreground hover:text-brand">
                   Reports
                 </Link>
+                <Link to="/rakshak-platform/team/ai-check" className="text-muted-foreground hover:text-brand">
+                  AI check
+                </Link>
               </>
             )}
           </nav>
           <div className="flex items-center gap-3">
             {userId ? (
               <>
-                <button
-                  className="relative h-9 w-9 rounded-full border border-border flex items-center justify-center hover:border-brand/40"
-                  aria-label="Notifications"
-                >
-                  <Bell className="h-4 w-4" />
-                </button>
+                <NotificationBell userId={userId} />
                 <span className="hidden sm:block text-xs text-muted-foreground max-w-[10rem] truncate">
                   {fullName}
                 </span>
