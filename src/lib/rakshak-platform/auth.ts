@@ -55,6 +55,7 @@ export function useRPAuth(): RPAuthState {
         isMentor: roles.includes("mentor"),
         isTeam: roles.includes("team_leader") || roles.includes("team_member"),
         isEvaluator: roles.includes("evaluator"),
+        isAuthority: roles.includes("authority"),
       });
     };
 
