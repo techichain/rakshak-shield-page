@@ -33,6 +33,10 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const expectedCaptcha = useRef<number>(0);
+  const verifyEmail = useServerFn(verifyEmailDeliverable);
 
   const setMode = (m: "login" | "register") =>
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
