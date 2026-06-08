@@ -80,7 +80,7 @@ function AdminDashboard() {
           city: city.c, state: city.st,
           current_phase: Math.min(4, Math.floor(i / 4)),
           status: teamStatuses[i % teamStatuses.length],
-          risk_status: i % 7 === 0 ? "at_risk" : i % 5 === 0 ? "attention" : "on_track",
+          risk_status: (i % 7 === 0 ? "at_risk" : i % 5 === 0 ? "attention" : "on_track") as "at_risk" | "attention" | "on_track",
           risk_reason: i % 7 === 0 ? "No activity for 12 days" : null,
           completion_percentage: Math.min(100, 15 + i * 4),
           health_score: Math.max(30, 100 - (i % 7) * 10),
