@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
+import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
 
 export const Route = createFileRoute("/rakshak-platform/mentor")({
   component: MentorDashboard,
@@ -60,6 +61,10 @@ function MentorDashboard() {
               </div>
             );
           })}
+        </div>
+
+        <div className="mt-16 border-t border-border pt-12">
+          <ReviewPanel role="mentor" />
         </div>
       </Section>
     </PlatformShell>
