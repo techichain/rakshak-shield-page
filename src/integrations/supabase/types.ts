@@ -693,10 +693,74 @@ export type Database = {
           },
         ]
       }
+      rp_location_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          file_name: string
+          file_size: number | null
+          id: string
+          latitude: number | null
+          location_id: string
+          longitude: number | null
+          mime_type: string | null
+          storage_path: string
+          taken_at: string | null
+          team_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          latitude?: number | null
+          location_id: string
+          longitude?: number | null
+          mime_type?: string | null
+          storage_path: string
+          taken_at?: string | null
+          team_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          latitude?: number | null
+          location_id?: string
+          longitude?: number | null
+          mime_type?: string | null
+          storage_path?: string
+          taken_at?: string | null
+          team_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_location_photos_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rp_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_location_photos_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_locations: {
         Row: {
           address: string | null
           authority_jurisdiction: string | null
+          authority_response: string | null
           city: string | null
           created_at: string
           description: string | null
@@ -707,13 +771,17 @@ export type Database = {
           location_name: string
           longitude: number | null
           phase_number: number
+          priority_rank: number | null
           severity: Database["public"]["Enums"]["rp_severity"] | null
           state: string | null
+          submitted_to_authority_at: string | null
           team_id: string
+          updated_at: string
         }
         Insert: {
           address?: string | null
           authority_jurisdiction?: string | null
+          authority_response?: string | null
           city?: string | null
           created_at?: string
           description?: string | null
@@ -724,13 +792,17 @@ export type Database = {
           location_name: string
           longitude?: number | null
           phase_number?: number
+          priority_rank?: number | null
           severity?: Database["public"]["Enums"]["rp_severity"] | null
           state?: string | null
+          submitted_to_authority_at?: string | null
           team_id: string
+          updated_at?: string
         }
         Update: {
           address?: string | null
           authority_jurisdiction?: string | null
+          authority_response?: string | null
           city?: string | null
           created_at?: string
           description?: string | null
@@ -741,9 +813,12 @@ export type Database = {
           location_name?: string
           longitude?: number | null
           phase_number?: number
+          priority_rank?: number | null
           severity?: Database["public"]["Enums"]["rp_severity"] | null
           state?: string | null
+          submitted_to_authority_at?: string | null
           team_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
