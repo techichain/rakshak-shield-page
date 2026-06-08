@@ -43,6 +43,7 @@ function SponsorPage() {
   });
   const queryClient = useQueryClient();
   const submit = useServerFn(createSponsorshipPledge);
+  const checkout = useServerFn(createSponsorshipCheckout);
   const [tier, setTier] = useState<typeof TIERS[number]["id"]>("bronze");
   const [amount, setAmount] = useState<number>(10000);
   const [done, setDone] = useState(false);
@@ -56,7 +57,7 @@ function SponsorPage() {
     setBusy(true); setErr(null);
     const fd = new FormData(e.currentTarget);
     try {
-      await submit({
+      const { pledge } = await submit({
         data: {
           sponsor_name: String(fd.get("name") || ""),
           sponsor_email: String(fd.get("email") || ""),
@@ -67,8 +68,20 @@ function SponsorPage() {
           is_public: fd.get("public") === "on",
         },
       });
-      setDone(true);
       queryClient.invalidateQueries({ queryKey: ["rp-public-sponsors"] });
+
+      // Try seamless checkout. If payments aren't configured, fall back to
+      // "we'll email you" confirmation so the form still works.
+      try {
+        const { url } = await checkout({
+          data: { sponsorship_id: (pledge as any).id, origin: window.location.origin },
+        });
+        window.location.href = url;
+        return;
+      } catch (payErr) {
+        console.warn("[sponsor] checkout unavailable, falling back to manual:", payErr);
+        setDone(true);
+      }
     } catch (e: any) {
       setErr(e?.message ?? "Could not record pledge");
     } finally {
