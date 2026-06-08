@@ -46,7 +46,7 @@ Yours faithfully,
 [Your Name]
 [Your Address & Contact]
 
-cC: District Road Safety Committee (DRSC), ${loc.ci} — ${drscEmail}
+cc: District Road Safety Committee (DRSC), ${loc.ci} — ${drscEmail}
 ${ccParts.map((c) => `    ${c}`).join("\n")}
     Crashfree India | info@crashfreeindia.org`;
 }
