@@ -2,13 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const DEMO_USERS: Array<{ email: string; password: string; full_name: string; role: string }> = [
-  { email: "demo.admin@rakshak.test",     password: "RakshakDemo!23", full_name: "Demo Admin",     role: "cfi_admin" },
-  { email: "demo.mentor@rakshak.test",    password: "RakshakDemo!23", full_name: "Demo Mentor",    role: "mentor" },
-  { email: "demo.team@rakshak.test",      password: "RakshakDemo!23", full_name: "Demo Team Lead", role: "team_leader" },
-  { email: "demo.evaluator@rakshak.test", password: "RakshakDemo!23", full_name: "Demo Evaluator", role: "evaluator" },
-  { email: "demo.finance@rakshak.test",   password: "RakshakDemo!23", full_name: "Demo Finance",   role: "finance" },
-  { email: "demo.authority@rakshak.test", password: "RakshakDemo!23", full_name: "Demo Authority", role: "authority" },
+function demoPassword(): string {
+  // Prefer an env-provided password; fall back to a random per-run password
+  // so a leaked source file never reveals real demo credentials.
+  return (
+    process.env.DEMO_SEED_PASSWORD ||
+    `Rakshak-${Math.random().toString(36).slice(2, 10)}!${Date.now().toString(36).slice(-4)}`
+  );
+}
+
+const DEMO_USERS: Array<{ email: string; full_name: string; role: string }> = [
+  { email: "demo.admin@rakshak.test",     full_name: "Demo Admin",     role: "cfi_admin" },
+  { email: "demo.mentor@rakshak.test",    full_name: "Demo Mentor",    role: "mentor" },
+  { email: "demo.team@rakshak.test",      full_name: "Demo Team Lead", role: "team_leader" },
+  { email: "demo.evaluator@rakshak.test", full_name: "Demo Evaluator", role: "evaluator" },
+  { email: "demo.finance@rakshak.test",   full_name: "Demo Finance",   role: "finance" },
+  { email: "demo.authority@rakshak.test", full_name: "Demo Authority", role: "authority" },
 ];
 
 async function assertAdmin(ctx: any) {
@@ -25,6 +34,7 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const password = demoPassword();
     const created: Array<{ email: string; role: string; status: string }> = [];
 
     for (const u of DEMO_USERS) {
@@ -32,7 +42,7 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
       let userId: string | null = null;
       const { data: createRes, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: u.email,
-        password: u.password,
+        password,
         email_confirm: true,
         user_metadata: { name: u.full_name },
       });
@@ -60,7 +70,9 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
       created.push({ email: u.email, role: u.role, status: createRes?.user ? "created" : "updated" });
     }
 
-    return { accounts: created, password: "RakshakDemo!23" };
+    // Surface password to server logs only (never returned to the client).
+    console.log(`[seedDemoAccounts] demo password for this run: ${password}`);
+    return { accounts: created };
   });
 
 export const seedDemoContent = createServerFn({ method: "POST" })

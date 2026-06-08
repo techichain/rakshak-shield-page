@@ -68,6 +68,27 @@ export const cancelMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    // Ownership / admin enforcement (defense-in-depth on top of RLS UPDATE policy)
+    const { data: row, error: readErr } = await context.supabase
+      .from("rp_meetings")
+      .select("id, created_by")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readErr) throw readErr;
+    if (!row) throw new Error("Meeting not found");
+
+    let allowed = row.created_by === context.userId;
+    if (!allowed) {
+      const { data: roles } = await context.supabase
+        .from("rp_user_roles")
+        .select("role")
+        .eq("user_id", context.userId);
+      allowed = (roles ?? []).some((r: any) =>
+        ["cfi_admin", "super_admin"].includes(r.role),
+      );
+    }
+    if (!allowed) throw new Error("Forbidden: only the meeting creator or an admin can cancel");
+
     const { error } = await context.supabase
       .from("rp_meetings")
       .update({ status: "cancelled" })

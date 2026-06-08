@@ -59,7 +59,8 @@ function SeedPage() {
             <Users className="h-5 w-5 text-brand" />
             <h2 className="mt-3 font-heading text-xl">Demo accounts</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Creates one login per role with password <code className="font-mono">RakshakDemo!23</code>.
+              Creates one login per role. The initial password is printed in the server logs
+              after creation and rotated regularly — ask an admin if you don't have it.
             </p>
             <button
               disabled={busy === "accounts"}
@@ -70,7 +71,7 @@ function SeedPage() {
             </button>
             {accResult && (
               <div className="mt-5 rounded-xl border border-border bg-muted/40 p-4 text-xs">
-                <div className="mb-2 font-semibold">Password: {accResult.password}</div>
+                <div className="mb-2 font-semibold">Accounts</div>
                 <ul className="space-y-1">
                   {accResult.accounts.map((a: any) => (
                     <li key={a.email}>
