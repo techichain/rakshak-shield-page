@@ -1,51 +1,42 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { type StripeEnv, createStripeClient, getWebhookSecret } from "@/lib/stripe.server";
 
 export const Route = createFileRoute("/api/public/payments/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const Stripe = (await import("stripe")).default;
-        const apiKey = process.env.STRIPE_SANDBOX_API_KEY ?? process.env.STRIPE_API_KEY;
-        const whSecret =
-          process.env.PAYMENTS_SANDBOX_WEBHOOK_SECRET ??
-          process.env.STRIPE_WEBHOOK_SECRET;
+        const url = new URL(request.url);
+        const env = (url.searchParams.get("env") ?? "sandbox") as StripeEnv;
+        if (env !== "sandbox" && env !== "live") {
+          return new Response("Bad env", { status: 400 });
+        }
 
         const raw = await request.text();
         const sig = request.headers.get("stripe-signature");
+        if (!sig) return new Response("Missing signature", { status: 400 });
 
         let event: any;
-        if (apiKey && whSecret && sig) {
-          try {
-            const stripe = new Stripe(apiKey);
-            event = stripe.webhooks.constructEvent(raw, sig, whSecret);
-          } catch (e) {
-            return new Response(`Invalid signature: ${String(e)}`, { status: 400 });
-          }
-        } else {
-          // Fallback: accept normalized Lovable payload (no signature header)
-          try {
-            event = JSON.parse(raw);
-          } catch {
-            return new Response("Bad body", { status: 400 });
-          }
+        try {
+          const stripe = createStripeClient(env);
+          event = stripe.webhooks.constructEvent(raw, sig, getWebhookSecret(env));
+        } catch (e) {
+          return new Response(`Invalid signature: ${String(e)}`, { status: 400 });
         }
 
-        const type = event?.type ?? event?.event_type;
-        const obj = event?.data?.object ?? event?.data ?? {};
+        const obj = event?.data?.object ?? {};
         const sponsorshipId =
           obj?.metadata?.sponsorship_id ??
-          obj?.custom_data?.sponsorship_id ??
+          obj?.payment_intent_data?.metadata?.sponsorship_id ??
           null;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        if (
+        const shouldMarkPaid =
           sponsorshipId &&
-          (type === "checkout.session.completed" ||
-            type === "transaction.completed" ||
-            type === "payment_intent.succeeded")
-        ) {
-          // Look up amount + sponsor for finance entry
+          (event.type === "checkout.session.completed" ||
+            event.type === "payment_intent.succeeded");
+
+        if (shouldMarkPaid) {
           const { data: pledge } = await supabaseAdmin
             .from("rp_sponsorships")
             .select("id, amount_inr, sponsor_name, tier, status")
@@ -68,7 +59,7 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
               category: "sponsorship",
               amount_inr: pledge.amount_inr,
               description: `Sponsorship from ${pledge.sponsor_name} (${pledge.tier})`,
-              metadata: { sponsorship_id: pledge.id },
+              metadata: { sponsorship_id: pledge.id, stripe_event: event.id },
             } as any);
           }
         }
