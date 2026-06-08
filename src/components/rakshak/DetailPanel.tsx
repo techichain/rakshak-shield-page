@@ -107,7 +107,14 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
       <div className="prog-wrap">
         <div className="prog-hdr">
           <span className="prog-ttl">Implementation Progress</span>
-          <span className="prog-curr" style={{ color: s.c }}>{s.i ? s.i + " " : ""}{s.l}</span>
+          <span
+            className="prog-curr"
+            style={{ color: s.c }}
+            title={STATUS_DESCRIPTIONS[loc.status]}
+            aria-label={`Current status: ${s.l}. ${STATUS_DESCRIPTIONS[loc.status]}`}
+          >
+            {s.l}
+          </span>
         </div>
         <ProgressBar status={loc.status} />
         <div className="prog-team">Audit Team: {loc.team}</div>
