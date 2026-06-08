@@ -1222,6 +1222,124 @@ export type Database = {
           },
         ]
       }
+      rp_meeting_attendees: {
+        Row: {
+          created_at: string
+          id: string
+          meeting_id: string
+          profile_id: string
+          responded_at: string | null
+          rsvp: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meeting_id: string
+          profile_id: string
+          responded_at?: string | null
+          rsvp?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          profile_id?: string
+          responded_at?: string | null
+          rsvp?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_meeting_attendees_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "rp_meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_meeting_attendees_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_meetings: {
+        Row: {
+          agenda: string
+          created_at: string
+          created_by: string
+          id: string
+          location: string | null
+          meeting_link: string | null
+          mentor_id: string | null
+          notes: string | null
+          scheduled_end: string
+          scheduled_start: string
+          status: string
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agenda?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          location?: string | null
+          meeting_link?: string | null
+          mentor_id?: string | null
+          notes?: string | null
+          scheduled_end: string
+          scheduled_start: string
+          status?: string
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agenda?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          location?: string | null
+          meeting_link?: string | null
+          mentor_id?: string | null
+          notes?: string | null
+          scheduled_end?: string
+          scheduled_start?: string
+          status?: string
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_meetings_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_meetings_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_meetings_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_mentors: {
         Row: {
           avg_response_time_hours: number | null

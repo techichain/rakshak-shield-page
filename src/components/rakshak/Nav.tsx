@@ -29,6 +29,13 @@ export function Nav({ onReport, onPetition }: Props) {
         <button className="nav-btn nav-btn-primary" onClick={onPetition}>
           ✍️ Sign a Petition
         </button>
+        <a
+          className="nav-btn nav-btn-primary"
+          href="/rakshak-platform/dashboard"
+          style={{ background: "#4A35FF", color: "#fff" }}
+        >
+          🛡️ Dashboard
+        </a>
       </div>
     </nav>
   );
