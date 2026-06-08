@@ -22,7 +22,22 @@ async function sendEmail(to: string[], subject: string, html: string) {
 export const Route = createFileRoute("/api/public/hooks/admin-digest")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        // Require a shared bearer secret. Fail closed if unset to avoid
+        // accidental public exposure.
+        const expected = process.env.ADMIN_DIGEST_WEBHOOK_SECRET;
+        if (!expected) {
+          return new Response("Webhook secret not configured", { status: 503 });
+        }
+        const auth = request.headers.get("authorization") ?? "";
+        const presented = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+        const { timingSafeEqual } = await import("crypto");
+        const a = Buffer.from(presented);
+        const b = Buffer.from(expected);
+        if (a.length !== b.length || !timingSafeEqual(a, b)) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const sinceIso = new Date(Date.now() - 7 * 86400000).toISOString();
 
