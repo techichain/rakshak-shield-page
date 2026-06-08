@@ -5,9 +5,16 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 
+const ROLE_OPTIONS = [
+  { value: "team", label: "Team lead", dbRole: "team_leader" as const },
+  { value: "mentor", label: "Mentor", dbRole: "mentor" as const },
+  { value: "evaluator", label: "Evaluator", dbRole: "evaluator" as const },
+  { value: "admin", label: "CFI Admin", dbRole: "cfi_admin" as const },
+];
+
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).default("login").catch("login"),
-  role: z.enum(["team", "mentor"]).default("team").catch("team"),
+  role: z.enum(["team", "mentor", "evaluator", "admin"]).default("team").catch("team"),
 });
 
 export const Route = createFileRoute("/rakshak-platform/auth")({
