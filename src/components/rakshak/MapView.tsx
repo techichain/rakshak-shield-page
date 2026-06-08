@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type * as Leaflet from "leaflet";
 import type { Location } from "./types";
 import { LOC, RC, RL, ST, SB, GEO_NAME_MAP } from "./data";
+import { report } from "@/lib/client-error-reporter";
 
 interface Props {
   visibleIds: Set<number>;
