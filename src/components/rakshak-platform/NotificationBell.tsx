@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { Bell, Check } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 type Notif = {
@@ -34,7 +35,16 @@ export function NotificationBell({ userId }: { userId: string }) {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "rp_notifications", filter: `recipient_id=eq.${userId}` },
-        (payload) => setItems((cur) => [payload.new as Notif, ...cur].slice(0, 30)),
+        (payload) => {
+          const n = payload.new as Notif;
+          setItems((cur) => [n, ...cur].slice(0, 30));
+          toast(n.title, {
+            description: n.message ?? undefined,
+            action: n.action_link
+              ? { label: "Open", onClick: () => { window.location.href = n.action_link!; } }
+              : undefined,
+          });
+        },
       )
       .on(
         "postgres_changes",

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Toaster } from "sonner";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
 import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
@@ -228,6 +229,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 }
