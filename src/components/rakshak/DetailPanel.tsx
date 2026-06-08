@@ -60,7 +60,15 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
   return (
     <>
       <div className="d-hero">
-        <button className="d-close-btn" onClick={onClose} title="Close">×</button>
+        <button
+          type="button"
+          className="d-close-btn"
+          onClick={onClose}
+          title="Close location details"
+          aria-label="Close location details"
+        >
+          <X size={16} strokeWidth={2.25} aria-hidden />
+        </button>
         <div className={"risk-badge " + loc.risk}>
           <span
             style={{
