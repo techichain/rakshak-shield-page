@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import type * as Leaflet from "leaflet";
 import type { Location } from "./types";
 import { LOC, RC, RL, ST, SB, GEO_NAME_MAP } from "./data";
 
@@ -17,7 +17,7 @@ const GEO_URLS = [
   "https://raw.githubusercontent.com/datameet/maps/master/States/India_State_Boundary.geojson",
 ];
 
-function makeIcon(risk: Location["risk"]) {
+function makeIcon(L: typeof Leaflet, risk: Location["risk"]) {
   return L.divIcon({
     className: "rk-marker",
     html: `<span class="rk-marker-dot" style="background:${RC[risk]}"></span>`,
@@ -30,17 +30,25 @@ function makeIcon(risk: Location["risk"]) {
 export function MapView({ visibleIds, onSelect, registerApi }: Props) {
   const mapEl = useRef<HTMLDivElement>(null);
   const loadingEl = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<Record<number, { m: L.Marker; vis: boolean }>>({});
-  const indiaGeoRef = useRef<L.GeoJSON | null>(null);
-  const stateLayerMapRef = useRef<Record<string, L.Layer[]>>({});
+  const leafletRef = useRef<typeof Leaflet | null>(null);
+  const mapRef = useRef<Leaflet.Map | null>(null);
+  const markersRef = useRef<Record<number, { m: Leaflet.Marker; vis: boolean }>>({});
+  const indiaGeoRef = useRef<Leaflet.GeoJSON | null>(null);
+  const stateLayerMapRef = useRef<Record<string, Leaflet.Layer[]>>({});
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
 
   // Init map once
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
-    const map = L.map(mapEl.current, {
+    let disposed = false;
+
+    (async () => {
+      const L = await import("leaflet");
+      if (disposed || !mapEl.current || mapRef.current) return;
+      leafletRef.current = L;
+
+      const map = L.map(mapEl.current, {
       zoomControl: true,
       minZoom: 4,
       maxZoom: 14,
@@ -54,7 +62,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
 
     // Markers
     LOC.forEach((loc) => {
-      const m = L.marker([loc.lat, loc.lng], { icon: makeIcon(loc.risk), riseOnHover: true }).addTo(map);
+      const m = L.marker([loc.lat, loc.lng], { icon: makeIcon(L, loc.risk), riseOnHover: true }).addTo(map);
       const s = ST[loc.status];
       const popupHtml = `<div class="map-tip" data-loc-id="${loc.id}">
         <div class="mt-name">${loc.n}</div>
@@ -158,10 +166,13 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
     }
 
     registerApi({ zoomToState, resetIndia });
+    })();
 
     return () => {
-      map.remove();
+      disposed = true;
+      mapRef.current?.remove();
       mapRef.current = null;
+      leafletRef.current = null;
       markersRef.current = {};
       indiaGeoRef.current = null;
       stateLayerMapRef.current = {};
@@ -196,7 +207,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
         className="map-reset"
         onClick={() => {
           // call via registered api side-effect: trigger fresh reset
-          const opts = { duration: 0.9, easeLinearity: 0.5 } as L.FitBoundsOptions;
+          const opts = { duration: 0.9, easeLinearity: 0.5 } as Leaflet.FitBoundsOptions;
           const map = mapRef.current!;
           if (indiaGeoRef.current) map.flyToBounds(indiaGeoRef.current.getBounds().pad(0.02), opts);
           else map.flyToBounds([[6.5, 68], [37, 97.5]], opts);
@@ -231,6 +242,6 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
 /**
  * Invalidate map size after the detail panel opens/closes (parent should call).
  */
-export function invalidateMapSize(map: L.Map | null) {
+export function invalidateMapSize(map: Leaflet.Map | null) {
   if (map) map.invalidateSize();
 }
