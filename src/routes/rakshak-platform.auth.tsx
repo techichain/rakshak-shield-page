@@ -5,9 +5,16 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 
+const ROLE_OPTIONS = [
+  { value: "team", label: "Team lead", dbRole: "team_leader" as const },
+  { value: "mentor", label: "Mentor", dbRole: "mentor" as const },
+  { value: "evaluator", label: "Evaluator", dbRole: "evaluator" as const },
+  { value: "admin", label: "CFI Admin", dbRole: "cfi_admin" as const },
+];
+
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).default("login").catch("login"),
-  role: z.enum(["team", "mentor"]).default("team").catch("team"),
+  role: z.enum(["team", "mentor", "evaluator", "admin"]).default("team").catch("team"),
 });
 
 export const Route = createFileRoute("/rakshak-platform/auth")({
@@ -26,7 +33,7 @@ function AuthPage() {
 
   const setMode = (m: "login" | "register") =>
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
-  const setRole = (r: "team" | "mentor") =>
+  const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -49,12 +56,10 @@ function AuthPage() {
         });
         if (error) throw error;
         const userId = data.user?.id;
+        const dbRole = ROLE_OPTIONS.find((r) => r.value === role)?.dbRole ?? "team_leader";
         if (userId) {
           await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
-          await supabase.from("rp_user_roles").insert({
-            user_id: userId,
-            role: role === "mentor" ? "mentor" : "team_leader",
-          });
+          await supabase.from("rp_user_roles").insert({ user_id: userId, role: dbRole });
           if (role === "mentor") {
             await supabase.from("rp_mentors").insert({ profile_id: userId });
           }
@@ -98,16 +103,25 @@ function AuthPage() {
           </div>
 
           {mode === "register" && (
-            <div className="mt-4 inline-flex rounded-full border border-border p-1 text-xs ml-3">
-              <button
-                onClick={() => setRole("team")}
-                className={`px-3 py-1 rounded-full transition ${role === "team" ? "bg-foreground text-background" : "text-muted-foreground"}`}
-              >As team lead</button>
-              <button
-                onClick={() => setRole("mentor")}
-                className={`px-3 py-1 rounded-full transition ${role === "mentor" ? "bg-foreground text-background" : "text-muted-foreground"}`}
-              >As mentor</button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {ROLE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setRole(opt.value as typeof role)}
+                  className={`px-3 py-1.5 rounded-full text-xs border transition ${role === opt.value ? "bg-foreground text-background border-foreground" : "text-muted-foreground border-border hover:border-foreground/40"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
+          )}
+          {mode === "register" && (role === "evaluator" || role === "admin") && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {role === "admin"
+                ? "CFI Admin accounts require approval. Your account will be created but access may be limited until a super admin verifies it."
+                : "Evaluator accounts are granted rubric and submission review access. A CFI admin may need to assign you to a cohort."}
+            </p>
           )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
