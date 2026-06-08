@@ -169,6 +169,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
               <Link to="/rakshak-platform/leaderboard" onClick={() => setMenuOpen(false)}>Leaderboard</Link>
               <Link to="/rakshak-platform/impact" onClick={() => setMenuOpen(false)}>Impact</Link>
+              <Link to="/rakshak-platform/mentors" onClick={() => setMenuOpen(false)}>Mentors</Link>
               <Link to="/rakshak-platform/sponsor" onClick={() => setMenuOpen(false)}>Sponsor</Link>
               {(isAuthority || isAdmin) && <Link to="/rakshak-platform/authority" onClick={() => setMenuOpen(false)}>Authority</Link>}
               {(isEvaluator || isAdmin) && <Link to="/rakshak-platform/evaluator" onClick={() => setMenuOpen(false)}>Evaluator</Link>}
