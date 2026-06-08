@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Loader2,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Event = {
   kind: "status" | "comment";
