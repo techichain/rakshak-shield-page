@@ -626,7 +626,7 @@ export function ObservationForm({
                     ? "Capturing…"
                     : gpsState === "ok"
                       ? "Re-capture GPS"
-                      : "📍 Capture GPS"}
+                      : "Capture GPS"}
                 </button>
                 {gpsState !== "ok" && (
                   <span className="text-xs text-slate-500">
