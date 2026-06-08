@@ -1,5 +1,7 @@
 import type { FiltersState, Location } from "./types";
 import { LOC, AUTH_CATS, ST, RC } from "./data";
+import { MonitorCheck, X } from "lucide-react";
+import { StatusLegend, STATUS_DESCRIPTIONS } from "./StatusLegend";
 
 interface Props {
   filters: FiltersState;
@@ -51,10 +53,7 @@ export function Sidebar({
           <span className="sb-sel-auth-label">Primary Authority</span>
           <div className="sb-sel-auth">
             {status && (
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={status.c} strokeWidth="2.5" style={{ flexShrink: 0 }}>
-                <rect x="2" y="3" width="20" height="14" rx="2" />
-                <path d="M8 21h8M12 17v4" />
-              </svg>
+              <MonitorCheck size={12} strokeWidth={2} color={status.c} style={{ flexShrink: 0 }} aria-hidden />
             )}
             <span style={{ color: "var(--navy)" }}>
               {primary ? primary.n.split("(")[0].trim() : "—"}
@@ -65,18 +64,25 @@ export function Sidebar({
           <span className="sb-sel-auth-label">Status</span>
           <span
             className="sb-sel-status"
+            title={status ? STATUS_DESCRIPTIONS[active!.status] : undefined}
+            aria-label={status ? `Status: ${status.l}. ${STATUS_DESCRIPTIONS[active!.status]}` : undefined}
             style={
               status
                 ? { background: status.bg, color: status.c, border: `1px solid ${status.c}30` }
                 : undefined
             }
           >
-            {status ? `${status.i} ${status.l}` : "—"}
+            {status ? status.l : "—"}
           </span>
         </div>
-        <span className="sb-sel-clear" onClick={onClearSelection}>
-          Clear selection ×
-        </span>
+        <button
+          type="button"
+          className="sb-sel-clear"
+          onClick={onClearSelection}
+          aria-label="Clear selected location"
+        >
+          Clear selection <X size={11} strokeWidth={2.25} style={{ verticalAlign: -1 }} />
+        </button>
       </div>
 
       <div className="sb-filters">
@@ -106,21 +112,26 @@ export function Sidebar({
         <div className="sb-section">
           <div className="f-label">Status</div>
           {[
-            { v: "all", l: "All" },
-            { v: "implementation_ongoing", l: "In Progress" },
-            { v: "in_principle_approval", l: "Approved" },
-            { v: "submitted", l: "Submitted" },
-            { v: "audit_complete", l: "Audited" },
-            { v: "stalled", l: "Stalled" },
+            { v: "all", l: "All", d: "Show every status" },
+            { v: "implementation_ongoing", l: "In Progress", d: STATUS_DESCRIPTIONS.implementation_ongoing },
+            { v: "in_principle_approval", l: "Approved", d: STATUS_DESCRIPTIONS.in_principle_approval },
+            { v: "submitted", l: "Submitted", d: STATUS_DESCRIPTIONS.submitted },
+            { v: "audit_complete", l: "Audited", d: STATUS_DESCRIPTIONS.audit_complete },
+            { v: "stalled", l: "Stalled", d: STATUS_DESCRIPTIONS.stalled },
           ].map((s) => (
-            <span
+            <button
+              type="button"
               key={s.v}
               className={"chip" + (filters.status === s.v ? " on" : "")}
               onClick={() => setF("status", s.v)}
+              title={s.d}
+              aria-label={`Filter by status: ${s.l}`}
+              aria-pressed={filters.status === s.v}
             >
               {s.l}
-            </span>
+            </button>
           ))}
+          <div className="mt-3"><StatusLegend compact /></div>
         </div>
 
         <div className="sb-section states-section">
@@ -163,7 +174,9 @@ export function Sidebar({
               <span
                 className="loc-spill"
                 style={{ background: ST[loc.status].c }}
-                title={ST[loc.status].l}
+                title={`${ST[loc.status].l} — ${STATUS_DESCRIPTIONS[loc.status]}`}
+                aria-label={`Status: ${ST[loc.status].l}`}
+                role="img"
               />
             </div>
           ))

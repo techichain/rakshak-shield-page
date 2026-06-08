@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bell, Check } from "lucide-react";
+import { Bell, BellOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -86,6 +86,9 @@ export function NotificationBell({ userId }: { userId: string }) {
         onClick={() => setOpen((v) => !v)}
         className="relative h-9 w-9 rounded-full border border-border flex items-center justify-center hover:border-brand/40"
         aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        title={unread ? `${unread} unread notification${unread === 1 ? "" : "s"}` : "Notifications"}
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
@@ -105,7 +108,11 @@ export function NotificationBell({ userId }: { userId: string }) {
             )}
           </div>
           {items.length === 0 && (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">You're all caught up.</p>
+            <div className="px-4 py-8 flex flex-col items-center text-center text-muted-foreground">
+              <BellOff className="h-6 w-6 mb-1.5" aria-hidden />
+              <p className="text-sm font-medium text-foreground">All caught up</p>
+              <p className="text-xs mt-0.5">New notifications will appear here.</p>
+            </div>
           )}
           <ul>
             {items.map((n) => (

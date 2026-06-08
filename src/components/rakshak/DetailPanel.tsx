@@ -1,5 +1,7 @@
 import type { Location } from "./types";
 import { RC, RL, ST, PROG, getSiteMapUrl, getAuthShort } from "./data";
+import { X, Check, Maximize2 } from "lucide-react";
+import { STATUS_DESCRIPTIONS } from "./StatusLegend";
 
 interface Props {
   loc: Location | null;
@@ -29,17 +31,7 @@ function ProgressBar({ status }: { status: Location["status"] }) {
             className={"prog-step" + (done ? " done" : "") + (curr ? " current" : "")}
           >
             <div className="prog-circ">
-              {done && (
-                <svg width="8" height="8" viewBox="0 0 10 10">
-                  <polyline
-                    points="1,5 4,8 9,2"
-                    fill="none"
-                    stroke="#fff"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              )}
+              {done && <Check size={9} strokeWidth={3} color="#fff" aria-hidden />}
             </div>
             <div className="prog-lbl">{s.l}</div>
           </div>
@@ -68,7 +60,15 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
   return (
     <>
       <div className="d-hero">
-        <button className="d-close-btn" onClick={onClose} title="Close">×</button>
+        <button
+          type="button"
+          className="d-close-btn"
+          onClick={onClose}
+          title="Close location details"
+          aria-label="Close location details"
+        >
+          <X size={16} strokeWidth={2.25} aria-hidden />
+        </button>
         <div className={"risk-badge " + loc.risk}>
           <span
             style={{
@@ -99,7 +99,7 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
               alt={`Site map of ${loc.n}`}
               loading="lazy"
             />
-            <span className="sitemap-expand">↗ Full view</span>
+            <span className="sitemap-expand" aria-hidden><Maximize2 size={11} strokeWidth={2.25} style={{ verticalAlign: -1, marginRight: 3 }} /> Full view</span>
           </div>
         </div>
       )}
@@ -107,7 +107,14 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
       <div className="prog-wrap">
         <div className="prog-hdr">
           <span className="prog-ttl">Implementation Progress</span>
-          <span className="prog-curr" style={{ color: s.c }}>{s.i ? s.i + " " : ""}{s.l}</span>
+          <span
+            className="prog-curr"
+            style={{ color: s.c }}
+            title={STATUS_DESCRIPTIONS[loc.status]}
+            aria-label={`Current status: ${s.l}. ${STATUS_DESCRIPTIONS[loc.status]}`}
+          >
+            {s.l}
+          </span>
         </div>
         <ProgressBar status={loc.status} />
         <div className="prog-team">Audit Team: {loc.team}</div>
