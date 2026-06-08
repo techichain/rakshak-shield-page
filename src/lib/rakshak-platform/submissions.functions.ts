@@ -317,3 +317,269 @@ export const removeSubmissionFile = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+// ---------- Mentor / Admin review cascade ----------
+
+async function getRecipientIds(supabase: any, teamId: string) {
+  const { data: team } = await supabase
+    .from("rp_teams")
+    .select("team_leader_id, team_name")
+    .eq("id", teamId)
+    .maybeSingle();
+  const { data: members } = await supabase
+    .from("rp_team_members")
+    .select("profile_id")
+    .eq("team_id", teamId);
+  const ids = new Set<string>();
+  if (team?.team_leader_id) ids.add(team.team_leader_id);
+  for (const m of members ?? []) if (m.profile_id) ids.add(m.profile_id);
+  return { recipients: Array.from(ids), teamName: team?.team_name ?? "Your team" };
+}
+
+const ReviewInput = z.object({
+  submission_id: z.string().uuid(),
+  decision: z.enum(["approve", "request_changes"]),
+  comment: z.string().max(4000).optional(),
+});
+
+// Mentor approves or requests changes. On approve -> under_admin_review.
+export const mentorReviewSubmission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => ReviewInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: sub } = await context.supabase
+      .from("rp_submissions")
+      .select("id, team_id, phase_number, status")
+      .eq("id", data.submission_id)
+      .maybeSingle();
+    if (!sub) throw new Error("Submission not found");
+
+    // verify caller is the team's mentor (or admin)
+    const { data: team } = await context.supabase
+      .from("rp_teams")
+      .select("assigned_mentor_id, rp_mentors:assigned_mentor_id(profile_id)")
+      .eq("id", sub.team_id)
+      .maybeSingle();
+    const mentorProfileId = (team as any)?.rp_mentors?.profile_id;
+    const { data: roles } = await context.supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const isAdmin = (roles ?? []).some((r: any) => ["cfi_admin", "super_admin"].includes(r.role));
+    if (mentorProfileId !== context.userId && !isAdmin) {
+      throw new Error("Forbidden: not the assigned mentor");
+    }
+
+    const approve = data.decision === "approve";
+    const newStatus = approve ? "mentor_approved" : "changes_requested";
+
+    const { error } = await context.supabase
+      .from("rp_submissions")
+      .update({
+        status: newStatus,
+        mentor_review_status: approve ? "approved" : "changes_requested",
+        mentor_reviewed_at: new Date().toISOString(),
+        mentor_reviewer_id: context.userId,
+        mentor_review_notes: data.comment ?? null,
+      })
+      .eq("id", sub.id);
+    if (error) throw error;
+
+    if (data.comment?.trim()) {
+      await context.supabase.from("rp_feedback").insert({
+        submission_id: sub.id,
+        team_id: sub.team_id,
+        author_id: context.userId,
+        author_role: "mentor",
+        comment: data.comment,
+        feedback_type: approve ? "approval" : "changes_requested",
+      });
+    }
+
+    await context.supabase
+      .from("rp_team_phase_progress")
+      .upsert(
+        {
+          team_id: sub.team_id,
+          phase_number: sub.phase_number,
+          status: newStatus,
+          last_activity_at: new Date().toISOString(),
+          completion_percentage: approve ? 85 : 60,
+        },
+        { onConflict: "team_id,phase_number" },
+      );
+
+    const { recipients, teamName } = await getRecipientIds(context.supabase, sub.team_id);
+    const title = approve
+      ? `Mentor approved Phase ${sub.phase_number} — awaiting admin review`
+      : `Mentor requested changes on Phase ${sub.phase_number}`;
+    const rows = recipients.map((r) => ({
+      recipient_id: r,
+      type: approve ? "mentor_approved" : "changes_requested",
+      title,
+      message: data.comment ?? null,
+      action_link: `/rakshak-platform/team/phases`,
+      related_entity_type: "submission",
+      related_entity_id: sub.id,
+    }));
+    if (rows.length) await context.supabase.from("rp_notifications").insert(rows);
+
+    if (approve) {
+      const { data: admins } = await context.supabase
+        .from("rp_user_roles").select("user_id").in("role", ["cfi_admin", "super_admin"]);
+      const adminRows = (admins ?? []).map((a: any) => ({
+        recipient_id: a.user_id,
+        type: "needs_admin_review",
+        title: `Admin review needed: ${teamName} — Phase ${sub.phase_number}`,
+        message: data.comment ?? null,
+        action_link: `/rakshak-platform/admin/reviews`,
+        related_entity_type: "submission",
+        related_entity_id: sub.id,
+      }));
+      if (adminRows.length) await context.supabase.from("rp_notifications").insert(adminRows);
+    }
+
+    return { ok: true, status: newStatus };
+  });
+
+// Admin approves -> admin_approved, unlocks next phase. Or requests changes.
+export const adminReviewSubmission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => ReviewInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: roles } = await context.supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const isAdmin = (roles ?? []).some((r: any) => ["cfi_admin", "super_admin"].includes(r.role));
+    if (!isAdmin) throw new Error("Forbidden: admin role required");
+
+    const { data: sub } = await context.supabase
+      .from("rp_submissions")
+      .select("id, team_id, phase_number, status")
+      .eq("id", data.submission_id)
+      .maybeSingle();
+    if (!sub) throw new Error("Submission not found");
+
+    const approve = data.decision === "approve";
+    const newStatus = approve ? "admin_approved" : "changes_requested";
+
+    const { error } = await context.supabase
+      .from("rp_submissions")
+      .update({
+        status: newStatus,
+        admin_review_status: approve ? "approved" : "changes_requested",
+        admin_reviewed_at: new Date().toISOString(),
+        admin_reviewer_id: context.userId,
+        admin_review_notes: data.comment ?? null,
+      })
+      .eq("id", sub.id);
+    if (error) throw error;
+
+    if (data.comment?.trim()) {
+      await context.supabase.from("rp_feedback").insert({
+        submission_id: sub.id,
+        team_id: sub.team_id,
+        author_id: context.userId,
+        author_role: "admin",
+        comment: data.comment,
+        feedback_type: approve ? "approval" : "changes_requested",
+      });
+    }
+
+    await context.supabase
+      .from("rp_team_phase_progress")
+      .upsert(
+        {
+          team_id: sub.team_id,
+          phase_number: sub.phase_number,
+          status: approve ? "completed" : "changes_requested",
+          completed_at: approve ? new Date().toISOString() : null,
+          last_activity_at: new Date().toISOString(),
+          completion_percentage: approve ? 100 : 60,
+        },
+        { onConflict: "team_id,phase_number" },
+      );
+
+    // Phase cascade: unlock next phase on approve
+    if (approve) {
+      const nextPhase = Math.min(sub.phase_number + 1, 4);
+      const { data: team } = await context.supabase
+        .from("rp_teams")
+        .select("current_phase")
+        .eq("id", sub.team_id)
+        .maybeSingle();
+      if (team && (team.current_phase ?? 0) < nextPhase) {
+        await context.supabase
+          .from("rp_teams")
+          .update({ current_phase: nextPhase, updated_at: new Date().toISOString() })
+          .eq("id", sub.team_id);
+      }
+      if (sub.phase_number < 4) {
+        await context.supabase
+          .from("rp_team_phase_progress")
+          .upsert(
+            {
+              team_id: sub.team_id,
+              phase_number: nextPhase,
+              status: "not_started",
+              completion_percentage: 0,
+              last_activity_at: new Date().toISOString(),
+            },
+            { onConflict: "team_id,phase_number" },
+          );
+      }
+    }
+
+    const { recipients, teamName } = await getRecipientIds(context.supabase, sub.team_id);
+    const title = approve
+      ? sub.phase_number < 4
+        ? `Phase ${sub.phase_number} approved — Phase ${sub.phase_number + 1} unlocked`
+        : `Phase 4 approved — Project complete 🎉`
+      : `Admin requested changes on Phase ${sub.phase_number}`;
+    const rows = recipients.map((r) => ({
+      recipient_id: r,
+      type: approve ? "admin_approved" : "changes_requested",
+      title,
+      message: data.comment ?? `${teamName} — Phase ${sub.phase_number}`,
+      action_link: `/rakshak-platform/team/phases`,
+      related_entity_type: "submission",
+      related_entity_id: sub.id,
+    }));
+    if (rows.length) await context.supabase.from("rp_notifications").insert(rows);
+
+    return { ok: true, status: newStatus };
+  });
+
+// List pending submissions for the current mentor (status submitted/resubmitted/under_mentor_review)
+export const listMentorPendingReviews = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: mentor } = await context.supabase
+      .from("rp_mentors").select("id").eq("profile_id", context.userId).maybeSingle();
+    if (!mentor) return { items: [] };
+    const { data: teams } = await context.supabase
+      .from("rp_teams").select("id, team_name").eq("assigned_mentor_id", mentor.id);
+    const teamIds = (teams ?? []).map((t: any) => t.id);
+    if (teamIds.length === 0) return { items: [] };
+    const { data: subs } = await context.supabase
+      .from("rp_submissions")
+      .select("id, team_id, phase_number, title, summary, status, submitted_at, revision_number")
+      .in("team_id", teamIds)
+      .in("status", ["submitted", "resubmitted", "under_mentor_review"])
+      .order("submitted_at", { ascending: false });
+    const nameById = new Map((teams ?? []).map((t: any) => [t.id, t.team_name]));
+    return { items: (subs ?? []).map((s: any) => ({ ...s, team_name: nameById.get(s.team_id) })) };
+  });
+
+// List pending admin reviews (mentor_approved)
+export const listAdminPendingReviews = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: roles } = await context.supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const isAdmin = (roles ?? []).some((r: any) => ["cfi_admin", "super_admin"].includes(r.role));
+    if (!isAdmin) throw new Error("Forbidden");
+    const { data: subs } = await context.supabase
+      .from("rp_submissions")
+      .select("id, team_id, phase_number, title, summary, status, submitted_at, revision_number, rp_teams:team_id(team_name, college, city)")
+      .eq("status", "mentor_approved")
+      .order("submitted_at", { ascending: false });
+    return { items: subs ?? [] };
+  });
