@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { Captcha } from "@/components/rakshak-platform/Captcha";
+import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
 
 const ROLE_OPTIONS = [
   { value: "team", label: "Team lead", dbRole: "team_leader" as const },
