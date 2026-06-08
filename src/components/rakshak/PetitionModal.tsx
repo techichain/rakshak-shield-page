@@ -84,7 +84,7 @@ export function PetitionModal({ loc, onClose }: Props) {
       <div className="modal">
         <div className="m-head">
           <div className="m-title">Write to {authShort}</div>
-          <button className="m-x" onClick={onClose}>×</button>
+          <button type="button" className="m-x" onClick={onClose} aria-label="Close dialog" title="Close"><X size={16} strokeWidth={2.25} aria-hidden /></button>
         </div>
         <div className="m-body">
           <div className="m-to">Addressed to: <strong>{loc.pto}</strong></div>

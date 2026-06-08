@@ -56,7 +56,7 @@ export function ReportModal({ loc, onClose }: Props) {
       <div className="modal report-modal">
         <div className="m-head">
           <div className="m-title">Report a Road Hazard</div>
-          <button className="m-x" onClick={close}>×</button>
+          <button type="button" className="m-x" onClick={close} aria-label="Close dialog" title="Close"><X size={16} strokeWidth={2.25} aria-hidden /></button>
         </div>
         <div className="m-body">
           {submitted ? (
