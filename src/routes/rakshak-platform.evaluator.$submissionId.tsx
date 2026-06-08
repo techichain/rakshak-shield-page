@@ -122,6 +122,11 @@ function ScoringPage() {
             )}
 
             <div className="mt-8">
+              <MessageThread submissionId={submissionId} currentUserId={userId} />
+            </div>
+
+
+            <div className="mt-8">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">Rubric — {data.rubric.title}</div>
               <p className="mt-2 text-sm text-muted-foreground">{data.rubric.description}</p>
               <div className="mt-5 space-y-4">
