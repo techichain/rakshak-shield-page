@@ -64,12 +64,11 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
               .eq("id", sponsorshipId);
 
             await supabaseAdmin.from("rp_finance_entries").insert({
-              entry_type: "inflow",
+              entry_type: "sponsorship",
               category: "sponsorship",
               amount_inr: pledge.amount_inr,
               description: `Sponsorship from ${pledge.sponsor_name} (${pledge.tier})`,
-              reference_id: pledge.id,
-              reference_type: "rp_sponsorships",
+              metadata: { sponsorship_id: pledge.id },
             } as any);
           }
         }
