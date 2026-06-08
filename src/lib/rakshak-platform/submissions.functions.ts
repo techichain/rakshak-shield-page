@@ -376,9 +376,6 @@ export const mentorReviewSubmission = createServerFn({ method: "POST" })
       .update({
         status: newStatus,
         mentor_review_status: approve ? "approved" : "changes_requested",
-        mentor_reviewed_at: new Date().toISOString(),
-        mentor_reviewer_id: context.userId,
-        mentor_review_notes: data.comment ?? null,
       })
       .eq("id", sub.id);
     if (error) throw error;
@@ -387,10 +384,11 @@ export const mentorReviewSubmission = createServerFn({ method: "POST" })
       await context.supabase.from("rp_feedback").insert({
         submission_id: sub.id,
         team_id: sub.team_id,
-        author_id: context.userId,
-        author_role: "mentor",
-        comment: data.comment,
-        feedback_type: approve ? "approval" : "changes_requested",
+        phase_number: sub.phase_number,
+        reviewer_id: context.userId,
+        reviewer_role: "mentor",
+        feedback_text: data.comment,
+        status: approve ? "resolved" : "open",
       });
     }
 
