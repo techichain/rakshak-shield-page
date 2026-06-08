@@ -2,8 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+const MeetingType = z.enum([
+  "team_mentor",
+  "mentor_evaluator",
+  "evaluator_team",
+  "team_internal",
+  "other",
+]);
+
 const CreateInput = z.object({
-  team_id: z.string().uuid(),
+  team_id: z.string().uuid().optional().nullable(),
+  meeting_type: MeetingType.default("team_mentor"),
   title: z.string().min(1).max(200),
   agenda: z.string().max(4000).default(""),
   scheduled_start: z.string(),
@@ -11,16 +20,23 @@ const CreateInput = z.object({
   meeting_link: z.string().url().max(500).optional().or(z.literal("")),
   location: z.string().max(200).optional(),
   status: z.enum(["proposed", "confirmed", "cancelled", "completed"]).default("proposed"),
+  invitee_ids: z.array(z.string().uuid()).max(50).default([]),
 });
 
 export const createMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => CreateInput.parse(d))
   .handler(async ({ data, context }) => {
+    if ((data.meeting_type === "team_mentor" ||
+         data.meeting_type === "evaluator_team" ||
+         data.meeting_type === "team_internal") && !data.team_id) {
+      throw new Error("A team is required for this meeting type.");
+    }
     const { data: row, error } = await context.supabase
       .from("rp_meetings")
       .insert({
-        team_id: data.team_id,
+        team_id: data.team_id ?? null,
+        meeting_type: data.meeting_type,
         title: data.title,
         agenda: data.agenda,
         scheduled_start: data.scheduled_start,
@@ -33,10 +49,18 @@ export const createMeeting = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw error;
-    // Auto-add creator as attendee
+
+    const attendees = new Set<string>([context.userId, ...data.invitee_ids]);
     await context.supabase
       .from("rp_meeting_attendees")
-      .insert({ meeting_id: row.id, profile_id: context.userId, rsvp: "going", responded_at: new Date().toISOString() });
+      .insert(
+        Array.from(attendees).map((pid) => ({
+          meeting_id: row.id,
+          profile_id: pid,
+          rsvp: pid === context.userId ? "going" : "pending",
+          responded_at: pid === context.userId ? new Date().toISOString() : null,
+        })),
+      );
     return { meeting: row };
   });
 
@@ -76,7 +100,12 @@ export const rsvpMeeting = createServerFn({ method: "POST" })
 export const listMyMeetings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    // Find teams the user belongs to (member, leader, or mentor)
+    // Meetings the user attends or created
+    const { data: attRows } = await context.supabase
+      .from("rp_meeting_attendees").select("meeting_id").eq("profile_id", context.userId);
+    const attIds = (attRows ?? []).map((r: any) => r.meeting_id);
+
+    // Plus meetings for teams the user belongs to / mentors
     const { data: memberRows } = await context.supabase
       .from("rp_team_members").select("team_id").eq("profile_id", context.userId);
     const { data: leaderRows } = await context.supabase
@@ -93,13 +122,45 @@ export const listMyMeetings = createServerFn({ method: "GET" })
         .from("rp_teams").select("id").in("assigned_mentor_id", mentorIds);
       (mt ?? []).forEach((r: any) => teamIds.add(r.id));
     }
-    if (teamIds.size === 0) return { meetings: [] };
-    const { data, error } = await context.supabase
+
+    let query = context.supabase
       .from("rp_meetings")
       .select("*, rp_teams(team_name), rp_meeting_attendees(profile_id, rsvp)")
-      .in("team_id", Array.from(teamIds))
-      .order("scheduled_start", { ascending: false })
-      .limit(100);
+      .order("scheduled_start", { ascending: true })
+      .limit(200);
+
+    // RLS will filter; we just need a broad fetch
+    if (attIds.length === 0 && teamIds.size === 0) {
+      query = query.eq("created_by", context.userId);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     return { meetings: data ?? [] };
+  });
+
+export const listAllMeetingsAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", { _user_id: context.userId });
+    if (!isAdmin) throw new Error("Admin only");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("rp_meetings")
+      .select("*, rp_teams(team_name), rp_meeting_attendees(profile_id, rsvp, rp_profiles(full_name, email))")
+      .order("scheduled_start", { ascending: false })
+      .limit(500);
+    if (error) throw error;
+    return { meetings: data ?? [] };
+  });
+
+export const listInvitees = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("rp_profiles")
+      .select("id, full_name, email")
+      .order("full_name", { ascending: true })
+      .limit(500);
+    if (error) throw error;
+    return { people: data ?? [] };
   });
