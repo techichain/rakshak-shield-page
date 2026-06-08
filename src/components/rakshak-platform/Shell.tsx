@@ -34,6 +34,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <Link to="/rakshak-platform/impact" className="text-muted-foreground hover:text-brand">
               Impact
             </Link>
+            <Link to="/rakshak-platform/mentors" className="text-muted-foreground hover:text-brand">
+              Mentors
+            </Link>
             <Link to="/rakshak-platform/sponsor" className="text-muted-foreground hover:text-brand">
               Sponsor
             </Link>
@@ -166,6 +169,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
               <Link to="/rakshak-platform/leaderboard" onClick={() => setMenuOpen(false)}>Leaderboard</Link>
               <Link to="/rakshak-platform/impact" onClick={() => setMenuOpen(false)}>Impact</Link>
+              <Link to="/rakshak-platform/mentors" onClick={() => setMenuOpen(false)}>Mentors</Link>
               <Link to="/rakshak-platform/sponsor" onClick={() => setMenuOpen(false)}>Sponsor</Link>
               {(isAuthority || isAdmin) && <Link to="/rakshak-platform/authority" onClick={() => setMenuOpen(false)}>Authority</Link>}
               {(isEvaluator || isAdmin) && <Link to="/rakshak-platform/evaluator" onClick={() => setMenuOpen(false)}>Evaluator</Link>}
@@ -218,6 +222,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
               <li><Link to="/rakshak-platform/impact">Impact</Link></li>
+              <li><Link to="/rakshak-platform/mentors">Mentor network</Link></li>
               <li><Link to="/rakshak-platform/sponsor">Sponsor</Link></li>
               <li><Link to="/rakshak-platform/mentor-apply">Become a mentor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>

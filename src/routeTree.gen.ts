@@ -19,6 +19,7 @@ import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-ch
 import { Route as RakshakPlatformTeamRouteImport } from './routes/rakshak-platform.team'
 import { Route as RakshakPlatformSponsorRouteImport } from './routes/rakshak-platform.sponsor'
 import { Route as RakshakPlatformNotificationsRouteImport } from './routes/rakshak-platform.notifications'
+import { Route as RakshakPlatformMentorsRouteImport } from './routes/rakshak-platform.mentors'
 import { Route as RakshakPlatformMentorApplyRouteImport } from './routes/rakshak-platform.mentor-apply'
 import { Route as RakshakPlatformMentorRouteImport } from './routes/rakshak-platform.mentor'
 import { Route as RakshakPlatformMeetingsRouteImport } from './routes/rakshak-platform.meetings'
@@ -47,6 +48,7 @@ import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/raksh
 import { Route as RakshakPlatformTeamAiCheckRouteImport } from './routes/rakshak-platform.team.ai-check'
 import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
 import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/rakshak-platform.reports.$teamId'
+import { Route as RakshakPlatformMIdRouteImport } from './routes/rakshak-platform.m.$id'
 import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
 import { Route as RakshakPlatformAdminSponsorshipsRouteImport } from './routes/rakshak-platform.admin.sponsorships'
@@ -127,6 +129,11 @@ const RakshakPlatformNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
+const RakshakPlatformMentorsRoute = RakshakPlatformMentorsRouteImport.update({
+  id: '/mentors',
+  path: '/mentors',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
 const RakshakPlatformMentorApplyRoute =
   RakshakPlatformMentorApplyRouteImport.update({
     id: '/mentor-apply',
@@ -283,6 +290,11 @@ const RakshakPlatformReportsTeamIdRoute =
     path: '/reports/$teamId',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
+const RakshakPlatformMIdRoute = RakshakPlatformMIdRouteImport.update({
+  id: '/m/$id',
+  path: '/m/$id',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
 const RakshakPlatformKnowledgeSlugRoute =
   RakshakPlatformKnowledgeSlugRouteImport.update({
     id: '/$slug',
@@ -469,6 +481,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRoute
   '/rakshak-platform/mentor': typeof RakshakPlatformMentorRoute
   '/rakshak-platform/mentor-apply': typeof RakshakPlatformMentorApplyRoute
+  '/rakshak-platform/mentors': typeof RakshakPlatformMentorsRoute
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
@@ -498,6 +511,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
+  '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
@@ -529,6 +543,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRoute
   '/rakshak-platform/mentor': typeof RakshakPlatformMentorRoute
   '/rakshak-platform/mentor-apply': typeof RakshakPlatformMentorApplyRoute
+  '/rakshak-platform/mentors': typeof RakshakPlatformMentorsRoute
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
@@ -558,6 +573,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
+  '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
@@ -596,6 +612,7 @@ export interface FileRoutesById {
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRoute
   '/rakshak-platform/mentor': typeof RakshakPlatformMentorRoute
   '/rakshak-platform/mentor-apply': typeof RakshakPlatformMentorApplyRoute
+  '/rakshak-platform/mentors': typeof RakshakPlatformMentorsRoute
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
@@ -625,6 +642,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
+  '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
@@ -666,6 +684,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/meetings'
     | '/rakshak-platform/mentor'
     | '/rakshak-platform/mentor-apply'
+    | '/rakshak-platform/mentors'
     | '/rakshak-platform/notifications'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
@@ -695,6 +714,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
+    | '/rakshak-platform/m/$id'
     | '/rakshak-platform/reports/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
@@ -726,6 +746,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/meetings'
     | '/rakshak-platform/mentor'
     | '/rakshak-platform/mentor-apply'
+    | '/rakshak-platform/mentors'
     | '/rakshak-platform/notifications'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
@@ -755,6 +776,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
+    | '/rakshak-platform/m/$id'
     | '/rakshak-platform/reports/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
@@ -792,6 +814,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/meetings'
     | '/rakshak-platform/mentor'
     | '/rakshak-platform/mentor-apply'
+    | '/rakshak-platform/mentors'
     | '/rakshak-platform/notifications'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
@@ -821,6 +844,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
+    | '/rakshak-platform/m/$id'
     | '/rakshak-platform/reports/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
@@ -920,6 +944,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/rakshak-platform/notifications'
       preLoaderRoute: typeof RakshakPlatformNotificationsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/mentors': {
+      id: '/rakshak-platform/mentors'
+      path: '/mentors'
+      fullPath: '/rakshak-platform/mentors'
+      preLoaderRoute: typeof RakshakPlatformMentorsRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/mentor-apply': {
@@ -1116,6 +1147,13 @@ declare module '@tanstack/react-router' {
       path: '/reports/$teamId'
       fullPath: '/rakshak-platform/reports/$teamId'
       preLoaderRoute: typeof RakshakPlatformReportsTeamIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/m/$id': {
+      id: '/rakshak-platform/m/$id'
+      path: '/m/$id'
+      fullPath: '/rakshak-platform/m/$id'
+      preLoaderRoute: typeof RakshakPlatformMIdRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/knowledge/$slug': {
@@ -1539,10 +1577,12 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformMeetingsRoute: typeof RakshakPlatformMeetingsRoute
   RakshakPlatformMentorRoute: typeof RakshakPlatformMentorRoute
   RakshakPlatformMentorApplyRoute: typeof RakshakPlatformMentorApplyRoute
+  RakshakPlatformMentorsRoute: typeof RakshakPlatformMentorsRoute
   RakshakPlatformNotificationsRoute: typeof RakshakPlatformNotificationsRoute
   RakshakPlatformSponsorRoute: typeof RakshakPlatformSponsorRoute
   RakshakPlatformTeamRoute: typeof RakshakPlatformTeamRouteWithChildren
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
+  RakshakPlatformMIdRoute: typeof RakshakPlatformMIdRoute
   RakshakPlatformReportsTeamIdRoute: typeof RakshakPlatformReportsTeamIdRoute
   RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
@@ -1561,10 +1601,12 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformMeetingsRoute: RakshakPlatformMeetingsRoute,
   RakshakPlatformMentorRoute: RakshakPlatformMentorRoute,
   RakshakPlatformMentorApplyRoute: RakshakPlatformMentorApplyRoute,
+  RakshakPlatformMentorsRoute: RakshakPlatformMentorsRoute,
   RakshakPlatformNotificationsRoute: RakshakPlatformNotificationsRoute,
   RakshakPlatformSponsorRoute: RakshakPlatformSponsorRoute,
   RakshakPlatformTeamRoute: RakshakPlatformTeamRouteWithChildren,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
+  RakshakPlatformMIdRoute: RakshakPlatformMIdRoute,
   RakshakPlatformReportsTeamIdRoute: RakshakPlatformReportsTeamIdRoute,
   RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
   RakshakPlatformVerifySlugRoute: RakshakPlatformVerifySlugRoute,
