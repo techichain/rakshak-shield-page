@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { listPublicSponsors, createSponsorshipPledge } from "@/lib/rakshak-platform/sponsorships.functions";
+import { createSponsorshipCheckout } from "@/lib/rakshak-platform/payments.functions";
 import { Heart, Award } from "lucide-react";
 
 const TIERS = [
