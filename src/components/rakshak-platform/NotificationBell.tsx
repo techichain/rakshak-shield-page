@@ -105,7 +105,11 @@ export function NotificationBell({ userId }: { userId: string }) {
             )}
           </div>
           {items.length === 0 && (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">You're all caught up.</p>
+            <div className="px-4 py-8 flex flex-col items-center text-center text-muted-foreground">
+              <BellOff className="h-6 w-6 mb-1.5" aria-hidden />
+              <p className="text-sm font-medium text-foreground">All caught up</p>
+              <p className="text-xs mt-0.5">New notifications will appear here.</p>
+            </div>
           )}
           <ul>
             {items.map((n) => (
