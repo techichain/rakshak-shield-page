@@ -132,8 +132,53 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 Sign in
               </Link>
             )}
+            <button
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Toggle navigation"
+              className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand"
+            >
+              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
           </div>
         </div>
+        {menuOpen && (
+          <div className="md:hidden border-t border-border bg-background">
+            <nav className="mx-auto w-full max-w-7xl px-6 py-4 flex flex-col gap-3 text-sm">
+              <Link to="/rakshak-platform/map" onClick={() => setMenuOpen(false)}>Hotspots</Link>
+              <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
+              <Link to="/rakshak-platform/leaderboard" onClick={() => setMenuOpen(false)}>Leaderboard</Link>
+              <Link to="/rakshak-platform/impact" onClick={() => setMenuOpen(false)}>Impact</Link>
+              <Link to="/rakshak-platform/sponsor" onClick={() => setMenuOpen(false)}>Sponsor</Link>
+              {(isAuthority || isAdmin) && <Link to="/rakshak-platform/authority" onClick={() => setMenuOpen(false)}>Authority</Link>}
+              {(isEvaluator || isAdmin) && <Link to="/rakshak-platform/evaluator" onClick={() => setMenuOpen(false)}>Evaluator</Link>}
+              {(isMentor || isTeam) && <Link to="/rakshak-platform/meetings" onClick={() => setMenuOpen(false)}>Meetings</Link>}
+              {isMentor && <Link to="/rakshak-platform/mentor" onClick={() => setMenuOpen(false)}>Mentor</Link>}
+              {isTeam && (
+                <>
+                  <Link to="/rakshak-platform/team" onClick={() => setMenuOpen(false)}>My Team</Link>
+                  <Link to="/rakshak-platform/team/locations" onClick={() => setMenuOpen(false)}>Locations</Link>
+                  <Link to="/rakshak-platform/team/reports" onClick={() => setMenuOpen(false)}>Reports</Link>
+                  <Link to="/rakshak-platform/team/ai-check" onClick={() => setMenuOpen(false)}>AI check</Link>
+                </>
+              )}
+              {(isAdmin || isFinance) && (
+                <>
+                  <Link to="/rakshak-platform/admin/finance" onClick={() => setMenuOpen(false)}>Finance</Link>
+                  <Link to="/rakshak-platform/admin/sponsorships" onClick={() => setMenuOpen(false)}>Sponsorships</Link>
+                </>
+              )}
+              {isAdmin && (
+                <>
+                  <Link to="/rakshak-platform/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
+                  <Link to="/rakshak-platform/admin/exports" onClick={() => setMenuOpen(false)}>Exports</Link>
+                  <Link to="/rakshak-platform/admin/audit" onClick={() => setMenuOpen(false)}>Audit</Link>
+                  <Link to="/rakshak-platform/admin/seed" onClick={() => setMenuOpen(false)}>Seed</Link>
+                </>
+              )}
+            </nav>
+          </div>
+        )}
       </header>
       {children}
       <footer className="border-t border-border bg-brand text-brand-foreground">
