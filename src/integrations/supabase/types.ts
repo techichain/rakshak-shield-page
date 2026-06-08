@@ -2221,6 +2221,7 @@ export type Database = {
         Args: { _team_id: string }
         Returns: undefined
       }
+      rp_shares_team: { Args: { _a: string; _b: string }; Returns: boolean }
     }
     Enums: {
       app_role: "observer" | "admin"
