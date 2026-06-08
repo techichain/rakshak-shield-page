@@ -39,6 +39,12 @@ function AuthorityDashboard() {
   const [responseText, setResponseText] = useState("");
   const [responseStatus, setResponseStatus] = useState<"acknowledged" | "actioned" | "rejected" | "closed">("acknowledged");
   const [busy, setBusy] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "acknowledged" | "actioned" | "rejected">("all");
+  const filteredReports = useMemo(() => {
+    if (statusFilter === "all") return reports;
+    if (statusFilter === "pending") return reports.filter((r: any) => !r.response_status);
+    return reports.filter((r: any) => r.response_status === statusFilter);
+  }, [reports, statusFilter]);
 
   async function submitResponse() {
     if (!selected) return;
