@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { format, isAfter, isBefore, parseISO, startOfDay, endOfDay } from "date-fns";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
@@ -15,9 +15,9 @@ import { Loader2, Award, AlertTriangle, CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({
-  from: fallback(z.string().optional(), undefined).default(undefined),
-  to: fallback(z.string().optional(), undefined).default(undefined),
-  phase: fallback(z.string().optional(), undefined).default(undefined),
+  from: z.string().optional(),
+  to: z.string().optional(),
+  phase: z.string().optional(),
 });
 
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
