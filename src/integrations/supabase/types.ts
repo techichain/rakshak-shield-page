@@ -584,6 +584,97 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_authority_reports: {
+        Row: {
+          attachment_url: string | null
+          authority_category: string
+          authority_name: string
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          location_id: string | null
+          message: string
+          response_at: string | null
+          response_attachment_url: string | null
+          response_status: string | null
+          response_text: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          authority_category?: string
+          authority_name: string
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location_id?: string | null
+          message?: string
+          response_at?: string | null
+          response_attachment_url?: string | null
+          response_status?: string | null
+          response_text?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_url?: string | null
+          authority_category?: string
+          authority_name?: string
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location_id?: string | null
+          message?: string
+          response_at?: string | null
+          response_attachment_url?: string | null
+          response_status?: string | null
+          response_text?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_authority_reports_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "rp_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_authority_reports_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_authority_reports_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_cohorts: {
         Row: {
           created_at: string
@@ -776,6 +867,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rp_knowledge_articles: {
+        Row: {
+          author_id: string | null
+          body_md: string
+          category: string
+          created_at: string
+          excerpt: string | null
+          hero_image_url: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body_md?: string
+          category?: string
+          created_at?: string
+          excerpt?: string | null
+          hero_image_url?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body_md?: string
+          category?: string
+          created_at?: string
+          excerpt?: string | null
+          hero_image_url?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       rp_location_photos: {
         Row: {
