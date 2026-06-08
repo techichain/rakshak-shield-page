@@ -65,59 +65,94 @@ export const Route = createFileRoute("/api/public/hooks/meeting-reminders")({
   server: {
     handlers: {
       POST: async () => {
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const startedAt = new Date();
+        const t0 = Date.now();
+        let status: "ok" | "error" | "unauthorized" = "ok";
+        let httpStatus = 200;
+        let notes: any = {};
+        let errorMessage: string | null = null;
+        let response: Response;
 
-        const now = Date.now();
-        const horizon = new Date(now + 25 * 60 * 60 * 1000).toISOString();
-        const past = new Date(now - 15 * 60 * 1000).toISOString();
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: meetings, error } = await supabaseAdmin
-          .from("rp_meetings")
-          .select("*, rp_meeting_attendees(profile_id, rp_profiles(full_name, email))")
-          .gte("scheduled_start", past)
-          .lte("scheduled_start", horizon)
-          .neq("status", "cancelled")
-          .limit(500);
-        if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+          const now = Date.now();
+          const horizon = new Date(now + 25 * 60 * 60 * 1000).toISOString();
+          const past = new Date(now - 15 * 60 * 1000).toISOString();
 
-        let sent = 0;
-        let scanned = 0;
-        for (const m of meetings ?? []) {
-          scanned++;
-          const minsUntil = (new Date(m.scheduled_start).getTime() - now) / 60000;
-          for (const w of WINDOWS) {
-            if ((m as any)[w.col]) continue;
-            if (minsUntil < w.minBefore || minsUntil > w.maxBefore) continue;
-            const recipients = ((m.rp_meeting_attendees ?? []) as any[])
-              .map((a) => a.rp_profiles?.email)
-              .filter((e): e is string => Boolean(e));
-            const subject = `Reminder: ${m.title} in ${w.label}`;
-            await sendEmail(recipients, subject, html(m, w.label));
-            const patch: Record<string, string> = {};
-            patch[w.col] = new Date().toISOString();
-            await (supabaseAdmin.from("rp_meetings") as any)
-              .update(patch)
-              .eq("id", m.id);
-            // also write in-app notifications
-            for (const a of (m.rp_meeting_attendees ?? []) as any[]) {
-              await supabaseAdmin.from("rp_notifications").insert({
-                recipient_id: a.profile_id,
-                type: "meeting_reminder",
-                title: subject,
-                message: `Starts ${new Date(m.scheduled_start).toLocaleString()}`,
-                action_link: m.meeting_link ?? null,
-                related_entity_type: "meeting",
-                related_entity_id: m.id,
-              }).then(() => {}, () => {});
+          const { data: meetings, error } = await supabaseAdmin
+            .from("rp_meetings")
+            .select("*, rp_meeting_attendees(profile_id, rp_profiles(full_name, email))")
+            .gte("scheduled_start", past)
+            .lte("scheduled_start", horizon)
+            .neq("status", "cancelled")
+            .limit(500);
+          if (error) throw error;
+
+          let sent = 0;
+          let scanned = 0;
+          for (const m of meetings ?? []) {
+            scanned++;
+            const minsUntil = (new Date(m.scheduled_start).getTime() - now) / 60000;
+            for (const w of WINDOWS) {
+              if ((m as any)[w.col]) continue;
+              if (minsUntil < w.minBefore || minsUntil > w.maxBefore) continue;
+              const recipients = ((m.rp_meeting_attendees ?? []) as any[])
+                .map((a) => a.rp_profiles?.email)
+                .filter((e): e is string => Boolean(e));
+              const subject = `Reminder: ${m.title} in ${w.label}`;
+              await sendEmail(recipients, subject, html(m, w.label));
+              const patch: Record<string, string> = {};
+              patch[w.col] = new Date().toISOString();
+              await (supabaseAdmin.from("rp_meetings") as any)
+                .update(patch)
+                .eq("id", m.id);
+              for (const a of (m.rp_meeting_attendees ?? []) as any[]) {
+                await supabaseAdmin.from("rp_notifications").insert({
+                  recipient_id: a.profile_id,
+                  type: "meeting_reminder",
+                  title: subject,
+                  message: `Starts ${new Date(m.scheduled_start).toLocaleString()}`,
+                  action_link: m.meeting_link ?? null,
+                  related_entity_type: "meeting",
+                  related_entity_id: m.id,
+                }).then(() => {}, () => {});
+              }
+              sent++;
             }
-            sent++;
           }
+
+          notes = { scanned, sent };
+          response = new Response(JSON.stringify(notes), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e: any) {
+          status = "error";
+          httpStatus = 500;
+          errorMessage = String(e?.message ?? e);
+          response = new Response(JSON.stringify({ error: errorMessage }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
         }
 
-        return new Response(JSON.stringify({ scanned, sent }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          await supabaseAdmin.from("rp_cron_runs").insert({
+            hook_name: "meeting-reminders",
+            status,
+            started_at: startedAt.toISOString(),
+            finished_at: new Date().toISOString(),
+            duration_ms: Date.now() - t0,
+            http_status: httpStatus,
+            notes,
+            error_message: errorMessage,
+          });
+        } catch (e) {
+          console.error("[meeting-reminders] log insert failed", e);
+        }
+        return response!;
       },
     },
   },
