@@ -1352,6 +1352,87 @@ export type Database = {
           },
         ]
       }
+      rp_mentor_applications: {
+        Row: {
+          city: string | null
+          created_at: string
+          created_mentor_id: string | null
+          designation: string | null
+          email: string
+          expertise: string | null
+          full_name: string
+          id: string
+          linkedin_url: string | null
+          motivation: string | null
+          organization: string | null
+          phone: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string | null
+          status: string
+          updated_at: string
+          years_experience: number | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          created_mentor_id?: string | null
+          designation?: string | null
+          email: string
+          expertise?: string | null
+          full_name: string
+          id?: string
+          linkedin_url?: string | null
+          motivation?: string | null
+          organization?: string | null
+          phone?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          created_mentor_id?: string | null
+          designation?: string | null
+          email?: string
+          expertise?: string | null
+          full_name?: string
+          id?: string
+          linkedin_url?: string | null
+          motivation?: string | null
+          organization?: string | null
+          phone?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string | null
+          status?: string
+          updated_at?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mentor_applications_created_mentor_id_fkey"
+            columns: ["created_mentor_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_mentors: {
         Row: {
           avg_response_time_hours: number | null
