@@ -60,7 +60,7 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
       created.push({ email: u.email, role: u.role, status: createRes?.user ? "created" : "updated" });
     }
 
-    return { accounts: created, password: "RakshakDemo!23" };
+    return { accounts: created };
   });
 
 export const seedDemoContent = createServerFn({ method: "POST" })
