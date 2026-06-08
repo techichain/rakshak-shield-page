@@ -246,7 +246,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </header>
-      {children}
+      <main id="rp-main" tabIndex={-1}>{children}</main>
       <footer className="border-t border-border bg-brand text-brand-foreground">
         <div className="mx-auto w-full max-w-7xl px-6 md:px-10 py-12 grid gap-8 md:grid-cols-3">
           <div>
