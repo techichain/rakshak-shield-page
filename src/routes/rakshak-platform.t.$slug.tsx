@@ -10,7 +10,7 @@ const getPublicTeam = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: team, error } = await supabaseAdmin
+    const { data: team, error } = await (supabaseAdmin as any)
       .rpc("rp_public_team", { _slug: data.slug });
     if (error) throw error;
     const t = Array.isArray(team) ? team[0] : team;

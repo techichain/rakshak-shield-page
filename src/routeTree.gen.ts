@@ -45,6 +45,7 @@ import { Route as RakshakPlatformVerifySlugRouteImport } from './routes/rakshak-
 import { Route as RakshakPlatformTeamReportsRouteImport } from './routes/rakshak-platform.team.reports'
 import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
 import { Route as RakshakPlatformTeamAiCheckRouteImport } from './routes/rakshak-platform.team.ai-check'
+import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
 import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/rakshak-platform.reports.$teamId'
 import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
@@ -271,6 +272,11 @@ const RakshakPlatformTeamAiCheckRoute =
     path: '/ai-check',
     getParentRoute: () => RakshakPlatformTeamRoute,
   } as any)
+const RakshakPlatformTSlugRoute = RakshakPlatformTSlugRouteImport.update({
+  id: '/t/$slug',
+  path: '/t/$slug',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
 const RakshakPlatformReportsTeamIdRoute =
   RakshakPlatformReportsTeamIdRouteImport.update({
     id: '/reports/$teamId',
@@ -493,6 +499,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
+  '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
@@ -552,6 +559,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
+  '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
@@ -618,6 +626,7 @@ export interface FileRoutesById {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
+  '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
@@ -687,6 +696,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/reports/$teamId'
+    | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
@@ -746,6 +756,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/reports/$teamId'
+    | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/verify/$slug'
     | '/gigrider-checklist/admin'
@@ -811,6 +822,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/reports/$teamId'
+    | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
@@ -1091,6 +1103,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/team/ai-check'
       preLoaderRoute: typeof RakshakPlatformTeamAiCheckRouteImport
       parentRoute: typeof RakshakPlatformTeamRoute
+    }
+    '/rakshak-platform/t/$slug': {
+      id: '/rakshak-platform/t/$slug'
+      path: '/t/$slug'
+      fullPath: '/rakshak-platform/t/$slug'
+      preLoaderRoute: typeof RakshakPlatformTSlugRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/reports/$teamId': {
       id: '/rakshak-platform/reports/$teamId'
@@ -1525,6 +1544,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformTeamRoute: typeof RakshakPlatformTeamRouteWithChildren
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
   RakshakPlatformReportsTeamIdRoute: typeof RakshakPlatformReportsTeamIdRoute
+  RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
 }
 
@@ -1546,6 +1566,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformTeamRoute: RakshakPlatformTeamRouteWithChildren,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
   RakshakPlatformReportsTeamIdRoute: RakshakPlatformReportsTeamIdRoute,
+  RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
   RakshakPlatformVerifySlugRoute: RakshakPlatformVerifySlugRoute,
 }
 
