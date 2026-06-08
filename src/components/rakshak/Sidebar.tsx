@@ -112,21 +112,26 @@ export function Sidebar({
         <div className="sb-section">
           <div className="f-label">Status</div>
           {[
-            { v: "all", l: "All" },
-            { v: "implementation_ongoing", l: "In Progress" },
-            { v: "in_principle_approval", l: "Approved" },
-            { v: "submitted", l: "Submitted" },
-            { v: "audit_complete", l: "Audited" },
-            { v: "stalled", l: "Stalled" },
+            { v: "all", l: "All", d: "Show every status" },
+            { v: "implementation_ongoing", l: "In Progress", d: STATUS_DESCRIPTIONS.implementation_ongoing },
+            { v: "in_principle_approval", l: "Approved", d: STATUS_DESCRIPTIONS.in_principle_approval },
+            { v: "submitted", l: "Submitted", d: STATUS_DESCRIPTIONS.submitted },
+            { v: "audit_complete", l: "Audited", d: STATUS_DESCRIPTIONS.audit_complete },
+            { v: "stalled", l: "Stalled", d: STATUS_DESCRIPTIONS.stalled },
           ].map((s) => (
-            <span
+            <button
+              type="button"
               key={s.v}
               className={"chip" + (filters.status === s.v ? " on" : "")}
               onClick={() => setF("status", s.v)}
+              title={s.d}
+              aria-label={`Filter by status: ${s.l}`}
+              aria-pressed={filters.status === s.v}
             >
               {s.l}
-            </span>
+            </button>
           ))}
+          <div className="mt-3"><StatusLegend compact /></div>
         </div>
 
         <div className="sb-section states-section">
