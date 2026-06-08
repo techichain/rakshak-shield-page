@@ -222,7 +222,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
     <div className="map-wrap">
       <div id="map" ref={mapEl} />
       {geoStatus === "loading" && (
-        <div className="map-loading">🗺️ Loading India map…</div>
+        <div className="map-loading">Loading India map…</div>
       )}
       {geoStatus === "failed" && (
         <div
