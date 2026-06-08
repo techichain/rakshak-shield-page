@@ -62,7 +62,7 @@ function TeamLocationsIndex() {
       .maybeSingle();
     setTeam(t);
     if (!t) return;
-    setForm((f) => ({ ...f, city: t.city, state: t.state }));
+    setForm((f) => ({ ...f, city: t.city ?? "", state: t.state ?? "" }));
     const { data: l } = await supabase
       .from("rp_locations")
       .select("*")
