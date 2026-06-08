@@ -121,12 +121,17 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
  */
 export const upsertEvaluation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: {
-    submissionId: string;
-    rubricScores: Record<string, number>;
-    comments?: string;
-    submit: boolean;
-  }) => input)
+  .inputValidator((input: unknown) =>
+    z.object({
+      submissionId: z.string().uuid(),
+      rubricScores: z.record(
+        z.string().min(1).max(80),
+        z.number().min(0).max(1000),
+      ),
+      comments: z.string().max(4000).optional(),
+      submit: z.boolean(),
+    }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
