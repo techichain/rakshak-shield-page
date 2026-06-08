@@ -1,5 +1,7 @@
 import type { Location } from "./types";
 import { RC, RL, ST, PROG, getSiteMapUrl, getAuthShort } from "./data";
+import { X, Check, Maximize2 } from "lucide-react";
+import { STATUS_DESCRIPTIONS } from "./StatusLegend";
 
 interface Props {
   loc: Location | null;
