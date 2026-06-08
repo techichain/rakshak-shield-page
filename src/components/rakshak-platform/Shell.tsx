@@ -34,6 +34,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <Link to="/rakshak-platform/impact" className="text-muted-foreground hover:text-brand">
               Impact
             </Link>
+            <Link to="/rakshak-platform/mentors" className="text-muted-foreground hover:text-brand">
+              Mentors
+            </Link>
             <Link to="/rakshak-platform/sponsor" className="text-muted-foreground hover:text-brand">
               Sponsor
             </Link>
