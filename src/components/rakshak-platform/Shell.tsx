@@ -63,6 +63,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/audit" className="text-muted-foreground hover:text-brand">
                   Audit
                 </Link>
+                <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
+                  Seed
+                </Link>
               </>
             )}
             {(isAdmin || isFinance) && (
