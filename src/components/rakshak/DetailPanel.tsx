@@ -31,17 +31,7 @@ function ProgressBar({ status }: { status: Location["status"] }) {
             className={"prog-step" + (done ? " done" : "") + (curr ? " current" : "")}
           >
             <div className="prog-circ">
-              {done && (
-                <svg width="8" height="8" viewBox="0 0 10 10">
-                  <polyline
-                    points="1,5 4,8 9,2"
-                    fill="none"
-                    stroke="#fff"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              )}
+              {done && <Check size={9} strokeWidth={3} color="#fff" aria-hidden />}
             </div>
             <div className="prog-lbl">{s.l}</div>
           </div>
