@@ -55,7 +55,7 @@ function EvaluatorQueue() {
         {isLoading ? (
           <p className="mt-4 text-sm text-muted-foreground">Loading queue…</p>
         ) : pending.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">Nothing waiting for you. 🎉</p>
+          <p className="mt-4 text-sm text-muted-foreground">Nothing waiting for you.</p>
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {pending.map((i: any) => <QueueCard key={i.id} item={i} />)}

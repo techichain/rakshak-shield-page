@@ -12,7 +12,7 @@ function ProgressBar({ status }: { status: Location["status"] }) {
   if (status === "stalled") {
     return (
       <div className="prog-stall">
-        ⚠️ Stalled — No response from responsible authorities. Escalation needed.
+        Stalled — No response from responsible authorities. Escalation needed.
       </div>
     );
   }
@@ -91,7 +91,7 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
 
       {siteMapUrl && (
         <div className="sitemap-wrap">
-          <div className="sitemap-hdr">🗺️ Site Map</div>
+          <div className="sitemap-hdr">Site Map</div>
           <div className="sitemap-img-wrap">
             <img
               className="sitemap-img"
@@ -107,19 +107,19 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
       <div className="prog-wrap">
         <div className="prog-hdr">
           <span className="prog-ttl">Implementation Progress</span>
-          <span className="prog-curr" style={{ color: s.c }}>{s.i} {s.l}</span>
+          <span className="prog-curr" style={{ color: s.c }}>{s.i ? s.i + " " : ""}{s.l}</span>
         </div>
         <ProgressBar status={loc.status} />
         <div className="prog-team">Audit Team: {loc.team}</div>
       </div>
 
       <div className="d-sec">
-        <div className="d-sec-h">⚠️ Why This Location is Crash-Prone</div>
+        <div className="d-sec-h">Why This Location is Crash-Prone</div>
         <div className="crash-box">{loc.crash}</div>
       </div>
 
       <div className="d-sec">
-        <div className="d-sec-h">🔍 Audit Findings</div>
+        <div className="d-sec-h">Audit Findings</div>
         {loc.findings.map((f, i) => (
           <div key={i} className="finding">
             <span className="fdot" />
@@ -129,7 +129,7 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
       </div>
 
       <div className="d-sec">
-        <div className="d-sec-h">🛠️ Recommended Solutions & Costs</div>
+        <div className="d-sec-h">Recommended Solutions & Costs</div>
         {loc.sols.map((sol, i) => (
           <div key={i} className="sol">
             <div className="sol-t">{sol.i}</div>
@@ -139,12 +139,12 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
       </div>
 
       <div className="d-sec">
-        <div className="d-sec-h">📈 Estimated Impact</div>
+        <div className="d-sec-h">Estimated Impact</div>
         <div className="impact-box">{loc.impact}</div>
       </div>
 
       <div className="d-sec">
-        <div className="d-sec-h">🏛️ Responsible Authorities</div>
+        <div className="d-sec-h">Responsible Authorities</div>
         {loc.auths.map((a, i) => (
           <div key={i} className={"auth" + (a.p ? " primary" : "")}>
             <div className="auth-n">
@@ -157,7 +157,7 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
       </div>
 
       <div className="d-sec">
-        <div className="d-sec-h">❓ Why Not Yet Implemented</div>
+        <div className="d-sec-h">Why Not Yet Implemented</div>
         <div className="stall-box">{loc.why}</div>
       </div>
 

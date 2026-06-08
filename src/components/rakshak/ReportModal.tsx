@@ -61,14 +61,14 @@ export function ReportModal({ loc, onClose }: Props) {
         <div className="m-body">
           {submitted ? (
             <div className="success-state">
-              <div className="s-icon">🙏</div>
+              <div className="s-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
               <div className="s-title">Thank you for reporting!</div>
               <div className="s-sub">
                 Your experience has been shared with the Crashfree India team.
                 {petition && (
                   <>
                     <br /><br />
-                    ✅ You've signed the community petition for <strong>{loc.n}</strong>. We'll notify progress at <strong>{email.trim()}</strong>.
+                    You've signed the community petition for <strong>{loc.n}</strong>. We'll notify progress at <strong>{email.trim()}</strong>.
                   </>
                 )}
                 <br /><br />
@@ -121,8 +121,8 @@ export function ReportModal({ loc, onClose }: Props) {
                   <span style={{ fontSize: 10, color: "var(--text3)", fontWeight: 400 }}>(optional)</span>
                 </label>
                 <label className="f-file-wrap" htmlFor="rPhoto">
-                  <div className="f-file-lbl">📷 Tap to upload photo</div>
-                  <div className="f-file-sub">{photoName ? `✓ ${photoName}` : "JPG or PNG · max 5MB"}</div>
+                  <div className="f-file-lbl">Tap to upload photo</div>
+                  <div className="f-file-sub">{photoName ? <><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{display:"inline",verticalAlign:"-1px",marginRight:4}}><polyline points="20 6 9 17 4 12"/></svg>{photoName}</> : "JPG or PNG · max 5MB"}</div>
                 </label>
                 <input
                   className="f-file-inp"
@@ -141,7 +141,7 @@ export function ReportModal({ loc, onClose }: Props) {
                   onChange={(e) => setPetition(e.target.checked)}
                 />
                 <label className="c-lbl" htmlFor="rPetition">
-                  ✅ I also want to sign the community petition for this location — demanding action from responsible authorities
+                  I also want to sign the community petition for this location — demanding action from responsible authorities
                 </label>
               </div>
             </>

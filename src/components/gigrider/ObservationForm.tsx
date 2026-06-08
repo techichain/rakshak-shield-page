@@ -626,7 +626,7 @@ export function ObservationForm({
                     ? "Capturing…"
                     : gpsState === "ok"
                       ? "Re-capture GPS"
-                      : "📍 Capture GPS"}
+                      : "Capture GPS"}
                 </button>
                 {gpsState !== "ok" && (
                   <span className="text-xs text-slate-500">
@@ -710,9 +710,9 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "road_environment")}
                 idPrefix="road"
               />
-              {uploadStatus && <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>}
+              {uploadStatus && <p className="mt-2 text-xs text-slate-600">{uploadStatus}</p>}
               {photoError && (
-                <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
+                <p className="mt-2 text-xs text-red-600 break-words">{photoError}</p>
               )}
               {photos.some((p) => p.context === "road_environment") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
@@ -720,7 +720,7 @@ export function ObservationForm({
                     .filter((p) => p.context === "road_environment")
                     .map((p, i) => (
                       <li key={p.path}>
-                        ✓ {i + 1}. {p.name}
+                        {i + 1}. {p.name}
                       </li>
                     ))}
                 </ul>
@@ -973,9 +973,9 @@ export function ObservationForm({
                 onFiles={(files) => handlePhotos(files, "notes")}
                 idPrefix="notes"
               />
-              {uploadStatus && <p className="mt-2 text-xs text-slate-600">⏳ {uploadStatus}</p>}
+              {uploadStatus && <p className="mt-2 text-xs text-slate-600">{uploadStatus}</p>}
               {photoError && (
-                <p className="mt-2 text-xs text-red-600 break-words">⚠ {photoError}</p>
+                <p className="mt-2 text-xs text-red-600 break-words">{photoError}</p>
               )}
               {photos.some((p) => p.context === "notes") && (
                 <ul className="mt-2 text-xs text-emerald-700 space-y-0.5">
@@ -983,7 +983,7 @@ export function ObservationForm({
                     .filter((p) => p.context === "notes")
                     .map((p, i) => (
                       <li key={p.path}>
-                        ✓ {i + 1}. {p.name}
+                        {i + 1}. {p.name}
                       </li>
                     ))}
                 </ul>
@@ -1087,8 +1087,8 @@ function GpsBadge({ state }: { state: "idle" | "capturing" | "ok" | "failed" }) 
   const map = {
     idle: { l: "GPS …", c: "bg-slate-100 text-slate-600" },
     capturing: { l: "GPS…", c: "bg-blue-100 text-blue-700" },
-    ok: { l: "GPS ✓", c: "bg-emerald-100 text-emerald-800" },
-    failed: { l: "GPS ✕", c: "bg-red-100 text-red-700" },
+    ok: { l: "GPS OK", c: "bg-emerald-100 text-emerald-800" },
+    failed: { l: "GPS Error", c: "bg-red-100 text-red-700" },
   } as const;
   const { l, c } = map[state];
   return <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${c}`}>{l}</span>;
@@ -1334,7 +1334,7 @@ function PhotoPicker({
   return (
     <div className="flex flex-wrap gap-2">
       <button type="button" onClick={handleTakePhoto} className={btn + disabledBtn}>
-        📷 {uploading ? "Uploading…" : "Take photo"}
+        {uploading ? "Uploading…" : "Take photo"}
       </button>
       {/* Fallback native capture input — used only if getUserMedia is unavailable */}
       <input
@@ -1351,7 +1351,7 @@ function PhotoPicker({
         }}
       />
       <label htmlFor={galleryId} className={btn + disabledBtn}>
-        🖼️ {hasPhotos ? "Add from gallery" : "Choose from gallery"}
+        {hasPhotos ? "Add from gallery" : "Choose from gallery"}
       </label>
       <input
         id={galleryId}

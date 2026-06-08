@@ -527,7 +527,7 @@ export const adminReviewSubmission = createServerFn({ method: "POST" })
     const title = approve
       ? sub.phase_number < 4
         ? `Phase ${sub.phase_number} approved — Phase ${sub.phase_number + 1} unlocked`
-        : `Phase 4 approved — Project complete 🎉`
+        : `Phase 4 approved — Project complete`
       : `Admin requested changes on Phase ${sub.phase_number}`;
     const rows = recipients.map((r) => ({
       recipient_id: r,

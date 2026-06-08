@@ -112,7 +112,7 @@ export function LocationMap({
         <div style="font-weight:600;margin-bottom:4px">${escapeHtml(m.title)}</div>
         ${m.subtitle ? `<div style="color:#666">${escapeHtml(m.subtitle)}</div>` : ""}
         ${m.severity ? `<div style="margin-top:4px;color:${color};font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.08em">${m.severity}</div>` : ""}
-        ${m.isFinal ? `<div style="margin-top:4px;color:#4A35FF;font-weight:600">★ Final selected</div>` : ""}
+        ${m.isFinal ? `<div style="margin-top:4px;color:#4A35FF;font-weight:600">Final selected</div>` : ""}
       </div>`;
       marker.bindPopup(html, { closeButton: false, maxWidth: 240 });
       marker.on("mouseover", () => marker.openPopup());

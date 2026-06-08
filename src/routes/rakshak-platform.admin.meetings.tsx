@@ -105,9 +105,9 @@ function AdminMeetings() {
                     </div>
                   </td>
                   <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
-                    {m.reminder_24h_sent_at ? "✓24h " : "·24h "}
-                    {m.reminder_1h_sent_at ? "✓1h " : "·1h "}
-                    {m.reminder_30m_sent_at ? "✓30m" : "·30m"}
+                    <span className={m.reminder_24h_sent_at ? "text-emerald-600 font-medium" : ""}>24h</span>{" "}
+                    <span className={m.reminder_1h_sent_at ? "text-emerald-600 font-medium" : ""}>1h</span>{" "}
+                    <span className={m.reminder_30m_sent_at ? "text-emerald-600 font-medium" : ""}>30m</span>
                   </td>
                 </tr>
               ))}

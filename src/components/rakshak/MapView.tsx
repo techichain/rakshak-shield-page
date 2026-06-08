@@ -77,7 +77,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
         <div class="mt-risk" style="background:${
           loc.risk === "high" ? "var(--high-bg)" : loc.risk === "medium" ? "var(--med-bg)" : "var(--low-bg)"
         };color:${RC[loc.risk]}">${RL[loc.risk]}</div>
-        <div class="mt-status" style="color:${s.c}">${s.i} ${s.l}</div>
+        <div class="mt-status" style="color:${s.c}">${s.i ? s.i + " " : ""}${s.l}</div>
         <div class="mt-cta">Click to view full audit →</div>
       </div>`;
       m.bindPopup(popupHtml, { closeButton: false, maxWidth: 200 });
@@ -222,7 +222,7 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
     <div className="map-wrap">
       <div id="map" ref={mapEl} />
       {geoStatus === "loading" && (
-        <div className="map-loading">🗺️ Loading India map…</div>
+        <div className="map-loading">Loading India map…</div>
       )}
       {geoStatus === "failed" && (
         <div
