@@ -45,9 +45,25 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError(null);
+    setCaptchaError(null);
+
+    // 1) Captcha gate — regenerated on every refresh / mount.
+    const parsed = Number.parseInt(captcha.trim(), 10);
+    if (!Number.isFinite(parsed) || parsed !== expectedCaptcha.current) {
+      setCaptchaError("Incorrect answer. Please solve the new challenge.");
+      return;
+    }
+
+    setBusy(true);
     try {
+      // 2) Server-side email authenticity (MX-record check + disposable block).
+      const check = await verifyEmail({ data: { email } });
+      if (!check.ok) {
+        setError(check.reason);
+        return;
+      }
+
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
