@@ -57,6 +57,7 @@ import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './rout
 import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
 import { Route as RakshakPlatformAdminSponsorshipsRouteImport } from './routes/rakshak-platform.admin.sponsorships'
 import { Route as RakshakPlatformAdminSeedRouteImport } from './routes/rakshak-platform.admin.seed'
+import { Route as RakshakPlatformAdminRolesRouteImport } from './routes/rakshak-platform.admin.roles'
 import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
 import { Route as RakshakPlatformAdminMeetingsRouteImport } from './routes/rakshak-platform.admin.meetings'
 import { Route as RakshakPlatformAdminMapRouteImport } from './routes/rakshak-platform.admin.map'
@@ -351,6 +352,12 @@ const RakshakPlatformAdminSeedRoute =
     path: '/seed',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminRolesRoute =
+  RakshakPlatformAdminRolesRouteImport.update({
+    id: '/roles',
+    path: '/roles',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminMentorApplicationsRoute =
   RakshakPlatformAdminMentorApplicationsRouteImport.update({
     id: '/mentor-applications',
@@ -566,6 +573,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/map': typeof RakshakPlatformAdminMapRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
@@ -636,6 +644,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/map': typeof RakshakPlatformAdminMapRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
@@ -713,6 +722,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/map': typeof RakshakPlatformAdminMapRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
@@ -793,6 +803,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/map'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/book/$mentorId'
@@ -863,6 +874,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/map'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/book/$mentorId'
@@ -939,6 +951,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/map'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/book/$mentorId'
@@ -1316,6 +1329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminSeedRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/roles': {
+      id: '/rakshak-platform/admin/roles'
+      path: '/roles'
+      fullPath: '/rakshak-platform/admin/roles'
+      preLoaderRoute: typeof RakshakPlatformAdminRolesRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/mentor-applications': {
       id: '/rakshak-platform/admin/mentor-applications'
       path: '/mentor-applications'
@@ -1624,6 +1644,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminMapRoute: typeof RakshakPlatformAdminMapRoute
   RakshakPlatformAdminMeetingsRoute: typeof RakshakPlatformAdminMeetingsRoute
   RakshakPlatformAdminMentorApplicationsRoute: typeof RakshakPlatformAdminMentorApplicationsRoute
+  RakshakPlatformAdminRolesRoute: typeof RakshakPlatformAdminRolesRoute
   RakshakPlatformAdminSeedRoute: typeof RakshakPlatformAdminSeedRoute
   RakshakPlatformAdminSponsorshipsRoute: typeof RakshakPlatformAdminSponsorshipsRoute
 }
@@ -1644,6 +1665,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminMeetingsRoute: RakshakPlatformAdminMeetingsRoute,
   RakshakPlatformAdminMentorApplicationsRoute:
     RakshakPlatformAdminMentorApplicationsRoute,
+  RakshakPlatformAdminRolesRoute: RakshakPlatformAdminRolesRoute,
   RakshakPlatformAdminSeedRoute: RakshakPlatformAdminSeedRoute,
   RakshakPlatformAdminSponsorshipsRoute: RakshakPlatformAdminSponsorshipsRoute,
 }
