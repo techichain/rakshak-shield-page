@@ -675,6 +675,88 @@ export type Database = {
           },
         ]
       }
+      rp_certificates: {
+        Row: {
+          certificate_type: string
+          created_at: string
+          id: string
+          is_revoked: boolean
+          issued_at: string
+          issued_by: string | null
+          member_profile_id: string | null
+          metadata: Json
+          pdf_url: string | null
+          phase_number: number | null
+          public_slug: string
+          recipient_name: string
+          revoked_reason: string | null
+          serial_no: string
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_type: string
+          created_at?: string
+          id?: string
+          is_revoked?: boolean
+          issued_at?: string
+          issued_by?: string | null
+          member_profile_id?: string | null
+          metadata?: Json
+          pdf_url?: string | null
+          phase_number?: number | null
+          public_slug: string
+          recipient_name: string
+          revoked_reason?: string | null
+          serial_no: string
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_type?: string
+          created_at?: string
+          id?: string
+          is_revoked?: boolean
+          issued_at?: string
+          issued_by?: string | null
+          member_profile_id?: string | null
+          metadata?: Json
+          pdf_url?: string | null
+          phase_number?: number | null
+          public_slug?: string
+          recipient_name?: string
+          revoked_reason?: string | null
+          serial_no?: string
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_certificates_member_profile_id_fkey"
+            columns: ["member_profile_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_certificates_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_certificates_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_cohorts: {
         Row: {
           created_at: string
@@ -861,6 +943,79 @@ export type Database = {
           },
           {
             foreignKeyName: "rp_feedback_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_finance_entries: {
+        Row: {
+          amount_inr: number
+          category: string
+          cohort_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string
+          entry_type: string
+          id: string
+          metadata: Json
+          occurred_on: string
+          receipt_url: string | null
+          team_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_inr: number
+          category: string
+          cohort_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string
+          entry_type: string
+          id?: string
+          metadata?: Json
+          occurred_on?: string
+          receipt_url?: string | null
+          team_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_inr?: number
+          category?: string
+          cohort_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string
+          entry_type?: string
+          id?: string
+          metadata?: Json
+          occurred_on?: string
+          receipt_url?: string | null
+          team_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_finance_entries_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "rp_cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_finance_entries_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_finance_entries_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "rp_teams"
@@ -1263,6 +1418,63 @@ export type Database = {
           phase_number?: number
           phase_weight?: number
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rp_sponsorships: {
+        Row: {
+          amount_inr: number
+          created_at: string
+          currency: string
+          id: string
+          is_public: boolean
+          message: string | null
+          paid_at: string | null
+          payment_provider: string | null
+          provider_reference: string | null
+          sponsor_email: string | null
+          sponsor_logo_url: string | null
+          sponsor_name: string
+          sponsor_org: string | null
+          status: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          amount_inr: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_public?: boolean
+          message?: string | null
+          paid_at?: string | null
+          payment_provider?: string | null
+          provider_reference?: string | null
+          sponsor_email?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name: string
+          sponsor_org?: string | null
+          status?: string
+          tier: string
+          updated_at?: string
+        }
+        Update: {
+          amount_inr?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_public?: boolean
+          message?: string | null
+          paid_at?: string | null
+          payment_provider?: string | null
+          provider_reference?: string | null
+          sponsor_email?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string
+          sponsor_org?: string | null
+          status?: string
+          tier?: string
           updated_at?: string
         }
         Relationships: []

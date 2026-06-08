@@ -13,6 +13,7 @@ export interface RPAuthState {
   isTeam: boolean;
   isEvaluator: boolean;
   isAuthority: boolean;
+  isFinance: boolean;
 }
 
 const empty: RPAuthState = {
@@ -26,6 +27,7 @@ const empty: RPAuthState = {
   isTeam: false,
   isEvaluator: false,
   isAuthority: false,
+  isFinance: false,
 };
 
 export function useRPAuth(): RPAuthState {
@@ -56,6 +58,7 @@ export function useRPAuth(): RPAuthState {
         isTeam: roles.includes("team_leader") || roles.includes("team_member"),
         isEvaluator: roles.includes("evaluator"),
         isAuthority: roles.includes("authority"),
+        isFinance: roles.includes("finance"),
       });
     };
 

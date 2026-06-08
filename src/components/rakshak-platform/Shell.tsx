@@ -4,7 +4,7 @@ import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority } = useRPAuth();
+  const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
 
   return (
     <div className="rp-platform min-h-screen">
@@ -26,6 +26,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <Link to="/rakshak-platform/leaderboard" className="text-muted-foreground hover:text-brand">
               Leaderboard
             </Link>
+            <Link to="/rakshak-platform/sponsor" className="text-muted-foreground hover:text-brand">
+              Sponsor
+            </Link>
             {(isAuthority || isAdmin) && (
               <Link to="/rakshak-platform/authority" className="text-muted-foreground hover:text-brand">
                 Authority
@@ -41,11 +44,24 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin" className="text-muted-foreground hover:text-brand">
                   Admin
                 </Link>
+                <Link to="/rakshak-platform/admin/certificates" className="text-muted-foreground hover:text-brand">
+                  Certificates
+                </Link>
                 <Link to="/rakshak-platform/admin/knowledge" className="text-muted-foreground hover:text-brand">
                   Articles
                 </Link>
                 <Link to="/rakshak-platform/admin/map" className="text-muted-foreground hover:text-brand">
                   Programme map
+                </Link>
+              </>
+            )}
+            {(isAdmin || isFinance) && (
+              <>
+                <Link to="/rakshak-platform/admin/finance" className="text-muted-foreground hover:text-brand">
+                  Finance
+                </Link>
+                <Link to="/rakshak-platform/admin/sponsorships" className="text-muted-foreground hover:text-brand">
+                  Sponsorships
                 </Link>
               </>
             )}
