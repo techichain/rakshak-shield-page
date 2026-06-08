@@ -25,6 +25,7 @@ const empty: RPAuthState = {
   isMentor: false,
   isTeam: false,
   isEvaluator: false,
+  isAuthority: false,
 };
 
 export function useRPAuth(): RPAuthState {
