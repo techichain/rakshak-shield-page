@@ -188,6 +188,8 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
 
     return () => {
       disposed = true;
+      geoCtl.abort();
+      loadGeoRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
       leafletRef.current = null;
@@ -218,9 +220,51 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
   return (
     <div className="map-wrap">
       <div id="map" ref={mapEl} />
-      <div className="map-loading" ref={loadingEl}>
-        🗺️ Loading India map…
-      </div>
+      {geoStatus === "loading" && (
+        <div className="map-loading">🗺️ Loading India map…</div>
+      )}
+      {geoStatus === "failed" && (
+        <div
+          className="map-loading"
+          role="alert"
+          style={{ textAlign: "center", maxWidth: 320, lineHeight: 1.4 }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 6 }}>
+            Couldn't load the India map outline
+          </div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 10 }}>
+            Markers are still usable. Check your connection and retry.
+          </div>
+          <button
+            type="button"
+            onClick={() => loadGeoRef.current?.()}
+            style={{
+              padding: "6px 14px",
+              borderRadius: 999,
+              border: "1px solid currentColor",
+              background: "transparent",
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Retry
+          </button>
+          {geoError && import.meta.env.DEV && (
+            <pre
+              style={{
+                marginTop: 10,
+                fontSize: 10,
+                opacity: 0.7,
+                whiteSpace: "pre-wrap",
+                textAlign: "left",
+              }}
+            >
+              {geoError}
+            </pre>
+          )}
+        </div>
+      )}
       <button
         className="map-reset"
         onClick={() => {
