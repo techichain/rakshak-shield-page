@@ -94,6 +94,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/evaluator-queue" className="text-muted-foreground hover:text-brand">
                   Evaluator queue
                 </Link>
+                <Link to="/rakshak-platform/admin/evaluator-leaderboard" className="text-muted-foreground hover:text-brand">
+                  Eval analytics
+                </Link>
                 <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
                   Seed
                 </Link>
