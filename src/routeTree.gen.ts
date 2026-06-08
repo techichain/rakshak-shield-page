@@ -45,6 +45,7 @@ import { Route as RakshakPlatformVerifySlugRouteImport } from './routes/rakshak-
 import { Route as RakshakPlatformTeamReportsRouteImport } from './routes/rakshak-platform.team.reports'
 import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
 import { Route as RakshakPlatformTeamAiCheckRouteImport } from './routes/rakshak-platform.team.ai-check'
+import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
 import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/rakshak-platform.reports.$teamId'
 import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
@@ -72,7 +73,6 @@ import { Route as ApiDocsFileRouteImport } from './routes/api/docs.$file'
 import { Route as RakshakPlatformTeamReportsIndexRouteImport } from './routes/rakshak-platform.team.reports.index'
 import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/rakshak-platform.team.locations.index'
 import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
 
@@ -272,6 +272,11 @@ const RakshakPlatformTeamAiCheckRoute =
     path: '/ai-check',
     getParentRoute: () => RakshakPlatformTeamRoute,
   } as any)
+const RakshakPlatformTSlugRoute = RakshakPlatformTSlugRouteImport.update({
+  id: '/t/$slug',
+  path: '/t/$slug',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
 const RakshakPlatformReportsTeamIdRoute =
   RakshakPlatformReportsTeamIdRouteImport.update({
     id: '/reports/$teamId',
@@ -429,12 +434,6 @@ const RakshakPlatformTeamLocationsIdRoute =
     path: '/$id',
     getParentRoute: () => RakshakPlatformTeamLocationsRoute,
   } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksMeetingRemindersRoute =
   ApiPublicHooksMeetingRemindersRouteImport.update({
     id: '/api/public/hooks/meeting-reminders',
@@ -500,6 +499,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
+  '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
@@ -511,7 +511,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/locations/': typeof RakshakPlatformTeamLocationsIndexRoute
   '/rakshak-platform/team/reports/': typeof RakshakPlatformTeamReportsIndexRoute
@@ -560,6 +559,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
+  '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
@@ -569,7 +569,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsIndexRoute
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsIndexRoute
@@ -627,6 +626,7 @@ export interface FileRoutesById {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
+  '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
@@ -638,7 +638,6 @@ export interface FileRoutesById {
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/locations/': typeof RakshakPlatformTeamLocationsIndexRoute
   '/rakshak-platform/team/reports/': typeof RakshakPlatformTeamReportsIndexRoute
@@ -697,6 +696,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/reports/$teamId'
+    | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
@@ -708,7 +708,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/knowledge/'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/meeting-reminders'
-    | '/api/public/payments/webhook'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/locations/'
     | '/rakshak-platform/team/reports/'
@@ -757,6 +756,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/reports/$teamId'
+    | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/verify/$slug'
     | '/gigrider-checklist/admin'
@@ -766,7 +766,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/knowledge'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/meeting-reminders'
-    | '/api/public/payments/webhook'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
@@ -823,6 +822,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/reports/$teamId'
+    | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
@@ -834,7 +834,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/knowledge/'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/meeting-reminders'
-    | '/api/public/payments/webhook'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/locations/'
     | '/rakshak-platform/team/reports/'
@@ -849,7 +848,6 @@ export interface RootRouteChildren {
   ApiGigriderPhotoUploadRoute: typeof ApiGigriderPhotoUploadRoute
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1106,6 +1104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformTeamAiCheckRouteImport
       parentRoute: typeof RakshakPlatformTeamRoute
     }
+    '/rakshak-platform/t/$slug': {
+      id: '/rakshak-platform/t/$slug'
+      path: '/t/$slug'
+      fullPath: '/rakshak-platform/t/$slug'
+      preLoaderRoute: typeof RakshakPlatformTSlugRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
     '/rakshak-platform/reports/$teamId': {
       id: '/rakshak-platform/reports/$teamId'
       path: '/reports/$teamId'
@@ -1294,13 +1299,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/team/locations/$id'
       preLoaderRoute: typeof RakshakPlatformTeamLocationsIdRouteImport
       parentRoute: typeof RakshakPlatformTeamLocationsRoute
-    }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/meeting-reminders': {
       id: '/api/public/hooks/meeting-reminders'
@@ -1546,6 +1544,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformTeamRoute: typeof RakshakPlatformTeamRouteWithChildren
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
   RakshakPlatformReportsTeamIdRoute: typeof RakshakPlatformReportsTeamIdRoute
+  RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
 }
 
@@ -1567,6 +1566,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformTeamRoute: RakshakPlatformTeamRouteWithChildren,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
   RakshakPlatformReportsTeamIdRoute: RakshakPlatformReportsTeamIdRoute,
+  RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
   RakshakPlatformVerifySlugRoute: RakshakPlatformVerifySlugRoute,
 }
 
@@ -1583,18 +1583,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGigriderPhotoUploadRoute: ApiGigriderPhotoUploadRoute,
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

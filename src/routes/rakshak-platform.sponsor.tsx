@@ -4,17 +4,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { listPublicSponsors, createSponsorshipPledge } from "@/lib/rakshak-platform/sponsorships.functions";
-import { SponsorshipEmbeddedCheckout } from "@/components/rakshak-platform/SponsorshipEmbeddedCheckout";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { isPaymentsConfigured } from "@/lib/stripe";
 import { Heart, Award } from "lucide-react";
 
 const TIERS = [
-  { id: "friend",   label: "Friend",   amount: 1000,   blurb: "Powers a team's printing & travel for one phase." },
-  { id: "bronze",   label: "Bronze",   amount: 10000,  blurb: "Fully funds one student team for a full cohort." },
-  { id: "silver",   label: "Silver",   amount: 50000,  blurb: "Sponsors a city programme + mentor stipends." },
-  { id: "gold",     label: "Gold",     amount: 200000, blurb: "Underwrites a full cohort across multiple colleges." },
-  { id: "platinum", label: "Platinum", amount: 1000000,blurb: "Becomes the lead programme sponsor for the year." },
+  { id: "friend",   label: "Friend",   amount: 1000,    blurb: "Powers a team's printing & travel for one phase." },
+  { id: "bronze",   label: "Bronze",   amount: 10000,   blurb: "Fully funds one student team for a full cohort." },
+  { id: "silver",   label: "Silver",   amount: 50000,   blurb: "Sponsors a city programme + mentor stipends." },
+  { id: "gold",     label: "Gold",     amount: 200000,  blurb: "Underwrites a full cohort across multiple colleges." },
+  { id: "platinum", label: "Platinum", amount: 1000000, blurb: "Becomes the lead programme sponsor for the year." },
 ] as const;
 
 export const Route = createFileRoute("/rakshak-platform/sponsor")({
@@ -23,10 +20,6 @@ export const Route = createFileRoute("/rakshak-platform/sponsor")({
       queryKey: ["rp-public-sponsors"],
       queryFn: () => listPublicSponsors(),
     }),
-  validateSearch: (s: Record<string, unknown>): { paid?: string; sid?: string } => ({
-    paid: typeof s.paid === "string" ? s.paid : undefined,
-    sid: typeof s.sid === "string" ? s.sid : undefined,
-  }),
   component: SponsorPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p>Could not load page: {String(error)}</p></Section></PlatformShell>
@@ -47,25 +40,22 @@ function SponsorPage() {
     queryKey: ["rp-public-sponsors"],
     queryFn: () => listPublicSponsors(),
   });
-  const search = Route.useSearch();
   const queryClient = useQueryClient();
   const submit = useServerFn(createSponsorshipPledge);
   const [tier, setTier] = useState<typeof TIERS[number]["id"]>("bronze");
   const [amount, setAmount] = useState<number>(10000);
-  const [pledgeId, setPledgeId] = useState<string | null>(null);
-  const [done, setDone] = useState(search.paid === "1");
+  const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const sponsors = data.sponsors as any[];
-  const paymentsOk = isPaymentsConfigured();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true); setErr(null);
     const fd = new FormData(e.currentTarget);
     try {
-      const { pledge } = await submit({
+      await submit({
         data: {
           sponsor_name: String(fd.get("name") || ""),
           sponsor_email: String(fd.get("email") || ""),
@@ -77,12 +67,7 @@ function SponsorPage() {
         },
       });
       queryClient.invalidateQueries({ queryKey: ["rp-public-sponsors"] });
-
-      if (paymentsOk) {
-        setPledgeId((pledge as any).id);
-      } else {
-        setDone(true);
-      }
+      setDone(true);
     } catch (e: any) {
       setErr(e?.message ?? "Could not record pledge");
     } finally {
@@ -125,24 +110,16 @@ function SponsorPage() {
               Tell us about you.<br /><span className="text-brand">We'll send payment details.</span>
             </h2>
             <p className="mt-4 text-sm text-muted-foreground">
-              This records your pledge. Our team will email you within one working day with payment instructions and an 80G donation receipt where applicable.
+              This records your pledge. Our team will email you within one working day with payment instructions (UPI / NEFT / Razorpay link) and an 80G donation receipt where applicable.
             </p>
           </div>
           <div>
-            <PaymentTestModeBanner />
-            {pledgeId ? (
-              <div className="rounded-2xl border border-border bg-background p-2">
-                <SponsorshipEmbeddedCheckout
-                  sponsorshipId={pledgeId}
-                  returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/rakshak-platform/sponsor?paid=1&sid=${pledgeId}`}
-                />
-              </div>
-            ) : done ? (
+            {done ? (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
                 <Heart className="h-6 w-6 text-emerald-600" />
                 <h3 className="mt-3 font-heading text-2xl">Thank you.</h3>
                 <p className="mt-2 text-sm text-emerald-800/80">
-                  {paymentsOk ? "Your sponsorship is confirmed. You'll show up on the sponsor wall once the payment clears." : "Your pledge is recorded. We'll be in touch shortly with payment instructions."}
+                  Your pledge is recorded. We'll be in touch shortly with payment instructions.
                 </p>
               </div>
             ) : (
