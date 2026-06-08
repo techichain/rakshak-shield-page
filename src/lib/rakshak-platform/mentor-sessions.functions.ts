@@ -100,7 +100,7 @@ export const listMentorOpenSlots = createServerFn({ method: "GET" })
     if (error) throw error;
     const { data: mentor } = await context.supabase
       .from("rp_mentors")
-      .select("id, headline, expertise, rp_profiles:profile_id(full_name)")
+      .select("id, expertise, organization, rp_profiles:profile_id(full_name)")
       .eq("id", data.mentor_id)
       .maybeSingle();
     return { mentor, slots: slots ?? [] };

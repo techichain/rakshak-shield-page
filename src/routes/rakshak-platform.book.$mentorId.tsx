@@ -74,8 +74,10 @@ function BookPage() {
           <ArrowLeft className="size-4" /> Back to profile
         </Link>
         <Eyebrow>Book a 1:1 session</Eyebrow>
-        <h1 className="text-3xl font-extrabold">{data.mentor?.rp_profiles?.full_name ?? "Mentor"}</h1>
-        {data.mentor?.headline && <p className="text-muted-foreground mt-1">{data.mentor.headline}</p>}
+        <h1 className="text-3xl font-extrabold">{(data.mentor as any)?.rp_profiles?.full_name ?? "Mentor"}</h1>
+        {((data.mentor as any)?.organization || (data.mentor as any)?.expertise) && (
+          <p className="text-muted-foreground mt-1">{[(data.mentor as any)?.organization, (data.mentor as any)?.expertise].filter(Boolean).join(" · ")}</p>
+        )}
 
         {okId ? (
           <div className="rp-card p-6 mt-6 text-center">
