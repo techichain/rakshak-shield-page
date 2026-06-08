@@ -463,9 +463,6 @@ export const adminReviewSubmission = createServerFn({ method: "POST" })
       .update({
         status: newStatus,
         admin_review_status: approve ? "approved" : "changes_requested",
-        admin_reviewed_at: new Date().toISOString(),
-        admin_reviewer_id: context.userId,
-        admin_review_notes: data.comment ?? null,
       })
       .eq("id", sub.id);
     if (error) throw error;
@@ -474,10 +471,11 @@ export const adminReviewSubmission = createServerFn({ method: "POST" })
       await context.supabase.from("rp_feedback").insert({
         submission_id: sub.id,
         team_id: sub.team_id,
-        author_id: context.userId,
-        author_role: "admin",
-        comment: data.comment,
-        feedback_type: approve ? "approval" : "changes_requested",
+        phase_number: sub.phase_number,
+        reviewer_id: context.userId,
+        reviewer_role: "admin",
+        feedback_text: data.comment,
+        status: approve ? "resolved" : "open",
       });
     }
 
