@@ -174,7 +174,9 @@ export function Sidebar({
               <span
                 className="loc-spill"
                 style={{ background: ST[loc.status].c }}
-                title={ST[loc.status].l}
+                title={`${ST[loc.status].l} — ${STATUS_DESCRIPTIONS[loc.status]}`}
+                aria-label={`Status: ${ST[loc.status].l}`}
+                role="img"
               />
             </div>
           ))
