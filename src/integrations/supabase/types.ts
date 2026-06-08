@@ -675,6 +675,42 @@ export type Database = {
           },
         ]
       }
+      rp_badges: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          criteria: string
+          description: string
+          icon: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          criteria?: string
+          description?: string
+          icon?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          criteria?: string
+          description?: string
+          icon?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rp_certificates: {
         Row: {
           certificate_type: string
@@ -2023,6 +2059,62 @@ export type Database = {
           },
           {
             foreignKeyName: "rp_submissions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_team_badges: {
+        Row: {
+          awarded_at: string
+          awarded_by: string | null
+          badge_code: string
+          id: string
+          note: string | null
+          team_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_code: string
+          id?: string
+          note?: string | null
+          team_id: string
+        }
+        Update: {
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_code?: string
+          id?: string
+          note?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_team_badges_awarded_by_fkey"
+            columns: ["awarded_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_team_badges_badge_code_fkey"
+            columns: ["badge_code"]
+            isOneToOne: false
+            referencedRelation: "rp_badges"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "rp_team_badges_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_team_badges_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "rp_teams"
