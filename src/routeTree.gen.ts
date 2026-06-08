@@ -76,6 +76,7 @@ import { Route as RakshakPlatformAdminCronHealthRouteImport } from './routes/rak
 import { Route as RakshakPlatformAdminCohortsRouteImport } from './routes/rakshak-platform.admin.cohorts'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
 import { Route as RakshakPlatformAdminBulkImportRouteImport } from './routes/rakshak-platform.admin.bulk-import'
+import { Route as RakshakPlatformAdminBadgesRouteImport } from './routes/rakshak-platform.admin.badges'
 import { Route as RakshakPlatformAdminAuditRouteImport } from './routes/rakshak-platform.admin.audit'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
 import { Route as RakshakPlatformAdminAlertsRouteImport } from './routes/rakshak-platform.admin.alerts'
@@ -473,6 +474,12 @@ const RakshakPlatformAdminBulkImportRoute =
     path: '/bulk-import',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminBadgesRoute =
+  RakshakPlatformAdminBadgesRouteImport.update({
+    id: '/badges',
+    path: '/badges',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminAuditRoute =
   RakshakPlatformAdminAuditRouteImport.update({
     id: '/audit',
@@ -632,6 +639,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
+  '/rakshak-platform/admin/badges': typeof RakshakPlatformAdminBadgesRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
@@ -713,6 +721,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
+  '/rakshak-platform/admin/badges': typeof RakshakPlatformAdminBadgesRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
@@ -801,6 +810,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
+  '/rakshak-platform/admin/badges': typeof RakshakPlatformAdminBadgesRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
@@ -892,6 +902,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/audit'
+    | '/rakshak-platform/admin/badges'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
@@ -973,6 +984,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/audit'
+    | '/rakshak-platform/admin/badges'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
@@ -1060,6 +1072,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/audit'
+    | '/rakshak-platform/admin/badges'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
@@ -1591,6 +1604,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminBulkImportRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/badges': {
+      id: '/rakshak-platform/admin/badges'
+      path: '/badges'
+      fullPath: '/rakshak-platform/admin/badges'
+      preLoaderRoute: typeof RakshakPlatformAdminBadgesRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/audit': {
       id: '/rakshak-platform/admin/audit'
       path: '/audit'
@@ -1833,6 +1853,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminAlertsRoute: typeof RakshakPlatformAdminAlertsRoute
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminAuditRoute: typeof RakshakPlatformAdminAuditRoute
+  RakshakPlatformAdminBadgesRoute: typeof RakshakPlatformAdminBadgesRoute
   RakshakPlatformAdminBulkImportRoute: typeof RakshakPlatformAdminBulkImportRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
   RakshakPlatformAdminCohortsRoute: typeof RakshakPlatformAdminCohortsRoute
@@ -1858,6 +1879,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminAlertsRoute: RakshakPlatformAdminAlertsRoute,
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminAuditRoute: RakshakPlatformAdminAuditRoute,
+  RakshakPlatformAdminBadgesRoute: RakshakPlatformAdminBadgesRoute,
   RakshakPlatformAdminBulkImportRoute: RakshakPlatformAdminBulkImportRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
   RakshakPlatformAdminCohortsRoute: RakshakPlatformAdminCohortsRoute,
