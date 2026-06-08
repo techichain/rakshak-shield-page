@@ -40,8 +40,14 @@ export function StatsBar({ active, onClose }: Props) {
             {active ? `Primary: ${getAuthShort(primary?.n)}` : "Primary Authority"}
           </div>
         </div>
-        <button className="ctx-x" onClick={onClose} title="Close">
-          ×
+        <button
+          type="button"
+          className="ctx-x"
+          onClick={onClose}
+          title="Close selection"
+          aria-label="Close selected location"
+        >
+          <X size={14} strokeWidth={2.25} aria-hidden />
         </button>
       </div>
     </div>
