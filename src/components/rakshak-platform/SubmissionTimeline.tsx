@@ -66,13 +66,25 @@ export function SubmissionTimeline({ submissionId }: { submissionId: string }) {
         <History className="size-4" /> Submission timeline
       </h3>
       {isLoading ? (
-        <p className="text-sm text-muted-foreground inline-flex items-center gap-2">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading…
-        </p>
+        <div className="space-y-3" aria-busy="true" aria-label="Loading timeline">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-start gap-3">
+              <Skeleton className="h-4 w-4 rounded-full" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-3 w-2/3" />
+                <Skeleton className="h-2.5 w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : error ? (
         <p className="text-sm text-red-600">{String((error as any).message ?? error)}</p>
       ) : !data?.events?.length ? (
-        <p className="text-sm text-muted-foreground">No events yet.</p>
+        <div className="flex flex-col items-center text-center py-6 rounded-md border border-dashed border-border">
+          <History className="h-6 w-6 text-muted-foreground mb-1.5" aria-hidden />
+          <p className="text-sm font-medium">No activity yet</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Events will appear here as the submission moves through review.</p>
+        </div>
       ) : (
         <ol className="relative space-y-4 pl-5 before:absolute before:left-1.5 before:top-1 before:bottom-1 before:w-px before:bg-border">
           {data.events.map((ev) => {
