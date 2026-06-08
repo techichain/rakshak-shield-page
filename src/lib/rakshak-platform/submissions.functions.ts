@@ -579,3 +579,99 @@ export const listAdminPendingReviews = createServerFn({ method: "GET" })
       .order("submitted_at", { ascending: false });
     return { items: subs ?? [] };
   });
+
+// ---------- getSubmissionTimeline ----------
+// Returns ordered audit-log events + feedback comments for a submission.
+// Allowed: team members, the team's assigned mentor, or any admin.
+export const getSubmissionTimeline = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ submission_id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: sub } = await context.supabase
+      .from("rp_submissions")
+      .select("id, team_id, phase_number")
+      .eq("id", data.submission_id)
+      .maybeSingle();
+    if (!sub) throw new Error("Submission not found");
+
+    // permission: member, mentor, or admin
+    const [{ data: roles }, { data: team }, { data: member }] = await Promise.all([
+      context.supabase.from("rp_user_roles").select("role").eq("user_id", context.userId),
+      context.supabase
+        .from("rp_teams")
+        .select("team_leader_id, rp_mentors:assigned_mentor_id(profile_id)")
+        .eq("id", sub.team_id)
+        .maybeSingle(),
+      context.supabase
+        .from("rp_team_members")
+        .select("id")
+        .eq("team_id", sub.team_id)
+        .eq("profile_id", context.userId)
+        .maybeSingle(),
+    ]);
+    const isAdmin = (roles ?? []).some((r: any) =>
+      ["cfi_admin", "super_admin"].includes(r.role));
+    const isMentor = (team as any)?.rp_mentors?.profile_id === context.userId;
+    const isMember =
+      !!member || (team as any)?.team_leader_id === context.userId;
+    if (!isAdmin && !isMentor && !isMember) throw new Error("Forbidden");
+
+    // Audit log + feedback need to bypass RLS (audit table is admin-only by policy)
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [{ data: audits }, { data: feedback }] = await Promise.all([
+      supabaseAdmin
+        .from("rp_audit_logs")
+        .select("id, action, actor_id, actor_role, new_value, old_value, created_at")
+        .eq("entity_type", "rp_submissions")
+        .eq("entity_id", sub.id)
+        .order("created_at", { ascending: true }),
+      supabaseAdmin
+        .from("rp_feedback")
+        .select("id, reviewer_id, reviewer_role, feedback_text, status, created_at")
+        .eq("submission_id", sub.id)
+        .order("created_at", { ascending: true }),
+    ]);
+
+    // resolve actor names in one query
+    const actorIds = new Set<string>();
+    (audits ?? []).forEach((a: any) => a.actor_id && actorIds.add(a.actor_id));
+    (feedback ?? []).forEach((f: any) => f.reviewer_id && actorIds.add(f.reviewer_id));
+    let nameMap = new Map<string, string>();
+    if (actorIds.size) {
+      const { data: profs } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("id, full_name")
+        .in("id", Array.from(actorIds));
+      nameMap = new Map((profs ?? []).map((p: any) => [p.id, p.full_name as string]));
+    }
+
+    const events = [
+      ...(audits ?? []).map((a: any) => ({
+        kind: "status" as const,
+        id: `a_${a.id}`,
+        at: a.created_at,
+        actor_id: a.actor_id,
+        actor_name: a.actor_id ? nameMap.get(a.actor_id) ?? "Unknown" : "System",
+        actor_role: a.actor_role ?? null,
+        action: a.action as string,
+        from_status: a.new_value?.status ? a.old_value?.status ?? null : null,
+        to_status: a.new_value?.status ?? null,
+        title: a.new_value?.title ?? null,
+      })),
+      ...(feedback ?? []).map((f: any) => ({
+        kind: "comment" as const,
+        id: `f_${f.id}`,
+        at: f.created_at,
+        actor_id: f.reviewer_id,
+        actor_name: f.reviewer_id ? nameMap.get(f.reviewer_id) ?? "Reviewer" : "Reviewer",
+        actor_role: f.reviewer_role ?? null,
+        action: `comment_${f.status ?? "open"}`,
+        text: f.feedback_text as string,
+      })),
+    ].sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+
+    return { events };
+  });
