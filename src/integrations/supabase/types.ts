@@ -802,6 +802,45 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_cron_runs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          finished_at: string | null
+          hook_name: string
+          http_status: number | null
+          id: string
+          notes: Json | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          hook_name: string
+          http_status?: number | null
+          id?: string
+          notes?: Json | null
+          started_at?: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          hook_name?: string
+          http_status?: number | null
+          id?: string
+          notes?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       rp_evaluations: {
         Row: {
           comments: string | null
@@ -1283,10 +1322,13 @@ export type Database = {
           reminder_30m_sent_at: string | null
           scheduled_end: string
           scheduled_start: string
+          slot_id: string | null
           status: string
           team_id: string | null
           title: string
           updated_at: string
+          video_room_id: string | null
+          whiteboard_room_id: string | null
         }
         Insert: {
           agenda?: string
@@ -1303,10 +1345,13 @@ export type Database = {
           reminder_30m_sent_at?: string | null
           scheduled_end: string
           scheduled_start: string
+          slot_id?: string | null
           status?: string
           team_id?: string | null
           title: string
           updated_at?: string
+          video_room_id?: string | null
+          whiteboard_room_id?: string | null
         }
         Update: {
           agenda?: string
@@ -1323,10 +1368,13 @@ export type Database = {
           reminder_30m_sent_at?: string | null
           scheduled_end?: string
           scheduled_start?: string
+          slot_id?: string | null
           status?: string
           team_id?: string | null
           title?: string
           updated_at?: string
+          video_room_id?: string | null
+          whiteboard_room_id?: string | null
         }
         Relationships: [
           {
@@ -1334,6 +1382,13 @@ export type Database = {
             columns: ["mentor_id"]
             isOneToOne: false
             referencedRelation: "rp_mentors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_meetings_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mentor_slots"
             referencedColumns: ["id"]
           },
           {
@@ -1429,6 +1484,63 @@ export type Database = {
             columns: ["reviewed_by"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_mentor_slots: {
+        Row: {
+          booked_count: number
+          capacity: number
+          created_at: string
+          created_by: string | null
+          ends_at: string
+          id: string
+          mentor_id: string
+          notes: string | null
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booked_count?: number
+          capacity?: number
+          created_at?: string
+          created_by?: string | null
+          ends_at: string
+          id?: string
+          mentor_id: string
+          notes?: string | null
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booked_count?: number
+          capacity?: number
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string
+          id?: string
+          mentor_id?: string
+          notes?: string | null
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mentor_slots_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_slots_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mentors"
             referencedColumns: ["id"]
           },
         ]
