@@ -6,6 +6,7 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { getSubmissionForScoring, upsertEvaluation } from "@/lib/rakshak-platform/evaluations.functions";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
+import { MessageThread } from "@/components/rakshak-platform/MessageThread";
 import { ArrowLeft, Save, Send } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/evaluator/$submissionId")({
