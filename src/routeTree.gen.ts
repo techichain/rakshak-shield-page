@@ -18,6 +18,7 @@ import { Route as RakshakMentorIndexRouteImport } from './routes/rakshak-mentor.
 import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
 import { Route as RakshakPlatformTeamRouteImport } from './routes/rakshak-platform.team'
 import { Route as RakshakPlatformSponsorRouteImport } from './routes/rakshak-platform.sponsor'
+import { Route as RakshakPlatformProfileRouteImport } from './routes/rakshak-platform.profile'
 import { Route as RakshakPlatformNotificationsRouteImport } from './routes/rakshak-platform.notifications'
 import { Route as RakshakPlatformMentorsRouteImport } from './routes/rakshak-platform.mentors'
 import { Route as RakshakPlatformMentorApplyRouteImport } from './routes/rakshak-platform.mentor-apply'
@@ -130,6 +131,11 @@ const RakshakPlatformTeamRoute = RakshakPlatformTeamRouteImport.update({
 const RakshakPlatformSponsorRoute = RakshakPlatformSponsorRouteImport.update({
   id: '/sponsor',
   path: '/sponsor',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformProfileRoute = RakshakPlatformProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
 const RakshakPlatformNotificationsRoute =
@@ -546,6 +552,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/mentor-apply': typeof RakshakPlatformMentorApplyRoute
   '/rakshak-platform/mentors': typeof RakshakPlatformMentorsRoute
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
+  '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
@@ -617,6 +624,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/mentor-apply': typeof RakshakPlatformMentorApplyRoute
   '/rakshak-platform/mentors': typeof RakshakPlatformMentorsRoute
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
+  '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
@@ -695,6 +703,7 @@ export interface FileRoutesById {
   '/rakshak-platform/mentor-apply': typeof RakshakPlatformMentorApplyRoute
   '/rakshak-platform/mentors': typeof RakshakPlatformMentorsRoute
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
+  '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
@@ -776,6 +785,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor-apply'
     | '/rakshak-platform/mentors'
     | '/rakshak-platform/notifications'
+    | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
     | '/gigrider-checklist/'
@@ -847,6 +857,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor-apply'
     | '/rakshak-platform/mentors'
     | '/rakshak-platform/notifications'
+    | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
     | '/gigrider-checklist'
@@ -924,6 +935,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor-apply'
     | '/rakshak-platform/mentors'
     | '/rakshak-platform/notifications'
+    | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
     | '/gigrider-checklist/'
@@ -1054,6 +1066,13 @@ declare module '@tanstack/react-router' {
       path: '/sponsor'
       fullPath: '/rakshak-platform/sponsor'
       preLoaderRoute: typeof RakshakPlatformSponsorRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/profile': {
+      id: '/rakshak-platform/profile'
+      path: '/profile'
+      fullPath: '/rakshak-platform/profile'
+      preLoaderRoute: typeof RakshakPlatformProfileRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/notifications': {
@@ -1798,6 +1817,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformMentorApplyRoute: typeof RakshakPlatformMentorApplyRoute
   RakshakPlatformMentorsRoute: typeof RakshakPlatformMentorsRoute
   RakshakPlatformNotificationsRoute: typeof RakshakPlatformNotificationsRoute
+  RakshakPlatformProfileRoute: typeof RakshakPlatformProfileRoute
   RakshakPlatformSponsorRoute: typeof RakshakPlatformSponsorRoute
   RakshakPlatformTeamRoute: typeof RakshakPlatformTeamRouteWithChildren
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
@@ -1824,6 +1844,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformMentorApplyRoute: RakshakPlatformMentorApplyRoute,
   RakshakPlatformMentorsRoute: RakshakPlatformMentorsRoute,
   RakshakPlatformNotificationsRoute: RakshakPlatformNotificationsRoute,
+  RakshakPlatformProfileRoute: RakshakPlatformProfileRoute,
   RakshakPlatformSponsorRoute: RakshakPlatformSponsorRoute,
   RakshakPlatformTeamRoute: RakshakPlatformTeamRouteWithChildren,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
