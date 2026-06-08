@@ -47,6 +47,8 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
     let disposed = false;
+    const geoCtl = new AbortController();
+
 
     (async () => {
       const L = await import("leaflet");
