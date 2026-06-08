@@ -14,6 +14,7 @@ import {
 } from "@/lib/rakshak-platform/submissions.functions";
 import { PHASE_TITLES, STATUS_META, type PhaseStatus } from "@/lib/rakshak-platform/constants";
 import { ArrowLeft, Upload, Save, Send, X, FileText, MessageSquare } from "lucide-react";
+import { SubmissionTimeline } from "@/components/rakshak-platform/SubmissionTimeline";
 
 const SearchSchema = z.object({ team: z.string().uuid() });
 
