@@ -16,7 +16,7 @@ const ROLE_OPTIONS = [
 ];
 
 const searchSchema = z.object({
-  mode: z.enum(["login", "register"]).default("login").catch("login"),
+  mode: z.enum(["login", "register", "otp"]).default("login").catch("login"),
   role: z.enum(["team", "mentor", "evaluator", "admin"]).default("team").catch("team"),
 });
 
@@ -33,31 +33,90 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [captcha, setCaptcha] = useState("");
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const expectedCaptcha = useRef<number>(0);
   const verifyEmail = useServerFn(verifyEmailDeliverable);
 
-  const setMode = (m: "login" | "register") =>
+  // OTP-specific state
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+
+  const setMode = (m: "login" | "register" | "otp") =>
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
   const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setCaptchaError(null);
-
-    // 1) Captcha gate — regenerated on every refresh / mount.
+  function checkCaptcha(): boolean {
     const parsed = Number.parseInt(captcha.trim(), 10);
     if (!Number.isFinite(parsed) || parsed !== expectedCaptcha.current) {
       setCaptchaError("Incorrect answer. Please solve the new challenge.");
-      return;
+      return false;
     }
+    return true;
+  }
+
+  async function handleSendOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    setCaptchaError(null);
+    if (!checkCaptcha()) return;
 
     setBusy(true);
     try {
-      // 2) Server-side email authenticity (MX-record check + disposable block).
+      const check = await verifyEmail({ data: { email } });
+      if (!check.ok) {
+        setError(check.reason);
+        return;
+      }
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${window.location.origin}/rakshak-platform/dashboard`,
+        },
+      });
+      if (error) throw error;
+      setOtpSent(true);
+      setInfo(`We've emailed a 6-digit code to ${email}. It expires in 10 minutes.`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not send code.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    try {
+      const token = otpCode.trim();
+      if (!/^\d{6}$/.test(token)) {
+        setError("Enter the 6-digit code from your email.");
+        return;
+      }
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+      if (error) throw error;
+      navigate({ to: "/rakshak-platform/dashboard" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Invalid or expired code.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    setCaptchaError(null);
+    if (!checkCaptcha()) return;
+
+    setBusy(true);
+    try {
       const check = await verifyEmail({ data: { email } });
       if (!check.ok) {
         setError(check.reason);
@@ -83,7 +142,6 @@ function AuthPage() {
         if (userId) {
           await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
           if (role === "evaluator" || role === "admin") {
-            // Pending approval — do NOT grant the privileged role yet.
             await supabase.from("rp_role_approvals").insert({
               user_id: userId,
               requested_role: dbRole,
@@ -120,10 +178,14 @@ function AuthPage() {
     <PlatformShell>
       <Section>
         <div className="mx-auto max-w-md">
-          <Eyebrow>{mode === "login" ? "Welcome back" : "Join Project Rakshak"}</Eyebrow>
+          <Eyebrow>
+            {mode === "login" ? "Welcome back" : mode === "otp" ? "Sign in with email code" : "Join Project Rakshak"}
+          </Eyebrow>
           <h1 className="mt-6 font-heading text-4xl font-bold leading-tight tracking-tight">
             {mode === "login" ? (
               <>Sign in to your <span className="text-brand">workspace.</span></>
+            ) : mode === "otp" ? (
+              <>Passwordless <span className="text-brand">sign in.</span></>
             ) : (
               <>Create your <span className="text-brand">account.</span></>
             )}
@@ -134,6 +196,10 @@ function AuthPage() {
               onClick={() => setMode("login")}
               className={`px-4 py-1.5 rounded-full transition ${mode === "login" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
             >Sign in</button>
+            <button
+              onClick={() => setMode("otp")}
+              className={`px-4 py-1.5 rounded-full transition ${mode === "otp" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
+            >Email code</button>
             <button
               onClick={() => setMode("register")}
               className={`px-4 py-1.5 rounded-full transition ${mode === "register" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
@@ -162,44 +228,103 @@ function AuthPage() {
             </p>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            {mode === "register" && (
-              <Field label="Full name">
+          {mode === "otp" ? (
+            <div className="mt-8 space-y-4">
+              {!otpSent ? (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <Field label="Email">
+                    <input
+                      required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                    />
+                  </Field>
+                  <Captcha
+                    value={captcha}
+                    onChange={setCaptcha}
+                    onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
+                    error={captchaError}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Only existing accounts can sign in with an email code. New users, please register first.
+                  </p>
+                  {error && <p className="text-sm text-red-600">{error}</p>}
+                  <button
+                    type="submit" disabled={busy}
+                    className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                  >
+                    {busy ? "Sending…" : "Email me a code"}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  {info && <p className="text-sm text-muted-foreground">{info}</p>}
+                  <Field label="6-digit code">
+                    <input
+                      required
+                      inputMode="numeric"
+                      pattern="\d{6}"
+                      maxLength={6}
+                      autoFocus
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                      placeholder="000000"
+                      className="w-full h-12 rounded-xl border border-border bg-card px-4 text-center text-lg font-mono tracking-[0.4em] focus:outline-none focus:border-brand"
+                    />
+                  </Field>
+                  {error && <p className="text-sm text-red-600">{error}</p>}
+                  <button
+                    type="submit" disabled={busy}
+                    className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                  >
+                    {busy ? "Verifying…" : "Verify and sign in"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setOtpSent(false); setOtpCode(""); setInfo(null); setError(null); }}
+                    className="w-full text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                  >
+                    Use a different email or resend code
+                  </button>
+                </form>
+              )}
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              {mode === "register" && (
+                <Field label="Full name">
+                  <input
+                    required value={fullName} onChange={(e) => setFullName(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                  />
+                </Field>
+              )}
+              <Field label="Email">
                 <input
-                  required value={fullName} onChange={(e) => setFullName(e.target.value)}
+                  required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
                 />
               </Field>
-            )}
-            <Field label="Email">
-              <input
-                required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+              <Field label="Password">
+                <input
+                  required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                />
+              </Field>
+              <Captcha
+                value={captcha}
+                onChange={setCaptcha}
+                onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
+                error={captchaError}
               />
-            </Field>
-            <Field label="Password">
-              <input
-                required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-              />
-            </Field>
-            <Captcha
-              value={captcha}
-              onChange={setCaptcha}
-              onChallenge={(n) => {
-                expectedCaptcha.current = n;
-                setCaptchaError(null);
-              }}
-              error={captchaError}
-            />
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <button
-              type="submit" disabled={busy}
-              className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-            >
-              {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
-            </button>
-          </form>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                type="submit" disabled={busy}
+                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+              >
+                {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
+              </button>
+            </form>
+          )}
         </div>
       </Section>
     </PlatformShell>
