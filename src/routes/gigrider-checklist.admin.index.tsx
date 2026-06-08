@@ -301,7 +301,7 @@ function ObservationsPanel() {
                 </td>
                 <td className="px-3 py-2">
                   {r.flagged ? (
-                    <span className="text-xs text-red-700" title={r.flag_reason ?? ""}>⚑ Flagged</span>
+                    <span className="text-xs text-red-700" title={r.flag_reason ?? ""}>Flagged</span>
                   ) : <span className="text-xs text-slate-400">—</span>}
                 </td>
               </tr>

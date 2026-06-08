@@ -51,7 +51,7 @@ function html(meeting: any, label: string) {
       <h3 style="margin:0;">${escapeHtml(meeting.title)}</h3>
       <p style="margin:4px 0;color:#555;">${when}</p>
       ${meeting.agenda ? `<p style="margin:8px 0;color:#444;white-space:pre-line;">${escapeHtml(meeting.agenda)}</p>` : ""}
-      ${meeting.location ? `<p style="margin:4px 0;color:#555;">📍 ${escapeHtml(meeting.location)}</p>` : ""}
+      ${meeting.location ? `<p style="margin:4px 0;color:#555;">Location: ${escapeHtml(meeting.location)}</p>` : ""}
       ${link}
       <p style="color:#999;font-size:12px;margin-top:24px;">Rakshak Citizen Safety Mission</p>
     </div>`;
