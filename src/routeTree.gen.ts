@@ -65,6 +65,7 @@ import { Route as ApiDocsFileRouteImport } from './routes/api/docs.$file'
 import { Route as RakshakPlatformTeamReportsIndexRouteImport } from './routes/rakshak-platform.team.reports.index'
 import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/rakshak-platform.team.locations.index'
 import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const RakshakPlatformRoute = RakshakPlatformRouteImport.update({
   id: '/rakshak-platform',
@@ -378,6 +379,12 @@ const RakshakPlatformTeamLocationsIdRoute =
     path: '/$id',
     getParentRoute: () => RakshakPlatformTeamLocationsRoute,
   } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -433,6 +440,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-mentor/admin/': typeof RakshakMentorAdminIndexRoute
   '/rakshak-platform/evaluator/': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/locations/': typeof RakshakPlatformTeamLocationsIndexRoute
   '/rakshak-platform/team/reports/': typeof RakshakPlatformTeamReportsIndexRoute
@@ -481,6 +489,7 @@ export interface FileRoutesByTo {
   '/rakshak-mentor/admin': typeof RakshakMentorAdminIndexRoute
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsIndexRoute
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsIndexRoute
@@ -540,6 +549,7 @@ export interface FileRoutesById {
   '/rakshak-mentor/admin/': typeof RakshakMentorAdminIndexRoute
   '/rakshak-platform/evaluator/': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/locations/': typeof RakshakPlatformTeamLocationsIndexRoute
   '/rakshak-platform/team/reports/': typeof RakshakPlatformTeamReportsIndexRoute
@@ -600,6 +610,7 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/'
     | '/rakshak-platform/evaluator/'
     | '/rakshak-platform/knowledge/'
+    | '/api/public/payments/webhook'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/locations/'
     | '/rakshak-platform/team/reports/'
@@ -648,6 +659,7 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin'
     | '/rakshak-platform/evaluator'
     | '/rakshak-platform/knowledge'
+    | '/api/public/payments/webhook'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
@@ -706,6 +718,7 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/'
     | '/rakshak-platform/evaluator/'
     | '/rakshak-platform/knowledge/'
+    | '/api/public/payments/webhook'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/locations/'
     | '/rakshak-platform/team/reports/'
@@ -718,6 +731,7 @@ export interface RootRouteChildren {
   RakshakPlatformRoute: typeof RakshakPlatformRouteWithChildren
   ApiDocsFileRoute: typeof ApiDocsFileRoute
   ApiGigriderPhotoUploadRoute: typeof ApiGigriderPhotoUploadRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1114,6 +1128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformTeamLocationsIdRouteImport
       parentRoute: typeof RakshakPlatformTeamLocationsRoute
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1364,6 +1385,7 @@ const rootRouteChildren: RootRouteChildren = {
   RakshakPlatformRoute: RakshakPlatformRouteWithChildren,
   ApiDocsFileRoute: ApiDocsFileRoute,
   ApiGigriderPhotoUploadRoute: ApiGigriderPhotoUploadRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
