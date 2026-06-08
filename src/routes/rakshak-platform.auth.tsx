@@ -103,16 +103,25 @@ function AuthPage() {
           </div>
 
           {mode === "register" && (
-            <div className="mt-4 inline-flex rounded-full border border-border p-1 text-xs ml-3">
-              <button
-                onClick={() => setRole("team")}
-                className={`px-3 py-1 rounded-full transition ${role === "team" ? "bg-foreground text-background" : "text-muted-foreground"}`}
-              >As team lead</button>
-              <button
-                onClick={() => setRole("mentor")}
-                className={`px-3 py-1 rounded-full transition ${role === "mentor" ? "bg-foreground text-background" : "text-muted-foreground"}`}
-              >As mentor</button>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {ROLE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setRole(opt.value as typeof role)}
+                  className={`px-3 py-1.5 rounded-full text-xs border transition ${role === opt.value ? "bg-foreground text-background border-foreground" : "text-muted-foreground border-border hover:border-foreground/40"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
+          )}
+          {mode === "register" && (role === "evaluator" || role === "admin") && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {role === "admin"
+                ? "CFI Admin accounts require approval. Your account will be created but access may be limited until a super admin verifies it."
+                : "Evaluator accounts are granted rubric and submission review access. A CFI admin may need to assign you to a cohort."}
+            </p>
           )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
