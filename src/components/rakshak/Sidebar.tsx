@@ -45,7 +45,7 @@ export function Sidebar({
       </div>
 
       <div className={"sb-selected" + (active ? " show" : "")}>
-        <div className="sb-sel-label">📍 Selected Location</div>
+        <div className="sb-sel-label">Selected Location</div>
         <div className="sb-sel-name">{active?.n ?? "—"}</div>
         <div style={{ marginBottom: 4 }}>
           <span className="sb-sel-auth-label">Primary Authority</span>
@@ -107,11 +107,11 @@ export function Sidebar({
           <div className="f-label">Status</div>
           {[
             { v: "all", l: "All" },
-            { v: "implementation_ongoing", l: "🔨 In Progress" },
-            { v: "in_principle_approval", l: "✅ Approved" },
-            { v: "submitted", l: "📤 Submitted" },
-            { v: "audit_complete", l: "✓ Audited" },
-            { v: "stalled", l: "⚠️ Stalled" },
+            { v: "implementation_ongoing", l: "In Progress" },
+            { v: "in_principle_approval", l: "Approved" },
+            { v: "submitted", l: "Submitted" },
+            { v: "audit_complete", l: "Audited" },
+            { v: "stalled", l: "Stalled" },
           ].map((s) => (
             <span
               key={s.v}
