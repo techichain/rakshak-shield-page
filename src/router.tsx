@@ -1,6 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { isDevMode, report } from "@/lib/client-error-reporter";
 
 function DefaultPending() {
   return (
