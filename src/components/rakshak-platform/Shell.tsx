@@ -4,7 +4,7 @@ import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
-  const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator } = useRPAuth();
+  const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority } = useRPAuth();
 
   return (
     <div className="rp-platform min-h-screen">
@@ -20,9 +20,17 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
               Hotspots
             </Link>
+            <Link to="/rakshak-platform/knowledge" className="text-muted-foreground hover:text-brand">
+              Knowledge
+            </Link>
             <Link to="/rakshak-platform/leaderboard" className="text-muted-foreground hover:text-brand">
               Leaderboard
             </Link>
+            {(isAuthority || isAdmin) && (
+              <Link to="/rakshak-platform/authority" className="text-muted-foreground hover:text-brand">
+                Authority
+              </Link>
+            )}
             {(isEvaluator || isAdmin) && (
               <Link to="/rakshak-platform/evaluator" className="text-muted-foreground hover:text-brand">
                 Evaluator
@@ -32,6 +40,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <>
                 <Link to="/rakshak-platform/admin" className="text-muted-foreground hover:text-brand">
                   Admin
+                </Link>
+                <Link to="/rakshak-platform/admin/knowledge" className="text-muted-foreground hover:text-brand">
+                  Articles
                 </Link>
                 <Link to="/rakshak-platform/admin/map" className="text-muted-foreground hover:text-brand">
                   Programme map
