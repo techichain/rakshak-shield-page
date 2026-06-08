@@ -8,6 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "smoke": "node scripts/ssr-smoke.mjs",
+    "verify": "vite build && node scripts/ssr-smoke.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
