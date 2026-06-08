@@ -53,10 +53,7 @@ export function Sidebar({
           <span className="sb-sel-auth-label">Primary Authority</span>
           <div className="sb-sel-auth">
             {status && (
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={status.c} strokeWidth="2.5" style={{ flexShrink: 0 }}>
-                <rect x="2" y="3" width="20" height="14" rx="2" />
-                <path d="M8 21h8M12 17v4" />
-              </svg>
+              <MonitorCheck size={12} strokeWidth={2} color={status.c} style={{ flexShrink: 0 }} aria-hidden />
             )}
             <span style={{ color: "var(--navy)" }}>
               {primary ? primary.n.split("(")[0].trim() : "—"}
