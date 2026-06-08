@@ -56,7 +56,7 @@ export const createSponsorshipCheckout = createServerFn({ method: "POST" })
 
     await supabaseAdmin
       .from("rp_sponsorships")
-      .update({ provider: "stripe", provider_reference: session.id })
+      .update({ payment_provider: "stripe", provider_reference: session.id } as any)
       .eq("id", pledge.id);
 
     return { url: session.url! };
