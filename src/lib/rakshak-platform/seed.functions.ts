@@ -70,6 +70,8 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
       created.push({ email: u.email, role: u.role, status: createRes?.user ? "created" : "updated" });
     }
 
+    // Surface password to server logs only (never returned to the client).
+    console.log(`[seedDemoAccounts] demo password for this run: ${password}`);
     return { accounts: created };
   });
 
