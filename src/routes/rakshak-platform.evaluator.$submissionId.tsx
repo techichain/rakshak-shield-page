@@ -40,7 +40,7 @@ function ScoringPage() {
   });
 
   const criteria = useMemo<Criterion[]>(
-    () => (data?.rubric?.criteria as Criterion[]) ?? [],
+    () => ((data?.rubric?.criteria ?? []) as unknown as Criterion[]),
     [data]
   );
   const [scores, setScores] = useState<Record<string, number>>({});
@@ -50,8 +50,9 @@ function ScoringPage() {
   useEffect(() => {
     if (!data) return;
     const initial: Record<string, number> = {};
+    const prev = (data.myEval?.rubric_scores ?? {}) as Record<string, number>;
     criteria.forEach((c) => {
-      initial[c.key] = Number(data.myEval?.rubric_scores?.[c.key] ?? 0);
+      initial[c.key] = Number(prev[c.key] ?? 0);
     });
     setScores(initial);
     setComments(data.myEval?.comments ?? "");

@@ -31,8 +31,8 @@ function EvaluatorQueue() {
   });
 
   const items = data?.items ?? [];
-  const pending = items.filter((i) => !i.my_evaluation || i.my_evaluation.status === "draft");
-  const done = items.filter((i) => i.my_evaluation?.status === "submitted");
+  const pending = items.filter((i: any) => !i.my_evaluation || i.my_evaluation.status === "draft");
+  const done = items.filter((i: any) => i.my_evaluation?.status === "submitted");
 
   if (loading) return <PlatformShell><Section>Loading…</Section></PlatformShell>;
 
@@ -58,7 +58,7 @@ function EvaluatorQueue() {
           <p className="mt-4 text-sm text-muted-foreground">Nothing waiting for you. 🎉</p>
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {pending.map((i) => <QueueCard key={i.id} item={i} />)}
+            {pending.map((i: any) => <QueueCard key={i.id} item={i} />)}
           </div>
         )}
 
@@ -66,7 +66,7 @@ function EvaluatorQueue() {
           <>
             <h2 className="mt-16 font-heading text-2xl font-semibold">Completed</h2>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {done.map((i) => <QueueCard key={i.id} item={i} />)}
+              {done.map((i: any) => <QueueCard key={i.id} item={i} />)}
             </div>
           </>
         )}

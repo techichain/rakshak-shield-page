@@ -52,7 +52,7 @@ function LeaderboardPage() {
           >
             All cohorts
           </button>
-          {cohorts.map((c) => (
+          {cohorts.map((c: any) => (
             <button
               key={c.id}
               onClick={() => setCohortId(c.id)}
@@ -71,7 +71,7 @@ function LeaderboardPage() {
           <>
             {podium.length > 0 && (
               <div className="mt-12 grid gap-5 md:grid-cols-3">
-                {podium.map((row, i) => (
+                {podium.map((row: any, i: number) => (
                   <div
                     key={row.team_id}
                     className={`rounded-2xl border p-6 ${
@@ -105,7 +105,7 @@ function LeaderboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {rest.map((row) => (
+                    {rest.map((row: any) => (
                       <tr key={row.team_id} className="border-t border-border">
                         <td className="px-4 py-3 font-mono text-muted-foreground">#{row.overall_rank}</td>
                         <td className="px-4 py-3 font-medium">{row.team_name}</td>
