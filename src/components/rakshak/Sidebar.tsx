@@ -1,5 +1,7 @@
 import type { FiltersState, Location } from "./types";
 import { LOC, AUTH_CATS, ST, RC } from "./data";
+import { MonitorCheck, X } from "lucide-react";
+import { StatusLegend, STATUS_DESCRIPTIONS } from "./StatusLegend";
 
 interface Props {
   filters: FiltersState;
