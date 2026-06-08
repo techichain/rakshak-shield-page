@@ -34,6 +34,7 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const password = demoPassword();
     const created: Array<{ email: string; role: string; status: string }> = [];
 
     for (const u of DEMO_USERS) {
@@ -41,7 +42,7 @@ export const seedDemoAccounts = createServerFn({ method: "POST" })
       let userId: string | null = null;
       const { data: createRes, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: u.email,
-        password: u.password,
+        password,
         email_confirm: true,
         user_metadata: { name: u.full_name },
       });
