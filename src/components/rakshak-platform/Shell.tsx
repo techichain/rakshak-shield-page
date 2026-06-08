@@ -149,6 +149,8 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <li><Link to="/rakshak-platform/map">Hotspot map</Link></li>
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
+              <li><Link to="/rakshak-platform/impact">Impact</Link></li>
+              <li><Link to="/rakshak-platform/sponsor">Sponsor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
             </ul>
           </div>
