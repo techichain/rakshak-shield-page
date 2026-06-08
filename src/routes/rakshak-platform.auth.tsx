@@ -63,14 +63,6 @@ function AuthPage() {
           if (role === "mentor") {
             await supabase.from("rp_mentors").insert({ profile_id: userId });
           }
-          await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
-          await supabase.from("rp_user_roles").insert({
-            user_id: userId,
-            role: role === "mentor" ? "mentor" : "team_leader",
-          });
-          if (role === "mentor") {
-            await supabase.from("rp_mentors").insert({ profile_id: userId });
-          }
         }
         if (data.session) {
           navigate({ to: "/rakshak-platform/dashboard" });
