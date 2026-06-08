@@ -74,11 +74,21 @@ export const cancelMentorSlot = createServerFn({ method: "POST" })
     z.object({ slot_id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    const { data: mentor } = await context.supabase
+      .from("rp_mentors")
+      .select("id")
+      .eq("profile_id", context.userId)
+      .maybeSingle();
+    if (!mentor) throw new Error("You are not registered as a mentor.");
+    const { data: updated, error } = await context.supabase
       .from("rp_mentor_slots")
       .update({ status: "cancelled" })
-      .eq("id", data.slot_id);
+      .eq("id", data.slot_id)
+      .eq("mentor_id", mentor.id)
+      .select("id")
+      .maybeSingle();
     if (error) throw error;
+    if (!updated) throw new Error("Slot not found or you do not own it.");
     return { ok: true };
   });
 
