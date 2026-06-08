@@ -183,6 +183,15 @@ function AuthPage() {
                 className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
               />
             </Field>
+            <Captcha
+              value={captcha}
+              onChange={setCaptcha}
+              onChallenge={(n) => {
+                expectedCaptcha.current = n;
+                setCaptchaError(null);
+              }}
+              error={captchaError}
+            />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit" disabled={busy}
