@@ -30,14 +30,18 @@ function makeIcon(L: typeof Leaflet, risk: Location["risk"]) {
 
 export function MapView({ visibleIds, onSelect, registerApi }: Props) {
   const mapEl = useRef<HTMLDivElement>(null);
-  const loadingEl = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<typeof Leaflet | null>(null);
   const mapRef = useRef<Leaflet.Map | null>(null);
   const markersRef = useRef<Record<number, { m: Leaflet.Marker; vis: boolean }>>({});
   const indiaGeoRef = useRef<Leaflet.GeoJSON | null>(null);
   const stateLayerMapRef = useRef<Record<string, Leaflet.Layer[]>>({});
+  const loadGeoRef = useRef<((signal?: AbortSignal) => Promise<void>) | null>(null);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+
+  const [geoStatus, setGeoStatus] = useState<"loading" | "loaded" | "failed">("loading");
+  const [geoError, setGeoError] = useState<string | null>(null);
+
 
   // Init map once
   useEffect(() => {
@@ -95,23 +99,36 @@ export function MapView({ visibleIds, onSelect, registerApi }: Props) {
       markersRef.current[loc.id] = { m, vis: true };
     });
 
-    // India GeoJSON
-    (async () => {
+    // India GeoJSON loader (with multi-URL fallback + retry support)
+    const loadGeo = async (signal?: AbortSignal) => {
+      setGeoStatus("loading");
+      setGeoError(null);
+      const errs: string[] = [];
       for (const url of GEO_URLS) {
         try {
-          const r = await fetch(url);
-          if (!r.ok) continue;
+          const r = await fetch(url, { signal });
+          if (!r.ok) { errs.push(`${url} → HTTP ${r.status}`); continue; }
           const data = await r.json();
-          if (!data.features?.length) continue;
+          if (!data?.features?.length) { errs.push(`${url} → empty features`); continue; }
+          if (signal?.aborted) return;
           renderIndia(data);
-          loadingEl.current?.classList.add("hide");
+          setGeoStatus("loaded");
           return;
-        } catch {
-          /* try next */
+        } catch (e) {
+          if ((e as any)?.name === "AbortError") return;
+          errs.push(`${url} → ${(e as Error).message}`);
         }
       }
-      loadingEl.current?.classList.add("hide");
-    })();
+      const msg = errs.join(" | ");
+      report("geojson-fetch-failed", new Error(msg));
+      setGeoError(msg);
+      setGeoStatus("failed");
+    };
+    loadGeoRef.current = loadGeo;
+    const geoCtl = new AbortController();
+    loadGeo(geoCtl.signal);
+
+
 
     function renderIndia(data: any) {
       if (!mapRef.current) return;
