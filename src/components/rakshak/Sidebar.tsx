@@ -64,18 +64,25 @@ export function Sidebar({
           <span className="sb-sel-auth-label">Status</span>
           <span
             className="sb-sel-status"
+            title={status ? STATUS_DESCRIPTIONS[active!.status] : undefined}
+            aria-label={status ? `Status: ${status.l}. ${STATUS_DESCRIPTIONS[active!.status]}` : undefined}
             style={
               status
                 ? { background: status.bg, color: status.c, border: `1px solid ${status.c}30` }
                 : undefined
             }
           >
-            {status ? `${status.i} ${status.l}` : "—"}
+            {status ? status.l : "—"}
           </span>
         </div>
-        <span className="sb-sel-clear" onClick={onClearSelection}>
-          Clear selection ×
-        </span>
+        <button
+          type="button"
+          className="sb-sel-clear"
+          onClick={onClearSelection}
+          aria-label="Clear selected location"
+        >
+          Clear selection <X size={11} strokeWidth={2.25} style={{ verticalAlign: -1 }} />
+        </button>
       </div>
 
       <div className="sb-filters">
