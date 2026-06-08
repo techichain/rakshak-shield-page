@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
+import { useServerFn } from "@tanstack/react-start";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { Captcha } from "@/components/rakshak-platform/Captcha";
+import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
 
 const ROLE_OPTIONS = [
   { value: "team", label: "Team lead", dbRole: "team_leader" as const },
@@ -30,6 +33,10 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captcha, setCaptcha] = useState("");
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const expectedCaptcha = useRef<number>(0);
+  const verifyEmail = useServerFn(verifyEmailDeliverable);
 
   const setMode = (m: "login" | "register") =>
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
@@ -38,9 +45,25 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError(null);
+    setCaptchaError(null);
+
+    // 1) Captcha gate — regenerated on every refresh / mount.
+    const parsed = Number.parseInt(captcha.trim(), 10);
+    if (!Number.isFinite(parsed) || parsed !== expectedCaptcha.current) {
+      setCaptchaError("Incorrect answer. Please solve the new challenge.");
+      return;
+    }
+
+    setBusy(true);
     try {
+      // 2) Server-side email authenticity (MX-record check + disposable block).
+      const check = await verifyEmail({ data: { email } });
+      if (!check.ok) {
+        setError(check.reason);
+        return;
+      }
+
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -160,6 +183,15 @@ function AuthPage() {
                 className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
               />
             </Field>
+            <Captcha
+              value={captcha}
+              onChange={setCaptcha}
+              onChallenge={(n) => {
+                expectedCaptcha.current = n;
+                setCaptchaError(null);
+              }}
+              error={captchaError}
+            />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit" disabled={busy}
