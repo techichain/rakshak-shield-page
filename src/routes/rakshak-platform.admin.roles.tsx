@@ -73,7 +73,7 @@ function RoleManagementPage() {
     if (!confirm(`Revoke ${role} from this user?`)) return;
     setBusy(user_id + role);
     setError(null);
-    const { error } = await supabase.from("rp_user_roles").delete().eq("user_id", user_id).eq("role", role);
+    const { error } = await supabase.from("rp_user_roles").delete().eq("user_id", user_id).eq("role", role as any);
     if (error) setError(error.message); else await load();
     setBusy(null);
   }
