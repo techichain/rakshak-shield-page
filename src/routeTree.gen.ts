@@ -49,6 +49,7 @@ import { Route as RakshakPlatformTeamPhasesRouteImport } from './routes/rakshak-
 import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
 import { Route as RakshakPlatformTeamAiCheckRouteImport } from './routes/rakshak-platform.team.ai-check'
 import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
+import { Route as RakshakPlatformShareTeamIdRouteImport } from './routes/rakshak-platform.share.$teamId'
 import { Route as RakshakPlatformSessionIdRouteImport } from './routes/rakshak-platform.session.$id'
 import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/rakshak-platform.reports.$teamId'
 import { Route as RakshakPlatformMentorAvailabilityRouteImport } from './routes/rakshak-platform.mentor.availability'
@@ -315,6 +316,12 @@ const RakshakPlatformTSlugRoute = RakshakPlatformTSlugRouteImport.update({
   path: '/t/$slug',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
+const RakshakPlatformShareTeamIdRoute =
+  RakshakPlatformShareTeamIdRouteImport.update({
+    id: '/share/$teamId',
+    path: '/share/$teamId',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
 const RakshakPlatformSessionIdRoute =
   RakshakPlatformSessionIdRouteImport.update({
     id: '/session/$id',
@@ -667,6 +674,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/mentor/availability': typeof RakshakPlatformMentorAvailabilityRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
   '/rakshak-platform/session/$id': typeof RakshakPlatformSessionIdRoute
+  '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
@@ -749,6 +757,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/mentor/availability': typeof RakshakPlatformMentorAvailabilityRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
   '/rakshak-platform/session/$id': typeof RakshakPlatformSessionIdRoute
+  '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/phases': typeof RakshakPlatformTeamPhasesRouteWithChildren
@@ -838,6 +847,7 @@ export interface FileRoutesById {
   '/rakshak-platform/mentor/availability': typeof RakshakPlatformMentorAvailabilityRoute
   '/rakshak-platform/reports/$teamId': typeof RakshakPlatformReportsTeamIdRoute
   '/rakshak-platform/session/$id': typeof RakshakPlatformSessionIdRoute
+  '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/ai-check': typeof RakshakPlatformTeamAiCheckRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
@@ -930,6 +940,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor/availability'
     | '/rakshak-platform/reports/$teamId'
     | '/rakshak-platform/session/$id'
+    | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/locations'
@@ -1012,6 +1023,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor/availability'
     | '/rakshak-platform/reports/$teamId'
     | '/rakshak-platform/session/$id'
+    | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/phases'
@@ -1100,6 +1112,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor/availability'
     | '/rakshak-platform/reports/$teamId'
     | '/rakshak-platform/session/$id'
+    | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/ai-check'
     | '/rakshak-platform/team/locations'
@@ -1413,6 +1426,13 @@ declare module '@tanstack/react-router' {
       path: '/t/$slug'
       fullPath: '/rakshak-platform/t/$slug'
       preLoaderRoute: typeof RakshakPlatformTSlugRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/share/$teamId': {
+      id: '/rakshak-platform/share/$teamId'
+      path: '/share/$teamId'
+      fullPath: '/rakshak-platform/share/$teamId'
+      preLoaderRoute: typeof RakshakPlatformShareTeamIdRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/session/$id': {
@@ -2056,6 +2076,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformMIdRoute: typeof RakshakPlatformMIdRoute
   RakshakPlatformReportsTeamIdRoute: typeof RakshakPlatformReportsTeamIdRoute
   RakshakPlatformSessionIdRoute: typeof RakshakPlatformSessionIdRoute
+  RakshakPlatformShareTeamIdRoute: typeof RakshakPlatformShareTeamIdRoute
   RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
 }
@@ -2083,6 +2104,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformMIdRoute: RakshakPlatformMIdRoute,
   RakshakPlatformReportsTeamIdRoute: RakshakPlatformReportsTeamIdRoute,
   RakshakPlatformSessionIdRoute: RakshakPlatformSessionIdRoute,
+  RakshakPlatformShareTeamIdRoute: RakshakPlatformShareTeamIdRoute,
   RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
   RakshakPlatformVerifySlugRoute: RakshakPlatformVerifySlugRoute,
 }
