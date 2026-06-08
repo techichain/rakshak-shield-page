@@ -1,5 +1,6 @@
 import type { Location } from "./types";
 import { RC, getAuthShort } from "./data";
+import { X } from "lucide-react";
 
 interface Props {
   active: Location | null;
