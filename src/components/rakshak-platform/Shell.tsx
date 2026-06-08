@@ -154,9 +154,12 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             {userId ? (
               <>
                 <NotificationBell userId={userId} />
-                <span className="hidden sm:block text-xs text-muted-foreground max-w-[10rem] truncate">
+                <Link
+                  to="/rakshak-platform/profile"
+                  className="hidden sm:block text-xs text-muted-foreground hover:text-brand max-w-[10rem] truncate"
+                >
                   {fullName}
-                </span>
+                </Link>
                 <button
                   onClick={async () => {
                     await rpSignOut();
