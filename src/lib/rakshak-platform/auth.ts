@@ -12,6 +12,7 @@ export interface RPAuthState {
   isMentor: boolean;
   isTeam: boolean;
   isEvaluator: boolean;
+  isAuthority: boolean;
 }
 
 const empty: RPAuthState = {
