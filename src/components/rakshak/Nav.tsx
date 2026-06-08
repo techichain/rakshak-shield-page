@@ -23,6 +23,12 @@ export function Nav({ onReport, onPetition }: Props) {
         </div>
       </div>
       <div className="nav-right">
+        <a
+          className="nav-btn nav-btn-outline"
+          href="/rakshak-platform/impact"
+        >
+          📊 Impact
+        </a>
         <button className="nav-btn nav-btn-outline" onClick={onReport}>
           ⚠️ Report a Road Hazard
         </button>

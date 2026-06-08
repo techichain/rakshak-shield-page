@@ -4,7 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { listPublicSponsors, createSponsorshipPledge } from "@/lib/rakshak-platform/sponsorships.functions";
-import { createSponsorshipCheckout } from "@/lib/rakshak-platform/payments.functions";
+import { SponsorshipEmbeddedCheckout } from "@/components/rakshak-platform/SponsorshipEmbeddedCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { isPaymentsConfigured } from "@/lib/stripe";
 import { Heart, Award } from "lucide-react";
 
 const TIERS = [
@@ -21,6 +23,10 @@ export const Route = createFileRoute("/rakshak-platform/sponsor")({
       queryKey: ["rp-public-sponsors"],
       queryFn: () => listPublicSponsors(),
     }),
+  validateSearch: (s: Record<string, unknown>): { paid?: string; sid?: string } => ({
+    paid: typeof s.paid === "string" ? s.paid : undefined,
+    sid: typeof s.sid === "string" ? s.sid : undefined,
+  }),
   component: SponsorPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p>Could not load page: {String(error)}</p></Section></PlatformShell>
@@ -41,16 +47,18 @@ function SponsorPage() {
     queryKey: ["rp-public-sponsors"],
     queryFn: () => listPublicSponsors(),
   });
+  const search = Route.useSearch();
   const queryClient = useQueryClient();
   const submit = useServerFn(createSponsorshipPledge);
-  const checkout = useServerFn(createSponsorshipCheckout);
   const [tier, setTier] = useState<typeof TIERS[number]["id"]>("bronze");
   const [amount, setAmount] = useState<number>(10000);
-  const [done, setDone] = useState(false);
+  const [pledgeId, setPledgeId] = useState<string | null>(null);
+  const [done, setDone] = useState(search.paid === "1");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const sponsors = data.sponsors as any[];
+  const paymentsOk = isPaymentsConfigured();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -70,16 +78,9 @@ function SponsorPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["rp-public-sponsors"] });
 
-      // Try seamless checkout. If payments aren't configured, fall back to
-      // "we'll email you" confirmation so the form still works.
-      try {
-        const { url } = await checkout({
-          data: { sponsorship_id: (pledge as any).id, origin: window.location.origin },
-        });
-        window.location.href = url;
-        return;
-      } catch (payErr) {
-        console.warn("[sponsor] checkout unavailable, falling back to manual:", payErr);
+      if (paymentsOk) {
+        setPledgeId((pledge as any).id);
+      } else {
         setDone(true);
       }
     } catch (e: any) {
@@ -128,12 +129,20 @@ function SponsorPage() {
             </p>
           </div>
           <div>
-            {done ? (
+            <PaymentTestModeBanner />
+            {pledgeId ? (
+              <div className="rounded-2xl border border-border bg-background p-2">
+                <SponsorshipEmbeddedCheckout
+                  sponsorshipId={pledgeId}
+                  returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/rakshak-platform/sponsor?paid=1&sid=${pledgeId}`}
+                />
+              </div>
+            ) : done ? (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
                 <Heart className="h-6 w-6 text-emerald-600" />
                 <h3 className="mt-3 font-heading text-2xl">Thank you.</h3>
                 <p className="mt-2 text-sm text-emerald-800/80">
-                  Your pledge is recorded. We'll be in touch shortly.
+                  {paymentsOk ? "Your sponsorship is confirmed. You'll show up on the sponsor wall once the payment clears." : "Your pledge is recorded. We'll be in touch shortly with payment instructions."}
                 </p>
               </div>
             ) : (
