@@ -1,9 +1,9 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { exportDataset } from "@/lib/rakshak-platform/exports.functions";
-import { Download } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 
 const DATASETS = [
   { id: "teams",         label: "Teams",         desc: "All teams with phase, score, status." },
