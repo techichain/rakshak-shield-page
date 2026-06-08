@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { Location } from "./types";
 import { getAuthShort } from "./data";
 
 interface Props {
