@@ -17,10 +17,18 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm">
+            <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
+              Hotspots
+            </Link>
             {isAdmin && (
-              <Link to="/rakshak-platform/admin" className="text-muted-foreground hover:text-brand">
-                Admin
-              </Link>
+              <>
+                <Link to="/rakshak-platform/admin" className="text-muted-foreground hover:text-brand">
+                  Admin
+                </Link>
+                <Link to="/rakshak-platform/admin/map" className="text-muted-foreground hover:text-brand">
+                  Programme map
+                </Link>
+              </>
             )}
             {isMentor && (
               <Link to="/rakshak-platform/mentor" className="text-muted-foreground hover:text-brand">
@@ -28,9 +36,14 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               </Link>
             )}
             {isTeam && (
-              <Link to="/rakshak-platform/team" className="text-muted-foreground hover:text-brand">
-                My Team
-              </Link>
+              <>
+                <Link to="/rakshak-platform/team" className="text-muted-foreground hover:text-brand">
+                  My Team
+                </Link>
+                <Link to="/rakshak-platform/team/locations" className="text-muted-foreground hover:text-brand">
+                  Locations
+                </Link>
+              </>
             )}
           </nav>
           <div className="flex items-center gap-3">
@@ -79,6 +92,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <div className="font-semibold text-brand-foreground mb-2">Platform</div>
             <ul className="space-y-1">
               <li><Link to="/rakshak-platform/auth">Sign in</Link></li>
+              <li><Link to="/rakshak-platform/map">Hotspot map</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
             </ul>
           </div>
