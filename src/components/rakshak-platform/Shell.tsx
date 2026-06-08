@@ -27,6 +27,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <Link to="/rakshak-platform/leaderboard" className="text-muted-foreground hover:text-brand">
               Leaderboard
             </Link>
+            <Link to="/rakshak-platform/impact" className="text-muted-foreground hover:text-brand">
+              Impact
+            </Link>
             <Link to="/rakshak-platform/sponsor" className="text-muted-foreground hover:text-brand">
               Sponsor
             </Link>
@@ -59,6 +62,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 </Link>
                 <Link to="/rakshak-platform/admin/audit" className="text-muted-foreground hover:text-brand">
                   Audit
+                </Link>
+                <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
+                  Seed
                 </Link>
               </>
             )}
@@ -143,6 +149,8 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <li><Link to="/rakshak-platform/map">Hotspot map</Link></li>
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
+              <li><Link to="/rakshak-platform/impact">Impact</Link></li>
+              <li><Link to="/rakshak-platform/sponsor">Sponsor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
             </ul>
           </div>
