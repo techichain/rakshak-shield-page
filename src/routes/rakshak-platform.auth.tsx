@@ -16,7 +16,7 @@ const ROLE_OPTIONS = [
 ];
 
 const searchSchema = z.object({
-  mode: z.enum(["login", "register", "otp"]).default("login").catch("login"),
+  mode: z.enum(["login", "register"]).default("login").catch("login"),
   role: z.enum(["team", "mentor", "evaluator", "admin"]).default("team").catch("team"),
 });
 
@@ -25,26 +25,42 @@ export const Route = createFileRoute("/rakshak-platform/auth")({
   component: AuthPage,
 });
 
+type Step = "email" | "otp" | "details";
+
 function AuthPage() {
   const { mode, role } = Route.useSearch();
   const navigate = useNavigate();
+  const verifyEmail = useServerFn(verifyEmailDeliverable);
+
+  // Flow state
+  const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  // Captcha
   const [captcha, setCaptcha] = useState("");
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const expectedCaptcha = useRef<number>(0);
-  const verifyEmail = useServerFn(verifyEmailDeliverable);
 
-  // OTP-specific state
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
+  function resetFlow() {
+    setStep("email");
+    setOtpCode("");
+    setPassword("");
+    setFullName("");
+    setInfo(null);
+    setError(null);
+  }
 
-  const setMode = (m: "login" | "register" | "otp") =>
+  const setMode = (m: "login" | "register") => {
+    resetFlow();
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
+  };
   const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
@@ -57,6 +73,7 @@ function AuthPage() {
     return true;
   }
 
+  // STEP 1 — send OTP to the entered email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -74,13 +91,15 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          shouldCreateUser: false,
+          // Register flow creates the user on successful OTP verification.
+          // Login flow requires the account to already exist.
+          shouldCreateUser: mode === "register",
           emailRedirectTo: `${window.location.origin}/rakshak-platform/dashboard`,
         },
       });
       if (error) throw error;
-      setOtpSent(true);
-      setInfo(`We've emailed a 6-digit code to ${email}. It expires in 10 minutes.`);
+      setStep("otp");
+      setInfo(`We've emailed a 6-digit verification code to ${email}. It expires in 10 minutes.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not send code.");
     } finally {
@@ -88,6 +107,7 @@ function AuthPage() {
     }
   }
 
+  // STEP 2 — verify the code. On success: login → dashboard; register → details step.
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -100,7 +120,14 @@ function AuthPage() {
       }
       const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
       if (error) throw error;
-      navigate({ to: "/rakshak-platform/dashboard" });
+
+      if (mode === "login") {
+        navigate({ to: "/rakshak-platform/dashboard" });
+      } else {
+        // User is now created & signed in via OTP — finish onboarding.
+        setStep("details");
+        setInfo("Email verified. Set a password and finish creating your account.");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid or expired code.");
     } finally {
@@ -108,67 +135,73 @@ function AuthPage() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  // STEP 3 (register only) — set password, profile, role.
+  async function handleCompleteRegistration(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setInfo(null);
-    setCaptchaError(null);
-    if (!checkCaptcha()) return;
-
     setBusy(true);
     try {
-      const check = await verifyEmail({ data: { email } });
-      if (!check.ok) {
-        setError(check.reason);
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
         return;
       }
+      const { data: userRes, error: updErr } = await supabase.auth.updateUser({
+        password,
+        data: { name: fullName, rp_role: role },
+      });
+      if (updErr) throw updErr;
+      const userId = userRes.user?.id;
+      const dbRole = ROLE_OPTIONS.find((r) => r.value === role)?.dbRole ?? "team_leader";
 
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate({ to: "/rakshak-platform/dashboard" });
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { name: fullName, rp_role: role },
-            emailRedirectTo: `${window.location.origin}/rakshak-platform/dashboard`,
-          },
-        });
-        if (error) throw error;
-        const userId = data.user?.id;
-        const dbRole = ROLE_OPTIONS.find((r) => r.value === role)?.dbRole ?? "team_leader";
-        if (userId) {
-          await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
-          if (role === "evaluator" || role === "admin") {
-            await supabase.from("rp_role_approvals").insert({
-              user_id: userId,
-              requested_role: dbRole,
-              status: "pending",
-              notes: `Self-requested ${dbRole} access at sign-up.`,
-            });
-          } else {
-            await supabase.from("rp_user_roles").insert({ user_id: userId, role: dbRole });
-            if (role === "mentor") {
-              await supabase.from("rp_mentors").insert({ profile_id: userId });
-            }
-          }
-        }
-        if (data.session) {
-          if (role === "evaluator" || role === "admin") {
-            setError("Account created. Your " + (role === "admin" ? "CFI Admin" : "Evaluator") + " access request is pending super-admin approval.");
-            setMode("login");
-          } else {
-            navigate({ to: "/rakshak-platform/dashboard" });
-          }
+      if (userId) {
+        await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
+        if (role === "evaluator" || role === "admin") {
+          await supabase.from("rp_role_approvals").insert({
+            user_id: userId,
+            requested_role: dbRole,
+            status: "pending",
+            notes: `Self-requested ${dbRole} access at sign-up.`,
+          });
         } else {
-          setError("Account created. Please check your email to confirm, then sign in.");
-          setMode("login");
+          await supabase.from("rp_user_roles").insert({ user_id: userId, role: dbRole });
+          if (role === "mentor") {
+            await supabase.from("rp_mentors").insert({ profile_id: userId });
+          }
         }
       }
+
+      if (role === "evaluator" || role === "admin") {
+        await supabase.auth.signOut();
+        setError(
+          `Account created. Your ${role === "admin" ? "CFI Admin" : "Evaluator"} access request is pending super-admin approval.`,
+        );
+        setMode("login");
+      } else {
+        navigate({ to: "/rakshak-platform/dashboard" });
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setError(e instanceof Error ? e.message : "Could not finish registration.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleResend() {
+    setError(null);
+    setInfo(null);
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: mode === "register",
+          emailRedirectTo: `${window.location.origin}/rakshak-platform/dashboard`,
+        },
+      });
+      if (error) throw error;
+      setInfo(`New code sent to ${email}.`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not resend code.");
     } finally {
       setBusy(false);
     }
@@ -179,134 +212,68 @@ function AuthPage() {
       <Section>
         <div className="mx-auto max-w-md">
           <Eyebrow>
-            {mode === "login" ? "Welcome back" : mode === "otp" ? "Sign in with email code" : "Join Project Rakshak"}
+            {step === "details"
+              ? "Almost there"
+              : step === "otp"
+                ? "Check your email"
+                : mode === "login"
+                  ? "Welcome back"
+                  : "Join Project Rakshak"}
           </Eyebrow>
           <h1 className="mt-6 font-heading text-4xl font-bold leading-tight tracking-tight">
-            {mode === "login" ? (
+            {step === "details" ? (
+              <>Set your <span className="text-brand">password.</span></>
+            ) : step === "otp" ? (
+              <>Verify your <span className="text-brand">email.</span></>
+            ) : mode === "login" ? (
               <>Sign in to your <span className="text-brand">workspace.</span></>
-            ) : mode === "otp" ? (
-              <>Passwordless <span className="text-brand">sign in.</span></>
             ) : (
               <>Create your <span className="text-brand">account.</span></>
             )}
           </h1>
 
-          <div className="mt-8 inline-flex rounded-full border border-border p-1 text-sm">
-            <button
-              onClick={() => setMode("login")}
-              className={`px-4 py-1.5 rounded-full transition ${mode === "login" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
-            >Sign in</button>
-            <button
-              onClick={() => setMode("otp")}
-              className={`px-4 py-1.5 rounded-full transition ${mode === "otp" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
-            >Email code</button>
-            <button
-              onClick={() => setMode("register")}
-              className={`px-4 py-1.5 rounded-full transition ${mode === "register" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
-            >Register</button>
-          </div>
-
-          {mode === "register" && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {ROLE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setRole(opt.value as typeof role)}
-                  className={`px-3 py-1.5 rounded-full text-xs border transition ${role === opt.value ? "bg-foreground text-background border-foreground" : "text-muted-foreground border-border hover:border-foreground/40"}`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+          {step === "email" && (
+            <div className="mt-8 inline-flex rounded-full border border-border p-1 text-sm">
+              <button
+                onClick={() => setMode("login")}
+                className={`px-4 py-1.5 rounded-full transition ${mode === "login" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
+              >Sign in</button>
+              <button
+                onClick={() => setMode("register")}
+                className={`px-4 py-1.5 rounded-full transition ${mode === "register" ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
+              >Register</button>
             </div>
           )}
-          {mode === "register" && (role === "evaluator" || role === "admin") && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              {role === "admin"
-                ? "CFI Admin accounts require approval. Your account will be created but access may be limited until a super admin verifies it."
-                : "Evaluator accounts are granted rubric and submission review access. A CFI admin may need to assign you to a cohort."}
-            </p>
-          )}
 
-          {mode === "otp" ? (
-            <div className="mt-8 space-y-4">
-              {!otpSent ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                  <Field label="Email">
-                    <input
-                      required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                    />
-                  </Field>
-                  <Captcha
-                    value={captcha}
-                    onChange={setCaptcha}
-                    onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
-                    error={captchaError}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Only existing accounts can sign in with an email code. New users, please register first.
-                  </p>
-                  {error && <p className="text-sm text-red-600">{error}</p>}
+          {step === "email" && mode === "register" && (
+            <>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {ROLE_OPTIONS.map((opt) => (
                   <button
-                    type="submit" disabled={busy}
-                    className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-                  >
-                    {busy ? "Sending…" : "Email me a code"}
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  {info && <p className="text-sm text-muted-foreground">{info}</p>}
-                  <Field label="6-digit code">
-                    <input
-                      required
-                      inputMode="numeric"
-                      pattern="\d{6}"
-                      maxLength={6}
-                      autoFocus
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      placeholder="000000"
-                      className="w-full h-12 rounded-xl border border-border bg-card px-4 text-center text-lg font-mono tracking-[0.4em] focus:outline-none focus:border-brand"
-                    />
-                  </Field>
-                  {error && <p className="text-sm text-red-600">{error}</p>}
-                  <button
-                    type="submit" disabled={busy}
-                    className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-                  >
-                    {busy ? "Verifying…" : "Verify and sign in"}
-                  </button>
-                  <button
+                    key={opt.value}
                     type="button"
-                    onClick={() => { setOtpSent(false); setOtpCode(""); setInfo(null); setError(null); }}
-                    className="w-full text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                    onClick={() => setRole(opt.value as typeof role)}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition ${role === opt.value ? "bg-foreground text-background border-foreground" : "text-muted-foreground border-border hover:border-foreground/40"}`}
                   >
-                    Use a different email or resend code
+                    {opt.label}
                   </button>
-                </form>
+                ))}
+              </div>
+              {(role === "evaluator" || role === "admin") && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {role === "admin"
+                    ? "CFI Admin accounts require approval. Your account will be created but access may be limited until a super admin verifies it."
+                    : "Evaluator accounts are granted rubric and submission review access. A CFI admin may need to assign you to a cohort."}
+                </p>
               )}
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-              {mode === "register" && (
-                <Field label="Full name">
-                  <input
-                    required value={fullName} onChange={(e) => setFullName(e.target.value)}
-                    className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                  />
-                </Field>
-              )}
+            </>
+          )}
+
+          {step === "email" && (
+            <form onSubmit={handleSendOtp} className="mt-8 space-y-4">
               <Field label="Email">
                 <input
                   required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                />
-              </Field>
-              <Field label="Password">
-                <input
-                  required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
                   className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
                 />
               </Field>
@@ -316,12 +283,83 @@ function AuthPage() {
                 onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
                 error={captchaError}
               />
+              <p className="text-xs text-muted-foreground">
+                We'll email you a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
+              </p>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
+                {busy ? "Sending…" : "Send verification code"}
+              </button>
+            </form>
+          )}
+
+          {step === "otp" && (
+            <form onSubmit={handleVerifyOtp} className="mt-8 space-y-4">
+              {info && <p className="text-sm text-muted-foreground">{info}</p>}
+              <Field label="6-digit code">
+                <input
+                  required
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  maxLength={6}
+                  autoFocus
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="000000"
+                  className="w-full h-12 rounded-xl border border-border bg-card px-4 text-center text-lg font-mono tracking-[0.4em] focus:outline-none focus:border-brand"
+                />
+              </Field>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                type="submit" disabled={busy}
+                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+              >
+                {busy ? "Verifying…" : mode === "login" ? "Verify and sign in" : "Verify email"}
+              </button>
+              <div className="flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={resetFlow}
+                  className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                >
+                  Use a different email
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={busy}
+                  className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline disabled:opacity-50"
+                >
+                  Resend code
+                </button>
+              </div>
+            </form>
+          )}
+
+          {step === "details" && (
+            <form onSubmit={handleCompleteRegistration} className="mt-8 space-y-4">
+              {info && <p className="text-sm text-green-600">{info}</p>}
+              <Field label="Full name">
+                <input
+                  required value={fullName} onChange={(e) => setFullName(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                />
+              </Field>
+              <Field label="Password">
+                <input
+                  required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                />
+              </Field>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                type="submit" disabled={busy}
+                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+              >
+                {busy ? "Creating account…" : "Finish creating account"}
               </button>
             </form>
           )}
