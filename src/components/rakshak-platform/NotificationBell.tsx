@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bell, Check } from "lucide-react";
+import { Bell, BellOff, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
