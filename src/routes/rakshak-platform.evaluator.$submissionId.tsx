@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate} from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
