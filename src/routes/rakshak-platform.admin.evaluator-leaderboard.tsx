@@ -1,11 +1,27 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { format, isAfter, isBefore, parseISO, startOfDay, endOfDay } from "date-fns";
+import { zodValidator } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { Loader2, Award, AlertTriangle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Award, AlertTriangle, CalendarIcon, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const searchSchema = z.object({
+  from: z.string().optional(),
+  to: z.string().optional(),
+  phase: z.string().optional(),
+});
 
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
+  validateSearch: zodValidator(searchSchema),
   component: EvaluatorLeaderboard,
 });
 
@@ -21,11 +37,16 @@ type EvalRow = {
 };
 
 function EvaluatorLeaderboard() {
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: "/rakshak-platform/admin/evaluator-leaderboard" });
+  const search = Route.useSearch();
   const { loading, userId, isAdmin } = useRPAuth();
   const [rows, setRows] = useState<EvalRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState(true);
+
+  const fromDate = search.from ? parseISO(search.from) : undefined;
+  const toDate = search.to ? parseISO(search.to) : undefined;
+  const phaseFilter = search.phase ? Number(search.phase) : undefined;
 
   useEffect(() => {
     if (loading) return;
@@ -50,9 +71,30 @@ function EvaluatorLeaderboard() {
     })();
   }, [loading, userId, isAdmin, navigate]);
 
-  // Leaderboard aggregations
+  const filteredRows = useMemo(() => {
+    return rows.filter((r) => {
+      if (phaseFilter !== undefined && r.phase_number !== phaseFilter) return false;
+      if (fromDate && r.submitted_at) {
+        if (isBefore(parseISO(r.submitted_at), startOfDay(fromDate))) return false;
+      }
+      if (toDate && r.submitted_at) {
+        if (isAfter(parseISO(r.submitted_at), endOfDay(toDate))) return false;
+      }
+      return true;
+    });
+  }, [rows, fromDate, toDate, phaseFilter]);
+
+  const setFilter = (patch: Partial<z.infer<typeof searchSchema>>) => {
+    navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch }) });
+  };
+
+  const clearFilters = () => {
+    navigate({ search: {} });
+  };
+
+  // Leaderboard aggregations (scoped to filteredRows)
   const byEvaluator = new Map<string, { count: number; sum: number; phases: Set<number> }>();
-  rows.forEach((r) => {
+  filteredRows.forEach((r) => {
     if (!r.evaluator_id) return;
     const cur = byEvaluator.get(r.evaluator_id) ?? { count: 0, sum: 0, phases: new Set<number>() };
     cur.count++; cur.sum += Number(r.total_score); cur.phases.add(r.phase_number);
@@ -62,9 +104,9 @@ function EvaluatorLeaderboard() {
     .map(([id, v]) => ({ id, count: v.count, avg: v.sum / v.count, phases: v.phases.size }))
     .sort((a, b) => b.count - a.count);
 
-  // Calibration: per submission, compute mean + max-min spread across evaluators
+  // Calibration: per submission, compute mean + max-min spread across evaluators (scoped to filteredRows)
   const bySubmission = new Map<string, EvalRow[]>();
-  rows.forEach((r) => {
+  filteredRows.forEach((r) => {
     const a = bySubmission.get(r.submission_id) ?? [];
     a.push(r); bySubmission.set(r.submission_id, a);
   });
@@ -80,6 +122,8 @@ function EvaluatorLeaderboard() {
     .sort((a, b) => b.spread - a.spread)
     .slice(0, 25);
 
+  const hasActiveFilters = !!(search.from || search.to || search.phase);
+
   if (loading || busy) return <PlatformShell><Section><Loader2 className="animate-spin" /></Section></PlatformShell>;
 
   return (
@@ -90,10 +134,84 @@ function EvaluatorLeaderboard() {
           Who's scoring,<br /><span className="text-brand">and how consistently.</span>
         </h1>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        {/* Filters */}
+        <div className="mt-8 flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground">From</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !fromDate && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {fromDate ? format(fromDate, "PP") : <span>Pick date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={fromDate}
+                  onSelect={(d) => setFilter({ from: d ? format(d, "yyyy-MM-dd") : undefined })}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground">To</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !toDate && "text-muted-foreground")}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {toDate ? format(toDate, "PP") : <span>Pick date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={toDate}
+                  onSelect={(d) => setFilter({ to: d ? format(d, "yyyy-MM-dd") : undefined })}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground">Phase</label>
+            <Select value={search.phase ?? ""} onValueChange={(v) => setFilter({ phase: v || undefined })}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="All phases" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All phases</SelectItem>
+                {[0, 1, 2, 3, 4].map((p) => (
+                  <SelectItem key={p} value={String(p)}>Phase {p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="mb-0.5">
+              <X className="mr-1 h-4 w-4" /> Clear
+            </Button>
+          )}
+        </div>
+
+        {hasActiveFilters && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {search.from && <Badge variant="secondary">From {format(parseISO(search.from), "PP")}</Badge>}
+            {search.to && <Badge variant="secondary">To {format(parseISO(search.to), "PP")}</Badge>}
+            {search.phase && <Badge variant="secondary">Phase {search.phase}</Badge>}
+          </div>
+        )}
+
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           <Stat label="Evaluators active" value={leaderboard.length} />
-          <Stat label="Submitted scores" value={rows.length} />
-          <Stat label="Avg score" value={rows.length ? (rows.reduce((a, b) => a + Number(b.total_score), 0) / rows.length).toFixed(1) : "—"} />
+          <Stat label="Submitted scores (scoped)" value={filteredRows.length} />
+          <Stat label="Avg score (scoped)" value={filteredRows.length ? (filteredRows.reduce((a, b) => a + Number(b.total_score), 0) / filteredRows.length).toFixed(1) : "—"} />
         </div>
 
         <h2 className="mt-14 font-heading text-2xl tracking-tight flex items-center gap-2">
@@ -105,7 +223,7 @@ function EvaluatorLeaderboard() {
               <tr><th className="p-3 w-10">#</th><th className="p-3">Evaluator</th><th className="p-3">Scores</th><th className="p-3">Phases</th><th className="p-3">Avg score</th></tr>
             </thead>
             <tbody>
-              {leaderboard.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No submitted evaluations yet.</td></tr>}
+              {leaderboard.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No submitted evaluations match the current filters.</td></tr>}
               {leaderboard.map((e, idx) => {
                 const p = profiles[e.id];
                 return (
@@ -129,7 +247,7 @@ function EvaluatorLeaderboard() {
           <AlertTriangle className="h-5 w-5 text-brand" /> Calibration — biggest score spreads
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Submissions where two or more evaluators disagreed most. High spread suggests a calibration session is needed.
+          Submissions where two or more evaluators disagreed most within the selected scope. High spread suggests a calibration session is needed.
         </p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-border">
           <table className="w-full text-sm">
@@ -137,7 +255,7 @@ function EvaluatorLeaderboard() {
               <tr><th className="p-3">Submission</th><th className="p-3">Phase</th><th className="p-3">#Evals</th><th className="p-3">Min</th><th className="p-3">Max</th><th className="p-3">Spread</th><th className="p-3">Mean</th></tr>
             </thead>
             <tbody>
-              {calibration.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No submissions scored by more than one evaluator yet.</td></tr>}
+              {calibration.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No multi-evaluator submissions match the current filters.</td></tr>}
               {calibration.map((c) => (
                 <tr key={c.sid} className="border-t border-border">
                   <td className="p-3 font-mono text-xs">{c.sid.slice(0, 8)}…</td>
