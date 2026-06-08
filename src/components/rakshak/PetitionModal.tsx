@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import type { Location } from "./types";
 import { getAuthShort } from "./data";
 
@@ -46,7 +45,7 @@ Yours faithfully,
 [Your Name]
 [Your Address & Contact]
 
-cc: District Road Safety Committee (DRSC), ${loc.ci} — ${drscEmail}
+cC: District Road Safety Committee (DRSC), ${loc.ci} — ${drscEmail}
 ${ccParts.map((c) => `    ${c}`).join("\n")}
     Crashfree India | info@crashfreeindia.org`;
 }
@@ -97,7 +96,12 @@ export function PetitionModal({ loc, onClose }: Props) {
           <button className="btn-p" onClick={copy}>Copy Letter</button>
           <button className="btn-o" onClick={email}>Send via Email ↗</button>
           <button className="btn-o" onClick={download}>Download .txt</button>
-          <span className={"copied" + (copied ? " show" : "")}>Copied ✓</span>
+          <span className={"copied" + (copied ? " show" : "")}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{display:"inline",verticalAlign:"-1px",marginRight:3}}>
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied
+          </span>
         </div>
       </div>
     </div>
