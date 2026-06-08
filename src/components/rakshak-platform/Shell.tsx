@@ -222,6 +222,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
               <li><Link to="/rakshak-platform/impact">Impact</Link></li>
+              <li><Link to="/rakshak-platform/mentors">Mentor network</Link></li>
               <li><Link to="/rakshak-platform/sponsor">Sponsor</Link></li>
               <li><Link to="/rakshak-platform/mentor-apply">Become a mentor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
