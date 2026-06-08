@@ -12,9 +12,12 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="rp-platform min-h-screen">
+    <div className="rp-platform min-h-dvh">
+      <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
+        Skip to main content
+      </a>
       <header className="border-b border-border bg-background sticky top-0 z-40">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 md:px-10 h-16">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2">
           <Link to="/rakshak-platform" className="flex items-center gap-2">
             <span className="inline-block h-2 w-2 rounded-sm bg-brand" />
             <span className="font-heading text-base font-bold tracking-tight">
@@ -105,6 +108,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 </Link>
                 <Link to="/rakshak-platform/admin/integrations" className="text-muted-foreground hover:text-brand">
                   Integrations
+                </Link>
+                <Link to="/rakshak-platform/admin/qa-checklist" className="text-muted-foreground hover:text-brand">
+                  QA checklist
                 </Link>
                 <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
                   Seed
@@ -240,7 +246,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </header>
-      {children}
+      <main id="rp-main" tabIndex={-1}>{children}</main>
       <footer className="border-t border-border bg-brand text-brand-foreground">
         <div className="mx-auto w-full max-w-7xl px-6 md:px-10 py-12 grid gap-8 md:grid-cols-3">
           <div>
