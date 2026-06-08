@@ -44,11 +44,16 @@ function CronHealthPage() {
     <PlatformShell>
       <Section>
         <Eyebrow>Admin · Monitoring</Eyebrow>
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
           <h1 className="text-3xl font-extrabold">Cron & webhook health</h1>
-          <button onClick={() => qc.invalidateQueries({ queryKey: ["rp-cron-health"] })} className="rp-btn-secondary inline-flex items-center gap-1">
-            <RefreshCw className="size-4" /> Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <Link to="/rakshak-platform/admin/alerts" className="inline-flex items-center gap-1 h-9 px-4 rounded-full border border-border text-sm hover:border-brand/40">
+              <BellRing className="size-4" /> Alert rules
+            </Link>
+            <button onClick={() => qc.invalidateQueries({ queryKey: ["rp-cron-health"] })} className="inline-flex items-center gap-1 h-9 px-4 rounded-full border border-border text-sm hover:border-brand/40">
+              <RefreshCw className="size-4" /> Refresh
+            </button>
+          </div>
         </div>
 
         {data.summary.length === 0 ? (
