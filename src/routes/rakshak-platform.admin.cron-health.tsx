@@ -1,11 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getCronHealth } from "@/lib/rakshak-platform/analytics.functions";
+import { escalateAlerts } from "@/lib/rakshak-platform/cron-alerts.functions";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
-import { CheckCircle2, AlertTriangle, XCircle, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, RefreshCw, BellRing } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/cron-health")({
   component: CronHealthPage,
@@ -22,12 +23,14 @@ function CronHealthPage() {
   const qc = useQueryClient();
   const { loading, userId, isAdmin } = useRPAuth();
   const fn = useServerFn(getCronHealth);
+  const escalate = useServerFn(escalateAlerts);
 
   useEffect(() => {
     if (loading) return;
     if (!userId) navigate({ to: "/rakshak-platform/auth" });
     else if (!isAdmin) navigate({ to: "/rakshak-platform/dashboard" });
-  }, [loading, userId, isAdmin, navigate]);
+    else escalate().catch(() => {});
+  }, [loading, userId, isAdmin, navigate, escalate]);
 
   const { data } = useSuspenseQuery({
     queryKey: ["rp-cron-health"],
@@ -41,11 +44,16 @@ function CronHealthPage() {
     <PlatformShell>
       <Section>
         <Eyebrow>Admin · Monitoring</Eyebrow>
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
           <h1 className="text-3xl font-extrabold">Cron & webhook health</h1>
-          <button onClick={() => qc.invalidateQueries({ queryKey: ["rp-cron-health"] })} className="rp-btn-secondary inline-flex items-center gap-1">
-            <RefreshCw className="size-4" /> Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <Link to="/rakshak-platform/admin/alerts" className="inline-flex items-center gap-1 h-9 px-4 rounded-full border border-border text-sm hover:border-brand/40">
+              <BellRing className="size-4" /> Alert rules
+            </Link>
+            <button onClick={() => qc.invalidateQueries({ queryKey: ["rp-cron-health"] })} className="inline-flex items-center gap-1 h-9 px-4 rounded-full border border-border text-sm hover:border-brand/40">
+              <RefreshCw className="size-4" /> Refresh
+            </button>
+          </div>
         </div>
 
         {data.summary.length === 0 ? (

@@ -802,6 +802,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_cron_alert_rules: {
+        Row: {
+          created_at: string
+          hook_name: string
+          id: string
+          is_active: boolean
+          last_alert_at: string | null
+          max_consecutive_failures: number
+          max_stale_hours: number
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hook_name: string
+          id?: string
+          is_active?: boolean
+          last_alert_at?: string | null
+          max_consecutive_failures?: number
+          max_stale_hours?: number
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hook_name?: string
+          id?: string
+          is_active?: boolean
+          last_alert_at?: string | null
+          max_consecutive_failures?: number
+          max_stale_hours?: number
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rp_cron_runs: {
         Row: {
           created_at: string
