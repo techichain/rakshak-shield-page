@@ -129,12 +129,20 @@ function SponsorPage() {
             </p>
           </div>
           <div>
-            {done ? (
+            <PaymentTestModeBanner />
+            {pledgeId ? (
+              <div className="rounded-2xl border border-border bg-background p-2">
+                <SponsorshipEmbeddedCheckout
+                  sponsorshipId={pledgeId}
+                  returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/rakshak-platform/sponsor?paid=1&sid=${pledgeId}`}
+                />
+              </div>
+            ) : done ? (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
                 <Heart className="h-6 w-6 text-emerald-600" />
                 <h3 className="mt-3 font-heading text-2xl">Thank you.</h3>
                 <p className="mt-2 text-sm text-emerald-800/80">
-                  Your pledge is recorded. We'll be in touch shortly.
+                  {paymentsOk ? "Your sponsorship is confirmed. You'll show up on the sponsor wall once the payment clears." : "Your pledge is recorded. We'll be in touch shortly with payment instructions."}
                 </p>
               </div>
             ) : (
