@@ -63,6 +63,7 @@ import { Route as RakshakPlatformAdminMapRouteImport } from './routes/rakshak-pl
 import { Route as RakshakPlatformAdminKnowledgeRouteImport } from './routes/rakshak-platform.admin.knowledge'
 import { Route as RakshakPlatformAdminFinanceRouteImport } from './routes/rakshak-platform.admin.finance'
 import { Route as RakshakPlatformAdminExportsRouteImport } from './routes/rakshak-platform.admin.exports'
+import { Route as RakshakPlatformAdminEvaluatorQueueRouteImport } from './routes/rakshak-platform.admin.evaluator-queue'
 import { Route as RakshakPlatformAdminCronHealthRouteImport } from './routes/rakshak-platform.admin.cron-health'
 import { Route as RakshakPlatformAdminCohortsRouteImport } from './routes/rakshak-platform.admin.cohorts'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
@@ -385,6 +386,12 @@ const RakshakPlatformAdminExportsRoute =
     path: '/exports',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminEvaluatorQueueRoute =
+  RakshakPlatformAdminEvaluatorQueueRouteImport.update({
+    id: '/evaluator-queue',
+    path: '/evaluator-queue',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminCronHealthRoute =
   RakshakPlatformAdminCronHealthRouteImport.update({
     id: '/cron-health',
@@ -552,6 +559,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
   '/rakshak-platform/admin/cron-health': typeof RakshakPlatformAdminCronHealthRoute
+  '/rakshak-platform/admin/evaluator-queue': typeof RakshakPlatformAdminEvaluatorQueueRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
   '/rakshak-platform/admin/finance': typeof RakshakPlatformAdminFinanceRoute
   '/rakshak-platform/admin/knowledge': typeof RakshakPlatformAdminKnowledgeRoute
@@ -621,6 +629,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
   '/rakshak-platform/admin/cron-health': typeof RakshakPlatformAdminCronHealthRoute
+  '/rakshak-platform/admin/evaluator-queue': typeof RakshakPlatformAdminEvaluatorQueueRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
   '/rakshak-platform/admin/finance': typeof RakshakPlatformAdminFinanceRoute
   '/rakshak-platform/admin/knowledge': typeof RakshakPlatformAdminKnowledgeRoute
@@ -697,6 +706,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
   '/rakshak-platform/admin/cron-health': typeof RakshakPlatformAdminCronHealthRoute
+  '/rakshak-platform/admin/evaluator-queue': typeof RakshakPlatformAdminEvaluatorQueueRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
   '/rakshak-platform/admin/finance': typeof RakshakPlatformAdminFinanceRoute
   '/rakshak-platform/admin/knowledge': typeof RakshakPlatformAdminKnowledgeRoute
@@ -776,6 +786,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
     | '/rakshak-platform/admin/cron-health'
+    | '/rakshak-platform/admin/evaluator-queue'
     | '/rakshak-platform/admin/exports'
     | '/rakshak-platform/admin/finance'
     | '/rakshak-platform/admin/knowledge'
@@ -845,6 +856,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
     | '/rakshak-platform/admin/cron-health'
+    | '/rakshak-platform/admin/evaluator-queue'
     | '/rakshak-platform/admin/exports'
     | '/rakshak-platform/admin/finance'
     | '/rakshak-platform/admin/knowledge'
@@ -920,6 +932,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
     | '/rakshak-platform/admin/cron-health'
+    | '/rakshak-platform/admin/evaluator-queue'
     | '/rakshak-platform/admin/exports'
     | '/rakshak-platform/admin/finance'
     | '/rakshak-platform/admin/knowledge'
@@ -1345,6 +1358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminExportsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/evaluator-queue': {
+      id: '/rakshak-platform/admin/evaluator-queue'
+      path: '/evaluator-queue'
+      fullPath: '/rakshak-platform/admin/evaluator-queue'
+      preLoaderRoute: typeof RakshakPlatformAdminEvaluatorQueueRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/cron-health': {
       id: '/rakshak-platform/admin/cron-health'
       path: '/cron-health'
@@ -1597,6 +1617,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
   RakshakPlatformAdminCohortsRoute: typeof RakshakPlatformAdminCohortsRoute
   RakshakPlatformAdminCronHealthRoute: typeof RakshakPlatformAdminCronHealthRoute
+  RakshakPlatformAdminEvaluatorQueueRoute: typeof RakshakPlatformAdminEvaluatorQueueRoute
   RakshakPlatformAdminExportsRoute: typeof RakshakPlatformAdminExportsRoute
   RakshakPlatformAdminFinanceRoute: typeof RakshakPlatformAdminFinanceRoute
   RakshakPlatformAdminKnowledgeRoute: typeof RakshakPlatformAdminKnowledgeRoute
@@ -1614,6 +1635,8 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
   RakshakPlatformAdminCohortsRoute: RakshakPlatformAdminCohortsRoute,
   RakshakPlatformAdminCronHealthRoute: RakshakPlatformAdminCronHealthRoute,
+  RakshakPlatformAdminEvaluatorQueueRoute:
+    RakshakPlatformAdminEvaluatorQueueRoute,
   RakshakPlatformAdminExportsRoute: RakshakPlatformAdminExportsRoute,
   RakshakPlatformAdminFinanceRoute: RakshakPlatformAdminFinanceRoute,
   RakshakPlatformAdminKnowledgeRoute: RakshakPlatformAdminKnowledgeRoute,
