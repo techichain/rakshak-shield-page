@@ -190,10 +190,17 @@ function PublicMentorPage() {
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/rakshak-platform/book/$mentorId"
+              params={{ mentorId: m.id }}
+              className="h-10 px-4 rounded-full bg-brand text-brand-foreground inline-flex items-center gap-2 text-sm font-medium hover:opacity-90"
+            >
+              Book a 1:1 session
+            </Link>
             <button
               onClick={nativeShare}
-              className="h-10 px-4 rounded-full bg-brand text-brand-foreground inline-flex items-center gap-2 text-sm font-medium hover:opacity-90"
+              className="h-10 px-4 rounded-full border border-border inline-flex items-center gap-2 text-sm hover:border-brand/40"
             >
               <Share2 className="h-4 w-4" /> Share
             </button>
