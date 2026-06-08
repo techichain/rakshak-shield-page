@@ -86,6 +86,9 @@ export function NotificationBell({ userId }: { userId: string }) {
         onClick={() => setOpen((v) => !v)}
         className="relative h-9 w-9 rounded-full border border-border flex items-center justify-center hover:border-brand/40"
         aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        title={unread ? `${unread} unread notification${unread === 1 ? "" : "s"}` : "Notifications"}
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
