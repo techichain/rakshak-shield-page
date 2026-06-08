@@ -40,11 +40,28 @@ export function ReviewPanel({ role }: { role: Role }) {
         <span className="text-xs text-muted-foreground">{items.length} awaiting</span>
       </div>
       {isLoading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-        </div>
+        <ul className="space-y-3" aria-busy="true" aria-label="Loading pending reviews">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="rounded-2xl border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-5 w-20 rounded-full" />
+              </div>
+              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="h-3 w-2/3" />
+              <div className="flex gap-2 pt-1">
+                <Skeleton className="h-8 w-24 rounded-md" />
+                <Skeleton className="h-8 w-32 rounded-md" />
+              </div>
+            </li>
+          ))}
+        </ul>
       ) : items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nothing waiting. You're all caught up.</p>
+        <div className="flex flex-col items-center justify-center text-center py-10 rounded-2xl border border-dashed border-border">
+          <Inbox className="h-8 w-8 text-muted-foreground mb-2" aria-hidden />
+          <p className="text-sm font-medium">All caught up</p>
+          <p className="text-xs text-muted-foreground mt-1">No submissions are waiting for your review.</p>
+        </div>
       ) : (
         <ul className="space-y-3">
           {items.map((s) => (
