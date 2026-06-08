@@ -211,6 +211,9 @@ function PhaseDetail() {
                 </ul>
               )}
             </div>
+            {data.submission?.id && (
+              <SubmissionTimeline submissionId={data.submission.id} />
+            )}
             <div className="rp-card p-5 text-sm space-y-2">
               <h3 className="font-semibold">Tips for this phase</h3>
               <ul className="list-disc list-inside text-muted-foreground space-y-1">
