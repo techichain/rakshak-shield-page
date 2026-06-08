@@ -115,6 +115,8 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             <ul className="space-y-1">
               <li><Link to="/rakshak-platform/auth">Sign in</Link></li>
               <li><Link to="/rakshak-platform/map">Hotspot map</Link></li>
+              <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
+              <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
             </ul>
           </div>
