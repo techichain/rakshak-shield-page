@@ -82,6 +82,12 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <Link to="/rakshak-platform/admin/meetings" className="text-muted-foreground hover:text-brand">
                   Meetings
                 </Link>
+                <Link to="/rakshak-platform/admin/cohorts" className="text-muted-foreground hover:text-brand">
+                  Cohorts
+                </Link>
+                <Link to="/rakshak-platform/admin/cron-health" className="text-muted-foreground hover:text-brand">
+                  Cron
+                </Link>
                 <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
                   Seed
                 </Link>
@@ -107,10 +113,18 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 Mentor
               </Link>
             )}
+            {isMentor && (
+              <Link to="/rakshak-platform/mentor/availability" className="text-muted-foreground hover:text-brand">
+                Availability
+              </Link>
+            )}
             {isTeam && (
               <>
                 <Link to="/rakshak-platform/team" className="text-muted-foreground hover:text-brand">
                   My Team
+                </Link>
+                <Link to="/rakshak-platform/team/phases" className="text-muted-foreground hover:text-brand">
+                  Phases
                 </Link>
                 <Link to="/rakshak-platform/team/locations" className="text-muted-foreground hover:text-brand">
                   Locations
