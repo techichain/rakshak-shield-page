@@ -1275,12 +1275,16 @@ export type Database = {
           id: string
           location: string | null
           meeting_link: string | null
+          meeting_type: string
           mentor_id: string | null
           notes: string | null
+          reminder_1h_sent_at: string | null
+          reminder_24h_sent_at: string | null
+          reminder_30m_sent_at: string | null
           scheduled_end: string
           scheduled_start: string
           status: string
-          team_id: string
+          team_id: string | null
           title: string
           updated_at: string
         }
@@ -1291,12 +1295,16 @@ export type Database = {
           id?: string
           location?: string | null
           meeting_link?: string | null
+          meeting_type?: string
           mentor_id?: string | null
           notes?: string | null
+          reminder_1h_sent_at?: string | null
+          reminder_24h_sent_at?: string | null
+          reminder_30m_sent_at?: string | null
           scheduled_end: string
           scheduled_start: string
           status?: string
-          team_id: string
+          team_id?: string | null
           title: string
           updated_at?: string
         }
@@ -1307,12 +1315,16 @@ export type Database = {
           id?: string
           location?: string | null
           meeting_link?: string | null
+          meeting_type?: string
           mentor_id?: string | null
           notes?: string | null
+          reminder_1h_sent_at?: string | null
+          reminder_24h_sent_at?: string | null
+          reminder_30m_sent_at?: string | null
           scheduled_end?: string
           scheduled_start?: string
           status?: string
-          team_id?: string
+          team_id?: string | null
           title?: string
           updated_at?: string
         }
