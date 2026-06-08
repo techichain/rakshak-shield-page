@@ -31,10 +31,10 @@ export function Nav({ onReport, onPetition }: Props) {
         </button>
         <a
           className="nav-btn nav-btn-primary"
-          href="/rakshak-platform/dashboard"
+          href="/rakshak-platform/auth"
           style={{ background: "#4A35FF", color: "#fff" }}
         >
-          🛡️ Dashboard
+          🛡️ Portal Sign In
         </a>
       </div>
     </nav>
