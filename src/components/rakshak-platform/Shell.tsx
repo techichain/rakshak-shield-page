@@ -49,14 +49,16 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               </Link>
             )}
             {(isEvaluator || isAdmin) && (
-              <Link to="/rakshak-platform/evaluator" className="text-muted-foreground hover:text-brand">
-                Evaluator
-              </Link>
-              <Link to="/rakshak-platform/evaluator/compare" className="text-muted-foreground hover:text-brand">
-                Compare
-              </Link>
-
+              <>
+                <Link to="/rakshak-platform/evaluator" className="text-muted-foreground hover:text-brand">
+                  Evaluator
+                </Link>
+                <Link to="/rakshak-platform/evaluator/compare" className="text-muted-foreground hover:text-brand">
+                  Compare
+                </Link>
+              </>
             )}
+
             {isAdmin && (
               <>
                 <Link to="/rakshak-platform/admin" className="text-muted-foreground hover:text-brand">
