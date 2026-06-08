@@ -99,7 +99,7 @@ function DetailContent({ loc, onClose, onPetition, onReport }: { loc: Location }
               alt={`Site map of ${loc.n}`}
               loading="lazy"
             />
-            <span className="sitemap-expand">↗ Full view</span>
+            <span className="sitemap-expand" aria-hidden><Maximize2 size={11} strokeWidth={2.25} style={{ verticalAlign: -1, marginRight: 3 }} /> Full view</span>
           </div>
         </div>
       )}
