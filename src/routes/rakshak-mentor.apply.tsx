@@ -117,6 +117,8 @@ function ApplyPage() {
   const [resumeError, setResumeError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Spam honeypot — must stay empty. Real users never see/fill this input.
+  const [hpField, setHpField] = useState("");
 
   useEffect(() => {
     logEvent("apply_start", "/rakshak-mentor/apply", "mentor");
