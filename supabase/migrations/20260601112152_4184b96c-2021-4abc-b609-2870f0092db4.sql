@@ -2,7 +2,7 @@
 DO $$
 DECLARE
   v_uid uuid;
-  v_pwd text := 'RakshakAdmin2025!';
+  v_pwd text := encode(gen_random_bytes(24), 'hex');
 BEGIN
   SELECT id INTO v_uid FROM auth.users WHERE email = 'admin@gmail.com';
 
