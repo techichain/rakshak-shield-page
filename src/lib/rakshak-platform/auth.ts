@@ -43,6 +43,15 @@ export function useRPAuth(): RPAuthState {
         if (!cancelled) setState({ ...empty, loading: false });
         return;
       }
+      if (!cancelled) {
+        setState((current) => ({
+          ...current,
+          loading: true,
+          userId,
+          email,
+          fullName: current.fullName ?? email,
+        }));
+      }
       try {
         const [rolesRes, profileRes] = await Promise.all([
           supabase.from("rp_user_roles").select("role").eq("user_id", userId),
