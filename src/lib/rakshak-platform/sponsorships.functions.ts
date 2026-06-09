@@ -10,12 +10,18 @@ const PledgeInput = z.object({
   tier: z.enum(["friend", "bronze", "silver", "gold", "platinum"]),
   amount_inr: z.number().int().min(100).max(50_000_000),
   is_public: z.boolean().default(true),
+  // Spam honeypot — must be empty. Real users never fill this.
+  hp_field: z.string().max(500).optional().default(""),
 });
 
 // Public: anyone can pledge
 export const createSponsorshipPledge = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => PledgeInput.parse(d))
   .handler(async ({ data }) => {
+    // Honeypot trip — silently accept so bots don't learn we filter them.
+    if (data.hp_field && data.hp_field.trim() !== "") {
+      return { pledge: { id: "ok", tier: data.tier, amount_inr: data.amount_inr, status: "pending" } };
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("rp_sponsorships")

@@ -117,6 +117,8 @@ function ApplyPage() {
   const [resumeError, setResumeError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Spam honeypot — must stay empty. Real users never see/fill this input.
+  const [hpField, setHpField] = useState("");
 
   useEffect(() => {
     logEvent("apply_start", "/rakshak-mentor/apply", "mentor");
@@ -206,6 +208,7 @@ function ApplyPage() {
           years_experience: rest.years_experience,
           expertise_domain: rest.expertise_domain,
           track_data: { motivation, relevant_experience, application_reference: applicationRef },
+          hp_field: hpField || null,
         }),
       );
 
@@ -313,6 +316,18 @@ function ApplyPage() {
       </div>
 
       <form onSubmit={submit} className="space-y-8 bg-white">
+        {/* Honeypot — hidden from real users, auto-filled by bots */}
+        <input
+          type="text"
+          name="company_website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          value={hpField}
+          onChange={(e) => setHpField(e.target.value)}
+          style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", opacity: 0 }}
+        />
+
         <Section title="Personal details">
           <Field label="Full name" error={errors.full_name} required>
             <input className={inputCls} value={form.full_name} onChange={(e) => set("full_name", e.target.value)} maxLength={120} />

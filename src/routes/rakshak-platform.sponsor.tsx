@@ -64,6 +64,7 @@ function SponsorPage() {
           tier,
           amount_inr: amount,
           is_public: fd.get("public") === "on",
+          hp_field: String(fd.get("company_website") || ""),
         },
       });
       queryClient.invalidateQueries({ queryKey: ["rp-public-sponsors"] });
@@ -124,6 +125,15 @@ function SponsorPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-background p-6">
+                {/* Honeypot — hidden from real users; bots fill it and get rejected */}
+                <input
+                  type="text"
+                  name="company_website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  style={{ position: "absolute", left: "-10000px", width: "1px", height: "1px", opacity: 0 }}
+                />
                 <div>
                   <label className="text-xs text-muted-foreground">Your name *</label>
                   <input name="name" required maxLength={200} className="rp-input mt-1" />
