@@ -169,11 +169,11 @@ export const getObservationAdmin = createServerFn({ method: "GET" })
     ]);
 
     const photoList = photos.data ?? [];
-    const signed = photoList.map((p) => {
-      const { data: pub } = supabaseAdmin.storage
-        .from("observation-photos").getPublicUrl(p.storage_path);
-      return { id: p.id, file_name: p.file_name, photo_context: (p as any).photo_context ?? "road_environment", url: pub?.publicUrl ?? null };
-    });
+    const signed = await Promise.all(photoList.map(async (p) => {
+      const { data: s } = await supabaseAdmin.storage
+        .from("observation-photos").createSignedUrl(p.storage_path, 3600);
+      return { id: p.id, file_name: p.file_name, photo_context: (p as any).photo_context ?? "road_environment", url: s?.signedUrl ?? null };
+    }));
 
     return { ...obs, hotspot, surveyor, observer, photos: signed };
   });
