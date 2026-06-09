@@ -84,14 +84,26 @@ function DashboardRedirect() {
     }
   }
 
-  const noRoleYet =
-    !loading && userId && roles.length === 0;
+  const noRoleYet = !loading && !!userId && roles.length === 0;
 
   return (
     <PlatformShell>
       <Section>
-        {loading || !userId ? (
+        {loading ? (
           <p className="text-sm text-muted-foreground">Loading your workspace…</p>
+        ) : !userId ? (
+          <div className="mx-auto max-w-md space-y-4">
+            <Eyebrow>Sign in required</Eyebrow>
+            <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight">
+              Open your <span className="text-brand">workspace.</span>
+            </h1>
+            <Link
+              to="/rakshak-platform/auth"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              Sign in
+            </Link>
+          </div>
         ) : noRoleYet ? (
           <div className="mx-auto max-w-md">
             <Eyebrow>One last step</Eyebrow>
