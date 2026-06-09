@@ -215,6 +215,16 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    // Authorization: only evaluator / mentor / cfi_admin / super_admin may score.
+    const { data: roles, error: rolesErr } = await supabase
+      .from("rp_user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    if (rolesErr) throw rolesErr;
+    const allowed = new Set(["evaluator", "mentor", "cfi_admin", "super_admin"]);
+    const ok = (roles ?? []).some((r: any) => allowed.has(r.role));
+    if (!ok) throw new Error("Forbidden: evaluator role required");
+
     const { data: submission, error: subErr } = await supabase
       .from("rp_submissions")
       .select("id, team_id, phase_number")
