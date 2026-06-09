@@ -82,6 +82,7 @@ function AuthPage() {
       setBusy(false);
     }
   }
+  const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
   function checkCaptcha(): boolean {
