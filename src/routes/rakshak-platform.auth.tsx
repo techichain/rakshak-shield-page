@@ -50,6 +50,7 @@ function AuthPage() {
   const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [loginWithCode, setLoginWithCode] = useState(false);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
