@@ -246,6 +246,7 @@ function AuthPage() {
         email,
         options: {
           shouldCreateUser: mode === "register",
+          emailRedirectTo: authCallbackUrl(mode, role),
         },
       });
       if (error) throw error;
