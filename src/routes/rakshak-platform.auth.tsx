@@ -8,6 +8,7 @@ import { lovable } from "@/integrations/lovable/index";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { Captcha } from "@/components/rakshak-platform/Captcha";
 import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
+import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 
 const ROLE_OPTIONS = [
   { value: "team", label: "Team lead", dbRole: "team_leader" as const },
@@ -41,6 +42,7 @@ function AuthPage() {
   const { mode, role, verified } = Route.useSearch();
   const navigate = useNavigate();
   const verifyEmail = useServerFn(verifyEmailDeliverable);
+  const onboardWorkspace = useServerFn(onboardRPWorkspace);
 
   // Flow state
   const [step, setStep] = useState<Step>("email");
@@ -194,24 +196,12 @@ function AuthPage() {
       });
       if (updErr) throw updErr;
       const userId = userRes.user?.id;
-      const dbRole = ROLE_OPTIONS.find((r) => r.value === role)?.dbRole ?? "team_leader";
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const accessToken = sessionData.session?.access_token;
+      if (!userId || !accessToken) throw new Error("Your sign-in session expired. Please sign in again.");
 
-      if (userId) {
-        await supabase.from("rp_profiles").upsert({ id: userId, full_name: fullName, email });
-        if (role === "evaluator" || role === "admin") {
-          await supabase.from("rp_role_approvals").insert({
-            user_id: userId,
-            requested_role: dbRole,
-            status: "pending",
-            notes: `Self-requested ${dbRole} access at sign-up.`,
-          });
-        } else {
-          await supabase.from("rp_user_roles").insert({ user_id: userId, role: dbRole });
-          if (role === "mentor") {
-            await supabase.from("rp_mentors").insert({ profile_id: userId });
-          }
-        }
-      }
+      await onboardWorkspace({ data: { role, accessToken, fullName, email } });
 
       if (role === "evaluator" || role === "admin") {
         await supabase.auth.signOut();

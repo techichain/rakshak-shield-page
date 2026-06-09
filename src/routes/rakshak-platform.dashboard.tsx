@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
