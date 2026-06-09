@@ -35,8 +35,10 @@ export function useRPAuth(): RPAuthState {
 
   useEffect(() => {
     let cancelled = false;
+    let requestId = 0;
 
     const load = async (userId: string | null, email: string | null) => {
+      const currentRequest = ++requestId;
       if (!userId) {
         if (!cancelled) setState({ ...empty, loading: false });
         return;
@@ -49,7 +51,7 @@ export function useRPAuth(): RPAuthState {
         if (rolesRes.error) console.error("[rp-auth] roles query failed", rolesRes.error);
         if (profileRes.error) console.error("[rp-auth] profile query failed", profileRes.error);
         const roles = (rolesRes.data ?? []).map((r) => r.role as RPRole);
-        if (cancelled) return;
+        if (cancelled || currentRequest !== requestId) return;
         setState({
           loading: false,
           userId,
@@ -65,19 +67,26 @@ export function useRPAuth(): RPAuthState {
         });
       } catch (err) {
         console.error("[rp-auth] load failed", err);
-        if (!cancelled) setState({ ...empty, loading: false, userId, email });
+        if (!cancelled && currentRequest === requestId) setState({ ...empty, loading: false, userId, email });
       }
     };
 
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) setState((current) => ({ ...current, loading: false }));
+    }, 6000);
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getUser().then(({ data }) => {
       load(data.session?.user?.id ?? null, data.session?.user?.email ?? null);
+    }).catch((err) => {
+      console.error("[rp-auth] get user failed", err);
+      if (!cancelled) setState({ ...empty, loading: false });
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       load(session?.user?.id ?? null, session?.user?.email ?? null);
     });
     return () => {
       cancelled = true;
+      window.clearTimeout(timeout);
       sub.subscription.unsubscribe();
     };
   }, []);
