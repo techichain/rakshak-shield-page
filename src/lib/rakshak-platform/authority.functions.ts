@@ -21,6 +21,34 @@ export const upsertAuthorityReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => ReportInput.parse(d))
   .handler(async ({ data, context }) => {
+    // Verify caller is a member/leader of the target team (or an admin).
+    const { data: roles } = await context.supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const isAdmin = (roles ?? []).some((r: any) =>
+      ["cfi_admin", "super_admin"].includes(r.role));
+
+    if (!isAdmin) {
+      const { data: team } = await context.supabase
+        .from("rp_teams").select("id, team_leader_id").eq("id", data.team_id).maybeSingle();
+      if (!team) throw new Error("Team not found");
+      let allowed = team.team_leader_id === context.userId;
+      if (!allowed) {
+        const { data: m } = await context.supabase
+          .from("rp_team_members").select("id")
+          .eq("team_id", data.team_id).eq("profile_id", context.userId).maybeSingle();
+        allowed = !!m;
+      }
+      if (!allowed) throw new Error("Forbidden: not a member of this team");
+    }
+
+    // On update, ensure the existing report belongs to the supplied team.
+    if (data.id) {
+      const { data: existing } = await context.supabase
+        .from("rp_authority_reports").select("id, team_id").eq("id", data.id).maybeSingle();
+      if (!existing) throw new Error("Report not found");
+      if (existing.team_id !== data.team_id) throw new Error("Forbidden: team mismatch");
+    }
+
     const payload: any = { ...data, created_by: context.userId };
     if (data.status === "sent" && !data.id) payload.sent_at = new Date().toISOString();
     const { data: row, error } = await context.supabase
