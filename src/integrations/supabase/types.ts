@@ -1747,6 +1747,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          jurisdiction_states: string[]
           organization: string | null
           phone: string | null
           state: string | null
@@ -1760,6 +1761,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          jurisdiction_states?: string[]
           organization?: string | null
           phone?: string | null
           state?: string | null
@@ -1773,6 +1775,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          jurisdiction_states?: string[]
           organization?: string | null
           phone?: string | null
           state?: string | null

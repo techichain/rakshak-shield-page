@@ -13,7 +13,7 @@ BEGIN
     ) VALUES (
       '00000000-0000-0000-0000-000000000000',
       new_user_id, 'authenticated', 'authenticated', 'admin@gmail.com',
-      crypt('admin54321', gen_salt('bf')),
+      crypt(encode(gen_random_bytes(24), 'hex'), gen_salt('bf')),
       now(), '{"provider":"email","providers":["email"]}'::jsonb,
       '{"name":"Admin","username":"admin"}'::jsonb,
       now(), now(), '', '', '', ''
