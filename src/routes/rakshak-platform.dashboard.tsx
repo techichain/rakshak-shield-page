@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
-import { supabase } from "@/integrations/supabase/client";
+import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 
 export const Route = createFileRoute("/rakshak-platform/dashboard")({
@@ -12,6 +13,7 @@ type RoleChoice = "team" | "mentor" | "evaluator";
 
 function DashboardRedirect() {
   const navigate = useNavigate();
+  const onboardWorkspace = useServerFn(onboardRPWorkspace);
   const {
     loading,
     userId,
@@ -46,36 +48,13 @@ function DashboardRedirect() {
     setBusy(true);
     setError(null);
     try {
-      if (picking === "evaluator") {
-        const { error: e } = await supabase.from("rp_role_approvals").insert({
-          user_id: userId,
-          requested_role: "evaluator",
-          status: "pending",
-          notes: "Self-requested evaluator access after Google sign-in.",
-        });
-        if (e) throw e;
+      const result = await onboardWorkspace({
+        data: { role: picking, fullName, email },
+      });
+      if (result.status === "pending_approval") {
         setError("Evaluator access requested. A CFI admin will review it shortly.");
       } else {
-        const dbRole = picking === "mentor" ? "mentor" : "team_leader";
-        const { error: profileError } = await supabase
-          .from("rp_profiles")
-          .upsert({ id: userId, full_name: fullName ?? email ?? "Project Rakshak user", email: email ?? "" });
-        if (profileError) throw profileError;
-
-        const { error: e } = await supabase
-          .from("rp_user_roles")
-          .upsert({ user_id: userId, role: dbRole }, { onConflict: "user_id,role" });
-        if (e) throw e;
-        if (picking === "mentor") {
-          const { error: mentorError } = await supabase
-            .from("rp_mentors")
-            .upsert({ profile_id: userId }, { onConflict: "profile_id" });
-          if (mentorError) throw mentorError;
-        }
-        // Auth state listener in useRPAuth will refresh; force-navigate too.
-        navigate({
-          to: picking === "mentor" ? "/rakshak-platform/mentor" : "/rakshak-platform/team",
-        });
+        navigate({ to: result.redirectTo });
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not assign role.");
