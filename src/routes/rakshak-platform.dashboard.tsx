@@ -154,7 +154,21 @@ function DashboardRedirect() {
             </p>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Loading your workspace…</p>
+          <div className="mx-auto max-w-md space-y-4">
+            <Eyebrow>Workspace access</Eyebrow>
+            <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight">
+              Your role is <span className="text-brand">active.</span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Signed in as {email}. Your assigned role is {roles.join(", ")}, but this role does not have a dedicated workspace yet.
+            </p>
+            <Link
+              to="/rakshak-platform"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              Go to platform home
+            </Link>
+          </div>
         )}
       </Section>
     </PlatformShell>
