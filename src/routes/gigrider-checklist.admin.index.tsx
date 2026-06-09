@@ -82,20 +82,12 @@ function ObservationsPanel() {
     queryKey: ["gigrider-admin-observations"],
     queryFn: () => list() as Promise<Row[]>,
     refetchOnWindowFocus: true,
+    // Poll every 30s instead of subscribing to realtime — keeps the broad
+    // `observations` channel off the wire so we don't leak row events to
+    // non-admin subscribers.
+    refetchInterval: 30_000,
   });
 
-  // Live updates: any change to observations re-fetches
-  useEffect(() => {
-    const ch = supabase
-      .channel("admin-observations")
-      .on("postgres_changes", { event: "*", schema: "public", table: "observations" }, () => {
-        qc.invalidateQueries({ queryKey: ["gigrider-admin-observations"] });
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
-  }, [qc]);
 
   const rows = data ?? [];
 
