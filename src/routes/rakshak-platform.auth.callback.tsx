@@ -9,8 +9,16 @@ const callbackSearchSchema = z.object({
   code: z.string().optional(),
   mode: z.enum(["login", "register"]).default("login").catch("login"),
   role: z.enum(["team", "mentor", "evaluator", "admin"]).default("team").catch("team"),
+  provider: z.enum(["google"]).optional().catch(undefined),
   error_description: z.string().optional(),
 });
+
+const roleToDbRole = {
+  team: "team_leader",
+  mentor: "mentor",
+  evaluator: "evaluator",
+  admin: "cfi_admin",
+} as const;
 
 export const Route = createFileRoute("/rakshak-platform/auth/callback")({
   validateSearch: (s: Record<string, unknown>) => callbackSearchSchema.parse(s),
@@ -19,7 +27,7 @@ export const Route = createFileRoute("/rakshak-platform/auth/callback")({
 
 function AuthCallbackPage() {
   const navigate = useNavigate();
-  const { code, mode, role, error_description } = Route.useSearch();
+  const { code, mode, role, provider, error_description } = Route.useSearch();
   const [error, setError] = useState<string | null>(error_description ?? null);
 
   useEffect(() => {
@@ -37,9 +45,60 @@ function AuthCallbackPage() {
         if (sessionError) throw sessionError;
         if (!data.session) throw new Error("This sign-in link is invalid or has expired. Please request a new link.");
 
+        if (mode === "register" && provider === "google") {
+          const user = data.session.user;
+          const fullName =
+            user.user_metadata?.full_name ??
+            user.user_metadata?.name ??
+            user.email?.split("@")[0] ??
+            "Project Rakshak user";
+          const email = user.email ?? "";
+          const dbRole = roleToDbRole[role];
+
+          const { error: profileError } = await supabase
+            .from("rp_profiles")
+            .upsert({ id: user.id, full_name: fullName, email });
+          if (profileError) throw profileError;
+
+          if (role === "evaluator" || role === "admin") {
+            const { data: existingApproval, error: existingError } = await supabase
+              .from("rp_role_approvals")
+              .select("id")
+              .eq("user_id", user.id)
+              .eq("requested_role", dbRole)
+              .eq("status", "pending")
+              .maybeSingle();
+            if (existingError) throw existingError;
+            if (!existingApproval) {
+              const { error: approvalError } = await supabase.from("rp_role_approvals").insert({
+                user_id: user.id,
+                requested_role: dbRole,
+                status: "pending",
+                notes: `Self-requested ${dbRole} access with Google sign-up.`,
+              });
+              if (approvalError) throw approvalError;
+            }
+          } else {
+            const { error: roleError } = await supabase
+              .from("rp_user_roles")
+              .upsert({ user_id: user.id, role: dbRole }, { onConflict: "user_id,role" });
+            if (roleError) throw roleError;
+            if (role === "mentor") {
+              const { error: mentorError } = await supabase
+                .from("rp_mentors")
+                .upsert({ profile_id: user.id }, { onConflict: "profile_id" });
+              if (mentorError) throw mentorError;
+            }
+          }
+        }
+
         if (cancelled) return;
         if (mode === "register") {
-          navigate({ to: "/rakshak-platform/auth", search: { mode, role, verified: "1" }, replace: true });
+          if (provider === "google") {
+            navigate({ to: "/rakshak-platform/dashboard", replace: true });
+          } else {
+            navigate({ to: "/rakshak-platform/auth", search: { mode, role, verified: "1" }, replace: true });
+          }
         } else {
           navigate({ to: "/rakshak-platform/dashboard", replace: true });
         }
@@ -52,7 +111,7 @@ function AuthCallbackPage() {
     return () => {
       cancelled = true;
     };
-  }, [code, error_description, mode, navigate, role]);
+  }, [code, error_description, mode, navigate, provider, role]);
 
   return (
     <PlatformShell>
