@@ -208,6 +208,7 @@ function ApplyPage() {
           years_experience: rest.years_experience,
           expertise_domain: rest.expertise_domain,
           track_data: { motivation, relevant_experience, application_reference: applicationRef },
+          hp_field: hpField || null,
         }),
       );
 
