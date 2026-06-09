@@ -64,6 +64,7 @@ function SponsorPage() {
           tier,
           amount_inr: amount,
           is_public: fd.get("public") === "on",
+          hp_field: String(fd.get("company_website") || ""),
         },
       });
       queryClient.invalidateQueries({ queryKey: ["rp-public-sponsors"] });
