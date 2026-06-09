@@ -337,6 +337,7 @@ function AuthPage() {
                 {busy ? "Sending…" : "Send verification code"}
               </button>
             </form>
+            </>
           )}
 
           {step === "otp" && (
