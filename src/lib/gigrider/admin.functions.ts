@@ -114,7 +114,7 @@ export const listAllObservations = createServerFn({ method: "GET" })
     const sMap = new Map((surveyors ?? []).map((s) => [s.id, s]));
     const pMap = new Map((profiles ?? []).map((p) => [p.id, p]));
 
-    // Fetch photos for all observations + build public URLs (bucket is public)
+    // Fetch photos for all observations + build signed URLs (bucket is private)
     const obsIds = (obs ?? []).map((o) => o.id);
     const photoMap = new Map<string, { file_name: string; url: string | null; photo_context: string }[]>();
     if (obsIds.length) {
@@ -123,11 +123,11 @@ export const listAllObservations = createServerFn({ method: "GET" })
         .select("observation_id, storage_path, file_name, photo_context")
         .in("observation_id", obsIds);
       for (const p of photos ?? []) {
-        const { data: pub } = supabaseAdmin.storage
+        const { data: signed } = await supabaseAdmin.storage
           .from("observation-photos")
-          .getPublicUrl(p.storage_path);
+          .createSignedUrl(p.storage_path, 3600);
         const arr = photoMap.get(p.observation_id) ?? [];
-        arr.push({ file_name: p.file_name, url: pub?.publicUrl ?? null, photo_context: (p as any).photo_context ?? "road_environment" });
+        arr.push({ file_name: p.file_name, url: signed?.signedUrl ?? null, photo_context: (p as any).photo_context ?? "road_environment" });
         photoMap.set(p.observation_id, arr);
       }
     }
