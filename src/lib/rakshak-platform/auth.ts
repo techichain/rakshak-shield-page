@@ -41,26 +41,34 @@ export function useRPAuth(): RPAuthState {
         if (!cancelled) setState({ ...empty, loading: false });
         return;
       }
-      const [{ data: roleRows }, { data: profile }] = await Promise.all([
-        supabase.from("rp_user_roles").select("role").eq("user_id", userId),
-        supabase.from("rp_profiles").select("full_name").eq("id", userId).maybeSingle(),
-      ]);
-      const roles = (roleRows ?? []).map((r) => r.role as RPRole);
-      if (cancelled) return;
-      setState({
-        loading: false,
-        userId,
-        email,
-        fullName: profile?.full_name ?? email,
-        roles,
-        isAdmin: roles.includes("cfi_admin") || roles.includes("super_admin"),
-        isMentor: roles.includes("mentor"),
-        isTeam: roles.includes("team_leader") || roles.includes("team_member"),
-        isEvaluator: roles.includes("evaluator"),
-        isAuthority: roles.includes("authority"),
-        isFinance: roles.includes("finance"),
-      });
+      try {
+        const [rolesRes, profileRes] = await Promise.all([
+          supabase.from("rp_user_roles").select("role").eq("user_id", userId),
+          supabase.from("rp_profiles").select("full_name").eq("id", userId).maybeSingle(),
+        ]);
+        if (rolesRes.error) console.error("[rp-auth] roles query failed", rolesRes.error);
+        if (profileRes.error) console.error("[rp-auth] profile query failed", profileRes.error);
+        const roles = (rolesRes.data ?? []).map((r) => r.role as RPRole);
+        if (cancelled) return;
+        setState({
+          loading: false,
+          userId,
+          email,
+          fullName: profileRes.data?.full_name ?? email,
+          roles,
+          isAdmin: roles.includes("cfi_admin") || roles.includes("super_admin"),
+          isMentor: roles.includes("mentor"),
+          isTeam: roles.includes("team_leader") || roles.includes("team_member"),
+          isEvaluator: roles.includes("evaluator"),
+          isAuthority: roles.includes("authority"),
+          isFinance: roles.includes("finance"),
+        });
+      } catch (err) {
+        console.error("[rp-auth] load failed", err);
+        if (!cancelled) setState({ ...empty, loading: false, userId, email });
+      }
     };
+
 
     supabase.auth.getSession().then(({ data }) => {
       load(data.session?.user?.id ?? null, data.session?.user?.email ?? null);
