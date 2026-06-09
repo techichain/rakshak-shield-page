@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -19,6 +19,7 @@ const ROLE_OPTIONS = [
 const searchSchema = z.object({
   mode: z.enum(["login", "register"]).default("login").catch("login"),
   role: z.enum(["team", "mentor", "evaluator", "admin"]).default("team").catch("team"),
+  verified: z.literal("1").optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/rakshak-platform/auth")({
@@ -26,10 +27,17 @@ export const Route = createFileRoute("/rakshak-platform/auth")({
   component: AuthPage,
 });
 
-type Step = "email" | "otp" | "details";
+type Step = "email" | "sent" | "otp" | "details";
+
+function authCallbackUrl(mode: "login" | "register", role: string) {
+  const url = new URL("/rakshak-platform/auth/callback", window.location.origin);
+  url.searchParams.set("mode", mode);
+  url.searchParams.set("role", role);
+  return url.toString();
+}
 
 function AuthPage() {
-  const { mode, role } = Route.useSearch();
+  const { mode, role, verified } = Route.useSearch();
   const navigate = useNavigate();
   const verifyEmail = useServerFn(verifyEmailDeliverable);
 
@@ -48,6 +56,16 @@ function AuthPage() {
   const [captcha, setCaptcha] = useState("");
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const expectedCaptcha = useRef<number>(0);
+
+  useEffect(() => {
+    if (verified !== "1" || mode !== "register") return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      setEmail(data.user.email ?? "");
+      setStep("details");
+      setInfo("Email verified. Set a password and finish creating your account.");
+    });
+  }, [mode, verified]);
 
   function resetFlow() {
     setStep("email");
@@ -115,12 +133,12 @@ function AuthPage() {
           // Register flow creates the user on successful OTP verification.
           // Login flow requires the account to already exist.
           shouldCreateUser: mode === "register",
-          emailRedirectTo: `${window.location.origin}/rakshak-platform/dashboard`,
+          emailRedirectTo: authCallbackUrl(mode, role),
         },
       });
       if (error) throw error;
-      setStep("otp");
-      setInfo(`We've emailed a 6-digit verification code to ${email}. It expires in 10 minutes.`);
+      setStep("sent");
+      setInfo(`We've emailed a secure sign-in link to ${email}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not send code.");
     } finally {
@@ -216,11 +234,11 @@ function AuthPage() {
         email,
         options: {
           shouldCreateUser: mode === "register",
-          emailRedirectTo: `${window.location.origin}/rakshak-platform/dashboard`,
+          emailRedirectTo: authCallbackUrl(mode, role),
         },
       });
       if (error) throw error;
-      setInfo(`New code sent to ${email}.`);
+      setInfo(`New sign-in link sent to ${email}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not resend code.");
     } finally {
