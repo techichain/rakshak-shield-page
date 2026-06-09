@@ -59,6 +59,7 @@ import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/raksh
 import { Route as RakshakPlatformEvaluatorCompareRouteImport } from './routes/rakshak-platform.evaluator.compare'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
 import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
+import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
 import { Route as RakshakPlatformAdminSponsorshipsRouteImport } from './routes/rakshak-platform.admin.sponsorships'
 import { Route as RakshakPlatformAdminSeedRouteImport } from './routes/rakshak-platform.admin.seed'
 import { Route as RakshakPlatformAdminRolesRouteImport } from './routes/rakshak-platform.admin.roles'
@@ -376,6 +377,12 @@ const RakshakPlatformBookMentorIdRoute =
     path: '/book/$mentorId',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
+const RakshakPlatformAuthCallbackRoute =
+  RakshakPlatformAuthCallbackRouteImport.update({
+    id: '/callback',
+    path: '/callback',
+    getParentRoute: () => RakshakPlatformAuthRoute,
+  } as any)
 const RakshakPlatformAdminSponsorshipsRoute =
   RakshakPlatformAdminSponsorshipsRouteImport.update({
     id: '/sponsorships',
@@ -622,7 +629,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-mentor/admin': typeof RakshakMentorAdminRouteWithChildren
   '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/rakshak-platform/admin': typeof RakshakPlatformAdminRouteWithChildren
-  '/rakshak-platform/auth': typeof RakshakPlatformAuthRoute
+  '/rakshak-platform/auth': typeof RakshakPlatformAuthRouteWithChildren
   '/rakshak-platform/authority': typeof RakshakPlatformAuthorityRoute
   '/rakshak-platform/dashboard': typeof RakshakPlatformDashboardRoute
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorRouteWithChildren
@@ -673,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
+  '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/compare': typeof RakshakPlatformEvaluatorCompareRoute
@@ -708,7 +716,7 @@ export interface FileRoutesByTo {
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/rakshak-platform/admin': typeof RakshakPlatformAdminRouteWithChildren
-  '/rakshak-platform/auth': typeof RakshakPlatformAuthRoute
+  '/rakshak-platform/auth': typeof RakshakPlatformAuthRouteWithChildren
   '/rakshak-platform/authority': typeof RakshakPlatformAuthorityRoute
   '/rakshak-platform/dashboard': typeof RakshakPlatformDashboardRoute
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
@@ -757,6 +765,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
+  '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/compare': typeof RakshakPlatformEvaluatorCompareRoute
@@ -797,7 +806,7 @@ export interface FileRoutesById {
   '/rakshak-mentor/admin': typeof RakshakMentorAdminRouteWithChildren
   '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/rakshak-platform/admin': typeof RakshakPlatformAdminRouteWithChildren
-  '/rakshak-platform/auth': typeof RakshakPlatformAuthRoute
+  '/rakshak-platform/auth': typeof RakshakPlatformAuthRouteWithChildren
   '/rakshak-platform/authority': typeof RakshakPlatformAuthorityRoute
   '/rakshak-platform/dashboard': typeof RakshakPlatformDashboardRoute
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorRouteWithChildren
@@ -848,6 +857,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
+  '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/compare': typeof RakshakPlatformEvaluatorCompareRoute
@@ -942,6 +952,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
+    | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/compare'
@@ -1026,6 +1037,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
+    | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/compare'
@@ -1116,6 +1128,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
+    | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/compare'
@@ -1510,6 +1523,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/book/$mentorId'
       preLoaderRoute: typeof RakshakPlatformBookMentorIdRouteImport
       parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/auth/callback': {
+      id: '/rakshak-platform/auth/callback'
+      path: '/callback'
+      fullPath: '/rakshak-platform/auth/callback'
+      preLoaderRoute: typeof RakshakPlatformAuthCallbackRouteImport
+      parentRoute: typeof RakshakPlatformAuthRoute
     }
     '/rakshak-platform/admin/sponsorships': {
       id: '/rakshak-platform/admin/sponsorships'
@@ -1949,6 +1969,17 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
 const RakshakPlatformAdminRouteWithChildren =
   RakshakPlatformAdminRoute._addFileChildren(RakshakPlatformAdminRouteChildren)
 
+interface RakshakPlatformAuthRouteChildren {
+  RakshakPlatformAuthCallbackRoute: typeof RakshakPlatformAuthCallbackRoute
+}
+
+const RakshakPlatformAuthRouteChildren: RakshakPlatformAuthRouteChildren = {
+  RakshakPlatformAuthCallbackRoute: RakshakPlatformAuthCallbackRoute,
+}
+
+const RakshakPlatformAuthRouteWithChildren =
+  RakshakPlatformAuthRoute._addFileChildren(RakshakPlatformAuthRouteChildren)
+
 interface RakshakPlatformEvaluatorRouteChildren {
   RakshakPlatformEvaluatorSubmissionIdRoute: typeof RakshakPlatformEvaluatorSubmissionIdRoute
   RakshakPlatformEvaluatorCompareRoute: typeof RakshakPlatformEvaluatorCompareRoute
@@ -2077,7 +2108,7 @@ const RakshakPlatformTeamRouteWithChildren =
 
 interface RakshakPlatformRouteChildren {
   RakshakPlatformAdminRoute: typeof RakshakPlatformAdminRouteWithChildren
-  RakshakPlatformAuthRoute: typeof RakshakPlatformAuthRoute
+  RakshakPlatformAuthRoute: typeof RakshakPlatformAuthRouteWithChildren
   RakshakPlatformAuthorityRoute: typeof RakshakPlatformAuthorityRoute
   RakshakPlatformDashboardRoute: typeof RakshakPlatformDashboardRoute
   RakshakPlatformEvaluatorRoute: typeof RakshakPlatformEvaluatorRouteWithChildren
@@ -2105,7 +2136,7 @@ interface RakshakPlatformRouteChildren {
 
 const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformAdminRoute: RakshakPlatformAdminRouteWithChildren,
-  RakshakPlatformAuthRoute: RakshakPlatformAuthRoute,
+  RakshakPlatformAuthRoute: RakshakPlatformAuthRouteWithChildren,
   RakshakPlatformAuthorityRoute: RakshakPlatformAuthorityRoute,
   RakshakPlatformDashboardRoute: RakshakPlatformDashboardRoute,
   RakshakPlatformEvaluatorRoute: RakshakPlatformEvaluatorRouteWithChildren,
