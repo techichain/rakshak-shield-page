@@ -228,11 +228,10 @@ function AuthPage() {
         email,
         options: {
           shouldCreateUser: mode === "register",
-          emailRedirectTo: authCallbackUrl(mode, role),
         },
       });
       if (error) throw error;
-      setInfo(`New sign-in link sent to ${email}.`);
+      setInfo(`New 6-digit code sent to ${email}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not resend code.");
     } finally {
