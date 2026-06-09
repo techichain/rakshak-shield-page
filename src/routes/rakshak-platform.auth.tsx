@@ -338,14 +338,14 @@ function AuthPage() {
                 error={captchaError}
               />
               <p className="text-xs text-muted-foreground">
-                We'll email you a secure link to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
+                We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
               </p>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Sending…" : "Send sign-in link"}
+                {busy ? "Sending…" : "Send 6-digit code"}
               </button>
             </form>
             </>
