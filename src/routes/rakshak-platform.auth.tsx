@@ -29,10 +29,11 @@ export const Route = createFileRoute("/rakshak-platform/auth")({
 
 type Step = "email" | "sent" | "otp" | "details";
 
-function authCallbackUrl(mode: "login" | "register", role: string) {
+function authCallbackUrl(mode: "login" | "register", role: string, provider?: "google") {
   const url = new URL("/rakshak-platform/auth/callback", window.location.origin);
   url.searchParams.set("mode", mode);
   url.searchParams.set("role", role);
+  if (provider) url.searchParams.set("provider", provider);
   return url.toString();
 }
 
@@ -85,7 +86,7 @@ function AuthPage() {
     setBusy(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/rakshak-platform/dashboard",
+        redirect_uri: authCallbackUrl(mode, role, "google"),
       });
       if (result.error) throw result.error;
       if (result.redirected) {
@@ -93,7 +94,10 @@ function AuthPage() {
         return;
       }
       // Tokens received and session set — user is authenticated
-      navigate({ to: "/rakshak-platform/dashboard" });
+      navigate({
+        to: "/rakshak-platform/auth/callback",
+        search: { mode, role, provider: "google" },
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Google sign-in failed.");
     } finally {
