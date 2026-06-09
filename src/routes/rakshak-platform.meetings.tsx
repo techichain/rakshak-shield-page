@@ -40,14 +40,28 @@ function MeetingsPage() {
   const invitees = useServerFn(listInvitees);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
-  const { data: people } = useSuspenseQuery({ queryKey: ["rp-invitees"], queryFn: () => invitees() });
 
   const [teams, setTeams] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [type, setType] = useState<string>("team_mentor");
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<{ id: string; full_name: string }[]>([]);
+  const [inviteeSearch, setInviteeSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<{ id: string; full_name: string }[]>([]);
+
+  useEffect(() => {
+    const term = inviteeSearch.trim();
+    if (term.length < 2) { setSearchResults([]); return; }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const res: any = await invitees({ data: { search: term } });
+        if (!cancelled) setSearchResults(res?.people ?? []);
+      } catch { if (!cancelled) setSearchResults([]); }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [inviteeSearch, invitees]);
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
