@@ -246,8 +246,6 @@ function AuthPage() {
           <Eyebrow>
             {step === "details"
               ? "Almost there"
-              : step === "sent"
-                ? "Check your email"
               : step === "otp"
                 ? "Check your email"
                 : mode === "login"
@@ -257,10 +255,8 @@ function AuthPage() {
           <h1 className="mt-6 font-heading text-4xl font-bold leading-tight tracking-tight">
             {step === "details" ? (
               <>Set your <span className="text-brand">password.</span></>
-            ) : step === "sent" ? (
-              <>Open your <span className="text-brand">sign-in link.</span></>
             ) : step === "otp" ? (
-              <>Verify your <span className="text-brand">email.</span></>
+              <>Enter your <span className="text-brand">6-digit code.</span></>
             ) : mode === "login" ? (
               <>Sign in to your <span className="text-brand">workspace.</span></>
             ) : (
