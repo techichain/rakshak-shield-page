@@ -344,29 +344,53 @@ function AuthPage() {
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
+              <form
+                onSubmit={mode === "login" && !loginWithCode ? handlePasswordLogin : handleSendOtp}
+                className="mt-6 space-y-4"
+              >
               <Field label="Email">
                 <input
                   required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
                 />
               </Field>
+              {mode === "login" && !loginWithCode && (
+                <Field label="Password">
+                  <input
+                    required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                  />
+                </Field>
+              )}
               <Captcha
                 value={captcha}
                 onChange={setCaptcha}
                 onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
                 error={captchaError}
               />
-              <p className="text-xs text-muted-foreground">
-                We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
-              </p>
+              {!(mode === "login" && !loginWithCode) && (
+                <p className="text-xs text-muted-foreground">
+                  We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
+                </p>
+              )}
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Sending…" : "Send 6-digit code"}
+                {busy
+                  ? (mode === "login" && !loginWithCode ? "Signing in…" : "Sending…")
+                  : (mode === "login" && !loginWithCode ? "Sign in" : "Send 6-digit code")}
               </button>
+              {mode === "login" && (
+                <button
+                  type="button"
+                  onClick={() => { setLoginWithCode((v) => !v); setError(null); }}
+                  className="block w-full text-center text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                >
+                  {loginWithCode ? "Use password instead" : "Forgot password? Email me a 6-digit code"}
+                </button>
+              )}
             </form>
             </>
           )}
