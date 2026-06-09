@@ -176,12 +176,19 @@ export const listAllMeetingsAdmin = createServerFn({ method: "GET" })
 
 export const listInvitees = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+  .inputValidator((d: { search?: string } | undefined) =>
+    z.object({ search: z.string().trim().min(1).max(80).optional() }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    // Do NOT expose email addresses to all authenticated users.
+    // Require a search term to prevent bulk profile harvesting.
+    if (!data.search) return { people: [] };
+    const { data: rows, error } = await context.supabase
       .from("rp_profiles")
-      .select("id, full_name, email")
+      .select("id, full_name")
+      .ilike("full_name", `%${data.search}%`)
       .order("full_name", { ascending: true })
-      .limit(500);
+      .limit(25);
     if (error) throw error;
-    return { people: data ?? [] };
+    return { people: rows ?? [] };
   });
