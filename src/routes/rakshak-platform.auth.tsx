@@ -118,7 +118,26 @@ function AuthPage() {
     return true;
   }
 
-  // STEP 1 — send 6-digit OTP code to the entered email
+  // LOGIN — email + password
+  async function handlePasswordLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    setCaptchaError(null);
+    if (!checkCaptcha()) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      navigate({ to: "/rakshak-platform/dashboard" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not sign in.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // STEP 1 (register) — send 6-digit OTP code to the entered email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -136,10 +155,9 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          // Register flow creates the user on successful OTP verification.
-          // Login flow requires the account to already exist.
-          shouldCreateUser: mode === "register",
-          // No emailRedirectTo — Supabase sends a 6-digit code instead of a magic link.
+          shouldCreateUser: true,
+          // Fallback magic-link target if the Supabase template uses {{ .ConfirmationURL }}
+          emailRedirectTo: authCallbackUrl("register", role),
         },
       });
       if (error) throw error;
