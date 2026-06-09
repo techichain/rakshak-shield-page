@@ -118,7 +118,7 @@ function AuthPage() {
     return true;
   }
 
-  // STEP 1 — send OTP to the entered email
+  // STEP 1 — send 6-digit OTP code to the entered email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -139,12 +139,12 @@ function AuthPage() {
           // Register flow creates the user on successful OTP verification.
           // Login flow requires the account to already exist.
           shouldCreateUser: mode === "register",
-          emailRedirectTo: authCallbackUrl(mode, role),
+          // No emailRedirectTo — Supabase sends a 6-digit code instead of a magic link.
         },
       });
       if (error) throw error;
-      setStep("sent");
-      setInfo(`We've emailed a secure sign-in link to ${email}.`);
+      setStep("otp");
+      setInfo(`We emailed a 6-digit code to ${email}. It expires in 10 minutes.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not send code.");
     } finally {
@@ -228,11 +228,10 @@ function AuthPage() {
         email,
         options: {
           shouldCreateUser: mode === "register",
-          emailRedirectTo: authCallbackUrl(mode, role),
         },
       });
       if (error) throw error;
-      setInfo(`New sign-in link sent to ${email}.`);
+      setInfo(`New 6-digit code sent to ${email}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not resend code.");
     } finally {
@@ -247,8 +246,6 @@ function AuthPage() {
           <Eyebrow>
             {step === "details"
               ? "Almost there"
-              : step === "sent"
-                ? "Check your email"
               : step === "otp"
                 ? "Check your email"
                 : mode === "login"
@@ -258,10 +255,8 @@ function AuthPage() {
           <h1 className="mt-6 font-heading text-4xl font-bold leading-tight tracking-tight">
             {step === "details" ? (
               <>Set your <span className="text-brand">password.</span></>
-            ) : step === "sent" ? (
-              <>Open your <span className="text-brand">sign-in link.</span></>
             ) : step === "otp" ? (
-              <>Verify your <span className="text-brand">email.</span></>
+              <>Enter your <span className="text-brand">6-digit code.</span></>
             ) : mode === "login" ? (
               <>Sign in to your <span className="text-brand">workspace.</span></>
             ) : (
@@ -343,43 +338,19 @@ function AuthPage() {
                 error={captchaError}
               />
               <p className="text-xs text-muted-foreground">
-                We'll email you a secure link to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
+                We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
               </p>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Sending…" : "Send sign-in link"}
+                {busy ? "Sending…" : "Send 6-digit code"}
               </button>
             </form>
             </>
           )}
 
-          {step === "sent" && (
-            <div className="mt-8 space-y-4">
-              {info && <p className="text-sm text-muted-foreground">{info}</p>}
-              <p className="text-xs text-muted-foreground">
-                Click the link in that email to continue. If it opens this page again, use the latest email only.
-              </p>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={busy}
-                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-              >
-                {busy ? "Sending…" : "Resend sign-in link"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setStep("otp")}
-                className="w-full text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-              >
-                I received a 6-digit code instead
-              </button>
-            </div>
-          )}
 
           {step === "otp" && (
             <form onSubmit={handleVerifyOtp} className="mt-8 space-y-4">
