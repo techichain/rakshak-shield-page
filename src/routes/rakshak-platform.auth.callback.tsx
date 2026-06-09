@@ -35,6 +35,19 @@ function AuthCallbackPage() {
         if (code) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
           if (exchangeError) throw exchangeError;
+        } else if (window.location.hash) {
+          const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+          const hashError = hash.get("error_description") ?? hash.get("error");
+          if (hashError) throw new Error(hashError);
+          const accessToken = hash.get("access_token");
+          const refreshToken = hash.get("refresh_token");
+          if (accessToken && refreshToken) {
+            const { error: tokenError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (tokenError) throw tokenError;
+          }
         }
 
         const { data, error: sessionError } = await supabase.auth.getSession();
