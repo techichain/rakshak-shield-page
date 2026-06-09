@@ -50,6 +50,7 @@ function AuthPage() {
   const [otpCode, setOtpCode] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [loginWithCode, setLoginWithCode] = useState(false);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +119,26 @@ function AuthPage() {
     return true;
   }
 
-  // STEP 1 — send 6-digit OTP code to the entered email
+  // LOGIN — email + password
+  async function handlePasswordLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setInfo(null);
+    setCaptchaError(null);
+    if (!checkCaptcha()) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      navigate({ to: "/rakshak-platform/dashboard" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not sign in.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // STEP 1 (register) — send 6-digit OTP code to the entered email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -136,10 +156,9 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          // Register flow creates the user on successful OTP verification.
-          // Login flow requires the account to already exist.
-          shouldCreateUser: mode === "register",
-          // No emailRedirectTo — Supabase sends a 6-digit code instead of a magic link.
+          shouldCreateUser: true,
+          // Fallback magic-link target if the Supabase template uses {{ .ConfirmationURL }}
+          emailRedirectTo: authCallbackUrl("register", role),
         },
       });
       if (error) throw error;
@@ -228,6 +247,7 @@ function AuthPage() {
         email,
         options: {
           shouldCreateUser: mode === "register",
+          emailRedirectTo: authCallbackUrl(mode, role),
         },
       });
       if (error) throw error;
@@ -324,29 +344,53 @@ function AuthPage() {
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              <form onSubmit={handleSendOtp} className="mt-6 space-y-4">
+              <form
+                onSubmit={mode === "login" && !loginWithCode ? handlePasswordLogin : handleSendOtp}
+                className="mt-6 space-y-4"
+              >
               <Field label="Email">
                 <input
                   required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
                 />
               </Field>
+              {mode === "login" && !loginWithCode && (
+                <Field label="Password">
+                  <input
+                    required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                  />
+                </Field>
+              )}
               <Captcha
                 value={captcha}
                 onChange={setCaptcha}
                 onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
                 error={captchaError}
               />
-              <p className="text-xs text-muted-foreground">
-                We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
-              </p>
+              {!(mode === "login" && !loginWithCode) && (
+                <p className="text-xs text-muted-foreground">
+                  We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
+                </p>
+              )}
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Sending…" : "Send 6-digit code"}
+                {busy
+                  ? (mode === "login" && !loginWithCode ? "Signing in…" : "Sending…")
+                  : (mode === "login" && !loginWithCode ? "Sign in" : "Send 6-digit code")}
               </button>
+              {mode === "login" && (
+                <button
+                  type="button"
+                  onClick={() => { setLoginWithCode((v) => !v); setError(null); }}
+                  className="block w-full text-center text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                >
+                  {loginWithCode ? "Use password instead" : "Forgot password? Email me a 6-digit code"}
+                </button>
+              )}
             </form>
             </>
           )}
