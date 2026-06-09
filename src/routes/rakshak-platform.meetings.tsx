@@ -40,14 +40,28 @@ function MeetingsPage() {
   const invitees = useServerFn(listInvitees);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
-  const { data: people } = useSuspenseQuery({ queryKey: ["rp-invitees"], queryFn: () => invitees() });
 
   const [teams, setTeams] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [type, setType] = useState<string>("team_mentor");
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<{ id: string; full_name: string }[]>([]);
+  const [inviteeSearch, setInviteeSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<{ id: string; full_name: string }[]>([]);
+
+  useEffect(() => {
+    const term = inviteeSearch.trim();
+    if (term.length < 2) { setSearchResults([]); return; }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const res: any = await invitees({ data: { search: term } });
+        if (!cancelled) setSearchResults(res?.people ?? []);
+      } catch { if (!cancelled) setSearchResults([]); }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [inviteeSearch, invitees]);
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
@@ -71,7 +85,7 @@ function MeetingsPage() {
           meeting_link: String(fd.get("meeting_link") || ""),
           location: String(fd.get("location") || ""),
           status: "proposed",
-          invitee_ids: selected,
+          invitee_ids: selected.map((p) => p.id),
         },
       });
       (e.currentTarget as HTMLFormElement).reset();
@@ -183,19 +197,42 @@ function MeetingsPage() {
             <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
             <div className="md:col-span-2">
               <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite (mentors / evaluators / members)</label>
-              <select
-                multiple
-                value={selected}
-                onChange={(e) => setSelected(Array.from(e.target.selectedOptions).map((o) => o.value))}
-                className="rp-input mt-1 h-32"
-              >
-                {people.people.map((p: any) => (
-                  <option key={p.id} value={p.id}>{p.full_name} — {p.email}</option>
-                ))}
-              </select>
-              <p className="mt-1 text-xs text-muted-foreground">Hold ⌘/Ctrl to select multiple. They'll receive email reminders.</p>
+              <input
+                value={inviteeSearch}
+                onChange={(e) => setInviteeSearch(e.target.value)}
+                placeholder="Search by name…"
+                className="rp-input mt-1"
+              />
+              {searchResults.length > 0 && (
+                <div className="mt-1 max-h-40 overflow-auto rounded border border-border bg-card">
+                  {searchResults
+                    .filter((p) => !selected.some((s) => s.id === p.id))
+                    .map((p) => (
+                      <button
+                        type="button"
+                        key={p.id}
+                        onClick={() => { setSelected((s) => [...s, p]); setInviteeSearch(""); setSearchResults([]); }}
+                        className="block w-full text-left px-3 py-1.5 text-sm hover:bg-muted"
+                      >
+                        {p.full_name}
+                      </button>
+                    ))}
+                </div>
+              )}
+              {selected.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {selected.map((p) => (
+                    <span key={p.id} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs">
+                      {p.full_name}
+                      <button type="button" onClick={() => setSelected((s) => s.filter((x) => x.id !== p.id))} className="text-muted-foreground hover:text-foreground">×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="mt-1 text-xs text-muted-foreground">Type at least 2 characters to search. Invitees receive email reminders.</p>
             </div>
           </div>
+
           {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
           <button type="submit" disabled={busy} className="mt-4 inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground hover:bg-brand/90 disabled:opacity-60">
             <Calendar className="h-4 w-4" /> {busy ? "Saving…" : "Propose meeting"}
