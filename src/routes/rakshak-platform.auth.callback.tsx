@@ -13,12 +13,12 @@ const callbackSearchSchema = z.object({
   error_description: z.string().optional(),
 });
 
-const roleToDbRole = {
-  team: "team_leader",
-  mentor: "mentor",
-  evaluator: "evaluator",
-  admin: "cfi_admin",
-} as const;
+function roleToDbRole(role: string) {
+  if (role === "mentor") return "mentor";
+  if (role === "evaluator") return "evaluator";
+  if (role === "admin") return "cfi_admin";
+  return "team_leader";
+}
 
 export const Route = createFileRoute("/rakshak-platform/auth/callback")({
   validateSearch: (s: Record<string, unknown>) => callbackSearchSchema.parse(s),
@@ -53,7 +53,7 @@ function AuthCallbackPage() {
             user.email?.split("@")[0] ??
             "Project Rakshak user";
           const email = user.email ?? "";
-          const dbRole = roleToDbRole[role];
+          const dbRole = roleToDbRole(role);
 
           const { error: profileError } = await supabase
             .from("rp_profiles")
