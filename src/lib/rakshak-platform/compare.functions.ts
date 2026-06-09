@@ -14,6 +14,12 @@ export const compareSubmissions = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    const { data: roles } = await supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const ok = (roles ?? []).some((r: any) =>
+      ["evaluator", "cfi_admin", "super_admin", "mentor"].includes(r.role));
+    if (!ok) throw new Error("Forbidden");
+
 
     const { data: teams, error: tErr } = await supabase
       .from("rp_teams")
