@@ -4,6 +4,7 @@ import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { Captcha } from "@/components/rakshak-platform/Captcha";
 import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
