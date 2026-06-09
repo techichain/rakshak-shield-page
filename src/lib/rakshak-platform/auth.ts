@@ -76,7 +76,7 @@ export function useRPAuth(): RPAuthState {
     }, 6000);
 
     supabase.auth.getUser().then(({ data }) => {
-      load(data.session?.user?.id ?? null, data.session?.user?.email ?? null);
+      load(data.user?.id ?? null, data.user?.email ?? null);
     }).catch((err) => {
       console.error("[rp-auth] get user failed", err);
       if (!cancelled) setState({ ...empty, loading: false });
