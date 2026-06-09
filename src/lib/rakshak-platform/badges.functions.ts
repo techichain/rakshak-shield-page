@@ -63,6 +63,11 @@ export const revokeBadge = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
+    const { data: roles } = await supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const isAdmin = (roles ?? []).some((r: any) =>
+      ["cfi_admin", "super_admin"].includes(r.role));
+    if (!isAdmin) throw new Error("Forbidden");
     const { error } = await supabase
       .from("rp_team_badges")
       .delete()
