@@ -57,16 +57,21 @@ function DashboardRedirect() {
         setError("Evaluator access requested. A CFI admin will review it shortly.");
       } else {
         const dbRole = picking === "mentor" ? "mentor" : "team_leader";
+        const { error: profileError } = await supabase
+          .from("rp_profiles")
+          .upsert({ id: userId, full_name: fullName ?? email ?? "Project Rakshak user", email: email ?? "" });
+        if (profileError) throw profileError;
+
         const { error: e } = await supabase
           .from("rp_user_roles")
-          .insert({ user_id: userId, role: dbRole });
+          .upsert({ user_id: userId, role: dbRole }, { onConflict: "user_id,role" });
         if (e) throw e;
         if (picking === "mentor") {
-          await supabase.from("rp_mentors").insert({ profile_id: userId });
+          const { error: mentorError } = await supabase
+            .from("rp_mentors")
+            .upsert({ profile_id: userId }, { onConflict: "profile_id" });
+          if (mentorError) throw mentorError;
         }
-        await supabase
-          .from("rp_profiles")
-          .upsert({ id: userId, full_name: fullName ?? email ?? "", email: email ?? "" });
         // Auth state listener in useRPAuth will refresh; force-navigate too.
         navigate({
           to: picking === "mentor" ? "/rakshak-platform/mentor" : "/rakshak-platform/team",
