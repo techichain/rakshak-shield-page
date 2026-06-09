@@ -355,30 +355,6 @@ function AuthPage() {
             </>
           )}
 
-          {step === "sent" && (
-            <div className="mt-8 space-y-4">
-              {info && <p className="text-sm text-muted-foreground">{info}</p>}
-              <p className="text-xs text-muted-foreground">
-                Click the link in that email to continue. If it opens this page again, use the latest email only.
-              </p>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={busy}
-                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-              >
-                {busy ? "Sending…" : "Resend sign-in link"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setStep("otp")}
-                className="w-full text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-              >
-                I received a 6-digit code instead
-              </button>
-            </div>
-          )}
 
           {step === "otp" && (
             <form onSubmit={handleVerifyOtp} className="mt-8 space-y-4">
