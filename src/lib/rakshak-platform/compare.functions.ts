@@ -107,6 +107,11 @@ export const compareSubmissions = createServerFn({ method: "POST" })
 export const listCohortsForCompare = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { data: roles } = await context.supabase
+      .from("rp_user_roles").select("role").eq("user_id", context.userId);
+    const ok = (roles ?? []).some((r: any) =>
+      ["evaluator", "cfi_admin", "super_admin", "mentor"].includes(r.role));
+    if (!ok) throw new Error("Forbidden");
     const { data, error } = await context.supabase
       .from("rp_cohorts")
       .select("id, name, year, region")
