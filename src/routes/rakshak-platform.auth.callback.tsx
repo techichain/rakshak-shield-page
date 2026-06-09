@@ -50,7 +50,8 @@ function AuthCallbackPage() {
             "Project Rakshak user";
           await onboardWorkspace({
             data: {
-              role: role === "admin" ? "evaluator" : role,
+              role,
+              accessToken: data.session.access_token,
               fullName,
               email: user.email ?? undefined,
             },

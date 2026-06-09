@@ -48,8 +48,12 @@ function DashboardRedirect() {
     setBusy(true);
     setError(null);
     try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) throw new Error("Your sign-in session expired. Please sign in again.");
       const result = await onboardWorkspace({
-        data: { role: picking, fullName, email },
+        data: { role: picking, accessToken, fullName, email },
       });
       if (result.status === "pending_approval") {
         setError("Evaluator access requested. A CFI admin will review it shortly.");
