@@ -148,6 +148,7 @@ export type Database = {
           email: string
           expertise_domain: string | null
           full_name: string
+          hp_field: string | null
           id: string
           internal_score: number | null
           linkedin_url: string | null
@@ -171,6 +172,7 @@ export type Database = {
           email: string
           expertise_domain?: string | null
           full_name: string
+          hp_field?: string | null
           id?: string
           internal_score?: number | null
           linkedin_url?: string | null
@@ -194,6 +196,7 @@ export type Database = {
           email?: string
           expertise_domain?: string | null
           full_name?: string
+          hp_field?: string | null
           id?: string
           internal_score?: number | null
           linkedin_url?: string | null
@@ -1864,6 +1867,7 @@ export type Database = {
           amount_inr: number
           created_at: string
           currency: string
+          hp_field: string | null
           id: string
           is_public: boolean
           message: string | null
@@ -1882,6 +1886,7 @@ export type Database = {
           amount_inr: number
           created_at?: string
           currency?: string
+          hp_field?: string | null
           id?: string
           is_public?: boolean
           message?: string | null
@@ -1900,6 +1905,7 @@ export type Database = {
           amount_inr?: number
           created_at?: string
           currency?: string
+          hp_field?: string | null
           id?: string
           is_public?: boolean
           message?: string | null
