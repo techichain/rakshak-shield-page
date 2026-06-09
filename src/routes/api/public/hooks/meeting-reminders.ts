@@ -64,7 +64,18 @@ function escapeHtml(s: string) {
 export const Route = createFileRoute("/api/public/hooks/meeting-reminders")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
+        // Require shared secret to prevent abuse (anyone could otherwise trigger
+        // email + DB writes). Configure pg_cron / scheduler to send this header.
+        const expected = process.env.ADMIN_DIGEST_WEBHOOK_SECRET;
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        if (!expected || provided.length !== expected.length || provided !== expected) {
+          return new Response(JSON.stringify({ error: "unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
         const startedAt = new Date();
         const t0 = Date.now();
         let status: "ok" | "error" | "unauthorized" = "ok";
