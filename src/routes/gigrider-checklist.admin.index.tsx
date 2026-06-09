@@ -382,7 +382,8 @@ function ObserversPanel() {
         <div>
           <label className="block text-xs font-medium text-slate-700 mb-1">Temporary password</label>
           <input
-            type="text"
+            type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
