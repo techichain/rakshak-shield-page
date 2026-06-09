@@ -75,13 +75,14 @@ export function useRPAuth(): RPAuthState {
       if (!cancelled) setState((current) => ({ ...current, loading: false }));
     }, 6000);
 
-    supabase.auth.getUser().then(({ data }) => {
-      load(data.user?.id ?? null, data.user?.email ?? null);
+    supabase.auth.getSession().then(({ data }) => {
+      load(data.session?.user?.id ?? null, data.session?.user?.email ?? null);
     }).catch((err) => {
-      console.error("[rp-auth] get user failed", err);
+      console.error("[rp-auth] get session failed", err);
       if (!cancelled) setState({ ...empty, loading: false });
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") return;
       load(session?.user?.id ?? null, session?.user?.email ?? null);
     });
     return () => {
