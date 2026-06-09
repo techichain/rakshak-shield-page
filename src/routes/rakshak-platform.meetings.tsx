@@ -85,7 +85,7 @@ function MeetingsPage() {
           meeting_link: String(fd.get("meeting_link") || ""),
           location: String(fd.get("location") || ""),
           status: "proposed",
-          invitee_ids: selected,
+          invitee_ids: selected.map((p) => p.id),
         },
       });
       (e.currentTarget as HTMLFormElement).reset();
