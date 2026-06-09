@@ -118,7 +118,7 @@ function AuthPage() {
     return true;
   }
 
-  // STEP 1 — send OTP to the entered email
+  // STEP 1 — send 6-digit OTP code to the entered email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -139,12 +139,12 @@ function AuthPage() {
           // Register flow creates the user on successful OTP verification.
           // Login flow requires the account to already exist.
           shouldCreateUser: mode === "register",
-          emailRedirectTo: authCallbackUrl(mode, role),
+          // No emailRedirectTo — Supabase sends a 6-digit code instead of a magic link.
         },
       });
       if (error) throw error;
-      setStep("sent");
-      setInfo(`We've emailed a secure sign-in link to ${email}.`);
+      setStep("otp");
+      setInfo(`We emailed a 6-digit code to ${email}. It expires in 10 minutes.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not send code.");
     } finally {
