@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
+import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 import { PlatformShell, Section } from "@/components/rakshak-platform/Shell";
 
 const callbackSearchSchema = z.object({
@@ -13,13 +15,6 @@ const callbackSearchSchema = z.object({
   error_description: z.string().optional(),
 });
 
-function roleToDbRole(role: string) {
-  if (role === "mentor") return "mentor";
-  if (role === "evaluator") return "evaluator";
-  if (role === "admin") return "cfi_admin";
-  return "team_leader";
-}
-
 export const Route = createFileRoute("/rakshak-platform/auth/callback")({
   validateSearch: (s: Record<string, unknown>) => callbackSearchSchema.parse(s),
   component: AuthCallbackPage,
@@ -27,6 +22,7 @@ export const Route = createFileRoute("/rakshak-platform/auth/callback")({
 
 function AuthCallbackPage() {
   const navigate = useNavigate();
+  const onboardWorkspace = useServerFn(onboardRPWorkspace);
   const { code, mode, role, provider, error_description } = Route.useSearch();
   const [error, setError] = useState<string | null>(error_description ?? null);
 
@@ -52,44 +48,13 @@ function AuthCallbackPage() {
             user.user_metadata?.name ??
             user.email?.split("@")[0] ??
             "Project Rakshak user";
-          const email = user.email ?? "";
-          const dbRole = roleToDbRole(role);
-
-          const { error: profileError } = await supabase
-            .from("rp_profiles")
-            .upsert({ id: user.id, full_name: fullName, email });
-          if (profileError) throw profileError;
-
-          if (role === "evaluator" || role === "admin") {
-            const { data: existingApproval, error: existingError } = await supabase
-              .from("rp_role_approvals")
-              .select("id")
-              .eq("user_id", user.id)
-              .eq("requested_role", dbRole)
-              .eq("status", "pending")
-              .maybeSingle();
-            if (existingError) throw existingError;
-            if (!existingApproval) {
-              const { error: approvalError } = await supabase.from("rp_role_approvals").insert({
-                user_id: user.id,
-                requested_role: dbRole,
-                status: "pending",
-                notes: `Self-requested ${dbRole} access with Google sign-up.`,
-              });
-              if (approvalError) throw approvalError;
-            }
-          } else {
-            const { error: roleError } = await supabase
-              .from("rp_user_roles")
-              .upsert({ user_id: user.id, role: dbRole }, { onConflict: "user_id,role" });
-            if (roleError) throw roleError;
-            if (role === "mentor") {
-              const { error: mentorError } = await supabase
-                .from("rp_mentors")
-                .upsert({ profile_id: user.id }, { onConflict: "profile_id" });
-              if (mentorError) throw mentorError;
-            }
-          }
+          await onboardWorkspace({
+            data: {
+              role: role === "admin" ? "evaluator" : role,
+              fullName,
+              email: user.email ?? undefined,
+            },
+          });
         }
 
         if (cancelled) return;
@@ -111,7 +76,7 @@ function AuthCallbackPage() {
     return () => {
       cancelled = true;
     };
-  }, [code, error_description, mode, navigate, provider, role]);
+  }, [code, error_description, mode, navigate, onboardWorkspace, provider, role]);
 
   return (
     <PlatformShell>
