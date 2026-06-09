@@ -62,7 +62,26 @@ function AuthPage() {
     resetFlow();
     navigate({ to: "/rakshak-platform/auth", search: { mode: m, role } });
   };
-  const setRole = (r: typeof role) =>
+  async function handleGoogleSignIn() {
+    setError(null);
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/rakshak-platform/dashboard",
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) {
+        // Browser will redirect — flow continues on Google
+        return;
+      }
+      // Tokens received and session set — user is authenticated
+      navigate({ to: "/rakshak-platform/dashboard" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Google sign-in failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
   function checkCaptcha(): boolean {
