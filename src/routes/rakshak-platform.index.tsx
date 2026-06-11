@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, MapPin, Users, FileText, Building2, BarChart3 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, ShieldCheck, MapPin, Users, FileText, Building2, BarChart3, LayoutDashboard } from "lucide-react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/rakshak-platform/")({
   component: LandingPage,
