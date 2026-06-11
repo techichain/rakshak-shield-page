@@ -26,7 +26,8 @@ export const bulkRequestFiles = createServerFn({ method: 'POST' })
     if (d.kind !== 'resume' && d.kind !== 'assignment') throw new Error('invalid kind')
     return d
   })
-  .handler(async ({ data, context, request }) => {
+  .handler(async ({ data, context }) => {
+    const request = getRequest()
     await assertAdmin(context)
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
 
