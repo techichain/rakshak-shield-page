@@ -11,23 +11,37 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const lastWidth = useRef(0);
   const [navOverflow, setNavOverflow] = useState(false);
 
   useEffect(() => {
+    let raf = 0;
     const check = () => {
-      const el = navRef.current;
-      if (!el) return;
-      setNavOverflow(el.scrollWidth > el.clientWidth + 1);
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const el = navRef.current;
+        if (!el) return;
+        // Skip when nav is display:none — its scrollWidth is 0 and would flap state back.
+        if (getComputedStyle(el).display === "none") return;
+        if (el.scrollWidth > el.clientWidth + 1) setNavOverflow(true);
+      });
     };
+    const onResize = () => {
+      const w = window.innerWidth;
+      // Only retest "fits" when the window grew, so we don't oscillate.
+      if (w > lastWidth.current) setNavOverflow(false);
+      lastWidth.current = w;
+      check();
+    };
+    lastWidth.current = window.innerWidth;
     check();
-    window.addEventListener("resize", check);
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(check) : null;
-    if (ro && navRef.current) ro.observe(navRef.current);
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("resize", check);
-      if (ro && navRef.current) ro.unobserve(navRef.current);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
     };
   }, [isAdmin, isAuthority, isEvaluator, isFinance, isMentor, isTeam]);
+
 
   return (
     <div className="rp-platform min-h-dvh">
