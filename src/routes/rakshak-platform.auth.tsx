@@ -361,6 +361,22 @@ function AuthPage() {
                   className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
                 />
               </Field>
+              {mode === "register" && (
+                <>
+                  <Field label="Full name">
+                    <input
+                      required value={fullName} onChange={(e) => setFullName(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                    />
+                  </Field>
+                  <Field label="Password">
+                    <input
+                      required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                    />
+                  </Field>
+                </>
+              )}
               {mode === "login" && !loginWithCode && (
                 <Field label="Password">
                   <input
