@@ -462,30 +462,7 @@ function AuthPage() {
             </form>
           )}
 
-          {step === "details" && (
-            <form onSubmit={handleCompleteRegistration} className="mt-8 space-y-4">
-              {info && <p className="text-sm text-green-600">{info}</p>}
-              <Field label="Full name">
-                <input
-                  required value={fullName} onChange={(e) => setFullName(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                />
-              </Field>
-              <Field label="Password">
-                <input
-                  required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                />
-              </Field>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <button
-                type="submit" disabled={busy}
-                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-              >
-                {busy ? "Creating account…" : "Finish creating account"}
-              </button>
-            </form>
-          )}
+          {step === "details" && null}
         </div>
       </Section>
     </PlatformShell>
