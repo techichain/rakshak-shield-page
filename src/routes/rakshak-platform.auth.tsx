@@ -67,6 +67,20 @@ function AuthPage() {
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const expectedCaptcha = useRef<number>(0);
 
+  // If already signed in, bounce straight to the dashboard.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled) return;
+      if (data.user && !(verified === "1" && mode === "register")) {
+        navigate({ to: "/rakshak-platform/dashboard", replace: true });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, verified, navigate]);
+
   useEffect(() => {
     if (verified !== "1" || mode !== "register") return;
     supabase.auth.getUser().then(({ data }) => {

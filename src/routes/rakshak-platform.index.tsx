@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, MapPin, Users, FileText, Building2, BarChart3 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, ShieldCheck, MapPin, Users, FileText, Building2, BarChart3, LayoutDashboard } from "lucide-react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/rakshak-platform/")({
   component: LandingPage,
@@ -15,6 +17,14 @@ export const Route = createFileRoute("/rakshak-platform/")({
 });
 
 function LandingPage() {
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session?.user);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
   return (
     <PlatformShell>
       {/* HERO */}
@@ -32,19 +42,30 @@ function LandingPage() {
             from problem identification to authority pitch — at scale.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/rakshak-platform/auth"
-              className="h-12 rounded-full bg-brand px-7 text-base text-brand-foreground shadow-lg shadow-brand/30 hover:bg-brand/90 inline-flex items-center gap-2"
-            >
-              Sign in <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/rakshak-platform/auth"
-              search={{ mode: "register" } as never}
-              className="h-12 rounded-full border border-border px-7 text-base inline-flex items-center"
-            >
-              Register a team
-            </Link>
+            {signedIn ? (
+              <Link
+                to="/rakshak-platform/dashboard"
+                className="h-12 rounded-full bg-brand px-7 text-base text-brand-foreground shadow-lg shadow-brand/30 hover:bg-brand/90 inline-flex items-center gap-2"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Go to dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/rakshak-platform/auth"
+                  className="h-12 rounded-full bg-brand px-7 text-base text-brand-foreground shadow-lg shadow-brand/30 hover:bg-brand/90 inline-flex items-center gap-2"
+                >
+                  Sign in <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/rakshak-platform/auth"
+                  search={{ mode: "register" } as never}
+                  className="h-12 rounded-full border border-border px-7 text-base inline-flex items-center"
+                >
+                  Register a team
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -126,12 +147,20 @@ function LandingPage() {
           <span className="text-brand-lite">Let's document it together.</span>
         </h2>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link to="/rakshak-platform/auth" className="h-12 rounded-full bg-brand-foreground text-brand px-7 text-base inline-flex items-center gap-2 hover:bg-brand-foreground/90">
-            Sign in <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link to="/rakshak-platform/auth" search={{ mode: "register" } as never} className="h-12 rounded-full border border-brand-foreground/30 px-7 text-base inline-flex items-center">
-            Register
-          </Link>
+          {signedIn ? (
+            <Link to="/rakshak-platform/dashboard" className="h-12 rounded-full bg-brand-foreground text-brand px-7 text-base inline-flex items-center gap-2 hover:bg-brand-foreground/90">
+              <LayoutDashboard className="h-4 w-4" /> Go to dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/rakshak-platform/auth" className="h-12 rounded-full bg-brand-foreground text-brand px-7 text-base inline-flex items-center gap-2 hover:bg-brand-foreground/90">
+                Sign in <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/rakshak-platform/auth" search={{ mode: "register" } as never} className="h-12 rounded-full border border-brand-foreground/30 px-7 text-base inline-flex items-center">
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </Section>
     </PlatformShell>
