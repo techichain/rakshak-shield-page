@@ -147,12 +147,20 @@ function LandingPage() {
           <span className="text-brand-lite">Let's document it together.</span>
         </h2>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link to="/rakshak-platform/auth" className="h-12 rounded-full bg-brand-foreground text-brand px-7 text-base inline-flex items-center gap-2 hover:bg-brand-foreground/90">
-            Sign in <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link to="/rakshak-platform/auth" search={{ mode: "register" } as never} className="h-12 rounded-full border border-brand-foreground/30 px-7 text-base inline-flex items-center">
-            Register
-          </Link>
+          {signedIn ? (
+            <Link to="/rakshak-platform/dashboard" className="h-12 rounded-full bg-brand-foreground text-brand px-7 text-base inline-flex items-center gap-2 hover:bg-brand-foreground/90">
+              <LayoutDashboard className="h-4 w-4" /> Go to dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/rakshak-platform/auth" className="h-12 rounded-full bg-brand-foreground text-brand px-7 text-base inline-flex items-center gap-2 hover:bg-brand-foreground/90">
+                Sign in <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/rakshak-platform/auth" search={{ mode: "register" } as never} className="h-12 rounded-full border border-brand-foreground/30 px-7 text-base inline-flex items-center">
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </Section>
     </PlatformShell>
