@@ -9,6 +9,10 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { Captcha } from "@/components/rakshak-platform/Captcha";
 import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
 import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
+import {
+  sendRegistrationOtp,
+  verifyOtpAndCreateAccount,
+} from "@/lib/rakshak-platform/otp.functions";
 
 const ROLE_OPTIONS = [
   { value: "team", label: "Team lead", dbRole: "team_leader" as const },
@@ -43,6 +47,8 @@ function AuthPage() {
   const navigate = useNavigate();
   const verifyEmail = useServerFn(verifyEmailDeliverable);
   const onboardWorkspace = useServerFn(onboardRPWorkspace);
+  const sendOtp = useServerFn(sendRegistrationOtp);
+  const verifyAndCreate = useServerFn(verifyOtpAndCreateAccount);
 
   // Flow state
   const [step, setStep] = useState<Step>("email");
@@ -138,13 +144,24 @@ function AuthPage() {
     }
   }
 
-  // STEP 1 (register) — send 6-digit OTP code to the entered email
+  // REGISTER step 1 — validate email, then send custom 6-digit OTP via Lovable email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfo(null);
     setCaptchaError(null);
     if (!checkCaptcha()) return;
+
+    if (mode === "register") {
+      if (!fullName.trim()) {
+        setError("Please enter your full name.");
+        return;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
+    }
 
     setBusy(true);
     try {
@@ -153,15 +170,20 @@ function AuthPage() {
         setError(check.reason);
         return;
       }
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: true,
-          // Fallback magic-link target if the Supabase template uses {{ .ConfirmationURL }}
-          emailRedirectTo: authCallbackUrl("register", role),
-        },
-      });
-      if (error) throw error;
+
+      if (mode === "register") {
+        await sendOtp({ data: { email: email.toLowerCase(), role } });
+      } else {
+        // Login via OTP fallback still uses Supabase magic-link OTP.
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: authCallbackUrl("login", role),
+          },
+        });
+        if (error) throw error;
+      }
       setStep("otp");
       setInfo(`We emailed a 6-digit code to ${email}. It expires in 10 minutes.`);
     } catch (e) {
@@ -171,7 +193,7 @@ function AuthPage() {
     }
   }
 
-  // STEP 2 — verify the code. On success: login → dashboard; register → details step.
+  // STEP 2 — verify the code. Register: create account + sign in + dashboard. Login: Supabase OTP verify.
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -182,57 +204,38 @@ function AuthPage() {
         setError("Enter the 6-digit code from your email.");
         return;
       }
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-      if (error) throw error;
 
-      if (mode === "login") {
+      if (mode === "register") {
+        const result = await verifyAndCreate({
+          data: {
+            email: email.toLowerCase(),
+            code: token,
+            fullName,
+            password,
+            role,
+          },
+        });
+        if (result.status === "pending_approval") {
+          setError(
+            `Account created. Your ${role === "admin" ? "CFI Admin" : "Evaluator"} access request is pending super-admin approval.`,
+          );
+          setMode("login");
+          return;
+        }
+        // Sign in with the password we just set, then go to dashboard.
+        const { error: signErr } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signErr) throw signErr;
         navigate({ to: "/rakshak-platform/dashboard" });
       } else {
-        // User is now created & signed in via OTP — finish onboarding.
-        setStep("details");
-        setInfo("Email verified. Set a password and finish creating your account.");
+        const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+        if (error) throw error;
+        navigate({ to: "/rakshak-platform/dashboard" });
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid or expired code.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  // STEP 3 (register only) — set password, profile, role.
-  async function handleCompleteRegistration(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setBusy(true);
-    try {
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters.");
-        return;
-      }
-      const { data: userRes, error: updErr } = await supabase.auth.updateUser({
-        password,
-        data: { name: fullName, rp_role: role },
-      });
-      if (updErr) throw updErr;
-      const userId = userRes.user?.id;
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      const accessToken = sessionData.session?.access_token;
-      if (!userId || !accessToken) throw new Error("Your sign-in session expired. Please sign in again.");
-
-      await onboardWorkspace({ data: { role, accessToken, fullName, email } });
-
-      if (role === "evaluator" || role === "admin") {
-        await supabase.auth.signOut();
-        setError(
-          `Account created. Your ${role === "admin" ? "CFI Admin" : "Evaluator"} access request is pending super-admin approval.`,
-        );
-        setMode("login");
-      } else {
-        navigate({ to: "/rakshak-platform/dashboard" });
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not finish registration.");
     } finally {
       setBusy(false);
     }
@@ -243,14 +246,18 @@ function AuthPage() {
     setInfo(null);
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: mode === "register",
-          emailRedirectTo: authCallbackUrl(mode, role),
-        },
-      });
-      if (error) throw error;
+      if (mode === "register") {
+        await sendOtp({ data: { email: email.toLowerCase(), role } });
+      } else {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: authCallbackUrl(mode, role),
+          },
+        });
+        if (error) throw error;
+      }
       setInfo(`New 6-digit code sent to ${email}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not resend code.");
@@ -354,6 +361,22 @@ function AuthPage() {
                   className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
                 />
               </Field>
+              {mode === "register" && (
+                <>
+                  <Field label="Full name">
+                    <input
+                      required value={fullName} onChange={(e) => setFullName(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                    />
+                  </Field>
+                  <Field label="Password">
+                    <input
+                      required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                    />
+                  </Field>
+                </>
+              )}
               {mode === "login" && !loginWithCode && (
                 <Field label="Password">
                   <input
@@ -417,7 +440,7 @@ function AuthPage() {
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Verifying…" : mode === "login" ? "Verify and sign in" : "Verify email"}
+                {busy ? "Verifying…" : mode === "login" ? "Verify and sign in" : "Verify and create account"}
               </button>
               <div className="flex items-center justify-between text-xs">
                 <button
@@ -439,30 +462,7 @@ function AuthPage() {
             </form>
           )}
 
-          {step === "details" && (
-            <form onSubmit={handleCompleteRegistration} className="mt-8 space-y-4">
-              {info && <p className="text-sm text-green-600">{info}</p>}
-              <Field label="Full name">
-                <input
-                  required value={fullName} onChange={(e) => setFullName(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                />
-              </Field>
-              <Field label="Password">
-                <input
-                  required type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-                />
-              </Field>
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              <button
-                type="submit" disabled={busy}
-                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-              >
-                {busy ? "Creating account…" : "Finish creating account"}
-              </button>
-            </form>
-          )}
+          {step === "details" && null}
         </div>
       </Section>
     </PlatformShell>
