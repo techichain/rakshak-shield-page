@@ -42,7 +42,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav className="hidden xl:flex items-center gap-5 text-sm min-w-0 overflow-x-auto">
+          <nav ref={navRef} className={`hidden items-center gap-5 text-sm min-w-0 overflow-x-auto ${navOverflow ? '' : 'xl:flex'}`}>
             <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
               Hotspots
             </Link>
