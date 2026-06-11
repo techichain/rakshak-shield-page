@@ -35,6 +35,37 @@ function generateCode(): string {
   return (buf[0] % 1_000_000).toString().padStart(6, "0");
 }
 
+function generateToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function getOrCreateUnsubscribeToken(
+  supabaseAdmin: any,
+  email: string,
+): Promise<string> {
+  const normalized = email.toLowerCase();
+  const { data: existing } = await supabaseAdmin
+    .from("email_unsubscribe_tokens")
+    .select("token, used_at")
+    .eq("email", normalized)
+    .maybeSingle();
+  if (existing && !existing.used_at) return existing.token as string;
+  const token = generateToken();
+  await supabaseAdmin
+    .from("email_unsubscribe_tokens")
+    .upsert({ token, email: normalized }, { onConflict: "email", ignoreDuplicates: true });
+  const { data: stored } = await supabaseAdmin
+    .from("email_unsubscribe_tokens")
+    .select("token")
+    .eq("email", normalized)
+    .maybeSingle();
+  return (stored?.token as string) || token;
+}
+
 export const sendRegistrationOtp = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => sendInput.parse(d))
   .handler(async ({ data }) => {
@@ -96,6 +127,8 @@ export const sendRegistrationOtp = createServerFn({ method: "POST" })
       status: "pending",
     });
 
+    const unsubscribeToken = await getOrCreateUnsubscribeToken(supabaseAdmin, email);
+
     const { error: enqueueErr } = await supabaseAdmin.rpc("enqueue_email", {
       queue_name: "transactional_emails",
       payload: {
@@ -109,6 +142,7 @@ export const sendRegistrationOtp = createServerFn({ method: "POST" })
         purpose: "transactional",
         label: "registration-otp",
         idempotency_key: messageId,
+        unsubscribe_token: unsubscribeToken,
         queued_at: new Date().toISOString(),
       },
     });
