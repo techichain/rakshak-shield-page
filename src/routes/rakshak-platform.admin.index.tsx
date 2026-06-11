@@ -391,6 +391,25 @@ function AdminDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/rakshak-platform/admin/access-requests"
+              className="relative h-10 w-10 rounded-full border border-border bg-card grid place-items-center hover:bg-brand-lite"
+              title="Access requests & notifications"
+            >
+              <BellRing className="h-4 w-4 text-brand" />
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center">
+                  {pendingCount > 99 ? "99+" : pendingCount}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => setInviteOpen(true)}
+              className="h-10 rounded-full bg-brand px-4 text-sm text-brand-foreground hover:bg-brand/90 inline-flex items-center gap-2 font-semibold"
+              title="Invite mentor or evaluator by email"
+            >
+              <Plus className="h-4 w-4" /> Invite by email
+            </button>
             <button
               onClick={seed} disabled={seeding}
               className="h-10 rounded-full border border-border bg-card px-4 text-sm hover:bg-brand-lite inline-flex items-center gap-2 disabled:opacity-50"
@@ -400,6 +419,14 @@ function AdminDashboard() {
             </button>
           </div>
         </div>
+
+        {inviteOpen && (
+          <InviteModal
+            onClose={() => setInviteOpen(false)}
+            invitedBy={userId}
+            onDone={() => { setInviteOpen(false); loadPendingCount(); }}
+          />
+        )}
 
         {/* Sidebar + content layout */}
         <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
