@@ -1,7 +1,7 @@
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { useServerFn } from '@tanstack/react-start'
-import { CheckCircle2, Loader2, Upload, AlertTriangle } from 'lucide-react'
+import { CheckCircle2, Loader2, Upload, AlertTriangle, Download, FileText, ExternalLink } from 'lucide-react'
 import {
   getFileRequest,
   createUploadUrl,
@@ -31,6 +31,8 @@ type Info =
       email_masked: string
     }
 
+const ASSIGNMENT_PDF_URL = '/api/docs/mentor-assignment.pdf'
+
 function UploadPage() {
   const { token } = useParams({ from: '/rakshak-mentor/upload/$token' })
   const getFn = useServerFn(getFileRequest)
@@ -43,6 +45,7 @@ function UploadPage() {
   const [err, setErr] = useState<string | null>(null)
   const [done, setDone] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [pickedName, setPickedName] = useState<string>('')
 
   useEffect(() => {
     let mounted = true
@@ -90,57 +93,124 @@ function UploadPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 px-4 py-12">
-      <div className="mx-auto max-w-lg rounded-2xl bg-white border border-slate-200 p-8 shadow-sm">
-        <div className="text-xs uppercase tracking-wider text-slate-500">
-          Crashfree India · Rakshak Mentor
+  // Loading / error / terminal states ---------------------------------------
+  if (loadErr) {
+    return <CenterCard><Notice tone="error" title="Link error">{loadErr}</Notice></CenterCard>
+  }
+  if (!info) {
+    return (
+      <CenterCard>
+        <div className="flex items-center gap-2 text-slate-500 text-sm">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
+      </CenterCard>
+    )
+  }
+  if (!info.found) {
+    return <CenterCard><Notice tone="error" title="Invalid link">This upload link is not valid. Please check your email or contact us.</Notice></CenterCard>
+  }
+  if (info.fulfilled_at || info.status === 'fulfilled' || done) {
+    return <CenterCard><Notice tone="ok" title="Already received">We've received your {info.kind === 'assignment' ? 'assignment' : 'resume'}. Thank you!</Notice></CenterCard>
+  }
+  if (info.expired || info.status === 'expired') {
+    return <CenterCard><Notice tone="error" title="Link expired">This upload link has expired. Please reply to the email so we can send a new one.</Notice></CenterCard>
+  }
+  if (info.status === 'cancelled') {
+    return <CenterCard><Notice tone="error" title="Request cancelled">This request was cancelled by the admin team.</Notice></CenterCard>
+  }
 
-        {loadErr ? (
-          <Notice tone="error" title="Link error">{loadErr}</Notice>
-        ) : !info ? (
-          <div className="mt-6 flex items-center gap-2 text-slate-500 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-          </div>
-        ) : !info.found ? (
-          <Notice tone="error" title="Invalid link">
-            This upload link is not valid. Please check your email or contact us.
-          </Notice>
-        ) : info.fulfilled_at || info.status === 'fulfilled' || done ? (
-          <Notice tone="ok" title="Already received">
-            We’ve received your {info.found && info.kind === 'assignment' ? 'assignment' : 'resume'}. Thank you!
-          </Notice>
-        ) : info.expired || info.status === 'expired' ? (
-          <Notice tone="error" title="Link expired">
-            This upload link has expired. Please reply to the email so we can send a new one.
-          </Notice>
-        ) : info.status === 'cancelled' ? (
-          <Notice tone="error" title="Request cancelled">
-            This request was cancelled by the admin team.
-          </Notice>
-        ) : (
-          <>
-            <h1 className="mt-2 text-2xl font-bold text-slate-900">
-              {info.kind === 'assignment' ? 'Submit your assignment' : 'Upload your resume'}
+  // Assignment: full-screen split layout with PDF viewer --------------------
+  if (info.kind === 'assignment') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <header className="border-b border-slate-200 bg-white px-4 md:px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-slate-500">
+              Crashfree India · Rakshak Mentor
+            </div>
+            <h1 className="text-lg md:text-xl font-bold text-slate-900 mt-0.5">
+              Mentor Assignment — {info.full_name.split(' ')[0]}
             </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href={ASSIGNMENT_PDF_URL}
+              download
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-slate-300 bg-white text-slate-800 text-sm font-semibold hover:bg-slate-100"
+            >
+              <Download className="h-4 w-4" /> Download PDF
+            </a>
+            <a
+              href={ASSIGNMENT_PDF_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-slate-300 bg-white text-slate-800 text-sm font-semibold hover:bg-slate-100"
+            >
+              <ExternalLink className="h-4 w-4" /> Open in new tab
+            </a>
+          </div>
+        </header>
+
+        <div className="flex-1 grid lg:grid-cols-[1fr_420px] gap-0">
+          {/* PDF Viewer */}
+          <div className="bg-slate-900 min-h-[60vh] lg:min-h-[calc(100vh-73px)]">
+            <object
+              data={ASSIGNMENT_PDF_URL}
+              type="application/pdf"
+              className="w-full h-[70vh] lg:h-[calc(100vh-73px)]"
+            >
+              <div className="p-8 text-center text-white">
+                <FileText className="h-10 w-10 mx-auto mb-3 opacity-70" />
+                <p className="text-sm">
+                  Your browser can't display the PDF inline.{' '}
+                  <a href={ASSIGNMENT_PDF_URL} className="underline" target="_blank" rel="noreferrer">
+                    Open it in a new tab
+                  </a>{' '}
+                  or download it above.
+                </p>
+              </div>
+            </object>
+          </div>
+
+          {/* Submit panel */}
+          <aside className="border-l border-slate-200 bg-white p-6 lg:p-8 overflow-y-auto">
+            <h2 className="text-xl font-bold text-slate-900">Submit your assignment</h2>
             <p className="mt-2 text-sm text-slate-600">
-              Hi {info.full_name.split(' ')[0]}, please attach your {info.kind === 'assignment' ? 'completed mentor assignment' : 'latest resume / CV'} below.
+              Read the assignment on the left, then upload your completed submission below.
               We received this request for <strong>{info.email_masked}</strong>.
             </p>
 
+            <ol className="mt-5 space-y-2 text-sm text-slate-700">
+              <li className="flex gap-2"><span className="font-semibold text-[#4A35FF]">1.</span> Read or download the assignment PDF.</li>
+              <li className="flex gap-2"><span className="font-semibold text-[#4A35FF]">2.</span> Complete it on your computer (PDF, DOC, or DOCX).</li>
+              <li className="flex gap-2"><span className="font-semibold text-[#4A35FF]">3.</span> Upload your final file here. Max 20 MB.</li>
+            </ol>
+
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <label className="block">
-                <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
-                  File (PDF / DOC / DOCX, max 20 MB)
+                <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                  Your completed assignment
                 </span>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  required
-                  className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#4A35FF] file:px-4 file:py-2 file:text-white hover:file:bg-[#3A28D9]"
-                />
+                <div className="rounded-xl border-2 border-dashed border-slate-300 hover:border-[#4A35FF] transition px-4 py-6 text-center bg-slate-50">
+                  <Upload className="h-6 w-6 mx-auto text-slate-400" />
+                  <p className="mt-2 text-sm text-slate-600">
+                    {pickedName ? (
+                      <span className="font-medium text-slate-900">{pickedName}</span>
+                    ) : (
+                      <>Click to choose a file<br />
+                        <span className="text-xs text-slate-500">PDF, DOC, or DOCX · up to 20 MB</span>
+                      </>
+                    )}
+                  </p>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    required
+                    onChange={(e) => setPickedName(e.target.files?.[0]?.name ?? '')}
+                    className="block w-full mt-3 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#4A35FF] file:px-4 file:py-2 file:text-white hover:file:bg-[#3A28D9]"
+                  />
+                </div>
               </label>
 
               {err && (
@@ -151,14 +221,70 @@ function UploadPage() {
 
               <button
                 disabled={busy}
-                className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#4A35FF] text-white text-sm font-semibold hover:bg-[#3A28D9] disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 w-full h-12 rounded-full bg-[#4A35FF] text-white text-sm font-semibold hover:bg-[#3A28D9] disabled:opacity-50"
               >
                 {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                {busy ? 'Uploading…' : 'Upload'}
+                {busy ? 'Uploading…' : 'Submit assignment'}
               </button>
+              <p className="text-xs text-slate-500 text-center">
+                You'll get an email confirmation once we receive it.
+              </p>
             </form>
-          </>
+          </aside>
+        </div>
+      </div>
+    )
+  }
+
+  // Resume: original compact card ------------------------------------------
+  return (
+    <CenterCard>
+      <h1 className="mt-2 text-2xl font-bold text-slate-900">Upload your resume</h1>
+      <p className="mt-2 text-sm text-slate-600">
+        Hi {info.full_name.split(' ')[0]}, please attach your latest resume / CV below.
+        We received this request for <strong>{info.email_masked}</strong>.
+      </p>
+
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+        <label className="block">
+          <span className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+            File (PDF / DOC / DOCX, max 20 MB)
+          </span>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            required
+            className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#4A35FF] file:px-4 file:py-2 file:text-white hover:file:bg-[#3A28D9]"
+          />
+        </label>
+
+        {err && (
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {err}
+          </div>
         )}
+
+        <button
+          disabled={busy}
+          className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-[#4A35FF] text-white text-sm font-semibold hover:bg-[#3A28D9] disabled:opacity-50"
+        >
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+          {busy ? 'Uploading…' : 'Upload'}
+        </button>
+      </form>
+    </CenterCard>
+  )
+}
+
+function CenterCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-slate-50 px-4 py-12">
+      <div className="mx-auto max-w-lg rounded-2xl bg-white border border-slate-200 p-8 shadow-sm">
+        <div className="text-xs uppercase tracking-wider text-slate-500">
+          Crashfree India · Rakshak Mentor
+        </div>
+        {children}
       </div>
     </div>
   )
