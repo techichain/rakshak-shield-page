@@ -86,6 +86,7 @@ import { Route as RakshakPlatformAdminBadgesRouteImport } from './routes/rakshak
 import { Route as RakshakPlatformAdminAuditRouteImport } from './routes/rakshak-platform.admin.audit'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
 import { Route as RakshakPlatformAdminAlertsRouteImport } from './routes/rakshak-platform.admin.alerts'
+import { Route as RakshakPlatformAdminAccessRequestsRouteImport } from './routes/rakshak-platform.admin.access-requests'
 import { Route as RakshakMentorUploadTokenRouteImport } from './routes/rakshak-mentor.upload.$token'
 import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-mentor.apply.success'
 import { Route as RakshakMentorAdminLoginRouteImport } from './routes/rakshak-mentor.admin.login'
@@ -543,6 +544,12 @@ const RakshakPlatformAdminAlertsRoute =
     path: '/alerts',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminAccessRequestsRoute =
+  RakshakPlatformAdminAccessRequestsRouteImport.update({
+    id: '/access-requests',
+    path: '/access-requests',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakMentorUploadTokenRoute =
   RakshakMentorUploadTokenRouteImport.update({
     id: '/upload/$token',
@@ -714,6 +721,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
+  '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
@@ -806,6 +814,7 @@ export interface FileRoutesByTo {
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
+  '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
@@ -906,6 +915,7 @@ export interface FileRoutesById {
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
+  '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
@@ -1009,6 +1019,7 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/login'
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
+    | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/audit'
@@ -1101,6 +1112,7 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/login'
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
+    | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/audit'
@@ -1200,6 +1212,7 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/login'
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
+    | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/audit'
@@ -1818,6 +1831,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminAlertsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/access-requests': {
+      id: '/rakshak-platform/admin/access-requests'
+      path: '/access-requests'
+      fullPath: '/rakshak-platform/admin/access-requests'
+      preLoaderRoute: typeof RakshakPlatformAdminAccessRequestsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-mentor/upload/$token': {
       id: '/rakshak-mentor/upload/$token'
       path: '/upload/$token'
@@ -2073,6 +2093,7 @@ const RakshakMentorRouteWithChildren = RakshakMentorRoute._addFileChildren(
 )
 
 interface RakshakPlatformAdminRouteChildren {
+  RakshakPlatformAdminAccessRequestsRoute: typeof RakshakPlatformAdminAccessRequestsRoute
   RakshakPlatformAdminAlertsRoute: typeof RakshakPlatformAdminAlertsRoute
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminAuditRoute: typeof RakshakPlatformAdminAuditRoute
@@ -2101,6 +2122,8 @@ interface RakshakPlatformAdminRouteChildren {
 }
 
 const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
+  RakshakPlatformAdminAccessRequestsRoute:
+    RakshakPlatformAdminAccessRequestsRoute,
   RakshakPlatformAdminAlertsRoute: RakshakPlatformAdminAlertsRoute,
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminAuditRoute: RakshakPlatformAdminAuditRoute,
