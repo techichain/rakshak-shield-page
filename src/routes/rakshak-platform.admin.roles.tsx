@@ -195,6 +195,70 @@ function RoleManagementPage() {
 
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
+        <div className="mt-8">
+          <h2 className="font-heading text-lg font-semibold">
+            Pending role requests
+            {pending.length > 0 && (
+              <span className="ml-2 inline-flex items-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 text-xs">
+                {pending.length}
+              </span>
+            )}
+          </h2>
+          <div className="mt-3 overflow-hidden rounded-2xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="p-3">User</th>
+                  <th className="p-3">Requested role</th>
+                  <th className="p-3">Requested at</th>
+                  <th className="p-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pending.length === 0 && (
+                  <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">No pending requests.</td></tr>
+                )}
+                {pending.map((p) => (
+                  <tr key={p.id} className="border-t border-border align-top">
+                    <td className="p-3">
+                      <div className="font-medium">{p.full_name ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground">{p.email ?? p.user_id}</div>
+                      {p.notes && <div className="mt-1 text-xs text-muted-foreground italic">{p.notes}</div>}
+                    </td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs">
+                        {p.requested_role}
+                      </span>
+                    </td>
+                    <td className="p-3 text-xs text-muted-foreground">
+                      {new Date(p.requested_at).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="inline-flex gap-2">
+                        <button
+                          onClick={() => approvePending(p)}
+                          disabled={busy === "approve" + p.id}
+                          className="rounded-full bg-brand px-3 py-1 text-xs text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                        >
+                          {busy === "approve" + p.id ? "Approving…" : "Approve"}
+                        </button>
+                        <button
+                          onClick={() => rejectPending(p)}
+                          disabled={busy === "reject" + p.id}
+                          className="rounded-full border border-border px-3 py-1 text-xs hover:bg-muted disabled:opacity-50"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
         <div className="mt-6 overflow-hidden rounded-2xl border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
