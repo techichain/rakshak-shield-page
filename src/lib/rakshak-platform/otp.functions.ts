@@ -127,6 +127,8 @@ export const sendRegistrationOtp = createServerFn({ method: "POST" })
       status: "pending",
     });
 
+    const unsubscribeToken = await getOrCreateUnsubscribeToken(supabaseAdmin, email);
+
     const { error: enqueueErr } = await supabaseAdmin.rpc("enqueue_email", {
       queue_name: "transactional_emails",
       payload: {
@@ -140,6 +142,7 @@ export const sendRegistrationOtp = createServerFn({ method: "POST" })
         purpose: "transactional",
         label: "registration-otp",
         idempotency_key: messageId,
+        unsubscribe_token: unsubscribeToken,
         queued_at: new Date().toISOString(),
       },
     });
