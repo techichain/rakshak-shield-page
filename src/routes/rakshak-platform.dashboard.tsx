@@ -89,7 +89,8 @@ function DashboardRedirect() {
     }
   }
 
-  const noRoleYet = !loading && !!userId && roles.length === 0;
+  const noRoleYet = !loading && pendingChecked && !!userId && roles.length === 0 && !pendingRole;
+  const awaitingApproval = !loading && pendingChecked && !!userId && roles.length === 0 && !!pendingRole;
 
   return (
     <PlatformShell>
