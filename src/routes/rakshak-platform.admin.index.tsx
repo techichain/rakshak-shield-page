@@ -270,7 +270,7 @@ function AdminDashboard() {
   async function updatePhaseStatus(teamId: string, phase: number, status: string) {
     const { error } = await supabase
       .from("rp_team_phase_progress")
-      .update({ status })
+      .update({ status: status as any })
       .eq("team_id", teamId)
       .eq("phase_number", phase);
     if (error) return toast.error(error.message);
@@ -319,7 +319,9 @@ function AdminDashboard() {
           evaluated_phases: Math.min(4, Math.floor(i / 5)),
         };
       });
-      const { data: inserted, error } = await supabase.from("rp_teams").insert(rows).select();
+      if (!cohortId) throw new Error("No cohort available");
+      const rowsWithCohort = rows.map((r) => ({ ...r, cohort_id: cohortId as string }));
+      const { data: inserted, error } = await supabase.from("rp_teams").insert(rowsWithCohort).select();
       if (error) throw error;
       // Phase progress
       const tppRows: any[] = [];
@@ -665,9 +667,9 @@ function TrackerPanel({
   rows, mentors, onPhaseUpdate, onMentor, onDelete,
 }: {
   rows: Enriched[]; mentors: MentorRow[];
-  onPhaseUpdate: (teamId: string, phase: number, status: string) => Promise<void>;
-  onMentor: (teamId: string, mentorId: string | null) => Promise<void>;
-  onDelete: (teamId: string, name: string) => Promise<void>;
+  onPhaseUpdate: (teamId: string, phase: number, status: string) => Promise<unknown>;
+  onMentor: (teamId: string, mentorId: string | null) => Promise<unknown>;
+  onDelete: (teamId: string, name: string) => Promise<unknown>;
 }) {
   const [q, setQ] = useState("");
   const [mentorFilter, setMentorFilter] = useState<string>("all");
@@ -899,7 +901,7 @@ function ProgressBar({ value }: { value: number }) {
 
 function MentorBoardPanel({
   rows, mentors, onReassign,
-}: { rows: Enriched[]; mentors: MentorRow[]; onReassign: (teamId: string, mentorId: string | null) => Promise<void> }) {
+}: { rows: Enriched[]; mentors: MentorRow[]; onReassign: (teamId: string, mentorId: string | null) => Promise<unknown> }) {
   const columns = useMemo(() => {
     const list: Array<{ id: string | null; name: string; teams: Enriched[] }> = [
       ...mentors.map((m) => ({
