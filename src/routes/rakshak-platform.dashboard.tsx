@@ -32,6 +32,27 @@ function DashboardRedirect() {
   const [picking, setPicking] = useState<RoleChoice>("team");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingRole, setPendingRole] = useState<string | null>(null);
+  const [pendingChecked, setPendingChecked] = useState(false);
+
+  useEffect(() => {
+    if (loading || !userId) { setPendingChecked(true); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("rp_role_approvals")
+        .select("requested_role,status")
+        .eq("user_id", userId)
+        .eq("status", "pending")
+        .order("requested_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled) return;
+      setPendingRole((data?.requested_role as string) ?? null);
+      setPendingChecked(true);
+    })();
+    return () => { cancelled = true; };
+  }, [loading, userId]);
 
   useEffect(() => {
     if (loading) return;
