@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_file_requests: {
+        Row: {
+          application_id: string
+          created_at: string
+          expires_at: string
+          fulfilled_at: string | null
+          id: string
+          kind: string
+          note: string | null
+          requested_by: string | null
+          sent_at: string
+          status: string
+          token: string
+          updated_at: string
+          uploaded_file_id: string | null
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          expires_at?: string
+          fulfilled_at?: string | null
+          id?: string
+          kind: string
+          note?: string | null
+          requested_by?: string | null
+          sent_at?: string
+          status?: string
+          token: string
+          updated_at?: string
+          uploaded_file_id?: string | null
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          expires_at?: string
+          fulfilled_at?: string | null
+          id?: string
+          kind?: string
+          note?: string | null
+          requested_by?: string | null
+          sent_at?: string
+          status?: string
+          token?: string
+          updated_at?: string
+          uploaded_file_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_file_requests_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_file_requests_uploaded_file_id_fkey"
+            columns: ["uploaded_file_id"]
+            isOneToOne: false
+            referencedRelation: "application_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_files: {
         Row: {
           application_id: string
@@ -2613,6 +2676,19 @@ export type Database = {
       }
     }
     Functions: {
+      application_file_request_by_token: {
+        Args: { _token: string }
+        Returns: {
+          application_id: string
+          email: string
+          expires_at: string
+          fulfilled_at: string
+          full_name: string
+          id: string
+          kind: string
+          status: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
