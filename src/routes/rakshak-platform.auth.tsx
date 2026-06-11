@@ -9,6 +9,10 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { Captcha } from "@/components/rakshak-platform/Captcha";
 import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
 import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
+import {
+  sendRegistrationOtp,
+  verifyOtpAndCreateAccount,
+} from "@/lib/rakshak-platform/otp.functions";
 
 const ROLE_OPTIONS = [
   { value: "team", label: "Team lead", dbRole: "team_leader" as const },

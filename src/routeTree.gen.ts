@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as RakshakPlatformRouteImport } from './routes/rakshak-platform'
 import { Route as RakshakMentorRouteImport } from './routes/rakshak-mentor'
 import { Route as GigriderChecklistRouteImport } from './routes/gigrider-checklist'
@@ -106,6 +107,11 @@ import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RakshakPlatformRoute = RakshakPlatformRouteImport.update({
   id: '/rakshak-platform',
   path: '/rakshak-platform',
@@ -656,6 +662,7 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
   '/rakshak-mentor': typeof RakshakMentorRouteWithChildren
   '/rakshak-platform': typeof RakshakPlatformRouteWithChildren
+  '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
@@ -751,6 +758,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
@@ -843,6 +851,7 @@ export interface FileRoutesById {
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
   '/rakshak-mentor': typeof RakshakMentorRouteWithChildren
   '/rakshak-platform': typeof RakshakPlatformRouteWithChildren
+  '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
@@ -943,6 +952,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist'
     | '/rakshak-mentor'
     | '/rakshak-platform'
+    | '/unsubscribe'
     | '/email/unsubscribe'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
@@ -1038,6 +1048,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/unsubscribe'
     | '/email/unsubscribe'
     | '/gigrider-checklist/login'
     | '/rakshak-mentor/apply'
@@ -1129,6 +1140,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist'
     | '/rakshak-mentor'
     | '/rakshak-platform'
+    | '/unsubscribe'
     | '/email/unsubscribe'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
@@ -1228,6 +1240,7 @@ export interface RootRouteChildren {
   GigriderChecklistRoute: typeof GigriderChecklistRouteWithChildren
   RakshakMentorRoute: typeof RakshakMentorRouteWithChildren
   RakshakPlatformRoute: typeof RakshakPlatformRouteWithChildren
+  UnsubscribeRoute: typeof UnsubscribeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ApiDocsFileRoute: typeof ApiDocsFileRoute
   ApiGigriderPhotoUploadRoute: typeof ApiGigriderPhotoUploadRoute
@@ -1242,6 +1255,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rakshak-platform': {
       id: '/rakshak-platform'
       path: '/rakshak-platform'
@@ -2274,6 +2294,7 @@ const rootRouteChildren: RootRouteChildren = {
   GigriderChecklistRoute: GigriderChecklistRouteWithChildren,
   RakshakMentorRoute: RakshakMentorRouteWithChildren,
   RakshakPlatformRoute: RakshakPlatformRouteWithChildren,
+  UnsubscribeRoute: UnsubscribeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ApiDocsFileRoute: ApiDocsFileRoute,
   ApiGigriderPhotoUploadRoute: ApiGigriderPhotoUploadRoute,
