@@ -38,6 +38,7 @@ import { Route as RakshakMentorAdminRouteImport } from './routes/rakshak-mentor.
 import { Route as GigriderChecklistObserverRouteImport } from './routes/gigrider-checklist.observer'
 import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
 import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as RakshakPlatformKnowledgeIndexRouteImport } from './routes/rakshak-platform.knowledge.index'
 import { Route as RakshakPlatformEvaluatorIndexRouteImport } from './routes/rakshak-platform.evaluator.index'
 import { Route as RakshakMentorAdminIndexRouteImport } from './routes/rakshak-mentor.admin.index'
@@ -87,6 +88,7 @@ import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-
 import { Route as RakshakMentorAdminLoginRouteImport } from './routes/rakshak-mentor.admin.login'
 import { Route as RakshakMentorAdminAnalyticsRouteImport } from './routes/rakshak-mentor.admin.analytics'
 import { Route as RakshakMentorAdminIdRouteImport } from './routes/rakshak-mentor.admin.$id'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
 import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
 import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
@@ -97,6 +99,8 @@ import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/
 import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rakshak-platform.team.phases.$phase'
 import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
 import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
@@ -254,6 +258,11 @@ const GigriderChecklistAdminRoute = GigriderChecklistAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => GigriderChecklistRoute,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RakshakPlatformKnowledgeIndexRoute =
   RakshakPlatformKnowledgeIndexRouteImport.update({
@@ -542,6 +551,11 @@ const RakshakMentorAdminIdRoute = RakshakMentorAdminIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => RakshakMentorAdminRoute,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GigriderChecklistObserverNewRoute =
   GigriderChecklistObserverNewRouteImport.update({
     id: '/new',
@@ -600,6 +614,18 @@ const RakshakPlatformAdminPrintDatasetRoute =
     path: '/print/$dataset',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -630,6 +656,7 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
   '/rakshak-mentor': typeof RakshakMentorRouteWithChildren
   '/rakshak-platform': typeof RakshakPlatformRouteWithChildren
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverRouteWithChildren
@@ -660,6 +687,7 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/rakshak-mentor/admin/$id': typeof RakshakMentorAdminIdRoute
   '/rakshak-mentor/admin/analytics': typeof RakshakMentorAdminAnalyticsRoute
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
@@ -713,6 +741,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
@@ -721,6 +751,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
   '/rakshak-platform/admin': typeof RakshakPlatformAdminRouteWithChildren
@@ -746,6 +777,7 @@ export interface FileRoutesByTo {
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/rakshak-mentor/admin/$id': typeof RakshakMentorAdminIdRoute
   '/rakshak-mentor/admin/analytics': typeof RakshakMentorAdminAnalyticsRoute
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
@@ -797,6 +829,8 @@ export interface FileRoutesByTo {
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
@@ -809,6 +843,7 @@ export interface FileRoutesById {
   '/gigrider-checklist': typeof GigriderChecklistRouteWithChildren
   '/rakshak-mentor': typeof RakshakMentorRouteWithChildren
   '/rakshak-platform': typeof RakshakPlatformRouteWithChildren
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminRouteWithChildren
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverRouteWithChildren
@@ -839,6 +874,7 @@ export interface FileRoutesById {
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/rakshak-mentor/admin/$id': typeof RakshakMentorAdminIdRoute
   '/rakshak-mentor/admin/analytics': typeof RakshakMentorAdminAnalyticsRoute
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
@@ -892,6 +928,8 @@ export interface FileRoutesById {
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
@@ -905,6 +943,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist'
     | '/rakshak-mentor'
     | '/rakshak-platform'
+    | '/email/unsubscribe'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
     | '/gigrider-checklist/observer'
@@ -935,6 +974,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/lovable/email/suppression'
     | '/rakshak-mentor/admin/$id'
     | '/rakshak-mentor/admin/analytics'
     | '/rakshak-mentor/admin/login'
@@ -988,6 +1028,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/phases/$phase'
@@ -996,6 +1038,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/email/unsubscribe'
     | '/gigrider-checklist/login'
     | '/rakshak-mentor/apply'
     | '/rakshak-platform/admin'
@@ -1021,6 +1064,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/lovable/email/suppression'
     | '/rakshak-mentor/admin/$id'
     | '/rakshak-mentor/admin/analytics'
     | '/rakshak-mentor/admin/login'
@@ -1072,6 +1116,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/phases/$phase'
@@ -1083,6 +1129,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist'
     | '/rakshak-mentor'
     | '/rakshak-platform'
+    | '/email/unsubscribe'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/login'
     | '/gigrider-checklist/observer'
@@ -1113,6 +1160,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
+    | '/lovable/email/suppression'
     | '/rakshak-mentor/admin/$id'
     | '/rakshak-mentor/admin/analytics'
     | '/rakshak-mentor/admin/login'
@@ -1166,6 +1214,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/phases/$phase'
@@ -1178,12 +1228,16 @@ export interface RootRouteChildren {
   GigriderChecklistRoute: typeof GigriderChecklistRouteWithChildren
   RakshakMentorRoute: typeof RakshakMentorRouteWithChildren
   RakshakPlatformRoute: typeof RakshakPlatformRouteWithChildren
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ApiDocsFileRoute: typeof ApiDocsFileRoute
   ApiGigriderPhotoUploadRoute: typeof ApiGigriderPhotoUploadRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1390,6 +1444,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/gigrider-checklist/admin'
       preLoaderRoute: typeof GigriderChecklistAdminRouteImport
       parentRoute: typeof GigriderChecklistRoute
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/rakshak-platform/knowledge/': {
       id: '/rakshak-platform/knowledge/'
@@ -1734,6 +1795,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakMentorAdminIdRouteImport
       parentRoute: typeof RakshakMentorAdminRoute
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gigrider-checklist/observer/new': {
       id: '/gigrider-checklist/observer/new'
       path: '/new'
@@ -1803,6 +1871,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/admin/print/$dataset'
       preLoaderRoute: typeof RakshakPlatformAdminPrintDatasetRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -2192,12 +2274,16 @@ const rootRouteChildren: RootRouteChildren = {
   GigriderChecklistRoute: GigriderChecklistRouteWithChildren,
   RakshakMentorRoute: RakshakMentorRouteWithChildren,
   RakshakPlatformRoute: RakshakPlatformRouteWithChildren,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ApiDocsFileRoute: ApiDocsFileRoute,
   ApiGigriderPhotoUploadRoute: ApiGigriderPhotoUploadRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
