@@ -144,13 +144,24 @@ function AuthPage() {
     }
   }
 
-  // STEP 1 (register) — send 6-digit OTP code to the entered email
+  // REGISTER step 1 — validate email, then send custom 6-digit OTP via Lovable email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfo(null);
     setCaptchaError(null);
     if (!checkCaptcha()) return;
+
+    if (mode === "register") {
+      if (!fullName.trim()) {
+        setError("Please enter your full name.");
+        return;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
+    }
 
     setBusy(true);
     try {
@@ -159,15 +170,20 @@ function AuthPage() {
         setError(check.reason);
         return;
       }
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: true,
-          // Fallback magic-link target if the Supabase template uses {{ .ConfirmationURL }}
-          emailRedirectTo: authCallbackUrl("register", role),
-        },
-      });
-      if (error) throw error;
+
+      if (mode === "register") {
+        await sendOtp({ data: { email: email.toLowerCase(), role } });
+      } else {
+        // Login via OTP fallback still uses Supabase magic-link OTP.
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: authCallbackUrl("login", role),
+          },
+        });
+        if (error) throw error;
+      }
       setStep("otp");
       setInfo(`We emailed a 6-digit code to ${email}. It expires in 10 minutes.`);
     } catch (e) {
@@ -177,7 +193,7 @@ function AuthPage() {
     }
   }
 
-  // STEP 2 — verify the code. On success: login → dashboard; register → details step.
+  // STEP 2 — verify the code. Register: create account + sign in + dashboard. Login: Supabase OTP verify.
   async function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -188,57 +204,38 @@ function AuthPage() {
         setError("Enter the 6-digit code from your email.");
         return;
       }
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-      if (error) throw error;
 
-      if (mode === "login") {
+      if (mode === "register") {
+        const result = await verifyAndCreate({
+          data: {
+            email: email.toLowerCase(),
+            code: token,
+            fullName,
+            password,
+            role,
+          },
+        });
+        if (result.status === "pending_approval") {
+          setError(
+            `Account created. Your ${role === "admin" ? "CFI Admin" : "Evaluator"} access request is pending super-admin approval.`,
+          );
+          setMode("login");
+          return;
+        }
+        // Sign in with the password we just set, then go to dashboard.
+        const { error: signErr } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signErr) throw signErr;
         navigate({ to: "/rakshak-platform/dashboard" });
       } else {
-        // User is now created & signed in via OTP — finish onboarding.
-        setStep("details");
-        setInfo("Email verified. Set a password and finish creating your account.");
+        const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
+        if (error) throw error;
+        navigate({ to: "/rakshak-platform/dashboard" });
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Invalid or expired code.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  // STEP 3 (register only) — set password, profile, role.
-  async function handleCompleteRegistration(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setBusy(true);
-    try {
-      if (password.length < 6) {
-        setError("Password must be at least 6 characters.");
-        return;
-      }
-      const { data: userRes, error: updErr } = await supabase.auth.updateUser({
-        password,
-        data: { name: fullName, rp_role: role },
-      });
-      if (updErr) throw updErr;
-      const userId = userRes.user?.id;
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      const accessToken = sessionData.session?.access_token;
-      if (!userId || !accessToken) throw new Error("Your sign-in session expired. Please sign in again.");
-
-      await onboardWorkspace({ data: { role, accessToken, fullName, email } });
-
-      if (role === "evaluator" || role === "admin") {
-        await supabase.auth.signOut();
-        setError(
-          `Account created. Your ${role === "admin" ? "CFI Admin" : "Evaluator"} access request is pending super-admin approval.`,
-        );
-        setMode("login");
-      } else {
-        navigate({ to: "/rakshak-platform/dashboard" });
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not finish registration.");
     } finally {
       setBusy(false);
     }
@@ -249,14 +246,18 @@ function AuthPage() {
     setInfo(null);
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: mode === "register",
-          emailRedirectTo: authCallbackUrl(mode, role),
-        },
-      });
-      if (error) throw error;
+      if (mode === "register") {
+        await sendOtp({ data: { email: email.toLowerCase(), role } });
+      } else {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: authCallbackUrl(mode, role),
+          },
+        });
+        if (error) throw error;
+      }
       setInfo(`New 6-digit code sent to ${email}.`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not resend code.");
