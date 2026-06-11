@@ -32,6 +32,27 @@ function DashboardRedirect() {
   const [picking, setPicking] = useState<RoleChoice>("team");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingRole, setPendingRole] = useState<string | null>(null);
+  const [pendingChecked, setPendingChecked] = useState(false);
+
+  useEffect(() => {
+    if (loading || !userId) { setPendingChecked(true); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("rp_role_approvals")
+        .select("requested_role,status")
+        .eq("user_id", userId)
+        .eq("status", "pending")
+        .order("requested_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled) return;
+      setPendingRole((data?.requested_role as string) ?? null);
+      setPendingChecked(true);
+    })();
+    return () => { cancelled = true; };
+  }, [loading, userId]);
 
   useEffect(() => {
     if (loading) return;
@@ -68,7 +89,8 @@ function DashboardRedirect() {
     }
   }
 
-  const noRoleYet = !loading && !!userId && roles.length === 0;
+  const noRoleYet = !loading && pendingChecked && !!userId && roles.length === 0 && !pendingRole;
+  const awaitingApproval = !loading && pendingChecked && !!userId && roles.length === 0 && !!pendingRole;
 
   return (
     <PlatformShell>
@@ -86,6 +108,22 @@ function DashboardRedirect() {
               className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
             >
               Sign in
+            </Link>
+          </div>
+        ) : awaitingApproval ? (
+          <div className="mx-auto max-w-md space-y-4">
+            <Eyebrow>Awaiting approval</Eyebrow>
+            <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight">
+              Your <span className="text-brand">{pendingRole}</span> access is pending.
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Signed in as {email}. A CFI admin needs to approve your {pendingRole} role before your workspace unlocks. You'll get access here as soon as it's approved.
+            </p>
+            <Link
+              to="/rakshak-platform"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              Back to platform home
             </Link>
           </div>
         ) : noRoleYet ? (
