@@ -2009,6 +2009,48 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_role_invites: {
+        Row: {
+          accepted_user_id: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role: Database["public"]["Enums"]["rp_app_role"]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_user_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role: Database["public"]["Enums"]["rp_app_role"]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_user_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role?: Database["public"]["Enums"]["rp_app_role"]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rp_rubrics: {
         Row: {
           created_at: string

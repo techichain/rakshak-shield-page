@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
@@ -6,7 +6,7 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import {
   Loader2, Sparkles, Search, Download, MessageSquare, Calendar,
   TrendingUp, Users, Trophy, AlertTriangle, ChevronUp, ChevronDown,
-  LayoutGrid, Table as TableIcon, BarChart3, ListChecks,
+  LayoutGrid, Table as TableIcon, BarChart3, ListChecks, Plus, Mail, X, BellRing,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -175,14 +175,25 @@ function AdminDashboard() {
   const [tab, setTab] = useState<"leaderboard" | "tracker" | "mentorboard" | "analytics">("leaderboard");
   const [busy, setBusy] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     if (loading) return;
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     load();
+    loadPendingCount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, userId, isAdmin]);
+
+  async function loadPendingCount() {
+    const [{ count: rc }, { count: ic }] = await Promise.all([
+      supabase.from("rp_role_approvals").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("rp_role_invites").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    ]);
+    setPendingCount((rc ?? 0) + (ic ?? 0));
+  }
 
   async function load() {
     setBusy(true);
@@ -380,6 +391,25 @@ function AdminDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/rakshak-platform/admin/access-requests"
+              className="relative h-10 w-10 rounded-full border border-border bg-card grid place-items-center hover:bg-brand-lite"
+              title="Access requests & notifications"
+            >
+              <BellRing className="h-4 w-4 text-brand" />
+              {pendingCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center">
+                  {pendingCount > 99 ? "99+" : pendingCount}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => setInviteOpen(true)}
+              className="h-10 rounded-full bg-brand px-4 text-sm text-brand-foreground hover:bg-brand/90 inline-flex items-center gap-2 font-semibold"
+              title="Invite mentor or evaluator by email"
+            >
+              <Plus className="h-4 w-4" /> Invite by email
+            </button>
             <button
               onClick={seed} disabled={seeding}
               className="h-10 rounded-full border border-border bg-card px-4 text-sm hover:bg-brand-lite inline-flex items-center gap-2 disabled:opacity-50"
@@ -389,6 +419,14 @@ function AdminDashboard() {
             </button>
           </div>
         </div>
+
+        {inviteOpen && (
+          <InviteModal
+            onClose={() => setInviteOpen(false)}
+            invitedBy={userId}
+            onDone={() => { setInviteOpen(false); loadPendingCount(); }}
+          />
+        )}
 
         {/* Sidebar + content layout */}
         <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
@@ -1178,6 +1216,134 @@ function AnalyticsPanel({ rows, mentors }: { rows: Enriched[]; mentors: MentorRo
             </BarChart>
           </ResponsiveContainer>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* Invite by email modal                                                 */
+/* ──────────────────────────────────────────────────────────────────── */
+
+function InviteModal({
+  onClose, invitedBy, onDone,
+}: { onClose: () => void; invitedBy: string | null; onDone: () => void }) {
+  const [emails, setEmails] = useState("");
+  const [role, setRole] = useState<"mentor" | "evaluator">("mentor");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const list = Array.from(new Set(
+      emails.split(/[\s,;]+/).map((s) => s.trim().toLowerCase()).filter(Boolean)
+    ));
+    const valid = list.filter((e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+    const invalid = list.filter((e) => !valid.includes(e));
+    if (invalid.length) { toast.error(`Invalid emails: ${invalid.join(", ")}`); return; }
+    if (!valid.length) { toast.error("Enter at least one email"); return; }
+
+    setBusy(true);
+    const rows = valid.map((email) => ({
+      email, role, note: note || null, invited_by: invitedBy, status: "pending" as const,
+    }));
+    const { error } = await supabase.from("rp_role_invites").upsert(rows, {
+      onConflict: "email,role",
+      ignoreDuplicates: false,
+    } as any);
+    // upsert constraint isn't on (email,role) directly because of the partial unique index; fall back to insert ignoring duplicates.
+    if (error) {
+      // Try plain insert; the partial unique index will reject existing pending duplicates per row.
+      const { error: insErr } = await supabase.from("rp_role_invites").insert(rows);
+      if (insErr && !String(insErr.message).toLowerCase().includes("duplicate")) {
+        toast.error(insErr.message); setBusy(null as any); return;
+      }
+    }
+    toast.success(`Invited ${valid.length} ${role}${valid.length > 1 ? "s" : ""}`);
+    setBusy(false);
+    onDone();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
+      <div
+        className="w-full max-w-lg rounded-2xl bg-card border border-border shadow-2xl p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="h-10 w-10 rounded-xl bg-brand/10 text-brand grid place-items-center mb-3">
+              <Mail className="h-5 w-5" />
+            </div>
+            <h2 className="font-heading text-xl font-bold">Invite by email</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Pre-grant mentor or evaluator access. They get the role the moment they sign up with this email.
+            </p>
+          </div>
+          <button onClick={onClose} className="h-8 w-8 grid place-items-center rounded-full hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={submit} className="mt-6 space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            {(["mentor", "evaluator"] as const).map((r) => (
+              <button
+                type="button"
+                key={r}
+                onClick={() => setRole(r)}
+                className={`h-11 rounded-xl border text-sm font-semibold capitalize transition-colors ${
+                  role === r
+                    ? "bg-brand text-brand-foreground border-brand"
+                    : "bg-card border-border hover:bg-brand-lite"
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email addresses</span>
+            <textarea
+              value={emails}
+              onChange={(e) => setEmails(e.target.value)}
+              required
+              placeholder="alice@gmail.com, bob@gmail.com"
+              className="mt-1 w-full min-h-24 rounded-xl border border-border bg-card p-3 text-sm outline-none focus:border-brand"
+            />
+            <span className="text-xs text-muted-foreground mt-1 block">Separate with commas, spaces, or new lines.</span>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Note (optional)</span>
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              maxLength={200}
+              placeholder="e.g. Cohort 2 evaluators"
+              className="mt-1 w-full h-11 rounded-xl border border-border bg-card px-3 text-sm outline-none focus:border-brand"
+            />
+          </label>
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 h-11 rounded-full border border-border text-sm font-medium hover:bg-muted"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={busy}
+              className="flex-1 h-11 rounded-full bg-brand text-brand-foreground text-sm font-semibold hover:bg-brand/90 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              {busy ? "Sending…" : "Send invites"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
