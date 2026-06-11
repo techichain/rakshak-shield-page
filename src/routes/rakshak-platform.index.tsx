@@ -42,19 +42,30 @@ function LandingPage() {
             from problem identification to authority pitch — at scale.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/rakshak-platform/auth"
-              className="h-12 rounded-full bg-brand px-7 text-base text-brand-foreground shadow-lg shadow-brand/30 hover:bg-brand/90 inline-flex items-center gap-2"
-            >
-              Sign in <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/rakshak-platform/auth"
-              search={{ mode: "register" } as never}
-              className="h-12 rounded-full border border-border px-7 text-base inline-flex items-center"
-            >
-              Register a team
-            </Link>
+            {signedIn ? (
+              <Link
+                to="/rakshak-platform/dashboard"
+                className="h-12 rounded-full bg-brand px-7 text-base text-brand-foreground shadow-lg shadow-brand/30 hover:bg-brand/90 inline-flex items-center gap-2"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Go to dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/rakshak-platform/auth"
+                  className="h-12 rounded-full bg-brand px-7 text-base text-brand-foreground shadow-lg shadow-brand/30 hover:bg-brand/90 inline-flex items-center gap-2"
+                >
+                  Sign in <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/rakshak-platform/auth"
+                  search={{ mode: "register" } as never}
+                  className="h-12 rounded-full border border-border px-7 text-base inline-flex items-center"
+                >
+                  Register a team
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
