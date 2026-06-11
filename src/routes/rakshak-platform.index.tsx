@@ -17,6 +17,14 @@ export const Route = createFileRoute("/rakshak-platform/")({
 });
 
 function LandingPage() {
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session?.user);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
   return (
     <PlatformShell>
       {/* HERO */}
