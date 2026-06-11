@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
