@@ -16,15 +16,15 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
         Skip to main content
       </a>
-      <header className="border-b border-border bg-background sticky top-0 z-40">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2">
-          <Link to="/rakshak-platform" className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-sm bg-brand" />
-            <span className="font-heading text-base font-bold tracking-tight">
+      <header className="border-b border-border bg-background sticky top-0 z-40 w-full overflow-hidden">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
+          <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink">
+            <span className="inline-block h-2 w-2 shrink-0 rounded-sm bg-brand" />
+            <span className="font-heading text-base font-bold tracking-tight truncate">
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
+          <nav className="hidden xl:flex items-center gap-5 text-sm min-w-0 overflow-x-auto">
             <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
               Hotspots
             </Link>
@@ -210,14 +210,14 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle navigation"
-              className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand"
+              className="xl:hidden inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand"
             >
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
         </div>
         {menuOpen && (
-          <div className="md:hidden border-t border-border bg-background">
+          <div className="xl:hidden border-t border-border bg-background max-h-[70vh] overflow-y-auto">
             <nav className="mx-auto w-full max-w-7xl px-6 py-4 flex flex-col gap-3 text-sm">
               <Link to="/rakshak-platform/map" onClick={() => setMenuOpen(false)}>Hotspots</Link>
               <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
@@ -246,12 +246,26 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isAdmin && (
                 <>
                   <Link to="/rakshak-platform/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
+                  <Link to="/rakshak-platform/admin/certificates" onClick={() => setMenuOpen(false)}>Certificates</Link>
+                  <Link to="/rakshak-platform/admin/knowledge" onClick={() => setMenuOpen(false)}>Articles</Link>
+                  <Link to="/rakshak-platform/admin/map" onClick={() => setMenuOpen(false)}>Programme map</Link>
                   <Link to="/rakshak-platform/admin/analytics" onClick={() => setMenuOpen(false)}>Analytics</Link>
                   <Link to="/rakshak-platform/admin/mentor-applications" onClick={() => setMenuOpen(false)}>Mentor applications</Link>
                   <Link to="/rakshak-platform/admin/bulk-import" onClick={() => setMenuOpen(false)}>Bulk import</Link>
                   <Link to="/rakshak-platform/admin/exports" onClick={() => setMenuOpen(false)}>Exports</Link>
                   <Link to="/rakshak-platform/admin/audit" onClick={() => setMenuOpen(false)}>Audit</Link>
                   <Link to="/rakshak-platform/admin/meetings" onClick={() => setMenuOpen(false)}>All meetings</Link>
+                  <Link to="/rakshak-platform/admin/cohorts" onClick={() => setMenuOpen(false)}>Cohorts</Link>
+                  <Link to="/rakshak-platform/admin/cron-health" onClick={() => setMenuOpen(false)}>Cron health</Link>
+                  <Link to="/rakshak-platform/admin/roles" onClick={() => setMenuOpen(false)}>Roles</Link>
+                  <Link to="/rakshak-platform/admin/evaluator-queue" onClick={() => setMenuOpen(false)}>Evaluator queue</Link>
+                  <Link to="/rakshak-platform/admin/evaluator-leaderboard" onClick={() => setMenuOpen(false)}>Eval analytics</Link>
+                  <Link to="/rakshak-platform/admin/alerts" onClick={() => setMenuOpen(false)}>Alerts</Link>
+                  <Link to="/rakshak-platform/admin/qa" onClick={() => setMenuOpen(false)}>QA</Link>
+                  <Link to="/rakshak-platform/admin/integrations" onClick={() => setMenuOpen(false)}>Integrations</Link>
+                  <Link to="/rakshak-platform/admin/qa-checklist" onClick={() => setMenuOpen(false)}>QA checklist</Link>
+                  <Link to="/rakshak-platform/admin/reviews" onClick={() => setMenuOpen(false)}>Reviews</Link>
+                  <Link to="/rakshak-platform/admin/badges" onClick={() => setMenuOpen(false)}>Badges</Link>
                   <Link to="/rakshak-platform/admin/seed" onClick={() => setMenuOpen(false)}>Seed</Link>
                 </>
               )}
