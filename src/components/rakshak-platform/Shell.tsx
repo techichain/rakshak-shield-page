@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { LogOut, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
@@ -10,6 +10,24 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const [navOverflow, setNavOverflow] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const el = navRef.current;
+      if (!el) return;
+      setNavOverflow(el.scrollWidth > el.clientWidth + 1);
+    };
+    check();
+    window.addEventListener("resize", check);
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(check) : null;
+    if (ro && navRef.current) ro.observe(navRef.current);
+    return () => {
+      window.removeEventListener("resize", check);
+      if (ro && navRef.current) ro.unobserve(navRef.current);
+    };
+  }, [isAdmin, isAuthority, isEvaluator, isFinance, isMentor, isTeam]);
 
   return (
     <div className="rp-platform min-h-dvh">
@@ -24,7 +42,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav className="hidden xl:flex items-center gap-5 text-sm min-w-0 overflow-x-auto">
+          <nav ref={navRef} className={`hidden items-center gap-5 text-sm min-w-0 overflow-x-auto ${navOverflow ? '' : 'xl:flex'}`}>
             <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
               Hotspots
             </Link>
@@ -210,14 +228,14 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle navigation"
-              className="xl:hidden inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand"
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
             >
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
         </div>
         {menuOpen && (
-          <div className="xl:hidden border-t border-border bg-background max-h-[70vh] overflow-y-auto">
+          <div className={`border-t border-border bg-background max-h-[70vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
             <nav className="mx-auto w-full max-w-7xl px-6 py-4 flex flex-col gap-3 text-sm">
               <Link to="/rakshak-platform/map" onClick={() => setMenuOpen(false)}>Hotspots</Link>
               <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
