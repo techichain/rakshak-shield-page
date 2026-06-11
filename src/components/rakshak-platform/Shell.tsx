@@ -10,6 +10,24 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const [navOverflow, setNavOverflow] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      const el = navRef.current;
+      if (!el) return;
+      setNavOverflow(el.scrollWidth > el.clientWidth + 1);
+    };
+    check();
+    window.addEventListener("resize", check);
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(check) : null;
+    if (ro && navRef.current) ro.observe(navRef.current);
+    return () => {
+      window.removeEventListener("resize", check);
+      if (ro && navRef.current) ro.unobserve(navRef.current);
+    };
+  }, [isAdmin, isAuthority, isEvaluator, isFinance, isMentor, isTeam]);
 
   return (
     <div className="rp-platform min-h-dvh">
