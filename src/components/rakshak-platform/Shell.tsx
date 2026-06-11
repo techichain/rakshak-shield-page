@@ -246,12 +246,26 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isAdmin && (
                 <>
                   <Link to="/rakshak-platform/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
+                  <Link to="/rakshak-platform/admin/certificates" onClick={() => setMenuOpen(false)}>Certificates</Link>
+                  <Link to="/rakshak-platform/admin/knowledge" onClick={() => setMenuOpen(false)}>Articles</Link>
+                  <Link to="/rakshak-platform/admin/map" onClick={() => setMenuOpen(false)}>Programme map</Link>
                   <Link to="/rakshak-platform/admin/analytics" onClick={() => setMenuOpen(false)}>Analytics</Link>
                   <Link to="/rakshak-platform/admin/mentor-applications" onClick={() => setMenuOpen(false)}>Mentor applications</Link>
                   <Link to="/rakshak-platform/admin/bulk-import" onClick={() => setMenuOpen(false)}>Bulk import</Link>
                   <Link to="/rakshak-platform/admin/exports" onClick={() => setMenuOpen(false)}>Exports</Link>
                   <Link to="/rakshak-platform/admin/audit" onClick={() => setMenuOpen(false)}>Audit</Link>
                   <Link to="/rakshak-platform/admin/meetings" onClick={() => setMenuOpen(false)}>All meetings</Link>
+                  <Link to="/rakshak-platform/admin/cohorts" onClick={() => setMenuOpen(false)}>Cohorts</Link>
+                  <Link to="/rakshak-platform/admin/cron-health" onClick={() => setMenuOpen(false)}>Cron health</Link>
+                  <Link to="/rakshak-platform/admin/roles" onClick={() => setMenuOpen(false)}>Roles</Link>
+                  <Link to="/rakshak-platform/admin/evaluator-queue" onClick={() => setMenuOpen(false)}>Evaluator queue</Link>
+                  <Link to="/rakshak-platform/admin/evaluator-leaderboard" onClick={() => setMenuOpen(false)}>Eval analytics</Link>
+                  <Link to="/rakshak-platform/admin/alerts" onClick={() => setMenuOpen(false)}>Alerts</Link>
+                  <Link to="/rakshak-platform/admin/qa" onClick={() => setMenuOpen(false)}>QA</Link>
+                  <Link to="/rakshak-platform/admin/integrations" onClick={() => setMenuOpen(false)}>Integrations</Link>
+                  <Link to="/rakshak-platform/admin/qa-checklist" onClick={() => setMenuOpen(false)}>QA checklist</Link>
+                  <Link to="/rakshak-platform/admin/reviews" onClick={() => setMenuOpen(false)}>Reviews</Link>
+                  <Link to="/rakshak-platform/admin/badges" onClick={() => setMenuOpen(false)}>Badges</Link>
                   <Link to="/rakshak-platform/admin/seed" onClick={() => setMenuOpen(false)}>Seed</Link>
                 </>
               )}
