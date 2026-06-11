@@ -440,7 +440,7 @@ function AuthPage() {
                 type="submit" disabled={busy}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
               >
-                {busy ? "Verifying…" : mode === "login" ? "Verify and sign in" : "Verify email"}
+                {busy ? "Verifying…" : mode === "login" ? "Verify and sign in" : "Verify and create account"}
               </button>
               <div className="flex items-center justify-between text-xs">
                 <button
