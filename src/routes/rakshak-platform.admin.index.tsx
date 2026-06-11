@@ -355,17 +355,24 @@ function AdminDashboard() {
     );
   }
 
-  const tabs: Array<[typeof tab, string, React.ReactNode]> = [
-    ["leaderboard", "Leaderboard", <ListChecks className="h-4 w-4" key="i1" />],
-    ["tracker", "Team + Task Tracker", <TableIcon className="h-4 w-4" key="i2" />],
-    ["mentorboard", "Mentor Board", <LayoutGrid className="h-4 w-4" key="i3" />],
-    ["analytics", "Overall Progress", <BarChart3 className="h-4 w-4" key="i4" />],
+  const tabs: Array<{
+    id: typeof tab;
+    label: string;
+    desc: string;
+    icon: React.ReactNode;
+  }> = [
+    { id: "leaderboard", label: "Leaderboard", desc: "Team rankings & scores", icon: <ListChecks className="h-5 w-5" /> },
+    { id: "tracker", label: "Task Tracker", desc: "All phases & deliverables", icon: <TableIcon className="h-5 w-5" /> },
+    { id: "mentorboard", label: "Mentor Board", desc: "Reassign mentors", icon: <LayoutGrid className="h-5 w-5" /> },
+    { id: "analytics", label: "Overall Progress", desc: "Charts & analytics", icon: <BarChart3 className="h-5 w-5" /> },
   ];
+
+  const activeTab = tabs.find((t) => t.id === tab)!;
 
   return (
     <PlatformShell>
-      <Section className="!py-10 lg:!py-14">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:flex-wrap sm:justify-between">
+      <Section className="!py-8 lg:!py-10">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:flex-wrap sm:justify-between mb-8">
           <div className="min-w-0">
             <Eyebrow>CFI Admin command centre</Eyebrow>
             <h1 className="mt-3 font-heading text-3xl sm:text-4xl font-bold tracking-tight">
@@ -383,50 +390,80 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mt-8 flex flex-wrap items-center gap-1 border-b border-border">
-          {tabs.map(([id, label, icon]) => {
-            const active = tab === id;
-            return (
-              <button
-                key={id} onClick={() => setTab(id)}
-                className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                  active
-                    ? "border-brand text-brand"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {icon}{label}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-8 min-h-[40vh]">
-          {busy && teams.length === 0 ? (
-            <div className="py-20 text-center text-muted-foreground">
-              <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-              <p className="mt-3 text-sm">Loading dashboard…</p>
+        {/* Sidebar + content layout */}
+        <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
+          {/* Left sidebar nav */}
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <nav className="rounded-2xl border border-border bg-card p-2 shadow-sm">
+              <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Dashboards
+              </div>
+              <ul className="space-y-1">
+                {tabs.map((t) => {
+                  const active = tab === t.id;
+                  return (
+                    <li key={t.id}>
+                      <button
+                        onClick={() => setTab(t.id)}
+                        className={`w-full flex items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
+                          active
+                            ? "bg-brand text-brand-foreground shadow-sm"
+                            : "text-foreground hover:bg-brand-lite"
+                        }`}
+                      >
+                        <span className={`mt-0.5 ${active ? "" : "text-brand"}`}>{t.icon}</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold leading-tight">{t.label}</span>
+                          <span className={`block text-xs leading-snug mt-0.5 ${active ? "text-brand-foreground/80" : "text-muted-foreground"}`}>
+                            {t.desc}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+            <div className="hidden lg:block mt-4 rounded-2xl border border-border bg-brand-lite/50 p-4 text-xs text-muted-foreground">
+              Pick a dashboard. Each view has its own data and actions.
             </div>
-          ) : teams.length === 0 ? (
-            <EmptyState onSeed={seed} seeding={seeding} />
-          ) : (
-            <>
-              {tab === "leaderboard" && <LeaderboardPanel rows={enriched} mentors={mentors} />}
-              {tab === "tracker" && (
-                <TrackerPanel
-                  rows={enriched} mentors={mentors}
-                  onPhaseUpdate={updatePhaseStatus}
-                  onMentor={reassignMentor}
-                  onDelete={deleteTeam}
-                />
+          </aside>
+
+          {/* Active dashboard */}
+          <div className="min-w-0">
+            <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-brand">{activeTab.icon}</span>
+              <span className="font-medium text-foreground">{activeTab.label}</span>
+              <span>·</span>
+              <span>{activeTab.desc}</span>
+            </div>
+            <div className="min-h-[40vh]">
+              {busy && teams.length === 0 ? (
+                <div className="py-20 text-center text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                  <p className="mt-3 text-sm">Loading dashboard…</p>
+                </div>
+              ) : teams.length === 0 ? (
+                <EmptyState onSeed={seed} seeding={seeding} />
+              ) : (
+                <>
+                  {tab === "leaderboard" && <LeaderboardPanel rows={enriched} mentors={mentors} />}
+                  {tab === "tracker" && (
+                    <TrackerPanel
+                      rows={enriched} mentors={mentors}
+                      onPhaseUpdate={updatePhaseStatus}
+                      onMentor={reassignMentor}
+                      onDelete={deleteTeam}
+                    />
+                  )}
+                  {tab === "mentorboard" && (
+                    <MentorBoardPanel rows={enriched} mentors={mentors} onReassign={reassignMentor} />
+                  )}
+                  {tab === "analytics" && <AnalyticsPanel rows={enriched} mentors={mentors} />}
+                </>
               )}
-              {tab === "mentorboard" && (
-                <MentorBoardPanel rows={enriched} mentors={mentors} onReassign={reassignMentor} />
-              )}
-              {tab === "analytics" && <AnalyticsPanel rows={enriched} mentors={mentors} />}
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </Section>
     </PlatformShell>
