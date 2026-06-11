@@ -228,7 +228,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle navigation"
-              className="xl:hidden inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand"
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
             >
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
