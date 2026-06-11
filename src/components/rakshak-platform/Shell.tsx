@@ -16,15 +16,15 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
         Skip to main content
       </a>
-      <header className="border-b border-border bg-background sticky top-0 z-40">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2">
-          <Link to="/rakshak-platform" className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-sm bg-brand" />
-            <span className="font-heading text-base font-bold tracking-tight">
+      <header className="border-b border-border bg-background sticky top-0 z-40 w-full overflow-hidden">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
+          <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink">
+            <span className="inline-block h-2 w-2 shrink-0 rounded-sm bg-brand" />
+            <span className="font-heading text-base font-bold tracking-tight truncate">
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
+          <nav className="hidden xl:flex items-center gap-5 text-sm min-w-0 overflow-x-auto">
             <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
               Hotspots
             </Link>
