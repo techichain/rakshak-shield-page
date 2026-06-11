@@ -47,6 +47,8 @@ function AuthPage() {
   const navigate = useNavigate();
   const verifyEmail = useServerFn(verifyEmailDeliverable);
   const onboardWorkspace = useServerFn(onboardRPWorkspace);
+  const sendOtp = useServerFn(sendRegistrationOtp);
+  const verifyAndCreate = useServerFn(verifyOtpAndCreateAccount);
 
   // Flow state
   const [step, setStep] = useState<Step>("email");
