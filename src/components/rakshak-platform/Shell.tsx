@@ -217,7 +217,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         {menuOpen && (
-          <div className="md:hidden border-t border-border bg-background">
+          <div className="xl:hidden border-t border-border bg-background max-h-[70vh] overflow-y-auto">
             <nav className="mx-auto w-full max-w-7xl px-6 py-4 flex flex-col gap-3 text-sm">
               <Link to="/rakshak-platform/map" onClick={() => setMenuOpen(false)}>Hotspots</Link>
               <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
