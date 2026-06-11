@@ -175,14 +175,25 @@ function AdminDashboard() {
   const [tab, setTab] = useState<"leaderboard" | "tracker" | "mentorboard" | "analytics">("leaderboard");
   const [busy, setBusy] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     if (loading) return;
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     load();
+    loadPendingCount();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, userId, isAdmin]);
+
+  async function loadPendingCount() {
+    const [{ count: rc }, { count: ic }] = await Promise.all([
+      supabase.from("rp_role_approvals").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("rp_role_invites").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    ]);
+    setPendingCount((rc ?? 0) + (ic ?? 0));
+  }
 
   async function load() {
     setBusy(true);
