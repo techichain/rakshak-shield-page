@@ -42,6 +42,7 @@ import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-ch
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as RakshakPlatformKnowledgeIndexRouteImport } from './routes/rakshak-platform.knowledge.index'
 import { Route as RakshakPlatformEvaluatorIndexRouteImport } from './routes/rakshak-platform.evaluator.index'
+import { Route as RakshakPlatformAdminIndexRouteImport } from './routes/rakshak-platform.admin.index'
 import { Route as RakshakMentorAdminIndexRouteImport } from './routes/rakshak-mentor.admin.index'
 import { Route as GigriderChecklistObserverIndexRouteImport } from './routes/gigrider-checklist.observer.index'
 import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrider-checklist.admin.index'
@@ -281,6 +282,12 @@ const RakshakPlatformEvaluatorIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => RakshakPlatformEvaluatorRoute,
+  } as any)
+const RakshakPlatformAdminIndexRoute =
+  RakshakPlatformAdminIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
 const RakshakMentorAdminIndexRoute = RakshakMentorAdminIndexRouteImport.update({
   id: '/',
@@ -742,6 +749,7 @@ export interface FileRoutesByFullPath {
   '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer/': typeof GigriderChecklistObserverIndexRoute
   '/rakshak-mentor/admin/': typeof RakshakMentorAdminIndexRoute
+  '/rakshak-platform/admin/': typeof RakshakPlatformAdminIndexRoute
   '/rakshak-platform/evaluator/': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
@@ -762,7 +770,6 @@ export interface FileRoutesByTo {
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/gigrider-checklist/login': typeof GigriderChecklistLoginRoute
   '/rakshak-mentor/apply': typeof RakshakMentorApplyRouteWithChildren
-  '/rakshak-platform/admin': typeof RakshakPlatformAdminRouteWithChildren
   '/rakshak-platform/auth': typeof RakshakPlatformAuthRouteWithChildren
   '/rakshak-platform/authority': typeof RakshakPlatformAuthorityRoute
   '/rakshak-platform/dashboard': typeof RakshakPlatformDashboardRoute
@@ -831,6 +838,7 @@ export interface FileRoutesByTo {
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverIndexRoute
   '/rakshak-mentor/admin': typeof RakshakMentorAdminIndexRoute
+  '/rakshak-platform/admin': typeof RakshakPlatformAdminIndexRoute
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
@@ -931,6 +939,7 @@ export interface FileRoutesById {
   '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer/': typeof GigriderChecklistObserverIndexRoute
   '/rakshak-mentor/admin/': typeof RakshakMentorAdminIndexRoute
+  '/rakshak-platform/admin/': typeof RakshakPlatformAdminIndexRoute
   '/rakshak-platform/evaluator/': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
@@ -1032,6 +1041,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/'
     | '/gigrider-checklist/observer/'
     | '/rakshak-mentor/admin/'
+    | '/rakshak-platform/admin/'
     | '/rakshak-platform/evaluator/'
     | '/rakshak-platform/knowledge/'
     | '/api/public/hooks/admin-digest'
@@ -1052,7 +1062,6 @@ export interface FileRouteTypes {
     | '/email/unsubscribe'
     | '/gigrider-checklist/login'
     | '/rakshak-mentor/apply'
-    | '/rakshak-platform/admin'
     | '/rakshak-platform/auth'
     | '/rakshak-platform/authority'
     | '/rakshak-platform/dashboard'
@@ -1121,6 +1130,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/observer'
     | '/rakshak-mentor/admin'
+    | '/rakshak-platform/admin'
     | '/rakshak-platform/evaluator'
     | '/rakshak-platform/knowledge'
     | '/api/public/hooks/admin-digest'
@@ -1220,6 +1230,7 @@ export interface FileRouteTypes {
     | '/gigrider-checklist/admin/'
     | '/gigrider-checklist/observer/'
     | '/rakshak-mentor/admin/'
+    | '/rakshak-platform/admin/'
     | '/rakshak-platform/evaluator/'
     | '/rakshak-platform/knowledge/'
     | '/api/public/hooks/admin-digest'
@@ -1485,6 +1496,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/evaluator/'
       preLoaderRoute: typeof RakshakPlatformEvaluatorIndexRouteImport
       parentRoute: typeof RakshakPlatformEvaluatorRoute
+    }
+    '/rakshak-platform/admin/': {
+      id: '/rakshak-platform/admin/'
+      path: '/'
+      fullPath: '/rakshak-platform/admin/'
+      preLoaderRoute: typeof RakshakPlatformAdminIndexRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
     }
     '/rakshak-mentor/admin/': {
       id: '/rakshak-mentor/admin/'
@@ -2056,6 +2074,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminRolesRoute: typeof RakshakPlatformAdminRolesRoute
   RakshakPlatformAdminSeedRoute: typeof RakshakPlatformAdminSeedRoute
   RakshakPlatformAdminSponsorshipsRoute: typeof RakshakPlatformAdminSponsorshipsRoute
+  RakshakPlatformAdminIndexRoute: typeof RakshakPlatformAdminIndexRoute
   RakshakPlatformAdminPrintDatasetRoute: typeof RakshakPlatformAdminPrintDatasetRoute
 }
 
@@ -2086,6 +2105,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminRolesRoute: RakshakPlatformAdminRolesRoute,
   RakshakPlatformAdminSeedRoute: RakshakPlatformAdminSeedRoute,
   RakshakPlatformAdminSponsorshipsRoute: RakshakPlatformAdminSponsorshipsRoute,
+  RakshakPlatformAdminIndexRoute: RakshakPlatformAdminIndexRoute,
   RakshakPlatformAdminPrintDatasetRoute: RakshakPlatformAdminPrintDatasetRoute,
 }
 
@@ -2309,13 +2329,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
