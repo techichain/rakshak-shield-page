@@ -26,11 +26,22 @@ type UserRow = {
   roles: string[];
 };
 
+type PendingRow = {
+  id: string;
+  user_id: string;
+  requested_role: string;
+  requested_at: string;
+  notes: string | null;
+  full_name: string | null;
+  email: string | null;
+};
+
 function RoleManagementPage() {
   const navigate = useNavigate();
   const { loading, userId, isAdmin, roles: myRoles } = useRPAuth();
   const isSuper = myRoles.includes("super_admin");
   const [rows, setRows] = useState<UserRow[]>([]);
+  const [pending, setPending] = useState<PendingRow[]>([]);
   const [query, setQuery] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,12 +65,43 @@ function RoleManagementPage() {
       arr.push(r.role);
       roleMap.set(r.user_id, arr);
     });
+    const profileMap = new Map((profs ?? []).map((p) => [p.id, p]));
     setRows((profs ?? []).map((p) => ({
       id: p.id,
       full_name: p.full_name,
       email: p.email,
       roles: roleMap.get(p.id) ?? [],
     })));
+
+    const { data: pend } = await supabase
+      .from("rp_role_approvals")
+      .select("id, user_id, requested_role, requested_at, notes")
+      .eq("status", "pending")
+      .order("requested_at", { ascending: false });
+
+    // Pending requests may belong to users outside the latest 500 profiles — fetch any missing.
+    const missingIds = Array.from(new Set((pend ?? []).map((p: any) => p.user_id)))
+      .filter((id) => !profileMap.has(id));
+    if (missingIds.length) {
+      const { data: extra } = await supabase
+        .from("rp_profiles")
+        .select("id, full_name, email")
+        .in("id", missingIds);
+      (extra ?? []).forEach((p) => profileMap.set(p.id, p));
+    }
+
+    setPending((pend ?? []).map((p: any) => {
+      const prof = profileMap.get(p.user_id);
+      return {
+        id: p.id,
+        user_id: p.user_id,
+        requested_role: p.requested_role,
+        requested_at: p.requested_at,
+        notes: p.notes,
+        full_name: prof?.full_name ?? null,
+        email: prof?.email ?? null,
+      };
+    }));
   }, []);
 
   useEffect(() => {
@@ -68,6 +110,37 @@ function RoleManagementPage() {
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     load();
   }, [loading, userId, isAdmin, navigate, load]);
+
+  async function approvePending(row: PendingRow) {
+    setBusy("approve" + row.id);
+    setError(null);
+    const { error: insErr } = await supabase
+      .from("rp_user_roles")
+      .insert({ user_id: row.user_id, role: row.requested_role as any });
+    if (insErr && !String(insErr.message).includes("duplicate")) {
+      setError(insErr.message); setBusy(null); return;
+    }
+    const { error: updErr } = await supabase
+      .from("rp_role_approvals")
+      .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId })
+      .eq("id", row.id);
+    if (updErr) setError(updErr.message);
+    await load();
+    setBusy(null);
+  }
+
+  async function rejectPending(row: PendingRow) {
+    if (!confirm(`Reject ${row.requested_role} request from ${row.email ?? row.user_id}?`)) return;
+    setBusy("reject" + row.id);
+    setError(null);
+    const { error: updErr } = await supabase
+      .from("rp_role_approvals")
+      .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userId })
+      .eq("id", row.id);
+    if (updErr) setError(updErr.message);
+    await load();
+    setBusy(null);
+  }
 
   async function revoke(user_id: string, role: string) {
     if (!confirm(`Revoke ${role} from this user?`)) return;
@@ -83,6 +156,13 @@ function RoleManagementPage() {
     setError(null);
     const { error } = await supabase.from("rp_user_roles").insert({ user_id, role: role as any });
     if (error && !String(error.message).includes("duplicate")) setError(error.message);
+    // Also close any matching pending request so the queue stays accurate.
+    await supabase
+      .from("rp_role_approvals")
+      .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId })
+      .eq("user_id", user_id)
+      .eq("requested_role", role as any)
+      .eq("status", "pending");
     setAssignFor(null);
     await load();
     setBusy(null);
@@ -114,6 +194,70 @@ function RoleManagementPage() {
         </div>
 
         {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+
+        <div className="mt-8">
+          <h2 className="font-heading text-lg font-semibold">
+            Pending role requests
+            {pending.length > 0 && (
+              <span className="ml-2 inline-flex items-center rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 text-xs">
+                {pending.length}
+              </span>
+            )}
+          </h2>
+          <div className="mt-3 overflow-hidden rounded-2xl border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="p-3">User</th>
+                  <th className="p-3">Requested role</th>
+                  <th className="p-3">Requested at</th>
+                  <th className="p-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pending.length === 0 && (
+                  <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">No pending requests.</td></tr>
+                )}
+                {pending.map((p) => (
+                  <tr key={p.id} className="border-t border-border align-top">
+                    <td className="p-3">
+                      <div className="font-medium">{p.full_name ?? "—"}</div>
+                      <div className="text-xs text-muted-foreground">{p.email ?? p.user_id}</div>
+                      {p.notes && <div className="mt-1 text-xs text-muted-foreground italic">{p.notes}</div>}
+                    </td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs">
+                        {p.requested_role}
+                      </span>
+                    </td>
+                    <td className="p-3 text-xs text-muted-foreground">
+                      {new Date(p.requested_at).toLocaleString()}
+                    </td>
+                    <td className="p-3 text-right">
+                      <div className="inline-flex gap-2">
+                        <button
+                          onClick={() => approvePending(p)}
+                          disabled={busy === "approve" + p.id}
+                          className="rounded-full bg-brand px-3 py-1 text-xs text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                        >
+                          {busy === "approve" + p.id ? "Approving…" : "Approve"}
+                        </button>
+                        <button
+                          onClick={() => rejectPending(p)}
+                          disabled={busy === "reject" + p.id}
+                          className="rounded-full border border-border px-3 py-1 text-xs hover:bg-muted disabled:opacity-50"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border">
           <table className="w-full text-sm">
