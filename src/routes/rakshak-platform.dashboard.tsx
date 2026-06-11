@@ -110,6 +110,22 @@ function DashboardRedirect() {
               Sign in
             </Link>
           </div>
+        ) : awaitingApproval ? (
+          <div className="mx-auto max-w-md space-y-4">
+            <Eyebrow>Awaiting approval</Eyebrow>
+            <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight">
+              Your <span className="text-brand">{pendingRole}</span> access is pending.
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Signed in as {email}. A CFI admin needs to approve your {pendingRole} role before your workspace unlocks. You'll get access here as soon as it's approved.
+            </p>
+            <Link
+              to="/rakshak-platform"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              Back to platform home
+            </Link>
+          </div>
         ) : noRoleYet ? (
           <div className="mx-auto max-w-md">
             <Eyebrow>One last step</Eyebrow>
