@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
@@ -6,7 +6,7 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import {
   Loader2, Sparkles, Search, Download, MessageSquare, Calendar,
   TrendingUp, Users, Trophy, AlertTriangle, ChevronUp, ChevronDown,
-  LayoutGrid, Table as TableIcon, BarChart3, ListChecks,
+  LayoutGrid, Table as TableIcon, BarChart3, ListChecks, Plus, Mail, X, BellRing,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
