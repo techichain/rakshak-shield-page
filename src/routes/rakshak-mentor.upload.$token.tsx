@@ -152,24 +152,41 @@ function UploadPage() {
         </header>
 
         <div className="flex-1 grid lg:grid-cols-[1fr_420px] gap-0">
-          {/* PDF Viewer */}
-          <div className="bg-slate-900 min-h-[60vh] lg:min-h-[calc(100vh-73px)]">
-            <object
-              data={ASSIGNMENT_PDF_URL}
-              type="application/pdf"
-              className="w-full h-[70vh] lg:h-[calc(100vh-73px)]"
-            >
-              <div className="p-8 text-center text-white">
-                <FileText className="h-10 w-10 mx-auto mb-3 opacity-70" />
-                <p className="text-sm">
-                  Your browser can't display the PDF inline.{' '}
-                  <a href={ASSIGNMENT_PDF_URL} className="underline" target="_blank" rel="noreferrer">
-                    Open it in a new tab
-                  </a>{' '}
-                  or download it above.
+          {/* PDF Viewer — desktop only (mobile / in-app browsers can't render inline PDFs) */}
+          <div className="bg-slate-100 min-h-[40vh] lg:min-h-[calc(100vh-73px)]">
+            {/* Desktop: inline iframe */}
+            <iframe
+              src={ASSIGNMENT_PDF_URL}
+              title="Mentor assignment PDF"
+              className="hidden lg:block w-full h-[calc(100vh-73px)] border-0 bg-white"
+            />
+            {/* Mobile / tablet fallback card */}
+            <div className="lg:hidden p-6">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+                <FileText className="h-10 w-10 mx-auto mb-3 text-[#4A35FF]" />
+                <h3 className="text-base font-bold text-slate-900">Mentor Assignment PDF</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Your browser can't preview PDFs inline. Open or download it below, then come back here to upload your completed file.
                 </p>
+                <div className="mt-4 flex flex-col sm:flex-row gap-2 justify-center">
+                  <a
+                    href={ASSIGNMENT_PDF_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-full bg-[#4A35FF] text-white text-sm font-semibold hover:bg-[#3a28d6]"
+                  >
+                    <ExternalLink className="h-4 w-4" /> Open assignment
+                  </a>
+                  <a
+                    href={ASSIGNMENT_PDF_URL}
+                    download
+                    className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-full border border-slate-300 bg-white text-slate-800 text-sm font-semibold hover:bg-slate-100"
+                  >
+                    <Download className="h-4 w-4" /> Download PDF
+                  </a>
+                </div>
               </div>
-            </object>
+            </div>
           </div>
 
           {/* Submit panel */}
