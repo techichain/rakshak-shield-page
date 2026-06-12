@@ -19,8 +19,8 @@ function NavLink({ to, label, icon: Icon }: { to: string; label: string; icon?: 
     <Link
       to={to}
       activeOptions={{ exact: false }}
-      activeProps={{ className: "text-brand bg-brand-lite font-semibold" }}
-      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-foreground hover:text-brand hover:bg-brand-lite transition-colors"
+      activeProps={{ className: "!text-brand !bg-white shadow-sm font-semibold ring-1 ring-brand/20" }}
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-slate-700 hover:text-brand hover:bg-white hover:shadow-sm transition-all"
     >
       {Icon && <Icon className="h-3.5 w-3.5" />}
       {label}
@@ -66,8 +66,8 @@ function NavDropdown({
         type="button"
         onClick={() => setOpenId(open ? null : id)}
         aria-expanded={open}
-        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors ${
-          open ? "text-brand bg-brand-lite font-semibold" : "text-foreground hover:text-brand hover:bg-brand-lite"
+        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all ${
+          open ? "text-brand bg-white shadow-sm font-semibold ring-1 ring-brand/20" : "text-slate-700 hover:text-brand hover:bg-white hover:shadow-sm"
         }`}
       >
         {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -144,7 +144,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
         Skip to main content
       </a>
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 w-full shadow-sm">
+      <header className="border-b border-border/80 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 backdrop-blur supports-[backdrop-filter]:bg-white/85 sticky top-0 z-40 w-full shadow-[0_2px_8px_-2px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/60">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
           <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink">
             <span className="inline-block h-2 w-2 shrink-0 rounded-sm bg-brand" />
@@ -152,7 +152,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 ${navOverflow ? '' : 'xl:flex'}`}>
+          <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
             <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />
             <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />
             <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
