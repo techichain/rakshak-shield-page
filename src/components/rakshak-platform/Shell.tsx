@@ -152,7 +152,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 ${navOverflow ? '' : 'xl:flex'}`}>
+          <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
             <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />
             <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />
             <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
