@@ -2,7 +2,88 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { verifyCertificate } from "@/lib/rakshak-platform/certificates.functions";
-import { CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
+import { CheckCircle2, XCircle, ShieldCheck, Download } from "lucide-react";
+import { jsPDF } from "jspdf";
+
+function downloadCertificatePdf(cert: any) {
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  doc.setDrawColor(20, 20, 20);
+  doc.setLineWidth(0.6);
+  doc.rect(10, 10, W - 20, H - 20);
+  doc.setLineWidth(0.2);
+  doc.rect(13, 13, W - 26, H - 26);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(90);
+  doc.text("CRASHFREE INDIA  ·  PROJECT RAKSHAK", W / 2, 26, { align: "center" });
+
+  doc.setFontSize(10);
+  doc.setTextColor(120);
+  doc.text(
+    "CERTIFICATE OF " + String(cert.certificate_type || "participation").replace(/_/g, " ").toUpperCase(),
+    W / 2, 50, { align: "center" },
+  );
+
+  doc.setFont("times", "italic");
+  doc.setFontSize(34);
+  doc.setTextColor(20);
+  doc.text(cert.title || "Certificate", W / 2, 70, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(110);
+  doc.text("is hereby awarded to", W / 2, 88, { align: "center" });
+
+  doc.setFont("times", "normal");
+  doc.setFontSize(40);
+  doc.setTextColor(15);
+  doc.text(cert.recipient_name || "", W / 2, 110, { align: "center" });
+
+  doc.setDrawColor(20);
+  doc.setLineWidth(0.4);
+  doc.line(W / 2 - 60, 116, W / 2 + 60, 116);
+
+  if (cert.rp_teams) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(80);
+    const t = cert.rp_teams;
+    const team = `Team ${t.team_name}${t.college ? " · " + t.college : ""}${t.city ? " · " + t.city : ""}${t.state ? ", " + t.state : ""}`;
+    doc.text(team, W / 2, 128, { align: "center" });
+  }
+
+  if (cert.phase_number != null) {
+    doc.setFontSize(10);
+    doc.setTextColor(110);
+    doc.text(`Phase ${cert.phase_number}`, W / 2, 138, { align: "center" });
+  }
+
+  const issued = new Date(cert.issued_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  doc.setFontSize(9);
+  doc.setTextColor(90);
+  doc.text(`Issued ${issued}`, 25, H - 25);
+  doc.text(`Serial  ${cert.serial_no}`, 25, H - 19);
+
+  const verifyUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/rakshak-platform/verify/${cert.public_slug}`
+    : `/rakshak-platform/verify/${cert.public_slug}`;
+  doc.text("Verify at", W - 25, H - 25, { align: "right" });
+  doc.setTextColor(40);
+  doc.text(verifyUrl, W - 25, H - 19, { align: "right" });
+
+  doc.setDrawColor(60);
+  doc.setLineWidth(0.3);
+  doc.line(W / 2 - 30, H - 25, W / 2 + 30, H - 25);
+  doc.setFontSize(9);
+  doc.setTextColor(90);
+  doc.text("Crashfree India", W / 2, H - 19, { align: "center" });
+
+  doc.save(`Rakshak-Certificate-${cert.serial_no}.pdf`);
+}
 
 export const Route = createFileRoute("/rakshak-platform/verify/$slug")({
   loader: async ({ params, context }) =>
