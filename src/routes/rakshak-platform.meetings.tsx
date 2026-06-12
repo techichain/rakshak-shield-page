@@ -10,8 +10,9 @@ import {
   rsvpMeeting,
   listMyMeetings,
   listInvitees,
+  rescheduleMeeting,
 } from "@/lib/rakshak-platform/meetings.functions";
-import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell } from "lucide-react";
+import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/meetings")({
   component: MeetingsPage,
