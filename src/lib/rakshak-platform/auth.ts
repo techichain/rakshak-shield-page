@@ -1,3 +1,4 @@
+import { redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { RPRole } from "./constants";
@@ -107,3 +108,27 @@ export function useRPAuth(): RPAuthState {
 export async function rpSignOut() {
   await supabase.auth.signOut();
 }
+
+/** Server-side (beforeLoad) role guard. Requires ssr:false on the route. */
+export async function rpRequireRole(
+  allowedRoles: string[],
+  opts: { redirectTo?: string; blockAdmin?: boolean } = {}
+) {
+  const { redirectTo = "/rakshak-platform/dashboard", blockAdmin = true } = opts;
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) throw redirect({ to: "/rakshak-platform/auth" });
+
+  const { data: rolesData } = await supabase
+    .from("rp_user_roles")
+    .select("role")
+    .eq("user_id", data.user.id);
+
+  const roles = (rolesData ?? []).map((r) => r.role);
+  const isAdmin = roles.includes("cfi_admin") || roles.includes("super_admin");
+
+  if (blockAdmin && isAdmin) throw redirect({ to: redirectTo });
+
+  const hasRole = allowedRoles.some((r) => roles.includes(r));
+  if (!hasRole) throw redirect({ to: redirectTo });
+}
+
