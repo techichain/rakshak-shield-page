@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RakshakPlatformIndexRouteImport } from './routes/rakshak-platform.index'
 import { Route as RakshakMentorIndexRouteImport } from './routes/rakshak-mentor.index'
 import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
+import { Route as RakshakPlatformUnauthorizedRouteImport } from './routes/rakshak-platform.unauthorized'
 import { Route as RakshakPlatformTeamRouteImport } from './routes/rakshak-platform.team'
 import { Route as RakshakPlatformSponsorRouteImport } from './routes/rakshak-platform.sponsor'
 import { Route as RakshakPlatformProfileRouteImport } from './routes/rakshak-platform.profile'
@@ -150,6 +151,12 @@ const GigriderChecklistIndexRoute = GigriderChecklistIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GigriderChecklistRoute,
 } as any)
+const RakshakPlatformUnauthorizedRoute =
+  RakshakPlatformUnauthorizedRouteImport.update({
+    id: '/unauthorized',
+    path: '/unauthorized',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
 const RakshakPlatformTeamRoute = RakshakPlatformTeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -707,6 +714,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
+  '/rakshak-platform/unauthorized': typeof RakshakPlatformUnauthorizedRoute
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
   '/rakshak-platform/': typeof RakshakPlatformIndexRoute
@@ -800,6 +808,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
+  '/rakshak-platform/unauthorized': typeof RakshakPlatformUnauthorizedRoute
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor': typeof RakshakMentorIndexRoute
   '/rakshak-platform': typeof RakshakPlatformIndexRoute
@@ -901,6 +910,7 @@ export interface FileRoutesById {
   '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
   '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
+  '/rakshak-platform/unauthorized': typeof RakshakPlatformUnauthorizedRoute
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
   '/rakshak-platform/': typeof RakshakPlatformIndexRoute
@@ -1005,6 +1015,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
+    | '/rakshak-platform/unauthorized'
     | '/gigrider-checklist/'
     | '/rakshak-mentor/'
     | '/rakshak-platform/'
@@ -1098,6 +1109,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
+    | '/rakshak-platform/unauthorized'
     | '/gigrider-checklist'
     | '/rakshak-mentor'
     | '/rakshak-platform'
@@ -1198,6 +1210,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
     | '/rakshak-platform/team'
+    | '/rakshak-platform/unauthorized'
     | '/gigrider-checklist/'
     | '/rakshak-mentor/'
     | '/rakshak-platform/'
@@ -1347,6 +1360,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/gigrider-checklist/'
       preLoaderRoute: typeof GigriderChecklistIndexRouteImport
       parentRoute: typeof GigriderChecklistRoute
+    }
+    '/rakshak-platform/unauthorized': {
+      id: '/rakshak-platform/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/rakshak-platform/unauthorized'
+      preLoaderRoute: typeof RakshakPlatformUnauthorizedRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/team': {
       id: '/rakshak-platform/team'
@@ -2312,6 +2332,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformProfileRoute: typeof RakshakPlatformProfileRoute
   RakshakPlatformSponsorRoute: typeof RakshakPlatformSponsorRoute
   RakshakPlatformTeamRoute: typeof RakshakPlatformTeamRouteWithChildren
+  RakshakPlatformUnauthorizedRoute: typeof RakshakPlatformUnauthorizedRoute
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
   RakshakPlatformBookMentorIdRoute: typeof RakshakPlatformBookMentorIdRoute
   RakshakPlatformMIdRoute: typeof RakshakPlatformMIdRoute
@@ -2340,6 +2361,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformProfileRoute: RakshakPlatformProfileRoute,
   RakshakPlatformSponsorRoute: RakshakPlatformSponsorRoute,
   RakshakPlatformTeamRoute: RakshakPlatformTeamRouteWithChildren,
+  RakshakPlatformUnauthorizedRoute: RakshakPlatformUnauthorizedRoute,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
   RakshakPlatformBookMentorIdRoute: RakshakPlatformBookMentorIdRoute,
   RakshakPlatformMIdRoute: RakshakPlatformMIdRoute,
@@ -2374,13 +2396,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
