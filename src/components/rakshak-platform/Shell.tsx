@@ -67,7 +67,7 @@ function NavDropdown({
         onClick={() => setOpenId(open ? null : id)}
         aria-expanded={open}
         className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors ${
-          open ? "text-brand bg-brand-lite font-semibold" : "text-foreground/80 hover:text-brand hover:bg-brand-lite"
+          open ? "text-brand bg-brand-lite font-semibold" : "text-foreground hover:text-brand hover:bg-brand-lite"
         }`}
       >
         {Icon && <Icon className="h-3.5 w-3.5" />}
