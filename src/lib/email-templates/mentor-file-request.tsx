@@ -34,6 +34,7 @@ const KIND_LABEL: Record<string, { title: string; what: string }> = {
 
 const Email = ({ name, kind = 'resume', upload_url = '#', expires_on }: Props) => {
   const meta = KIND_LABEL[kind] ?? KIND_LABEL.resume
+  const isAssignment = kind === 'assignment'
   return (
     <Html lang="en" dir="ltr">
       <Head />
@@ -42,14 +43,26 @@ const Email = ({ name, kind = 'resume', upload_url = '#', expires_on }: Props) =
         <Container style={container}>
           <Heading style={h1}>{meta.title}</Heading>
           <Text style={text}>Hi {name || 'there'},</Text>
-          <Text style={text}>
-            Thanks for applying to become a Rakshak mentor with Crashfree India. To move
-            your application forward, please share {meta.what} using the secure link
-            below.
-          </Text>
+          {isAssignment ? (
+            <>
+              <Text style={text}>
+                Thank you for applying to become a mentor for Project Rakshak.
+              </Text>
+              <Text style={text}>
+                To move your application forward, please upload your assignment using the
+                secure link below. PDF format is preferred.
+              </Text>
+            </>
+          ) : (
+            <Text style={text}>
+              Thanks for applying to become a Rakshak mentor with Crashfree India. To move
+              your application forward, please share {meta.what} using the secure link
+              below.
+            </Text>
+          )}
           <Section style={{ textAlign: 'center', margin: '28px 0' }}>
             <Button href={upload_url} style={button}>
-              Upload {kind === 'assignment' ? 'assignment' : 'resume'}
+              Upload {isAssignment ? 'assignment' : 'resume'}
             </Button>
           </Section>
           <Text style={small}>
@@ -64,7 +77,7 @@ const Email = ({ name, kind = 'resume', upload_url = '#', expires_on }: Props) =
           <Text style={footer}>
             Crashfree India · Rakshak Mentor Programme
             <br />
-            If you didn’t apply, you can safely ignore this email.
+            If you didn't apply, you can safely ignore this email.
           </Text>
         </Container>
       </Body>
