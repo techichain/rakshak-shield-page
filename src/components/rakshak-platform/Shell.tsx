@@ -84,7 +84,7 @@ function NavDropdown({
                 to={item.to}
                 onClick={() => setOpenId(null)}
                 activeProps={{ className: "bg-brand-lite text-brand" }}
-                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-brand-lite hover:text-brand whitespace-nowrap"
+                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
               >
                 {IIcon && <IIcon className="h-4 w-4 mt-0.5 shrink-0 opacity-70" />}
                 <span className="flex flex-col">
