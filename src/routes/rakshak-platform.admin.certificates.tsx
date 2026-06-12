@@ -46,8 +46,9 @@ function AdminCerts() {
 
   async function handleIssue(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     setBusy(true); setErr(null);
-    const fd = new FormData(e.currentTarget);
     try {
       await issue({
         data: {
@@ -58,7 +59,7 @@ function AdminCerts() {
           recipient_name: String(fd.get("recipient_name")),
         },
       });
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
       qc.invalidateQueries({ queryKey: ["rp-admin-certs"] });
     } catch (e: any) {
       setErr(e?.message ?? "Issue failed");
