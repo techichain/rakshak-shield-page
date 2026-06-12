@@ -20,7 +20,7 @@ function NavLink({ to, label, icon: Icon }: { to: string; label: string; icon?: 
       to={to}
       activeOptions={{ exact: false }}
       activeProps={{ className: "text-brand bg-brand-lite font-semibold" }}
-      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-foreground hover:text-brand hover:bg-brand-lite transition-colors"
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-slate-700 hover:text-brand hover:bg-white hover:shadow-sm transition-all"
     >
       {Icon && <Icon className="h-3.5 w-3.5" />}
       {label}
