@@ -4,8 +4,13 @@ import { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { aiCheckSubmission } from "@/lib/rakshak-platform/ai-checker.functions";
 import { Sparkles, CheckCircle2, AlertTriangle, ListChecks } from "lucide-react";
+import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 
 export const Route = createFileRoute("/rakshak-platform/team/ai-check")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["team_leader", "team_member"]);
+  },
   component: AiCheck,
   errorComponent: ({ error }) => <PlatformShell><Section><p>{String(error)}</p></Section></PlatformShell>,
   notFoundComponent: () => <PlatformShell><Section><p>Not found.</p></Section></PlatformShell>,

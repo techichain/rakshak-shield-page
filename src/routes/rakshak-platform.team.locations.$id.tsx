@@ -1,12 +1,16 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useRPAuth } from "@/lib/rakshak-platform/auth";
+import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap } from "@/components/rakshak-platform/LocationMap";
 import { ArrowLeft, Camera, Star, Trash2, Upload, Send } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/$id")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["team_leader", "team_member"]);
+  },
   component: LocationDetail,
 });
 

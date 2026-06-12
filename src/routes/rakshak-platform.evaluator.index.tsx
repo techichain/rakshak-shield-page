@@ -13,10 +13,10 @@ export const Route = createFileRoute("/rakshak-platform/evaluator/")({
 });
 
 function EvaluatorQueue() {
-  const { loading, userId, isEvaluator, isAdmin } = useRPAuth();
+  const { loading, userId, isEvaluator } = useRPAuth();
   const navigate = useNavigate();
   const fetchQueue = useServerFn(getEvaluatorQueue);
-  const allowed = isEvaluator || isAdmin;
+  const allowed = isEvaluator;
 
   useEffect(() => {
     if (loading) return;

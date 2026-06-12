@@ -15,10 +15,15 @@ import {
 import { PHASE_TITLES, STATUS_META, type PhaseStatus } from "@/lib/rakshak-platform/constants";
 import { ArrowLeft, Upload, Save, Send, X, FileText, MessageSquare } from "lucide-react";
 import { SubmissionTimeline } from "@/components/rakshak-platform/SubmissionTimeline";
+import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 
 const SearchSchema = z.object({ team: z.string().uuid() });
 
 export const Route = createFileRoute("/rakshak-platform/team/phases/$phase")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["team_leader", "team_member"]);
+  },
   validateSearch: (s) => SearchSchema.parse(s),
   component: PhaseDetail,
   errorComponent: ({ error }) => (
