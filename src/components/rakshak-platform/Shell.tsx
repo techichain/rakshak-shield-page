@@ -19,8 +19,8 @@ function NavLink({ to, label, icon: Icon }: { to: string; label: string; icon?: 
     <Link
       to={to}
       activeOptions={{ exact: false }}
-      activeProps={{ className: "text-brand bg-brand-lite font-medium" }}
-      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite transition-colors"
+      activeProps={{ className: "text-brand bg-brand-lite font-semibold" }}
+      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-foreground hover:text-brand hover:bg-brand-lite transition-colors"
     >
       {Icon && <Icon className="h-3.5 w-3.5" />}
       {label}
@@ -67,7 +67,7 @@ function NavDropdown({
         onClick={() => setOpenId(open ? null : id)}
         aria-expanded={open}
         className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors ${
-          open ? "text-brand bg-brand-lite" : "text-muted-foreground hover:text-brand hover:bg-brand-lite"
+          open ? "text-brand bg-brand-lite font-semibold" : "text-foreground hover:text-brand hover:bg-brand-lite"
         }`}
       >
         {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -84,7 +84,7 @@ function NavDropdown({
                 to={item.to}
                 onClick={() => setOpenId(null)}
                 activeProps={{ className: "bg-brand-lite text-brand" }}
-                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
+                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
               >
                 {IIcon && <IIcon className="h-4 w-4 mt-0.5 shrink-0 opacity-70" />}
                 <span className="flex flex-col">
@@ -144,7 +144,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
         Skip to main content
       </a>
-      <header className="border-b border-border bg-background sticky top-0 z-40 w-full">
+      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 w-full shadow-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
           <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink">
             <span className="inline-block h-2 w-2 shrink-0 rounded-sm bg-brand" />
