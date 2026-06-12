@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/gigrider/auth";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  sendGigAdminResetOtp,
+  resetGigAdminPassword,
+} from "@/lib/gigrider/password-reset.functions";
 
 export const Route = createFileRoute("/gigrider-checklist/login")({
   component: LoginPage,
