@@ -144,7 +144,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
         Skip to main content
       </a>
-      <header className="border-b border-border bg-background sticky top-0 z-40 w-full">
+      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 w-full shadow-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
           <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink">
             <span className="inline-block h-2 w-2 shrink-0 rounded-sm bg-brand" />
