@@ -4,10 +4,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { createMentorSlot, listMySlots, cancelMentorSlot } from "@/lib/rakshak-platform/mentor-sessions.functions";
-import { useRPAuth } from "@/lib/rakshak-platform/auth";
+import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { Calendar, Trash2, Video, X } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/mentor/availability")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["mentor"]);
+  },
   component: AvailabilityPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p className="text-red-600">{String(error)}</p></Section></PlatformShell>

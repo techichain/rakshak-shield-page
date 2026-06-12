@@ -22,11 +22,11 @@ interface Criterion {
 
 function ScoringPage() {
   const { submissionId } = Route.useParams();
-  const { loading, userId, isEvaluator, isAdmin } = useRPAuth();
+  const { loading, userId, isEvaluator } = useRPAuth();
   const navigate = useNavigate();
   const fetchData = useServerFn(getSubmissionForScoring);
   const saveFn = useServerFn(upsertEvaluation);
-  const allowed = isEvaluator || isAdmin;
+  const allowed = isEvaluator;
 
   useEffect(() => {
     if (loading) return;
