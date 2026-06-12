@@ -121,157 +121,84 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav ref={navRef} className={`hidden items-center gap-5 text-sm min-w-0 overflow-x-auto ${navOverflow ? '' : 'xl:flex'}`}>
-            <Link to="/rakshak-platform/map" className="text-muted-foreground hover:text-brand">
-              Hotspots
-            </Link>
-            <Link to="/rakshak-platform/knowledge" className="text-muted-foreground hover:text-brand">
-              Knowledge
-            </Link>
-            <Link to="/rakshak-platform/leaderboard" className="text-muted-foreground hover:text-brand">
-              Leaderboard
-            </Link>
-            <Link to="/rakshak-platform/impact" className="text-muted-foreground hover:text-brand">
-              Impact
-            </Link>
-            <Link to="/rakshak-platform/mentors" className="text-muted-foreground hover:text-brand">
-              Mentors
-            </Link>
-            <Link to="/rakshak-platform/sponsor" className="text-muted-foreground hover:text-brand">
-              Sponsor
-            </Link>
+          <nav ref={navRef} className={`hidden items-center gap-1 text-sm min-w-0 ${navOverflow ? '' : 'xl:flex'}`}>
+            <Link to="/rakshak-platform/map" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Hotspots</Link>
+            <Link to="/rakshak-platform/knowledge" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Knowledge</Link>
+            <Link to="/rakshak-platform/leaderboard" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Leaderboard</Link>
+            <Link to="/rakshak-platform/impact" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Impact</Link>
+            <Link to="/rakshak-platform/mentors" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Mentors</Link>
+            <Link to="/rakshak-platform/sponsor" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Sponsor</Link>
+
             {isAuthority && (
-              <Link to="/rakshak-platform/authority" className="text-muted-foreground hover:text-brand">
-                Authority
-              </Link>
+              <Link to="/rakshak-platform/authority" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Authority</Link>
             )}
             {isEvaluator && (
-              <>
-                <Link to="/rakshak-platform/evaluator" className="text-muted-foreground hover:text-brand">
-                  Evaluator
-                </Link>
-                <Link to="/rakshak-platform/evaluator/compare" className="text-muted-foreground hover:text-brand">
-                  Compare
-                </Link>
-              </>
+              <NavDropdown id="evaluator" label="Evaluator" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/evaluator", label: "Queue" },
+                { to: "/rakshak-platform/evaluator/compare", label: "Compare" },
+              ]} />
+            )}
+            {(isMentor || isTeam) && (
+              <Link to="/rakshak-platform/meetings" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Meetings</Link>
+            )}
+            {isMentor && (
+              <NavDropdown id="mentor" label="Mentor" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/mentor", label: "Dashboard" },
+                { to: "/rakshak-platform/mentor/availability", label: "Availability" },
+              ]} />
+            )}
+            {isTeam && (
+              <NavDropdown id="team" label="My Team" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/team", label: "Overview" },
+                { to: "/rakshak-platform/team/phases", label: "Phases" },
+                { to: "/rakshak-platform/team/locations", label: "Locations" },
+                { to: "/rakshak-platform/team/reports", label: "Reports" },
+                { to: "/rakshak-platform/team/ai-check", label: "AI check" },
+              ]} />
             )}
 
             {isAdmin && (
               <>
-                <Link to="/rakshak-platform/admin" className="text-muted-foreground hover:text-brand">
-                  Admin
-                </Link>
-                <Link to="/rakshak-platform/admin/certificates" className="text-muted-foreground hover:text-brand">
-                  Certificates
-                </Link>
-                <Link to="/rakshak-platform/admin/knowledge" className="text-muted-foreground hover:text-brand">
-                  Articles
-                </Link>
-                <Link to="/rakshak-platform/admin/map" className="text-muted-foreground hover:text-brand">
-                  Programme map
-                </Link>
-                <Link to="/rakshak-platform/admin/analytics" className="text-muted-foreground hover:text-brand">
-                  Analytics
-                </Link>
-                <Link to="/rakshak-platform/admin/mentor-applications" className="text-muted-foreground hover:text-brand">
-                  Mentor apps
-                </Link>
-                <Link to="/rakshak-platform/admin/bulk-import" className="text-muted-foreground hover:text-brand">
-                  Import
-                </Link>
-                <Link to="/rakshak-platform/admin/exports" className="text-muted-foreground hover:text-brand">
-                  Exports
-                </Link>
-                <Link to="/rakshak-platform/admin/audit" className="text-muted-foreground hover:text-brand">
-                  Audit
-                </Link>
-                <Link to="/rakshak-platform/admin/meetings" className="text-muted-foreground hover:text-brand">
-                  Meetings
-                </Link>
-                <Link to="/rakshak-platform/admin/cohorts" className="text-muted-foreground hover:text-brand">
-                  Cohorts
-                </Link>
-                <Link to="/rakshak-platform/admin/cron-health" className="text-muted-foreground hover:text-brand">
-                  Cron
-                </Link>
-                <Link to="/rakshak-platform/admin/roles" className="text-muted-foreground hover:text-brand">
-                  Roles
-                </Link>
-                <Link to="/rakshak-platform/admin/evaluator-queue" className="text-muted-foreground hover:text-brand">
-                  Evaluator queue
-                </Link>
-                <Link to="/rakshak-platform/admin/evaluator-leaderboard" className="text-muted-foreground hover:text-brand">
-                  Eval analytics
-                </Link>
-                <Link to="/rakshak-platform/admin/alerts" className="text-muted-foreground hover:text-brand">
-                  Alerts
-                </Link>
-                <Link to="/rakshak-platform/admin/qa" className="text-muted-foreground hover:text-brand">
-                  QA
-                </Link>
-                <Link to="/rakshak-platform/admin/integrations" className="text-muted-foreground hover:text-brand">
-                  Integrations
-                </Link>
-                <Link to="/rakshak-platform/admin/qa-checklist" className="text-muted-foreground hover:text-brand">
-                  QA checklist
-                </Link>
-                <Link to="/rakshak-platform/admin/reviews" className="text-muted-foreground hover:text-brand">
-                  Reviews
-                </Link>
-                <Link to="/rakshak-platform/admin/badges" className="text-muted-foreground hover:text-brand">
-                  Badges
-                </Link>
-                <Link to="/rakshak-platform/admin/seed" className="text-muted-foreground hover:text-brand">
-                  Seed
-                </Link>
-
+                <Link to="/rakshak-platform/admin" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Admin</Link>
+                <NavDropdown id="content" label="Content" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/knowledge", label: "Articles" },
+                  { to: "/rakshak-platform/admin/certificates", label: "Certificates" },
+                  { to: "/rakshak-platform/admin/badges", label: "Badges" },
+                  { to: "/rakshak-platform/admin/map", label: "Programme map" },
+                ]} />
+                <NavDropdown id="people" label="People" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor apps" },
+                  { to: "/rakshak-platform/admin/cohorts", label: "Cohorts" },
+                  { to: "/rakshak-platform/admin/roles", label: "Roles" },
+                  { to: "/rakshak-platform/admin/meetings", label: "All meetings" },
+                ]} />
+                <NavDropdown id="review" label="Review" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/evaluator-queue", label: "Evaluator queue" },
+                  { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics" },
+                  { to: "/rakshak-platform/admin/reviews", label: "Reviews" },
+                  { to: "/rakshak-platform/admin/qa", label: "QA" },
+                  { to: "/rakshak-platform/admin/qa-checklist", label: "QA checklist" },
+                ]} />
+                <NavDropdown id="ops" label="Operations" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/analytics", label: "Analytics" },
+                  { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import" },
+                  { to: "/rakshak-platform/admin/exports", label: "Exports" },
+                  { to: "/rakshak-platform/admin/audit", label: "Audit log" },
+                  { to: "/rakshak-platform/admin/alerts", label: "Alerts" },
+                  { to: "/rakshak-platform/admin/cron-health", label: "Cron health" },
+                  { to: "/rakshak-platform/admin/integrations", label: "Integrations" },
+                  { to: "/rakshak-platform/admin/seed", label: "Seed data" },
+                ]} />
               </>
             )}
             {(isAdmin || isFinance) && (
-              <>
-                <Link to="/rakshak-platform/admin/finance" className="text-muted-foreground hover:text-brand">
-                  Finance
-                </Link>
-                <Link to="/rakshak-platform/admin/sponsorships" className="text-muted-foreground hover:text-brand">
-                  Sponsorships
-                </Link>
-              </>
-            )}
-            {(isMentor || isTeam) && (
-              <Link to="/rakshak-platform/meetings" className="text-muted-foreground hover:text-brand">
-                Meetings
-              </Link>
-            )}
-            {isMentor && (
-              <Link to="/rakshak-platform/mentor" className="text-muted-foreground hover:text-brand">
-                Mentor
-              </Link>
-            )}
-            {isMentor && (
-              <Link to="/rakshak-platform/mentor/availability" className="text-muted-foreground hover:text-brand">
-                Availability
-              </Link>
-            )}
-            {isTeam && (
-              <>
-                <Link to="/rakshak-platform/team" className="text-muted-foreground hover:text-brand">
-                  My Team
-                </Link>
-                <Link to="/rakshak-platform/team/phases" className="text-muted-foreground hover:text-brand">
-                  Phases
-                </Link>
-                <Link to="/rakshak-platform/team/locations" className="text-muted-foreground hover:text-brand">
-                  Locations
-                </Link>
-                <Link to="/rakshak-platform/team/reports" className="text-muted-foreground hover:text-brand">
-                  Reports
-                </Link>
-                <Link to="/rakshak-platform/team/ai-check" className="text-muted-foreground hover:text-brand">
-                  AI check
-                </Link>
-              </>
+              <NavDropdown id="finance" label="Finance" openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/admin/finance", label: "Finance" },
+                { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships" },
+              ]} />
             )}
           </nav>
+
           <div className="flex items-center gap-3">
             {isAdmin && (
               <div className="hidden lg:block w-72"><GlobalSearch /></div>
