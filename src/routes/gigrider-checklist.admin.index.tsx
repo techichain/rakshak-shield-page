@@ -19,7 +19,10 @@ function AdminDashboard() {
   useEffect(() => {
     if (authLoading || roleLoading) return;
     if (!user) navigate({ to: "/gigrider-checklist/login" });
-    else if (role !== "admin") navigate({ to: "/gigrider-checklist/observer" });
+    // Send non-admins to the gigrider root, which will route observers to
+    // their dashboard and show a "no access" screen for users with no
+    // gig-rider role (e.g. Rakshak admins on the shared Supabase session).
+    else if (role !== "admin") navigate({ to: "/gigrider-checklist" });
   }, [user, role, authLoading, roleLoading, navigate]);
 
   if (authLoading || roleLoading || !user || role !== "admin") {
