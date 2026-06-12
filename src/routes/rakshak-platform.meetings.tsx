@@ -111,6 +111,39 @@ function MeetingsPage() {
     qc.invalidateQueries({ queryKey: ["rp-meetings"] });
   }
 
+  const [reschedFor, setReschedFor] = useState<any | null>(null);
+  const [reschedBusy, setReschedBusy] = useState(false);
+  const [reschedErr, setReschedErr] = useState<string | null>(null);
+
+  function toLocalInput(iso: string) {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  async function submitReschedule(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!reschedFor) return;
+    setReschedBusy(true); setReschedErr(null);
+    const fd = new FormData(e.currentTarget);
+    try {
+      await reschedule({
+        data: {
+          id: reschedFor.id,
+          scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
+          scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
+          reason: String(fd.get("reason") || "") || undefined,
+        },
+      });
+      setReschedFor(null);
+      qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    } catch (e: any) {
+      setReschedErr(e?.message ?? "Could not reschedule");
+    } finally {
+      setReschedBusy(false);
+    }
+  }
+
   function ics(m: any) {
     const fmt = (s: string) => new Date(s).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     const body = [
