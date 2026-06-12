@@ -128,7 +128,7 @@ export async function rpRequireRole(
 
   if (blockAdmin && isAdmin) throw redirect({ to: redirectTo });
 
-  const hasRole = allowedRoles.some((r) => roles.includes(r));
+  const hasRole = roles.some((role) => allowedRoles.includes(role));
   if (!hasRole) throw redirect({ to: redirectTo });
 }
 
