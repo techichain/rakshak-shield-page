@@ -109,6 +109,82 @@ export const cancelMeeting = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const rescheduleMeeting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      scheduled_start: z.string(),
+      scheduled_end: z.string(),
+      reason: z.string().max(1000).optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    if (new Date(data.scheduled_end).getTime() <= new Date(data.scheduled_start).getTime())
+      throw new Error("End time must be after start time.");
+
+    const { data: row, error: readErr } = await context.supabase
+      .from("rp_meetings")
+      .select("id, created_by, title, scheduled_start")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readErr) throw readErr;
+    if (!row) throw new Error("Meeting not found");
+
+    let allowed = row.created_by === context.userId;
+    if (!allowed) {
+      const { data: roles } = await context.supabase
+        .from("rp_user_roles").select("role").eq("user_id", context.userId);
+      allowed = (roles ?? []).some((r: any) =>
+        ["cfi_admin", "super_admin"].includes(r.role),
+      );
+    }
+    if (!allowed) throw new Error("Forbidden: only the meeting creator or an admin can reschedule");
+
+    const { error } = await context.supabase
+      .from("rp_meetings")
+      .update({
+        scheduled_start: data.scheduled_start,
+        scheduled_end: data.scheduled_end,
+        status: "proposed",
+        // Reset reminder fences so reminders fire for the new time.
+        reminder_24h_sent_at: null,
+        reminder_1h_sent_at: null,
+        reminder_30m_sent_at: null,
+      })
+      .eq("id", data.id);
+    if (error) throw error;
+
+    // Reset attendee RSVPs (except creator) and notify them.
+    const { data: attendees } = await context.supabase
+      .from("rp_meeting_attendees")
+      .select("profile_id")
+      .eq("meeting_id", data.id);
+    const otherIds = (attendees ?? [])
+      .map((a: any) => a.profile_id)
+      .filter((pid: string) => pid !== context.userId);
+    if (otherIds.length) {
+      await context.supabase
+        .from("rp_meeting_attendees")
+        .update({ rsvp: "pending", responded_at: null })
+        .eq("meeting_id", data.id)
+        .in("profile_id", otherIds);
+      const when = new Date(data.scheduled_start).toLocaleString();
+      await context.supabase.from("rp_notifications").insert(
+        otherIds.map((pid: string) => ({
+          recipient_id: pid,
+          type: "meeting_rescheduled",
+          title: `Rescheduled: ${row.title}`,
+          message: `New time: ${when}${data.reason ? ` — ${data.reason}` : ""}`,
+          action_link: `/rakshak-platform/meetings`,
+          related_entity_type: "meeting",
+          related_entity_id: data.id,
+        })),
+      );
+    }
+    return { ok: true };
+  });
+
 export const rsvpMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
