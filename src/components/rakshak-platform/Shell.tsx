@@ -1,10 +1,74 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Menu, X } from "lucide-react";
+import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
 import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
+
+type NavItem = { to: string; label: string };
+
+function NavDropdown({
+  label,
+  items,
+  openId,
+  setOpenId,
+  id,
+}: {
+  label: string;
+  items: NavItem[];
+  openId: string | null;
+  setOpenId: (v: string | null) => void;
+  id: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const open = openId === id;
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpenId(null);
+    };
+    const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenId(null); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open, setOpenId]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpenId(open ? null : id)}
+        aria-expanded={open}
+        className={`inline-flex items-center gap-1 rounded-md px-2 py-1.5 transition-colors ${
+          open ? "text-brand bg-brand-lite" : "text-muted-foreground hover:text-brand"
+        }`}
+      >
+        {label}
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-2 min-w-[12rem] rounded-xl border border-border bg-background shadow-lg shadow-foreground/5 p-1.5 z-50">
+          {items.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={() => setOpenId(null)}
+              className="block rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
