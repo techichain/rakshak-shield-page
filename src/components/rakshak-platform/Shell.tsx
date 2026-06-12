@@ -74,6 +74,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const lastWidth = useRef(0);
   const [navOverflow, setNavOverflow] = useState(false);
