@@ -1,13 +1,17 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useRPAuth } from "@/lib/rakshak-platform/auth";
+import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap, type MapMarker } from "@/components/rakshak-platform/LocationMap";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { MapPin, Plus, Star, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["team_leader", "team_member"]);
+  },
   component: TeamLocationsIndex,
 });
 

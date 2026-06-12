@@ -4,11 +4,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { useRPAuth } from "@/lib/rakshak-platform/auth";
+import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { listTeamReports, upsertAuthorityReport } from "@/lib/rakshak-platform/authority.functions";
 import { FileText, Send, Plus, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/reports/")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["team_leader", "team_member"]);
+  },
   component: TeamReports,
 });
 

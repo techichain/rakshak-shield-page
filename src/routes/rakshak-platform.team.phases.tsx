@@ -5,10 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getMyTeams, listTeamPhases } from "@/lib/rakshak-platform/submissions.functions";
 import { PHASE_TITLES, STATUS_META, type PhaseStatus } from "@/lib/rakshak-platform/constants";
-import { useRPAuth } from "@/lib/rakshak-platform/auth";
+import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { ArrowRight, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/phases")({
+  ssr: false,
+  beforeLoad: async () => {
+    await rpRequireRole(["team_leader", "team_member"]);
+  },
   component: TeamPhasesPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p className="text-red-600">{String(error)}</p></Section></PlatformShell>
