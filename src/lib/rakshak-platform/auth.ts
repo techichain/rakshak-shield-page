@@ -112,23 +112,77 @@ export async function rpSignOut() {
 /** Server-side (beforeLoad) role guard. Requires ssr:false on the route. */
 export async function rpRequireRole(
   allowedRoles: string[],
-  opts: { redirectTo?: string; blockAdmin?: boolean } = {}
+  opts: { redirectTo?: string; blockAdmin?: boolean; attemptedPath?: string } = {}
 ) {
-  const { redirectTo = "/rakshak-platform/dashboard", blockAdmin = true } = opts;
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) throw redirect({ to: "/rakshak-platform/auth" });
+  const {
+    redirectTo = "/rakshak-platform/unauthorized",
+    blockAdmin = true,
+    attemptedPath,
+  } = opts;
 
-  const { data: rolesData } = await supabase
-    .from("rp_user_roles")
-    .select("role")
-    .eq("user_id", data.user.id);
+  const path =
+    attemptedPath ??
+    (typeof window !== "undefined" ? window.location.pathname : "");
 
-  const roles = (rolesData ?? []).map((r) => r.role);
+  // 1. Session check — handle missing/expired sessions safely.
+  let userId: string | null = null;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) console.warn("[rp-guard] auth.getUser failed", error);
+    userId = data?.user?.id ?? null;
+  } catch (err) {
+    console.error("[rp-guard] auth.getUser threw", err);
+  }
+
+  if (!userId) {
+    throw redirect({
+      to: "/rakshak-platform/auth",
+      search: { redirect: path } as never,
+    });
+  }
+
+  // 2. Role lookup — tolerate query errors.
+  let roles: string[] = [];
+  try {
+    const { data: rolesData, error } = await supabase
+      .from("rp_user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    if (error) console.warn("[rp-guard] roles query failed", error);
+    roles = (rolesData ?? []).map((r) => r.role);
+  } catch (err) {
+    console.error("[rp-guard] roles query threw", err);
+  }
+
   const isAdmin = roles.includes("cfi_admin") || roles.includes("super_admin");
-
-  if (blockAdmin && isAdmin) throw redirect({ to: redirectTo });
-
   const hasRole = roles.some((role) => allowedRoles.includes(role));
-  if (!hasRole) throw redirect({ to: redirectTo });
+
+  const deny = (reason: string): never => {
+    // Fire-and-forget server-side log (doesn't block redirect).
+    void import("./access-log.functions")
+      .then((m) =>
+        m.logAccessDenied({
+          data: {
+            attempted_path: path,
+            reason,
+            required_roles: allowedRoles,
+            user_roles: roles,
+          },
+        }),
+      )
+      .catch((err) => console.warn("[rp-guard] log failed", err));
+
+    throw redirect({
+      to: redirectTo,
+      search: {
+        attempted: path,
+        reason,
+        required: allowedRoles.join(","),
+      } as never,
+    });
+  };
+
+  if (blockAdmin && isAdmin) deny("admin_blocked_from_role_route");
+  if (!hasRole) deny("missing_required_role");
 }
 
