@@ -110,23 +110,61 @@ export const getAuthorityInbox = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: roles } = await context.supabase
       .from("rp_user_roles").select("role").eq("user_id", context.userId);
-    const ok = (roles ?? []).some((r: any) =>
-      ["authority", "cfi_admin", "super_admin"].includes(r.role));
-    if (!ok) throw new Error("Forbidden");
+    const roleSet = new Set((roles ?? []).map((r: any) => r.role));
+    const isAdmin = roleSet.has("cfi_admin") || roleSet.has("super_admin");
+    const isAuthority = roleSet.has("authority");
+    if (!isAdmin && !isAuthority) throw new Error("Forbidden");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: reports, error } = await supabaseAdmin
+
+    // Authority callers are scoped to their jurisdiction_states.
+    // Admins see everything. No SELECT * — explicit safe columns only.
+    let jurisdictionStates: string[] | null = null;
+    if (!isAdmin && isAuthority) {
+      const { data: profile } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("jurisdiction_states")
+        .eq("id", context.userId)
+        .maybeSingle();
+      jurisdictionStates = (profile?.jurisdiction_states as string[] | null) ?? [];
+    }
+
+    const q = (supabaseAdmin as any)
       .from("rp_authority_reports")
-      .select("*, rp_teams(team_name, city, state), rp_locations(location_name, latitude, longitude, severity)")
+      .select(
+        "id, team_id, location_id, authority_name, authority_category, subject, message, status, sent_at, response_status, response_at, response_text, rp_teams(team_name, city, state), rp_locations(location_name, latitude, longitude, severity)",
+      )
       .in("status", ["sent", "acknowledged", "actioned"])
       .order("sent_at", { ascending: false, nullsFirst: false })
       .limit(200);
+
+    const { data: rawReports, error } = await q;
     if (error) throw error;
-    const { data: hotspots } = await supabaseAdmin
+
+    // Post-filter by jurisdiction (cross-table filter via FK can't use .in() reliably).
+    const reports =
+      jurisdictionStates && jurisdictionStates.length > 0
+        ? (rawReports ?? []).filter((r: any) => {
+            const st = r.rp_teams?.state;
+            return st && jurisdictionStates!.includes(st);
+          })
+        : isAdmin
+          ? rawReports ?? []
+          : []; // authority with empty jurisdiction sees nothing
+
+    let hotspotsQuery = supabaseAdmin
       .from("rp_locations")
       .select("id, location_name, city, state, latitude, longitude, severity, issue_type, is_final_selected")
       .not("latitude", "is", null)
       .not("longitude", "is", null)
       .order("created_at", { ascending: false })
       .limit(500);
-    return { reports: reports ?? [], hotspots: hotspots ?? [] };
+    if (!isAdmin && jurisdictionStates && jurisdictionStates.length > 0) {
+      hotspotsQuery = hotspotsQuery.in("state", jurisdictionStates);
+    } else if (!isAdmin) {
+      // authority with empty jurisdiction → no hotspots
+      return { reports, hotspots: [] };
+    }
+    const { data: hotspots } = await hotspotsQuery;
+    return { reports, hotspots: hotspots ?? [] };
   });
