@@ -152,66 +152,67 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               Crashfree India · Project Rakshak
             </span>
           </Link>
-          <nav ref={navRef} className={`hidden items-center gap-1 text-sm min-w-0 ${navOverflow ? '' : 'xl:flex'}`}>
-            <Link to="/rakshak-platform/map" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Hotspots</Link>
-            <Link to="/rakshak-platform/knowledge" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Knowledge</Link>
-            <Link to="/rakshak-platform/leaderboard" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Leaderboard</Link>
-            <Link to="/rakshak-platform/impact" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Impact</Link>
-            <Link to="/rakshak-platform/mentors" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Mentors</Link>
-            <Link to="/rakshak-platform/sponsor" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Sponsor</Link>
+          <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 ${navOverflow ? '' : 'xl:flex'}`}>
+            <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />
+            <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />
+            <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
+            <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
+            <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />
+            <NavLink to="/rakshak-platform/sponsor" label="Sponsor" icon={HeartHandshake} />
 
             {isAuthority && (
-              <Link to="/rakshak-platform/authority" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Authority</Link>
+              <NavLink to="/rakshak-platform/authority" label="Authority" icon={ShieldCheck} />
             )}
             {isEvaluator && (
-              <NavDropdown id="evaluator" label="Evaluator" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                { to: "/rakshak-platform/evaluator", label: "Queue" },
-                { to: "/rakshak-platform/evaluator/compare", label: "Compare" },
+              <NavDropdown id="evaluator" label="Evaluator" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/evaluator", label: "Queue", icon: ClipboardCheck },
+                { to: "/rakshak-platform/evaluator/compare", label: "Compare", icon: ScanSearch },
               ]} />
             )}
             {(isMentor || isTeam) && (
-              <Link to="/rakshak-platform/meetings" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Meetings</Link>
+              <NavLink to="/rakshak-platform/meetings" label="Meetings" icon={CalendarDays} />
             )}
             {isMentor && (
-              <NavDropdown id="mentor" label="Mentor" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                { to: "/rakshak-platform/mentor", label: "Dashboard" },
-                { to: "/rakshak-platform/mentor/availability", label: "Availability" },
+              <NavDropdown id="mentor" label="Mentor" icon={GraduationCap} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
+                { to: "/rakshak-platform/mentor/availability", label: "Availability", icon: CalendarDays },
               ]} />
             )}
             {isTeam && (
-              <NavDropdown id="team" label="My Team" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                { to: "/rakshak-platform/team", label: "Overview" },
+              <NavDropdown id="team" label="My Team" icon={UsersRound} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/team", label: "Overview", icon: LayoutDashboard },
                 { to: "/rakshak-platform/team/phases", label: "Phases" },
-                { to: "/rakshak-platform/team/locations", label: "Locations" },
-                { to: "/rakshak-platform/team/reports", label: "Reports" },
-                { to: "/rakshak-platform/team/ai-check", label: "AI check" },
+                { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
+                { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
+                { to: "/rakshak-platform/team/ai-check", label: "AI check", icon: ScanSearch },
               ]} />
             )}
 
             {isAdmin && (
               <>
-                <Link to="/rakshak-platform/admin" className="rounded-md px-2 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite">Admin</Link>
-                <NavDropdown id="content" label="Content" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                  { to: "/rakshak-platform/admin/knowledge", label: "Articles" },
+                <span className="mx-1 h-5 w-px bg-border" aria-hidden />
+                <NavLink to="/rakshak-platform/admin" label="Admin" icon={LayoutDashboard} />
+                <NavDropdown id="content" label="Content" icon={FileText} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/knowledge", label: "Articles", icon: BookOpen },
                   { to: "/rakshak-platform/admin/certificates", label: "Certificates" },
                   { to: "/rakshak-platform/admin/badges", label: "Badges" },
-                  { to: "/rakshak-platform/admin/map", label: "Programme map" },
+                  { to: "/rakshak-platform/admin/map", label: "Programme map", icon: MapPin },
                 ]} />
-                <NavDropdown id="people" label="People" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                  { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor apps" },
-                  { to: "/rakshak-platform/admin/cohorts", label: "Cohorts" },
-                  { to: "/rakshak-platform/admin/roles", label: "Roles" },
-                  { to: "/rakshak-platform/admin/meetings", label: "All meetings" },
+                <NavDropdown id="people" label="People" icon={UsersRound} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor apps", icon: GraduationCap },
+                  { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
+                  { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
+                  { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                 ]} />
-                <NavDropdown id="review" label="Review" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                  { to: "/rakshak-platform/admin/evaluator-queue", label: "Evaluator queue" },
-                  { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics" },
-                  { to: "/rakshak-platform/admin/reviews", label: "Reviews" },
-                  { to: "/rakshak-platform/admin/qa", label: "QA" },
-                  { to: "/rakshak-platform/admin/qa-checklist", label: "QA checklist" },
+                <NavDropdown id="review" label="Review" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/evaluator-queue", label: "Evaluator queue", icon: ClipboardCheck },
+                  { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
+                  { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
+                  { to: "/rakshak-platform/admin/qa", label: "QA", icon: ScanSearch },
+                  { to: "/rakshak-platform/admin/qa-checklist", label: "QA checklist", icon: ClipboardCheck },
                 ]} />
-                <NavDropdown id="ops" label="Operations" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                  { to: "/rakshak-platform/admin/analytics", label: "Analytics" },
+                <NavDropdown id="ops" label="Operations" icon={Wrench} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: Sparkles },
                   { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import" },
                   { to: "/rakshak-platform/admin/exports", label: "Exports" },
                   { to: "/rakshak-platform/admin/audit", label: "Audit log" },
@@ -223,9 +224,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               </>
             )}
             {(isAdmin || isFinance) && (
-              <NavDropdown id="finance" label="Finance" openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                { to: "/rakshak-platform/admin/finance", label: "Finance" },
-                { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships" },
+              <NavDropdown id="finance" label="Finance" icon={Wallet} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                { to: "/rakshak-platform/admin/finance", label: "Finance", icon: Wallet },
+                { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships", icon: HeartHandshake },
               ]} />
             )}
           </nav>
