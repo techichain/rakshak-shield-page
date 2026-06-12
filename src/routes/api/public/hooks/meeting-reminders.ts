@@ -13,13 +13,34 @@ const WINDOWS: Window[] = [
   { col: "reminder_30m_sent_at", label: "30 minutes", minBefore: 20,    maxBefore: 35 },
 ];
 
-async function sendEmail(to: string[], subject: string, html: string) {
+function icsBody(m: any) {
+  const fmt = (s: string) => new Date(s).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Rakshak//EN", "METHOD:PUBLISH",
+    "BEGIN:VEVENT", `UID:${m.id}@rakshak`, `DTSTAMP:${fmt(new Date().toISOString())}`,
+    `DTSTART:${fmt(m.scheduled_start)}`, `DTEND:${fmt(m.scheduled_end)}`,
+    `SUMMARY:${String(m.title).replace(/\n/g, " ")}`,
+    `DESCRIPTION:${String(m.agenda || "").replace(/\n/g, "\\n")}`,
+    m.meeting_link ? `URL:${m.meeting_link}` : "",
+    m.location ? `LOCATION:${m.location}` : "",
+    "END:VEVENT", "END:VCALENDAR",
+  ].filter(Boolean).join("\r\n");
+}
+
+async function sendEmail(to: string[], subject: string, html: string, meeting?: any) {
   const RESEND = process.env.RESEND_API_KEY;
   const LOVABLE = process.env.LOVABLE_API_KEY;
   if (!RESEND || !LOVABLE || to.length === 0) {
     console.log("[meeting-reminders] skip email (no Resend key) →", to, subject);
     return { ok: false, reason: "no_email_provider" };
   }
+  const attachments = meeting
+    ? [{
+        filename: "invite.ics",
+        content: Buffer.from(icsBody(meeting)).toString("base64"),
+        content_type: "text/calendar; charset=utf-8; method=PUBLISH",
+      }]
+    : undefined;
   const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
     method: "POST",
     headers: {
@@ -32,6 +53,7 @@ async function sendEmail(to: string[], subject: string, html: string) {
       to,
       subject,
       html,
+      ...(attachments ? { attachments } : {}),
     }),
   });
   const body = await res.text();
@@ -112,7 +134,7 @@ export const Route = createFileRoute("/api/public/hooks/meeting-reminders")({
                 .map((a) => a.rp_profiles?.email)
                 .filter((e): e is string => Boolean(e));
               const subject = `Reminder: ${m.title} in ${w.label}`;
-              await sendEmail(recipients, subject, html(m, w.label));
+              await sendEmail(recipients, subject, html(m, w.label), m);
               const patch: Record<string, string> = {};
               patch[w.col] = new Date().toISOString();
               await (supabaseAdmin.from("rp_meetings") as any)

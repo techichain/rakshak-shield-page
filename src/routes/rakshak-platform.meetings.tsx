@@ -10,8 +10,9 @@ import {
   rsvpMeeting,
   listMyMeetings,
   listInvitees,
+  rescheduleMeeting,
 } from "@/lib/rakshak-platform/meetings.functions";
-import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell } from "lucide-react";
+import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/meetings")({
   component: MeetingsPage,
@@ -38,6 +39,7 @@ function MeetingsPage() {
   const cancel = useServerFn(cancelMeeting);
   const rsvp = useServerFn(rsvpMeeting);
   const invitees = useServerFn(listInvitees);
+  const reschedule = useServerFn(rescheduleMeeting);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
 
@@ -107,6 +109,39 @@ function MeetingsPage() {
     if (!confirm("Cancel this meeting?")) return;
     await cancel({ data: { id } });
     qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+  }
+
+  const [reschedFor, setReschedFor] = useState<any | null>(null);
+  const [reschedBusy, setReschedBusy] = useState(false);
+  const [reschedErr, setReschedErr] = useState<string | null>(null);
+
+  function toLocalInput(iso: string) {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  async function submitReschedule(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!reschedFor) return;
+    setReschedBusy(true); setReschedErr(null);
+    const fd = new FormData(e.currentTarget);
+    try {
+      await reschedule({
+        data: {
+          id: reschedFor.id,
+          scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
+          scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
+          reason: String(fd.get("reason") || "") || undefined,
+        },
+      });
+      setReschedFor(null);
+      qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    } catch (e: any) {
+      setReschedErr(e?.message ?? "Could not reschedule");
+    } finally {
+      setReschedBusy(false);
+    }
   }
 
   function ics(m: any) {
@@ -311,6 +346,7 @@ function MeetingsPage() {
                       <button onClick={() => handleRsvp(m.id, "going")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><Check className="h-3 w-3" /> Going</button>
                       <button onClick={() => handleRsvp(m.id, "maybe")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><HelpCircle className="h-3 w-3" /> Maybe</button>
                       <button onClick={() => handleRsvp(m.id, "not_going")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><X className="h-3 w-3" /> Can't make it</button>
+                      <button onClick={() => { setReschedErr(null); setReschedFor(m); }} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><CalendarClock className="h-3 w-3" /> Reschedule</button>
                       <button onClick={() => handleCancel(m.id)} className="ml-auto text-muted-foreground hover:text-red-600">Cancel meeting</button>
                     </div>
                   )}
@@ -320,6 +356,32 @@ function MeetingsPage() {
           </div>
         )}
       </Section>
+
+      {reschedFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !reschedBusy && setReschedFor(null)}>
+          <form onClick={(e) => e.stopPropagation()} onSubmit={submitReschedule} className="w-full max-w-md rounded-2xl bg-background border border-border p-6 shadow-xl">
+            <h3 className="font-heading text-lg">Reschedule meeting</h3>
+            <p className="mt-1 text-xs text-muted-foreground truncate">{reschedFor.title}</p>
+            <div className="mt-4 grid gap-3">
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">New start
+                <input name="scheduled_start" type="datetime-local" defaultValue={toLocalInput(reschedFor.scheduled_start)} required className="rp-input mt-1 w-full" />
+              </label>
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">New end
+                <input name="scheduled_end" type="datetime-local" defaultValue={toLocalInput(reschedFor.scheduled_end)} required className="rp-input mt-1 w-full" />
+              </label>
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">Reason (optional)
+                <textarea name="reason" rows={2} maxLength={1000} className="rp-input mt-1 w-full" placeholder="Conflict, more prep time, etc." />
+              </label>
+              <p className="text-[11px] text-muted-foreground">Attendees will be notified and asked to RSVP again. Reminders will fire at the new time.</p>
+              {reschedErr && <p className="text-sm text-red-600">{reschedErr}</p>}
+              <div className="flex gap-2 justify-end">
+                <button type="button" disabled={reschedBusy} onClick={() => setReschedFor(null)} className="rounded-full border border-border px-4 py-1.5 text-sm">Cancel</button>
+                <button type="submit" disabled={reschedBusy} className="rounded-full bg-brand text-brand-foreground px-4 py-1.5 text-sm disabled:opacity-60">{reschedBusy ? "Saving…" : "Reschedule"}</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
     </PlatformShell>
   );
 }

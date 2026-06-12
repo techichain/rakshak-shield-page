@@ -157,6 +157,7 @@ export const bookMentorSlot = createServerFn({ method: "POST" })
         slot_id: slot.id,
         video_room_id: videoRoom,
         whiteboard_room_id: whiteboardRoom,
+        meeting_link: `https://meet.jit.si/${videoRoom}`,
       })
       .select("*")
       .single();
