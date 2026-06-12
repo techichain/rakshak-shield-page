@@ -148,17 +148,17 @@ export const resetGigAdminPassword = createServerFn({ method: "POST" })
       .update({ consumed_at: new Date().toISOString() })
       .eq("id", otpRow.id);
 
-    // Look up the fixed admin account.
-    const { data: userRow, error: userErr } = await supabaseAdmin
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "admin")
-      .limit(1)
-      .maybeSingle();
-    if (userErr || !userRow) throw new Error("Admin account not found.");
+    // Look up the fixed admin account by email.
+    const { data: usersPage, error: userErr } =
+      await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const adminUser = usersPage?.users?.find(
+      (u) => (u.email ?? "").toLowerCase() === ADMIN_EMAIL,
+    );
+    if (userErr || !adminUser) throw new Error("Admin account not found.");
+    const adminUserId = adminUser.id;
 
     const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
-      userRow.user_id,
+      adminUserId,
       { password: data.newPassword },
     );
     if (updateErr) throw new Error("Could not update the password. Please try again.");
@@ -167,7 +167,7 @@ export const resetGigAdminPassword = createServerFn({ method: "POST" })
     await supabaseAdmin.from("audit_log").insert({
       action: "gigrider_admin_password_reset",
       target_type: "auth.users",
-      target_id: userRow.user_id,
+      target_id: adminUserId,
       meta: { method: "email_otp", recipient: "masked" },
     });
 
