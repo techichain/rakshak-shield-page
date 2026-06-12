@@ -129,13 +129,10 @@ export const getAuthorityInbox = createServerFn({ method: "GET" })
       jurisdictionStates = (profile?.jurisdiction_states as string[] | null) ?? [];
     }
 
-    let q = supabaseAdmin
+    const selectStr = "id, team_id, location_id, authority_name, authority_category, subject, message, status, sent_at, response_status, response_at, response_text, rp_teams(team_name, city, state), rp_locations(location_name, latitude, longitude, severity)";
+    const q = supabaseAdmin
       .from("rp_authority_reports")
-      .select(
-        "id, team_id, location_id, authority_name, authority_category, subject, message, status, sent_at, response_status, response_at, response_text, " +
-          "rp_teams(team_name, city, state), " +
-          "rp_locations(location_name, latitude, longitude, severity)",
-      )
+      .select(selectStr)
       .in("status", ["sent", "acknowledged", "actioned"])
       .order("sent_at", { ascending: false, nullsFirst: false })
       .limit(200);
