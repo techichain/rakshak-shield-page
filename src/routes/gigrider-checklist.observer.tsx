@@ -14,11 +14,15 @@ function ObserverLayout() {
 
   useEffect(() => {
     if (authLoading || roleLoading) return;
-    if (!user) navigate({ to: "/gigrider-checklist/login" });
-    else if (role === "admin") navigate({ to: "/gigrider-checklist/admin" });
+    if (!user) { navigate({ to: "/gigrider-checklist/login" }); return; }
+    if (role === "admin") { navigate({ to: "/gigrider-checklist/admin" }); return; }
+    // CRITICAL: do not let users without a gig-rider role into this layout.
+    // Without this guard, any signed-in user on the shared Supabase project
+    // (e.g. a Rakshak admin) would see the gig-rider observer dashboard.
+    if (role !== "observer") { navigate({ to: "/gigrider-checklist" }); return; }
   }, [user, role, authLoading, roleLoading, navigate]);
 
-  if (authLoading || roleLoading || !user) {
+  if (authLoading || roleLoading || !user || role !== "observer") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <p className="text-sm text-slate-500">Loading…</p>
@@ -44,3 +48,4 @@ function ObserverLayout() {
     </div>
   );
 }
+
