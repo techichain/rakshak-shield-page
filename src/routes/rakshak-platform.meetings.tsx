@@ -356,6 +356,32 @@ function MeetingsPage() {
           </div>
         )}
       </Section>
+
+      {reschedFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !reschedBusy && setReschedFor(null)}>
+          <form onClick={(e) => e.stopPropagation()} onSubmit={submitReschedule} className="w-full max-w-md rounded-2xl bg-background border border-border p-6 shadow-xl">
+            <h3 className="font-heading text-lg">Reschedule meeting</h3>
+            <p className="mt-1 text-xs text-muted-foreground truncate">{reschedFor.title}</p>
+            <div className="mt-4 grid gap-3">
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">New start
+                <input name="scheduled_start" type="datetime-local" defaultValue={toLocalInput(reschedFor.scheduled_start)} required className="rp-input mt-1 w-full" />
+              </label>
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">New end
+                <input name="scheduled_end" type="datetime-local" defaultValue={toLocalInput(reschedFor.scheduled_end)} required className="rp-input mt-1 w-full" />
+              </label>
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">Reason (optional)
+                <textarea name="reason" rows={2} maxLength={1000} className="rp-input mt-1 w-full" placeholder="Conflict, more prep time, etc." />
+              </label>
+              <p className="text-[11px] text-muted-foreground">Attendees will be notified and asked to RSVP again. Reminders will fire at the new time.</p>
+              {reschedErr && <p className="text-sm text-red-600">{reschedErr}</p>}
+              <div className="flex gap-2 justify-end">
+                <button type="button" disabled={reschedBusy} onClick={() => setReschedFor(null)} className="rounded-full border border-border px-4 py-1.5 text-sm">Cancel</button>
+                <button type="submit" disabled={reschedBusy} className="rounded-full bg-brand text-brand-foreground px-4 py-1.5 text-sm disabled:opacity-60">{reschedBusy ? "Saving…" : "Reschedule"}</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
     </PlatformShell>
   );
 }
