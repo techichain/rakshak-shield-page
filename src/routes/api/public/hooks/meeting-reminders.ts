@@ -134,7 +134,7 @@ export const Route = createFileRoute("/api/public/hooks/meeting-reminders")({
                 .map((a) => a.rp_profiles?.email)
                 .filter((e): e is string => Boolean(e));
               const subject = `Reminder: ${m.title} in ${w.label}`;
-              await sendEmail(recipients, subject, html(m, w.label));
+              await sendEmail(recipients, subject, html(m, w.label), m);
               const patch: Record<string, string> = {};
               patch[w.col] = new Date().toISOString();
               await (supabaseAdmin.from("rp_meetings") as any)
