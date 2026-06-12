@@ -58,12 +58,11 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
             .from("rp_mentors")
             .upsert({ profile_id: user.id }, { onConflict: "profile_id" });
         }
-        return {
-          status: "active" as const,
-          redirectTo: (requestedRole === "mentor"
-            ? "/rakshak-platform/mentor"
-            : "/rakshak-platform/dashboard") as const,
-        };
+        const redirectTo =
+          requestedRole === "mentor"
+            ? ("/rakshak-platform/mentor" as const)
+            : ("/rakshak-platform/dashboard" as const);
+        return { status: "active" as const, redirectTo };
       }
 
       if (!existing) {
