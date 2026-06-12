@@ -154,6 +154,14 @@ function VerifyPage() {
               <p className="mt-2 text-sm text-red-700">Reason: {cert.revoked_reason}</p>
             )}
           </div>
+          {valid && (
+            <button
+              onClick={() => downloadCertificatePdf(cert)}
+              className="ml-auto inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground hover:bg-brand/90"
+            >
+              <Download className="h-4 w-4" /> Download PDF
+            </button>
+          )}
         </div>
 
         <div className="mt-10 rounded-2xl border border-border bg-background p-10">
