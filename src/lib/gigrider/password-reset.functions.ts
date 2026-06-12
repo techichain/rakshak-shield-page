@@ -150,16 +150,11 @@ export const resetGigAdminPassword = createServerFn({ method: "POST" })
 
     // Look up the fixed admin account.
     const { data: userRow, error: userErr } = await supabaseAdmin
-      .rpc("has_role", { _user_id: "00000000-0000-0000-0000-000000000000", _role: "admin" })
-      .then(async () => {
-        // helper above is a no-op probe; real lookup below
-        return supabaseAdmin
-          .from("user_roles")
-          .select("user_id")
-          .eq("role", "admin")
-          .limit(1)
-          .maybeSingle();
-      });
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "admin")
+      .limit(1)
+      .maybeSingle();
     if (userErr || !userRow) throw new Error("Admin account not found.");
 
     const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
@@ -171,9 +166,9 @@ export const resetGigAdminPassword = createServerFn({ method: "POST" })
     // Audit trail
     await supabaseAdmin.from("audit_log").insert({
       action: "gigrider_admin_password_reset",
-      entity: "auth.users",
-      entity_id: userRow.user_id,
-      details: { method: "email_otp", recipient: "masked" },
+      target_type: "auth.users",
+      target_id: userRow.user_id,
+      meta: { method: "email_otp", recipient: "masked" },
     });
 
     return { ok: true as const, email: ADMIN_EMAIL };
