@@ -12,16 +12,32 @@ import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
 import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
 
-type NavItem = { to: string; label: string };
+type NavItem = { to: string; label: string; icon?: LucideIcon; desc?: string };
+
+function NavLink({ to, label, icon: Icon }: { to: string; label: string; icon?: LucideIcon }) {
+  return (
+    <Link
+      to={to}
+      activeOptions={{ exact: false }}
+      activeProps={{ className: "text-brand bg-brand-lite font-medium" }}
+      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-muted-foreground hover:text-brand hover:bg-brand-lite transition-colors"
+    >
+      {Icon && <Icon className="h-3.5 w-3.5" />}
+      {label}
+    </Link>
+  );
+}
 
 function NavDropdown({
   label,
+  icon: Icon,
   items,
   openId,
   setOpenId,
   id,
 }: {
   label: string;
+  icon?: LucideIcon;
   items: NavItem[];
   openId: string | null;
   setOpenId: (v: string | null) => void;
@@ -50,25 +66,34 @@ function NavDropdown({
         type="button"
         onClick={() => setOpenId(open ? null : id)}
         aria-expanded={open}
-        className={`inline-flex items-center gap-1 rounded-md px-2 py-1.5 transition-colors ${
-          open ? "text-brand bg-brand-lite" : "text-muted-foreground hover:text-brand"
+        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors ${
+          open ? "text-brand bg-brand-lite" : "text-muted-foreground hover:text-brand hover:bg-brand-lite"
         }`}
       >
+        {Icon && <Icon className="h-3.5 w-3.5" />}
         {label}
         <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 min-w-[12rem] rounded-xl border border-border bg-background shadow-lg shadow-foreground/5 p-1.5 z-50">
-          {items.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setOpenId(null)}
-              className="block rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="absolute right-0 top-full mt-2 min-w-[14rem] rounded-xl border border-border bg-background shadow-xl shadow-foreground/10 p-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+          {items.map((item) => {
+            const IIcon = item.icon;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpenId(null)}
+                activeProps={{ className: "bg-brand-lite text-brand" }}
+                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
+              >
+                {IIcon && <IIcon className="h-4 w-4 mt-0.5 shrink-0 opacity-70" />}
+                <span className="flex flex-col">
+                  <span className="leading-tight">{item.label}</span>
+                  {item.desc && <span className="text-[11px] text-muted-foreground/70 leading-tight mt-0.5">{item.desc}</span>}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
