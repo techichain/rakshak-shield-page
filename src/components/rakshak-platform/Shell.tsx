@@ -199,6 +199,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/map", label: "Programme map", icon: MapPin },
                 ]} />
                 <NavDropdown id="people" label="People" icon={UsersRound} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing, desc: "Team, mentor & evaluator requests" },
                   { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor apps", icon: GraduationCap },
                   { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
                   { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
