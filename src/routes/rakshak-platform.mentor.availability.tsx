@@ -46,20 +46,42 @@ function AvailabilityPage() {
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget; // capture before any await — React nulls currentTarget after async boundary
+    const fd = new FormData(form);
+    const startsRaw = String(fd.get("starts_at") || "");
+    const endsRaw = String(fd.get("ends_at") || "");
+    if (!startsRaw || !endsRaw) {
+      setErr("Please fill in both Starts and Ends.");
+      return;
+    }
+    const startsDate = new Date(startsRaw);
+    const endsDate = new Date(endsRaw);
+    if (isNaN(startsDate.getTime()) || isNaN(endsDate.getTime())) {
+      setErr("Invalid date/time.");
+      return;
+    }
+    if (endsDate.getTime() <= startsDate.getTime()) {
+      setErr("End time must be after start time.");
+      return;
+    }
     setBusy(true); setErr(null);
-    const fd = new FormData(e.currentTarget);
     try {
       await createFn({
         data: {
-          starts_at: new Date(String(fd.get("starts_at"))).toISOString(),
-          ends_at: new Date(String(fd.get("ends_at"))).toISOString(),
+          starts_at: startsDate.toISOString(),
+          ends_at: endsDate.toISOString(),
           capacity: Number(fd.get("capacity") || 1),
           notes: String(fd.get("notes") || ""),
         },
       });
-      (e.currentTarget as HTMLFormElement).reset();
-      qc.invalidateQueries({ queryKey: ["rp-my-slots"] });
-    } catch (e: any) { setErr(e?.message ?? "Failed"); }
+      try { form.reset(); } catch {}
+      await qc.invalidateQueries({ queryKey: ["rp-my-slots"] });
+      toast.success("Slot published");
+    } catch (e: any) {
+      const msg = e?.message ?? "Failed to publish slot";
+      setErr(msg);
+      toast.error(msg);
+    }
     finally { setBusy(false); }
   }
 
