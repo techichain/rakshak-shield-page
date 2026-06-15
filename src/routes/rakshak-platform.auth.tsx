@@ -62,10 +62,6 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
-  // Captcha
-  const [captcha, setCaptcha] = useState("");
-  const [captchaError, setCaptchaError] = useState<string | null>(null);
-  const expectedCaptcha = useRef<number>(0);
 
   // If already signed in, bounce straight to the dashboard.
   useEffect(() => {
