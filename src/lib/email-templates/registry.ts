@@ -12,9 +12,11 @@ export interface TemplateEntry {
 import { template as registrationOtpTemplate } from './registration-otp'
 import { template as mentorFileRequestTemplate } from './mentor-file-request'
 import { template as gigriderResetOtpTemplate } from './gigrider-reset-otp'
+import { template as rpAdminRoleRequestTemplate } from './rp-admin-role-request'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'registration-otp': registrationOtpTemplate,
   'mentor-file-request': mentorFileRequestTemplate,
   'gigrider-reset-otp': gigriderResetOtpTemplate,
+  'rp-admin-role-request': rpAdminRoleRequestTemplate,
 }
