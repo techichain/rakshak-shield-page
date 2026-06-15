@@ -5,6 +5,7 @@ import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import {
   Loader2, Mail, Check, X, BellRing, UserPlus, Clock, Shield, ArrowLeft,
+  GraduationCap, Briefcase, MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 
