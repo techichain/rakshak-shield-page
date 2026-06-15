@@ -183,11 +183,14 @@ function AccessRequestsPage() {
   }, [approvals, statusFilter, roleFilter, query, sort]);
 
   // Reset page on filter change
-  useEffect(() => { setPage(1); }, [statusFilter, roleFilter, query, sort]);
+  useEffect(() => { setPage(1); setSelected(new Set()); }, [statusFilter, roleFilter, query, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pendingOnPage = pageRows.filter((r) => r.status === "pending");
+  const allPendingSelected =
+    pendingOnPage.length > 0 && pendingOnPage.every((r) => selected.has(r.id));
 
   // Lazy fetch audit + email for decided rows currently on the page
   useEffect(() => {
@@ -212,12 +215,147 @@ function AccessRequestsPage() {
     setDecisionNote("");
   }
 
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+
+  function togglePageSelection() {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (allPendingSelected) pendingOnPage.forEach((r) => n.delete(r.id));
+      else pendingOnPage.forEach((r) => n.add(r.id));
+      return n;
+    });
+  }
+
+  function clearSelection() {
+    setSelected(new Set());
+    setBulkMode(null);
+    setBulkNote("");
+  }
+
+  async function confirmBulk() {
+    const note = bulkNote.trim();
+    if (!bulkMode) return;
+    if (!note) {
+      toast.error("Shared decision notes are required for bulk actions.");
+      return;
+    }
+    if (selected.size === 0) return;
+    setBulkBusy(true);
+    try {
+      const ids = Array.from(selected);
+      const res = await bulkDecideFn({
+        data: { approvalIds: ids, decision: bulkMode, reason: note },
+      });
+      toast.success(
+        `${bulkMode === "approved" ? "Approved" : "Rejected"} ${res.processed}/${res.total}` +
+          (res.emailed ? ` · ${res.emailed} emailed` : "") +
+          (res.skipped ? ` · ${res.skipped} skipped` : ""),
+      );
+      if (res.errors.length > 0) {
+        toast.error(`${res.errors.length} failed — see console`);
+        console.error("Bulk decision errors", res.errors);
+      }
+      // Drop stale per-row details so they reload
+      setAuditMap((prev) => {
+        const n = { ...prev };
+        for (const id of ids) delete n[id];
+        return n;
+      });
+      setEmailMap((prev) => {
+        const n = { ...prev };
+        for (const id of ids) delete n[id];
+        return n;
+      });
+      clearSelection();
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Bulk action failed");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function resendEmail(row: ApprovalRow) {
+    setResendBusy(row.id);
+    try {
+      const res = await resendFn({ data: { approvalId: row.id } });
+      if (res.emailed) toast.success("Decision email re-queued");
+      else toast.error(res.error ?? "Failed to resend email");
+      setAuditMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
+      setEmailMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to resend");
+    } finally {
+      setResendBusy(null);
+    }
+  }
+
+  function exportCsv() {
+    const rows = filtered;
+    if (rows.length === 0) {
+      toast.error("Nothing to export with current filters.");
+      return;
+    }
+    const escape = (v: unknown) => {
+      const s = v == null ? "" : String(v);
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = [
+      "Requester name",
+      "Email",
+      "Role",
+      "Status",
+      "Requested at",
+      "Reviewed at",
+      "Decision notes",
+      "Audit timestamps",
+    ];
+    const lines = [header.map(escape).join(",")];
+    for (const r of rows) {
+      const auditTs = (auditMap[r.id] ?? [])
+        .map((a) => `${a.action}@${a.created_at}`)
+        .join(" | ");
+      lines.push(
+        [
+          r.full_name ?? "",
+          r.email ?? "",
+          r.requested_role,
+          r.status,
+          r.requested_at,
+          r.reviewed_at ?? "",
+          r.notes ?? "",
+          auditTs,
+        ].map(escape).join(","),
+      );
+    }
+    const blob = new Blob(["\ufeff" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rp-access-requests-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${rows.length} request${rows.length === 1 ? "" : "s"}`);
+  }
+
   async function confirmDecide(row: ApprovalRow) {
     const note = decisionNote.trim();
     if (!note) {
       toast.error("Decision notes are required — they will be included in the email to the requester.");
       return;
     }
+    if (busy === decidingMode + row.id) return; // duplicate-click guard
     setBusy(decidingMode + row.id);
     try {
       const res = await decideFn({
@@ -228,7 +366,6 @@ function AccessRequestsPage() {
       );
       setDecidingId(null);
       setDecisionNote("");
-      // Force a refresh of details for this row next render
       setAuditMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
       setEmailMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
       await load();
