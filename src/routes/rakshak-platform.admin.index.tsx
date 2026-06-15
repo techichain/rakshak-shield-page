@@ -428,7 +428,10 @@ function AdminDashboard() {
           />
         )}
 
-        {/* Sidebar + content layout */}
+        {/* Quick access — admin tools grouped */}
+        <AdminQuickAccess pendingCount={pendingCount} />
+
+
         <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
           {/* Left sidebar nav */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
