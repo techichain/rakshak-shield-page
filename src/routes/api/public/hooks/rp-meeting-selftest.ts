@@ -131,7 +131,7 @@ export const Route = createFileRoute("/api/public/hooks/rp-meeting-selftest")({
                 team_name: "TEST - Selftest Team",
                 city: "Testville",
                 state: "Testland",
-                college_name: "TEST College",
+                college: "TEST College",
                 status: "active",
                 team_leader_id: leaderUserId,
               } as any)
