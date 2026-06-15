@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
+import { Loader2, UsersRound } from "lucide-react";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 
 export const Route = createFileRoute("/rakshak-platform/team")({
@@ -41,24 +43,36 @@ function TeamDashboard() {
     })();
   }, [loading, userId, isTeam, navigate]);
 
-  if (loading) return <PlatformShell><Section>Loading…</Section></PlatformShell>;
+  if (loading) {
+    return (
+      <PlatformShell>
+        <Section className="!py-16">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading your team…
+          </div>
+        </Section>
+      </PlatformShell>
+    );
+  }
 
   if (!team) {
     return (
       <PlatformShell>
         <Section>
           <Eyebrow>My team</Eyebrow>
-          <h1 className="mt-6 font-heading text-4xl font-bold leading-tight">
-            No team assigned <span className="text-brand">yet.</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-muted-foreground">
-            You're registered as a team leader. A CFI admin will create your team and assign you a mentor.
-            Once that's done your phase timeline will appear here.
-          </p>
+          <div className="mt-8">
+            <EmptyState
+              icon={UsersRound}
+              title="No team assigned yet"
+              description="You're registered as a team leader. A CFI admin will create your team and assign you a mentor. Once that's done your phase timeline will appear here."
+              action={{ label: "Go to platform home", to: "/rakshak-platform" }}
+            />
+          </div>
         </Section>
       </PlatformShell>
     );
   }
+
 
   return (
     <PlatformShell>

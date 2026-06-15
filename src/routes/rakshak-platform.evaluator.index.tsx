@@ -1,22 +1,31 @@
-import { createFileRoute, Link, useNavigate} from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { getEvaluatorQueue } from "@/lib/rakshak-platform/evaluations.functions";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
-import { CheckCircle2, FileEdit, Star } from "lucide-react";
+import {
+  CheckCircle2, FileEdit, Star, Loader2, Search,
+  ArrowRight, ScanSearch, Clock, AlertTriangle,
+} from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/evaluator/")({
   component: EvaluatorQueue,
 });
+
+type Tab = "pending" | "done";
 
 function EvaluatorQueue() {
   const { loading, userId, isEvaluator } = useRPAuth();
   const navigate = useNavigate();
   const fetchQueue = useServerFn(getEvaluatorQueue);
   const allowed = isEvaluator;
+  const [tab, setTab] = useState<Tab>("pending");
+  const [q, setQ] = useState("");
+  const [onlyMine, setOnlyMine] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -24,96 +33,253 @@ function EvaluatorQueue() {
     else if (!allowed) navigate({ to: "/rakshak-platform/dashboard" });
   }, [loading, userId, allowed, navigate]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["rp-evaluator-queue"],
     queryFn: () => fetchQueue(),
     enabled: !!userId && allowed,
   });
 
   const items = data?.items ?? [];
-  const pending = items.filter((i: any) => !i.my_evaluation || i.my_evaluation.status === "draft");
-  const done = items.filter((i: any) => i.my_evaluation?.status === "submitted");
+  const pending = useMemo(
+    () => items.filter((i: any) => !i.my_evaluation || i.my_evaluation.status === "draft"),
+    [items],
+  );
+  const done = useMemo(
+    () => items.filter((i: any) => i.my_evaluation?.status === "submitted"),
+    [items],
+  );
 
-  if (loading) return <PlatformShell><Section>Loading…</Section></PlatformShell>;
+  const active = tab === "pending" ? pending : done;
+  const filtered = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return active.filter((i: any) => {
+      if (onlyMine && !i.assigned_to_me) return false;
+      if (!needle) return true;
+      const t = i.rp_teams;
+      return (
+        i.title?.toLowerCase().includes(needle) ||
+        t?.team_name?.toLowerCase().includes(needle) ||
+        t?.city?.toLowerCase().includes(needle) ||
+        t?.state?.toLowerCase().includes(needle)
+      );
+    });
+  }, [active, q, onlyMine]);
+
+  if (loading) {
+    return (
+      <PlatformShell>
+        <Section className="!py-16">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading workspace…
+          </div>
+        </Section>
+      </PlatformShell>
+    );
+  }
 
   return (
     <PlatformShell>
-      <Section>
+      <Section className="!py-10 lg:!py-12">
         <Eyebrow>Evaluator workspace</Eyebrow>
-        <h1 className="mt-6 font-heading text-4xl sm:text-5xl font-bold leading-[1.05]">
-          Submissions awaiting
-          <br /><span className="text-brand">your score.</span>
+        <h1 className="mt-4 font-heading text-3xl sm:text-4xl font-bold leading-[1.1]">
+          Submissions awaiting <span className="text-brand">your score.</span>
         </h1>
 
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          <Stat label="To review" value={pending.length} icon={<FileEdit className="h-5 w-5" />} />
-          <Stat label="Completed by you" value={done.length} icon={<CheckCircle2 className="h-5 w-5" />} />
-          <Stat label="Total in pipeline" value={items.length} icon={<Star className="h-5 w-5" />} />
+        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <Stat label="To review" value={pending.length} icon={<FileEdit className="h-4 w-4" />} tone="amber" />
+          <Stat label="Completed by you" value={done.length} icon={<CheckCircle2 className="h-4 w-4" />} tone="emerald" />
+          <Stat label="Total in pipeline" value={items.length} icon={<Star className="h-4 w-4" />} tone="brand" />
         </div>
 
-        <h2 className="mt-12 font-heading text-2xl font-semibold">Pending</h2>
-        {isLoading ? (
-          <p className="mt-4 text-sm text-muted-foreground">Loading queue…</p>
-        ) : pending.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">Nothing waiting for you.</p>
-        ) : (
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {pending.map((i: any) => <QueueCard key={i.id} item={i} />)}
+        {/* Tabs + filters */}
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
+          <div className="inline-flex rounded-full border border-border bg-card p-1 shadow-sm">
+            <TabBtn active={tab === "pending"} onClick={() => setTab("pending")}>
+              Pending <Pill>{pending.length}</Pill>
+            </TabBtn>
+            <TabBtn active={tab === "done"} onClick={() => setTab("done")}>
+              Completed <Pill>{done.length}</Pill>
+            </TabBtn>
           </div>
-        )}
-
-        {done.length > 0 && (
-          <>
-            <h2 className="mt-16 font-heading text-2xl font-semibold">Completed</h2>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {done.map((i: any) => <QueueCard key={i.id} item={i} />)}
+          <div className="flex items-center gap-2">
+            <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground select-none cursor-pointer">
+              <input
+                type="checkbox"
+                checked={onlyMine}
+                onChange={(e) => setOnlyMine(e.target.checked)}
+                className="h-3.5 w-3.5 rounded border-border"
+              />
+              Assigned to me
+            </label>
+            <div className="relative">
+              <Search className="h-3.5 w-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search team, title, city…"
+                className="h-9 w-56 sm:w-64 rounded-full border border-border bg-card pl-8 pr-3 text-sm placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-brand/30"
+              />
             </div>
-          </>
-        )}
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="mt-6">
+          {isLoading ? (
+            <QueueSkeleton />
+          ) : isError ? (
+            <EmptyState
+              icon={AlertTriangle}
+              title="Could not load queue"
+              description="Something went wrong fetching submissions. Try again — your scores are safe."
+              action={{ label: "Retry", onClick: () => refetch() }}
+            />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={tab === "pending" ? CheckCircle2 : ScanSearch}
+              title={
+                q || onlyMine
+                  ? "No submissions match your filters"
+                  : tab === "pending"
+                    ? "You're all caught up"
+                    : "Nothing scored yet"
+              }
+              description={
+                q || onlyMine
+                  ? "Try clearing the search box or the assigned-to-me filter."
+                  : tab === "pending"
+                    ? "New submissions will appear here as teams send work for review."
+                    : "Once you submit your first score it will show up here."
+              }
+              action={
+                q || onlyMine
+                  ? { label: "Clear filters", onClick: () => { setQ(""); setOnlyMine(false); } }
+                  : tab === "done"
+                    ? { label: "Go to pending", onClick: () => setTab("pending") }
+                    : undefined
+              }
+            />
+          ) : (
+            <ul className="grid gap-2.5">
+              {filtered.map((i: any) => <QueueRow key={i.id} item={i} />)}
+            </ul>
+          )}
+        </div>
       </Section>
     </PlatformShell>
   );
 }
 
-function Stat({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
+function TabBtn({
+  active, onClick, children,
+}: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 flex items-center justify-between">
-      <div>
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="mt-1 font-heading text-3xl font-bold">{value}</div>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm transition-colors ${
+        active ? "bg-brand text-brand-foreground shadow-sm font-semibold" : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full bg-current/15 text-[10px] font-bold tabular-nums">
+      {children}
+    </span>
+  );
+}
+
+function Stat({
+  label, value, icon, tone,
+}: { label: string; value: number; icon: React.ReactNode; tone: "amber" | "emerald" | "brand" }) {
+  const tones = {
+    amber: "bg-amber-50 text-amber-700 border-amber-100",
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    brand: "bg-brand-lite text-brand border-brand/20",
+  } as const;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 flex items-center justify-between">
+      <div className="min-w-0">
+        <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-semibold">{label}</div>
+        <div className="mt-1 font-heading text-2xl font-bold tabular-nums">{value}</div>
       </div>
-      <span className="h-10 w-10 rounded-full bg-brand-lite text-brand flex items-center justify-center">{icon}</span>
+      <span className={`h-9 w-9 rounded-full grid place-items-center border ${tones[tone]}`}>{icon}</span>
     </div>
   );
 }
 
-function QueueCard({ item }: { item: any }) {
+function QueueSkeleton() {
+  return (
+    <ul className="grid gap-2.5" aria-busy="true" aria-label="Loading queue">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <li
+          key={i}
+          className="h-[88px] rounded-2xl border border-border bg-card animate-pulse"
+        />
+      ))}
+    </ul>
+  );
+}
+
+function QueueRow({ item }: { item: any }) {
   const team = item.rp_teams;
   const e = item.my_evaluation;
+  const submitted = e?.status === "submitted";
+  const draft = e?.status === "draft";
   return (
-    <Link
-      to="/rakshak-platform/evaluator/$submissionId"
-      params={{ submissionId: item.id }}
-      className="block rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition"
-    >
-      <div className="flex items-center justify-between">
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">
-          Phase {item.phase_number} · {PHASE_TITLES[item.phase_number]}
+    <li>
+      <Link
+        to="/rakshak-platform/evaluator/$submissionId"
+        params={{ submissionId: item.id }}
+        className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border border-border bg-card p-4 hover:border-brand/40 hover:shadow-sm transition-all"
+      >
+        <div className="h-11 w-11 rounded-xl bg-brand-lite text-brand grid place-items-center shrink-0 font-heading text-sm font-bold">
+          P{item.phase_number}
         </div>
-        {item.assigned_to_me && (
-          <span className="text-xs font-semibold text-brand bg-brand-lite px-2 py-0.5 rounded-full">Assigned</span>
-        )}
-      </div>
-      <div className="mt-2 font-heading text-lg font-semibold">{item.title}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{team?.team_name} · {team?.city}, {team?.state}</div>
-      {e && (
-        <div className="mt-4 text-sm">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${e.status === "submitted" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
-            {e.status === "submitted" ? "Scored" : "Draft saved"}
-          </span>
-          <span className="ml-3 font-mono text-muted-foreground">{Number(e.total_score).toFixed(0)} / 100</span>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-heading text-sm sm:text-base font-semibold truncate">
+              {team?.team_name ?? "Team"}
+            </span>
+            {item.assigned_to_me && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide text-brand bg-brand-lite border border-brand/20">
+                Assigned
+              </span>
+            )}
+            {submitted && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">
+                <CheckCircle2 className="h-3 w-3" /> Scored
+              </span>
+            )}
+            {draft && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-amber-50 text-amber-700 border-amber-200">
+                <Clock className="h-3 w-3" /> Draft saved
+              </span>
+            )}
+          </div>
+          <div className="mt-0.5 text-xs text-muted-foreground truncate">
+            <span className="font-medium text-foreground/80">{item.title}</span>
+            <span className="opacity-60"> · {PHASE_TITLES[item.phase_number]}</span>
+            {team?.city && <span className="opacity-60"> · {team.city}{team.state ? `, ${team.state}` : ""}</span>}
+          </div>
         </div>
-      )}
-    </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          {e && (
+            <span className="font-mono text-sm tabular-nums">
+              <span className={submitted ? "text-foreground font-semibold" : "text-muted-foreground"}>
+                {Number(e.total_score ?? 0).toFixed(0)}
+              </span>
+              <span className="text-muted-foreground/60"> / 100</span>
+            </span>
+          )}
+          <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-brand group-hover:translate-x-0.5 transition-all" />
+        </div>
+      </Link>
+    </li>
   );
 }

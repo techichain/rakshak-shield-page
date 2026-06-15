@@ -6,6 +6,8 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
 import { MentorCreateTeamPanel } from "@/components/rakshak-platform/MentorCreateTeamPanel";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
+import { Loader2, UsersRound } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/mentor")({
   ssr: false,
@@ -35,7 +37,17 @@ function MentorDashboard() {
     })();
   }, [loading, userId, isMentor, navigate]);
 
-  if (loading) return <PlatformShell><Section>Loading…</Section></PlatformShell>;
+  if (loading) {
+    return (
+      <PlatformShell>
+        <Section className="!py-16">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading mentor workspace…
+          </div>
+        </Section>
+      </PlatformShell>
+    );
+  }
 
   return (
     <PlatformShell>
@@ -45,10 +57,17 @@ function MentorDashboard() {
           Your assigned
           <br /><span className="text-brand">teams.</span>
         </h1>
+        {teams.length === 0 ? (
+          <div className="mt-12">
+            <EmptyState
+              icon={UsersRound}
+              title="No teams assigned yet"
+              description="An admin will assign teams to you shortly. You can also propose a new team below using a verified team leader's email."
+            />
+          </div>
+        ) : (
         <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {teams.length === 0 && (
-            <p className="text-sm text-muted-foreground">No teams have been assigned to you yet. An admin will assign teams shortly.</p>
-          )}
+
           {teams.map((t) => {
             const meta = TEAM_STATUS_META[t.status as keyof typeof TEAM_STATUS_META];
             return (
@@ -67,6 +86,9 @@ function MentorDashboard() {
             );
           })}
         </div>
+        )}
+
+
 
         <div className="mt-12">
           <MentorCreateTeamPanel />
