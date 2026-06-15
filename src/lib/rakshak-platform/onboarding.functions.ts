@@ -113,3 +113,5 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
 
     // No remaining auto-granted self-signup roles — every role goes through approval.
     return { status: "pending_approval" as const, redirectTo: "/rakshak-platform/dashboard" as const };
+  });
+
