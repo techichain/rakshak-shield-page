@@ -1812,6 +1812,7 @@ export type Database = {
           created_team_id: string | null
           id: string
           leader_email: string
+          member_emails: string[]
           mentor_profile_id: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -1828,6 +1829,7 @@ export type Database = {
           created_team_id?: string | null
           id?: string
           leader_email: string
+          member_emails?: string[]
           mentor_profile_id: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -1844,6 +1846,7 @@ export type Database = {
           created_team_id?: string | null
           id?: string
           leader_email?: string
+          member_emails?: string[]
           mentor_profile_id?: string
           reviewed_at?: string | null
           reviewed_by?: string | null

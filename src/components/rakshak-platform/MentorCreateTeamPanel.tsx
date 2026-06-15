@@ -27,7 +27,7 @@ export function MentorCreateTeamPanel() {
   const [rows, setRows] = useState<Row[]>([]);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ teamName: "", leaderEmail: "", college: "", city: "", state: "" });
+  const [form, setForm] = useState({ teamName: "", leaderEmail: "", membersRaw: "", college: "", city: "", state: "" });
 
   async function load() {
     try {
@@ -43,6 +43,10 @@ export function MentorCreateTeamPanel() {
     e.preventDefault();
     setBusy(true);
     try {
+      const memberEmails = form.membersRaw
+        .split(/[\s,;]+/)
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
       await submitFn({
         data: {
           teamName: form.teamName.trim(),
@@ -50,10 +54,11 @@ export function MentorCreateTeamPanel() {
           college: form.college.trim() || undefined,
           city: form.city.trim() || undefined,
           state: form.state.trim() || undefined,
+          memberEmails,
         },
       });
       toast.success("Request submitted. Awaiting admin approval.");
-      setForm({ teamName: "", leaderEmail: "", college: "", city: "", state: "" });
+      setForm({ teamName: "", leaderEmail: "", membersRaw: "", college: "", city: "", state: "" });
       setOpen(false);
       load();
     } catch (e: any) {
@@ -87,6 +92,9 @@ export function MentorCreateTeamPanel() {
             className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" />
           <input required type="email" placeholder="Verified team leader email *" value={form.leaderEmail}
             onChange={(e) => setForm({ ...form, leaderEmail: e.target.value })}
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" />
+          <textarea rows={2} placeholder="Verified team member emails (optional · comma or newline)" value={form.membersRaw}
+            onChange={(e) => setForm({ ...form, membersRaw: e.target.value })}
             className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" />
           <input placeholder="College (optional)" value={form.college}
             onChange={(e) => setForm({ ...form, college: e.target.value })}

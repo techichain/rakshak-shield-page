@@ -1,0 +1,1 @@
+ALTER TABLE public.rp_mentor_team_requests ADD COLUMN IF NOT EXISTS member_emails text[] NOT NULL DEFAULT '{}'::text[];
