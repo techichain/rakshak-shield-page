@@ -161,8 +161,6 @@ function AuthPage() {
     e.preventDefault();
     setError(null);
     setInfo(null);
-    setCaptchaError(null);
-    if (!checkCaptcha()) return;
 
     if (mode === "register") {
       if (!fullName.trim()) {
