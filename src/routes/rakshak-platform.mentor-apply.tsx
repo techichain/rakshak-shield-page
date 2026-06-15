@@ -46,14 +46,19 @@ function ApplyPage() {
     e.preventDefault();
     setSubmitting(true);
     setErr(null);
-    const payload = {
-      ...form,
-      years_experience: form.years_experience ? Number(form.years_experience) : null,
-    };
-    const { error } = await supabase.from("rp_mentor_applications").insert(payload as any);
-    setSubmitting(false);
-    if (error) { setErr(error.message); return; }
-    setDone(true);
+    try {
+      await submitFn({
+        data: {
+          ...form,
+          years_experience: form.years_experience ? Number(form.years_experience) : null,
+        },
+      });
+      setDone(true);
+    } catch (e: any) {
+      setErr(e?.message ?? "Failed to submit application");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (done) {
