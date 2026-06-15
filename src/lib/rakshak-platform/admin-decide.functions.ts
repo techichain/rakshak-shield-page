@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 const inputSchema = z.object({
   approvalId: z.string().uuid(),
   decision: z.enum(['approved', 'rejected']),
-  reason: z.string().trim().max(2000).optional().nullable(),
+  reason: z.string().trim().min(1, 'Decision notes are required').max(2000),
 })
 
 const SITE_NAME = 'rakshak-crashfreeindia'
@@ -34,8 +34,8 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
     if (adminErr) throw adminErr
     if (!isAdmin) throw new Error('Forbidden — admin role required')
 
-    if (data.decision === 'rejected' && !data.reason?.trim()) {
-      throw new Error('A reject reason is required.')
+    if (!data.reason?.trim()) {
+      throw new Error('Decision notes are required.')
     }
 
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
@@ -98,11 +98,9 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
       }
     }
 
-    // 4. Update the approval row — notes capture the reject reason for audit + email
-    const mergedNotes =
-      data.decision === 'rejected'
-        ? `${approval.notes ? approval.notes + '\n\n' : ''}Reject reason: ${data.reason}`
-        : approval.notes
+    // 4. Update the approval row — notes capture decision notes for audit + email
+    const noteLabel = data.decision === 'rejected' ? 'Reject reason' : 'Approval notes'
+    const mergedNotes = `${approval.notes ? approval.notes + '\n\n' : ''}${noteLabel}: ${data.reason}`
     const { error: updErr } = await supabaseAdmin
       .from('rp_role_approvals')
       .update({
@@ -113,7 +111,23 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
       })
       .eq('id', approval.id)
     if (updErr) throw updErr
-    // rp_tg_audit_role_approvals already writes to rp_audit_logs with actor + status + notes.
+
+    // Explicit audit row with the real reviewer (the trigger uses auth.uid()
+    // which is NULL under the service-role client, so we record the decider here).
+    await supabaseAdmin.from('rp_audit_logs').insert({
+      actor_id: userId,
+      action: `role_approval_${data.decision}`,
+      entity_type: 'rp_role_approvals',
+      entity_id: approval.id,
+      old_value: { status: approval.status },
+      new_value: {
+        status: data.decision,
+        role: requestedRole,
+        notes: data.reason,
+        reviewed_at: reviewedAt,
+      },
+    })
+
 
     // 5. Notify the requester via email (best-effort; never block the decision)
     let emailed = false
@@ -147,6 +161,7 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
             template_name: 'rp-role-decision',
             recipient_email: requester.email,
             status: 'pending',
+            metadata: { approval_id: approval.id, decision: data.decision, role: requestedRole },
           })
 
           const { error: enqErr } = await supabaseAdmin.rpc('enqueue_email', {
@@ -173,6 +188,20 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
           } else {
             emailed = true
           }
+
+          // Link the message to the approval in audit logs for the admin UI
+          await supabaseAdmin.from('rp_audit_logs').insert({
+            actor_id: userId,
+            action: enqErr ? 'role_approval_email_failed' : 'role_approval_email_queued',
+            entity_type: 'rp_role_approvals',
+            entity_id: approval.id,
+            new_value: {
+              message_id: messageId,
+              recipient_email: requester.email,
+              template: 'rp-role-decision',
+              error: enqErr?.message ?? null,
+            },
+          })
         }
       } catch (err) {
         console.error('rp-role-decision email failed', err)

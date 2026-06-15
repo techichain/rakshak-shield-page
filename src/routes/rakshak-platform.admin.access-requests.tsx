@@ -1,20 +1,25 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import {
   Loader2, Mail, Check, X, BellRing, UserPlus, Clock, Shield, ArrowLeft,
-  GraduationCap, Briefcase, MapPin,
+  GraduationCap, Briefcase, MapPin, Search, ChevronDown, ChevronRight,
+  ChevronLeft, AlertCircle, CheckCircle2, MailCheck, MailX, MailWarning,
 } from "lucide-react";
 import { toast } from "sonner";
 import { decideRoleApproval } from "@/lib/rakshak-platform/admin-decide.functions";
+import {
+  getApprovalDetails,
+  type ApprovalAuditEntry,
+  type ApprovalEmailEntry,
+} from "@/lib/rakshak-platform/admin-approval-details.functions";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
 });
-
 
 type Invite = {
   id: string;
@@ -26,11 +31,13 @@ type Invite = {
   invited_by: string | null;
 };
 
-type Pending = {
+type ApprovalRow = {
   id: string;
   user_id: string;
   requested_role: string;
   requested_at: string;
+  reviewed_at: string | null;
+  status: string;
   notes: string | null;
   full_name: string | null;
   email: string | null;
@@ -53,18 +60,40 @@ type MentorApp = {
   created_at: string;
 };
 
+type StatusFilter = "pending" | "approved" | "rejected" | "all";
+type RoleFilter = "all" | "team_leader" | "mentor" | "evaluator" | "cfi_admin" | "super_admin";
+type SortOrder = "newest" | "oldest";
+
+const PAGE_SIZE = 10;
+
 function AccessRequestsPage() {
   const navigate = useNavigate();
   const { loading, userId, isAdmin } = useRPAuth();
   const [invites, setInvites] = useState<Invite[]>([]);
-  const [pending, setPending] = useState<Pending[]>([]);
+  const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [tab, setTab] = useState<"requests" | "mentor-apps" | "invites">("requests");
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
-  const decideFn = useServerFn(decideRoleApproval);
 
+  // Decision form state
+  const [decidingId, setDecidingId] = useState<string | null>(null);
+  const [decidingMode, setDecidingMode] = useState<"approved" | "rejected">("approved");
+  const [decisionNote, setDecisionNote] = useState("");
+
+  // Filters
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortOrder>("newest");
+  const [page, setPage] = useState(1);
+
+  // Per-row expansion + details (audit + email)
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [auditMap, setAuditMap] = useState<Record<string, ApprovalAuditEntry[]>>({});
+  const [emailMap, setEmailMap] = useState<Record<string, ApprovalEmailEntry[]>>({});
+
+  const decideFn = useServerFn(decideRoleApproval);
+  const detailsFn = useServerFn(getApprovalDetails);
 
   const load = useCallback(async () => {
     const [{ data: inv }, { data: pend }, { data: apps }] = await Promise.all([
@@ -73,9 +102,9 @@ function AccessRequestsPage() {
         .order("created_at", { ascending: false })
         .limit(200),
       supabase.from("rp_role_approvals")
-        .select("id, user_id, requested_role, requested_at, notes")
-        .eq("status", "pending")
-        .order("requested_at", { ascending: false }),
+        .select("id, user_id, requested_role, requested_at, reviewed_at, status, notes")
+        .order("requested_at", { ascending: false })
+        .limit(500),
       supabase.from("rp_mentor_applications")
         .select("id, full_name, email, phone, city, state, organization, designation, expertise, years_experience, linkedin_url, motivation, status, created_at")
         .order("created_at", { ascending: false })
@@ -94,13 +123,15 @@ function AccessRequestsPage() {
         .in("id", ids);
       profileMap = new Map((profs ?? []).map((p) => [p.id, p]));
     }
-    setPending((pend ?? []).map((p: any) => {
+    setApprovals((pend ?? []).map((p: any) => {
       const prof = profileMap.get(p.user_id);
       return {
         id: p.id,
         user_id: p.user_id,
         requested_role: p.requested_role,
         requested_at: p.requested_at,
+        reviewed_at: p.reviewed_at,
+        status: p.status,
         notes: p.notes,
         full_name: prof?.full_name ?? null,
         email: prof?.email ?? null,
@@ -115,52 +146,84 @@ function AccessRequestsPage() {
     load();
   }, [loading, userId, isAdmin, navigate, load]);
 
-  async function approvePending(row: Pending) {
-    setBusy("ap" + row.id);
-    try {
-      const res = await decideFn({
-        data: { approvalId: row.id, decision: "approved" },
-      });
-      toast.success(
-        `Granted ${res.role}${res.emailed ? " — requester notified by email" : ""}`,
-      );
-      await load();
-    } catch (e: any) {
-      toast.error(e?.message ?? "Failed to approve");
-    } finally {
-      setBusy(null);
-    }
+  // Filtered + sorted approvals
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const rows = approvals.filter((r) => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (roleFilter !== "all" && r.requested_role !== roleFilter) return false;
+      if (q) {
+        const hay = `${r.full_name ?? ""} ${r.email ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    rows.sort((a, b) => {
+      const da = new Date(a.requested_at).getTime();
+      const db = new Date(b.requested_at).getTime();
+      // Stable secondary key: id
+      if (da === db) return a.id.localeCompare(b.id);
+      return sort === "newest" ? db - da : da - db;
+    });
+    return rows;
+  }, [approvals, statusFilter, roleFilter, query, sort]);
+
+  // Reset page on filter change
+  useEffect(() => { setPage(1); }, [statusFilter, roleFilter, query, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  // Lazy fetch audit + email for decided rows currently on the page
+  useEffect(() => {
+    const need = pageRows
+      .filter((r) => r.status !== "pending" && !(r.id in auditMap))
+      .map((r) => r.id);
+    if (need.length === 0) return;
+    (async () => {
+      try {
+        const res = await detailsFn({ data: { approvalIds: need } });
+        setAuditMap((prev) => ({ ...prev, ...res.audit }));
+        setEmailMap((prev) => ({ ...prev, ...res.emails }));
+      } catch (e) {
+        console.error("Failed to load approval details", e);
+      }
+    })();
+  }, [pageRows, auditMap, detailsFn]);
+
+  function openDecide(row: ApprovalRow, mode: "approved" | "rejected") {
+    setDecidingId(row.id);
+    setDecidingMode(mode);
+    setDecisionNote("");
   }
 
-  function openReject(row: Pending) {
-    setRejectingId(row.id);
-    setRejectReason("");
-  }
-
-  async function confirmReject(row: Pending) {
-    const reason = rejectReason.trim();
-    if (!reason) {
-      toast.error("Please add a reason — it will be included in the email to the requester.");
+  async function confirmDecide(row: ApprovalRow) {
+    const note = decisionNote.trim();
+    if (!note) {
+      toast.error("Decision notes are required — they will be included in the email to the requester.");
       return;
     }
-    setBusy("rj" + row.id);
+    setBusy(decidingMode + row.id);
     try {
       const res = await decideFn({
-        data: { approvalId: row.id, decision: "rejected", reason },
+        data: { approvalId: row.id, decision: decidingMode, reason: note },
       });
       toast.success(
-        `Rejected${res.emailed ? " — requester notified by email" : ""}`,
+        `${decidingMode === "approved" ? "Approved" : "Rejected"}${res.emailed ? " — requester notified by email" : ""}`,
       );
-      setRejectingId(null);
-      setRejectReason("");
+      setDecidingId(null);
+      setDecisionNote("");
+      // Force a refresh of details for this row next render
+      setAuditMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
+      setEmailMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
       await load();
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to reject");
+      toast.error(e?.message ?? "Failed");
     } finally {
       setBusy(null);
     }
   }
-
 
   async function revokeInvite(inv: Invite) {
     if (!confirm(`Revoke invite to ${inv.email}?`)) return;
@@ -174,7 +237,6 @@ function AccessRequestsPage() {
   }
 
   async function resendInvite(inv: Invite) {
-    // Simply touch updated_at so admin sees latest; real email sending uses existing email flow if configured.
     setBusy("rs" + inv.id);
     await supabase.from("rp_role_invites")
       .update({ status: "pending", reviewed_at: null })
@@ -191,7 +253,6 @@ function AccessRequestsPage() {
         .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId })
         .eq("id", app.id);
       if (error) throw error;
-      // Also create a role invite so this email auto-grants `mentor` on first sign-in
       await supabase.from("rp_role_invites").insert({
         email: app.email,
         role: "mentor",
@@ -227,6 +288,7 @@ function AccessRequestsPage() {
   const pendingInvites = invites.filter((i) => i.status === "pending");
   const otherInvites = invites.filter((i) => i.status !== "pending");
   const pendingMentorApps = mentorApps.filter((a) => a.status === "pending");
+  const pendingCount = approvals.filter((a) => a.status === "pending").length;
 
   return (
     <PlatformShell>
@@ -242,18 +304,16 @@ function AccessRequestsPage() {
           Review every access request in one place — self-signup notifications, mentor applications, and email invites you have sent out.
         </p>
 
-        {/* Notification-style summary */}
         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <SummaryCard icon={<BellRing className="h-5 w-5" />} label="Role requests" value={pending.length} tone="amber" />
+          <SummaryCard icon={<BellRing className="h-5 w-5" />} label="Pending role requests" value={pendingCount} tone="amber" />
           <SummaryCard icon={<GraduationCap className="h-5 w-5" />} label="Mentor applications" value={pendingMentorApps.length} tone="emerald" />
           <SummaryCard icon={<Mail className="h-5 w-5" />} label="Open invites" value={pendingInvites.length} tone="brand" />
           <SummaryCard icon={<Shield className="h-5 w-5" />} label="Total invites" value={invites.length} tone="muted" />
         </div>
 
-        {/* Tabs */}
         <div className="mt-8 flex items-center gap-1 border-b border-border overflow-x-auto">
           {([
-            ["requests", `Role requests (${pending.length})`, <BellRing className="h-4 w-4" key="i1" />],
+            ["requests", `Role requests (${pendingCount})`, <BellRing className="h-4 w-4" key="i1" />],
             ["mentor-apps", `Mentor applications (${pendingMentorApps.length})`, <GraduationCap className="h-4 w-4" key="i3" />],
             ["invites", `Email invites (${invites.length})`, <Mail className="h-4 w-4" key="i2" />],
           ] as const).map(([id, label, icon]) => {
@@ -272,98 +332,116 @@ function AccessRequestsPage() {
           })}
         </div>
 
-        {/* Notifications */}
         {tab === "requests" && (
-          <div className="mt-6 space-y-3">
-            {pending.length === 0 ? (
-              <EmptyNote icon={<BellRing className="h-8 w-8 text-brand" />} title="All caught up" subtitle="No pending role requests right now." />
-            ) : (
-              pending.map((p) => {
-                const isRejecting = rejectingId === p.id;
-                return (
-                  <div key={p.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-amber-100 text-amber-700 grid place-items-center shrink-0">
-                        <UserPlus className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm">
-                          <span className="font-semibold">{p.full_name ?? p.email ?? "User"}</span>{" "}
-                          <span className="text-muted-foreground">requested</span>{" "}
-                          <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
-                            {p.requested_role}
-                          </span>{" "}
-                          <span className="text-muted-foreground">access</span>
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1 truncate">{p.email}</div>
-                        {p.notes && <div className="text-xs text-muted-foreground mt-1 italic">"{p.notes}"</div>}
-                        <div className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {new Date(p.requested_at).toLocaleString()}
-                        </div>
-                      </div>
-                      {!isRejecting && (
-                        <div className="flex gap-2 shrink-0">
-                          <button
-                            onClick={() => approvePending(p)}
-                            disabled={busy === "ap" + p.id}
-                            className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                            {busy === "ap" + p.id ? "Approving…" : "Approve"}
-                          </button>
-                          <button
-                            onClick={() => openReject(p)}
-                            disabled={busy === "rj" + p.id}
-                            className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
-                          >
-                            <X className="h-3.5 w-3.5" /> Reject
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    {isRejecting && (
-                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-3">
-                        <label className="block text-xs font-semibold text-amber-900 mb-1">
-                          Reason for rejection <span className="text-red-600">*</span>
-                        </label>
-                        <p className="text-[11px] text-amber-800/80 mb-2">
-                          This message is included in the email sent to the requester.
-                        </p>
-                        <textarea
-                          value={rejectReason}
-                          onChange={(e) => setRejectReason(e.target.value)}
-                          rows={3}
-                          required
-                          placeholder="e.g. We could not verify your affiliation. Please reply with your university ID and reapply."
-                          className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500"
-                        />
-                        <div className="mt-2 flex justify-end gap-2">
-                          <button
-                            onClick={() => { setRejectingId(null); setRejectReason(""); }}
-                            className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => confirmReject(p)}
-                            disabled={busy === "rj" + p.id || !rejectReason.trim()}
-                            className="inline-flex items-center gap-1 rounded-full bg-red-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                            {busy === "rj" + p.id ? "Rejecting…" : "Confirm reject"}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
+          <>
+            {/* Filters */}
+            <div className="mt-6 rounded-2xl border border-border bg-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search by name or email…"
+                  className="w-full rounded-full border border-border bg-background pl-9 pr-3 py-2 text-sm outline-none focus:border-brand"
+                />
+              </div>
+              <FilterSelect
+                label="Status"
+                value={statusFilter}
+                onChange={(v) => setStatusFilter(v as StatusFilter)}
+                options={[
+                  ["pending", "Pending"],
+                  ["approved", "Approved"],
+                  ["rejected", "Rejected"],
+                  ["all", "All"],
+                ]}
+              />
+              <FilterSelect
+                label="Role"
+                value={roleFilter}
+                onChange={(v) => setRoleFilter(v as RoleFilter)}
+                options={[
+                  ["all", "All roles"],
+                  ["team_leader", "Team leader"],
+                  ["mentor", "Mentor"],
+                  ["evaluator", "Evaluator"],
+                  ["cfi_admin", "CFI admin"],
+                  ["super_admin", "Super admin"],
+                ]}
+              />
+              <FilterSelect
+                label="Sort"
+                value={sort}
+                onChange={(v) => setSort(v as SortOrder)}
+                options={[
+                  ["newest", "Newest first"],
+                  ["oldest", "Oldest first"],
+                ]}
+              />
+            </div>
 
+            <div className="mt-2 text-xs text-muted-foreground">
+              {filtered.length === 0
+                ? "No matching requests."
+                : `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+            </div>
+
+            <div className="mt-3 space-y-3">
+              {pageRows.length === 0 ? (
+                <EmptyNote
+                  icon={<BellRing className="h-8 w-8 text-brand" />}
+                  title="No requests match"
+                  subtitle="Try clearing the search or changing the filters."
+                />
+              ) : (
+                pageRows.map((p) => (
+                  <ApprovalCard
+                    key={p.id}
+                    row={p}
+                    busy={busy}
+                    decidingId={decidingId}
+                    decidingMode={decidingMode}
+                    decisionNote={decisionNote}
+                    setDecisionNote={setDecisionNote}
+                    onOpenDecide={openDecide}
+                    onCancelDecide={() => { setDecidingId(null); setDecisionNote(""); }}
+                    onConfirmDecide={confirmDecide}
+                    expanded={!!expanded[p.id]}
+                    onToggleExpand={() =>
+                      setExpanded((e) => ({ ...e, [p.id]: !e[p.id] }))
+                    }
+                    audit={auditMap[p.id]}
+                    emails={emailMap[p.id]}
+                  />
+                ))
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-center gap-2">
+                <button
+                  disabled={safePage <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-50"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" /> Prev
+                </button>
+                <span className="text-xs text-muted-foreground">
+                  Page {safePage} of {totalPages}
+                </span>
+                <button
+                  disabled={safePage >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-50"
+                >
+                  Next <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
             )}
-          </div>
+          </>
         )}
 
-        {/* Mentor applications */}
         {tab === "mentor-apps" && (
           <div className="mt-6 space-y-3">
             {mentorApps.length === 0 ? (
@@ -419,7 +497,6 @@ function AccessRequestsPage() {
           </div>
         )}
 
-        {/* Invites */}
         {tab === "invites" && (
           <div className="mt-6 space-y-6">
             <InviteSection
@@ -442,6 +519,259 @@ function AccessRequestsPage() {
         )}
       </Section>
     </PlatformShell>
+  );
+}
+
+function ApprovalCard({
+  row, busy, decidingId, decidingMode, decisionNote, setDecisionNote,
+  onOpenDecide, onCancelDecide, onConfirmDecide,
+  expanded, onToggleExpand, audit, emails,
+}: {
+  row: ApprovalRow;
+  busy: string | null;
+  decidingId: string | null;
+  decidingMode: "approved" | "rejected";
+  decisionNote: string;
+  setDecisionNote: (s: string) => void;
+  onOpenDecide: (r: ApprovalRow, mode: "approved" | "rejected") => void;
+  onCancelDecide: () => void;
+  onConfirmDecide: (r: ApprovalRow) => void;
+  expanded: boolean;
+  onToggleExpand: () => void;
+  audit: ApprovalAuditEntry[] | undefined;
+  emails: ApprovalEmailEntry[] | undefined;
+}) {
+  const isDeciding = decidingId === row.id;
+  const isPending = row.status === "pending";
+  const tone =
+    row.status === "approved" ? "bg-emerald-100 text-emerald-700" :
+    row.status === "rejected" ? "bg-red-100 text-red-700" :
+    "bg-amber-100 text-amber-700";
+  const latestEmail = (emails ?? [])[0];
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className={`h-10 w-10 rounded-full ${tone} grid place-items-center shrink-0`}>
+          <UserPlus className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm">
+            <span className="font-semibold">{row.full_name ?? row.email ?? "User"}</span>{" "}
+            <span className="text-muted-foreground">requested</span>{" "}
+            <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
+              {row.requested_role}
+            </span>{" "}
+            <span className="text-muted-foreground">access</span>
+            {!isPending && <span className="ml-2"><StatusBadge status={row.status} /></span>}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1 truncate">{row.email}</div>
+          {row.notes && (
+            <div className="text-xs text-muted-foreground mt-1 italic whitespace-pre-wrap">"{row.notes}"</div>
+          )}
+          <div className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3" /> Requested {new Date(row.requested_at).toLocaleString()}
+            </span>
+            {row.reviewed_at && (
+              <span className="inline-flex items-center gap-1">
+                · Reviewed {new Date(row.reviewed_at).toLocaleString()}
+              </span>
+            )}
+            {!isPending && latestEmail && <EmailStatusBadge entry={latestEmail} />}
+            {!isPending && !latestEmail && emails !== undefined && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted text-muted-foreground px-2 py-0.5">
+                <MailX className="h-3 w-3" /> No email sent
+              </span>
+            )}
+          </div>
+        </div>
+        {isPending && !isDeciding && (
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => onOpenDecide(row, "approved")}
+              disabled={busy === "approved" + row.id}
+              className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+            >
+              <Check className="h-3.5 w-3.5" /> Approve
+            </button>
+            <button
+              onClick={() => onOpenDecide(row, "rejected")}
+              disabled={busy === "rejected" + row.id}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+            >
+              <X className="h-3.5 w-3.5" /> Reject
+            </button>
+          </div>
+        )}
+        {!isPending && (
+          <button
+            onClick={onToggleExpand}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted shrink-0"
+          >
+            {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+            Audit log
+          </button>
+        )}
+      </div>
+
+      {isDeciding && (
+        <div className={`mt-4 rounded-xl border p-3 ${
+          decidingMode === "approved"
+            ? "border-emerald-200 bg-emerald-50/60"
+            : "border-red-200 bg-red-50/60"
+        }`}>
+          <label className="block text-xs font-semibold mb-1">
+            {decidingMode === "approved" ? "Approval notes" : "Reason for rejection"}{" "}
+            <span className="text-red-600">*</span>
+          </label>
+          <p className="text-[11px] text-muted-foreground mb-2">
+            Required — this message is included in the email sent to the requester and saved to the audit log.
+          </p>
+          <textarea
+            value={decisionNote}
+            onChange={(e) => setDecisionNote(e.target.value)}
+            rows={3}
+            required
+            placeholder={
+              decidingMode === "approved"
+                ? "e.g. Verified your university affiliation — welcome aboard! Your portal opens immediately."
+                : "e.g. We could not verify your affiliation. Please reply with your university ID and reapply."
+            }
+            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand"
+          />
+          <div className="mt-2 flex justify-end gap-2">
+            <button
+              onClick={onCancelDecide}
+              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => onConfirmDecide(row)}
+              disabled={busy === decidingMode + row.id || !decisionNote.trim()}
+              className={`inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-50 ${
+                decidingMode === "approved" ? "bg-brand hover:bg-brand/90" : "bg-red-600 hover:bg-red-700"
+              }`}
+            >
+              {decidingMode === "approved" ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+              {busy === decidingMode + row.id
+                ? (decidingMode === "approved" ? "Approving…" : "Rejecting…")
+                : `Confirm ${decidingMode === "approved" ? "approve" : "reject"}`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {expanded && !isPending && (
+        <div className="mt-4 rounded-xl border border-border bg-muted/30 p-3 space-y-3">
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              Email deliveries
+            </div>
+            {emails === undefined ? (
+              <div className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" /> Loading…
+              </div>
+            ) : emails.length === 0 ? (
+              <div className="text-xs text-muted-foreground">No notification email recorded.</div>
+            ) : (
+              <ul className="space-y-1">
+                {emails.map((em) => (
+                  <li key={em.message_id ?? em.created_at} className="text-xs flex flex-wrap items-center gap-2">
+                    <EmailStatusBadge entry={em} />
+                    <span className="text-muted-foreground">{em.recipient_email}</span>
+                    <span className="text-muted-foreground">· {new Date(em.created_at).toLocaleString()}</span>
+                    {em.error_message && (
+                      <span className="text-red-600 inline-flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {em.error_message}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              History
+            </div>
+            {audit === undefined ? (
+              <div className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" /> Loading…
+              </div>
+            ) : audit.length === 0 ? (
+              <div className="text-xs text-muted-foreground">No audit entries.</div>
+            ) : (
+              <ol className="space-y-2 border-l-2 border-border pl-3">
+                {audit.map((a) => (
+                  <li key={a.id} className="text-xs">
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <span className="font-semibold">{prettyAction(a.action)}</span>
+                      <span className="text-muted-foreground">
+                        by {a.actor_name ?? a.actor_email ?? (a.actor_id ? a.actor_id.slice(0, 8) : "system")}
+                      </span>
+                      <span className="text-muted-foreground">· {new Date(a.created_at).toLocaleString()}</span>
+                    </div>
+                    {a.new_value?.notes && (
+                      <div className="mt-0.5 text-muted-foreground italic whitespace-pre-wrap">"{a.new_value.notes}"</div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function prettyAction(action: string): string {
+  return action
+    .replace(/^role_approval_/, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function EmailStatusBadge({ entry }: { entry: ApprovalEmailEntry }) {
+  const s = entry.status;
+  let cls = "bg-muted text-muted-foreground";
+  let Icon = MailWarning;
+  let label = s;
+  if (s === "sent") { cls = "bg-emerald-100 text-emerald-700"; Icon = MailCheck; label = "Email sent"; }
+  else if (s === "pending") { cls = "bg-amber-100 text-amber-700"; Icon = Mail; label = "Email queued"; }
+  else if (s === "failed" || s === "bounced" || s === "dlq") { cls = "bg-red-100 text-red-700"; Icon = MailX; label = `Email ${s}`; }
+  else if (s === "suppressed") { cls = "bg-zinc-200 text-zinc-700"; Icon = MailX; label = "Email suppressed"; }
+  else if (s === "complained") { cls = "bg-orange-100 text-orange-700"; Icon = MailWarning; label = "Spam complaint"; }
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${cls}`}>
+      <Icon className="h-3 w-3" /> {label}
+    </span>
+  );
+}
+
+function FilterSelect({
+  label, value, onChange, options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: ReadonlyArray<readonly [string, string]>;
+}) {
+  return (
+    <label className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+      <span className="font-medium">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="rounded-full border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-brand"
+      >
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>{l}</option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -550,8 +880,9 @@ function InviteSection({
 
 function StatusBadge({ status }: { status: string }) {
   const tone =
-    status === "accepted" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+    status === "accepted" || status === "approved" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
     status === "pending" ? "bg-amber-50 text-amber-700 border-amber-200" :
+    status === "rejected" ? "bg-red-50 text-red-700 border-red-200" :
     "bg-muted text-muted-foreground border-border";
   return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${tone}`}>{status}</span>;
 }
