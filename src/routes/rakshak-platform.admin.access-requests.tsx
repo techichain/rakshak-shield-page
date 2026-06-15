@@ -294,6 +294,62 @@ function AccessRequestsPage() {
           </div>
         )}
 
+        {/* Mentor applications */}
+        {tab === "mentor-apps" && (
+          <div className="mt-6 space-y-3">
+            {mentorApps.length === 0 ? (
+              <EmptyNote icon={<GraduationCap className="h-8 w-8 text-brand" />} title="No mentor applications" subtitle="When someone applies via /rakshak-platform/mentor-apply they'll show up here." />
+            ) : (
+              mentorApps.map((a) => (
+                <div key={a.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                    <div className="h-10 w-10 rounded-full bg-emerald-100 text-emerald-700 grid place-items-center shrink-0">
+                      <GraduationCap className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-baseline gap-x-2">
+                        <span className="font-semibold">{a.full_name}</span>
+                        <span className="text-xs text-muted-foreground">{a.email}</span>
+                        <StatusBadge status={a.status} />
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        {a.designation && <span className="inline-flex items-center gap-1"><Briefcase className="h-3 w-3" />{a.designation}{a.organization ? ` · ${a.organization}` : ""}</span>}
+                        {(a.city || a.state) && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{[a.city, a.state].filter(Boolean).join(", ")}</span>}
+                        {a.years_experience != null && <span>{a.years_experience} yr exp.</span>}
+                        {a.linkedin_url && <a href={a.linkedin_url} target="_blank" rel="noreferrer" className="text-brand hover:underline">LinkedIn</a>}
+                      </div>
+                      {a.expertise && <div className="mt-2 text-sm"><span className="text-muted-foreground">Expertise: </span>{a.expertise}</div>}
+                      {a.motivation && <div className="mt-1 text-sm italic text-muted-foreground line-clamp-3">"{a.motivation}"</div>}
+                      <div className="mt-1 text-[11px] text-muted-foreground inline-flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {new Date(a.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                    {a.status === "pending" && (
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          onClick={() => approveMentorApp(a)}
+                          disabled={busy === "ma" + a.id}
+                          className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                          {busy === "ma" + a.id ? "Approving…" : "Approve"}
+                        </button>
+                        <button
+                          onClick={() => rejectMentorApp(a)}
+                          disabled={busy === "mr" + a.id}
+                          className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                        >
+                          <X className="h-3.5 w-3.5" /> Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
         {/* Invites */}
         {tab === "invites" && (
           <div className="mt-6 space-y-6">
