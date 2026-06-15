@@ -399,12 +399,6 @@ function AuthPage() {
                   />
                 </Field>
               )}
-              <Captcha
-                value={captcha}
-                onChange={setCaptcha}
-                onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
-                error={captchaError}
-              />
               {!(mode === "login" && !loginWithCode) && (
                 <p className="text-xs text-muted-foreground">
                   We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
