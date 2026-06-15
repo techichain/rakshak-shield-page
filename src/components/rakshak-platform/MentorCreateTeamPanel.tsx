@@ -43,6 +43,10 @@ export function MentorCreateTeamPanel() {
     e.preventDefault();
     setBusy(true);
     try {
+      const memberEmails = form.membersRaw
+        .split(/[\s,;]+/)
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
       await submitFn({
         data: {
           teamName: form.teamName.trim(),
@@ -50,10 +54,11 @@ export function MentorCreateTeamPanel() {
           college: form.college.trim() || undefined,
           city: form.city.trim() || undefined,
           state: form.state.trim() || undefined,
+          memberEmails,
         },
       });
       toast.success("Request submitted. Awaiting admin approval.");
-      setForm({ teamName: "", leaderEmail: "", college: "", city: "", state: "" });
+      setForm({ teamName: "", leaderEmail: "", membersRaw: "", college: "", city: "", state: "" });
       setOpen(false);
       load();
     } catch (e: any) {
