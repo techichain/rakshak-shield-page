@@ -7,6 +7,8 @@ import {
   Loader2, Sparkles, Search, Download, MessageSquare, Calendar,
   TrendingUp, Users, Trophy, AlertTriangle, ChevronUp, ChevronDown,
   LayoutGrid, Table as TableIcon, BarChart3, ListChecks, Plus, Mail, X, BellRing,
+  ArrowRight, BookOpen, ClipboardCheck, FileText, GraduationCap, HeartHandshake,
+  MapPin, ScanSearch, UserCog, Wallet, Wrench, type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
