@@ -14,11 +14,24 @@ import {
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 
+function formatErr(e: unknown): string {
+  if (!e) return "Something went wrong.";
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  if (typeof e === "object") {
+    const o = e as any;
+    if (typeof o.message === "string") return o.message;
+    if (typeof o.error === "string") return o.error;
+    try { return JSON.stringify(o); } catch { return "Unknown error"; }
+  }
+  return String(e);
+}
+
 export const Route = createFileRoute("/rakshak-platform/meetings")({
   ssr: false,
   component: MeetingsPage,
   errorComponent: ({ error }) => (
-    <PlatformShell><Section><p>{String(error)}</p></Section></PlatformShell>
+    <PlatformShell><Section><p className="text-red-600">{formatErr(error)}</p></Section></PlatformShell>
   ),
   notFoundComponent: () => (
     <PlatformShell><Section><p>Not found.</p></Section></PlatformShell>
