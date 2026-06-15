@@ -781,6 +781,7 @@ function ApprovalCard({
   row, busy, decidingId, decidingMode, decisionNote, setDecisionNote,
   onOpenDecide, onCancelDecide, onConfirmDecide,
   expanded, onToggleExpand, audit, emails,
+  selected, onToggleSelect, onResendEmail, resendBusy,
 }: {
   row: ApprovalRow;
   busy: string | null;
@@ -795,6 +796,10 @@ function ApprovalCard({
   onToggleExpand: () => void;
   audit: ApprovalAuditEntry[] | undefined;
   emails: ApprovalEmailEntry[] | undefined;
+  selected: boolean;
+  onToggleSelect: () => void;
+  onResendEmail: (r: ApprovalRow) => void;
+  resendBusy: boolean;
 }) {
   const isDeciding = decidingId === row.id;
   const isPending = row.status === "pending";
@@ -804,9 +809,29 @@ function ApprovalCard({
     "bg-amber-100 text-amber-700";
   const latestEmail = (emails ?? [])[0];
 
+  // SLA / age tracking
+  const ageHours = isPending
+    ? Math.floor((Date.now() - new Date(row.requested_at).getTime()) / 3_600_000)
+    : 0;
+  const overdue = isPending && ageHours >= 48;
+  const warning = isPending && ageHours >= 24 && ageHours < 48;
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+    <div className={`rounded-2xl border bg-card p-4 sm:p-5 shadow-sm ${
+      overdue ? "border-red-300 ring-1 ring-red-200" : "border-border"
+    }`}>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        {isPending && (
+          <label className="shrink-0 inline-flex items-center pt-1">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={onToggleSelect}
+              className="h-4 w-4 rounded border-border text-brand focus:ring-brand"
+              aria-label="Select request for bulk action"
+            />
+          </label>
+        )}
         <div className={`h-10 w-10 rounded-full ${tone} grid place-items-center shrink-0`}>
           <UserPlus className="h-5 w-5" />
         </div>
@@ -819,6 +844,23 @@ function ApprovalCard({
             </span>{" "}
             <span className="text-muted-foreground">access</span>
             {!isPending && <span className="ml-2"><StatusBadge status={row.status} /></span>}
+            {isPending && (
+              <span
+                className={`ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                  overdue
+                    ? "bg-red-100 text-red-700"
+                    : warning
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-muted text-muted-foreground"
+                }`}
+                title={`Requested ${new Date(row.requested_at).toLocaleString()}`}
+              >
+                <AlarmClock className="h-3 w-3" />
+                {overdue
+                  ? `Overdue · pending ${ageHours}h`
+                  : `Pending ${ageHours < 1 ? "<1h" : `${ageHours}h`}`}
+              </span>
+            )}
           </div>
           <div className="text-xs text-muted-foreground mt-1 truncate">{row.email}</div>
           {row.notes && (
@@ -860,15 +902,29 @@ function ApprovalCard({
           </div>
         )}
         {!isPending && (
-          <button
-            onClick={onToggleExpand}
-            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted shrink-0"
-          >
-            {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-            Audit log
-          </button>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => onResendEmail(row)}
+              disabled={resendBusy}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-50"
+              title="Re-queue the decision email to the requester"
+            >
+              {resendBusy
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : <Send className="h-3.5 w-3.5" />}
+              Resend email
+            </button>
+            <button
+              onClick={onToggleExpand}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted"
+            >
+              {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+              Audit log
+            </button>
+          </div>
         )}
       </div>
+
 
       {isDeciding && (
         <div className={`mt-4 rounded-xl border p-3 ${
