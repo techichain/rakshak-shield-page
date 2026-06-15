@@ -87,7 +87,7 @@ export async function notifyAdminsOfRoleRequest(args: {
 
   // 3. Render email once, enqueue per admin recipient
   const template = TEMPLATES['rp-admin-role-request']
-  if (!template) return { notified: rows.length, emailed: 0 }
+  if (!template) return { notified, emailed: 0 }
 
   let emailed = 0
   for (const p of profiles ?? []) {
