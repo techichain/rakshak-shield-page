@@ -34,8 +34,8 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
     if (adminErr) throw adminErr
     if (!isAdmin) throw new Error('Forbidden — admin role required')
 
-    if (data.decision === 'rejected' && !data.reason?.trim()) {
-      throw new Error('A reject reason is required.')
+    if (!data.reason?.trim()) {
+      throw new Error('Decision notes are required.')
     }
 
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
