@@ -106,6 +106,22 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
         } catch (err) {
           console.error("notifyAdminsOfRoleRequest failed", err);
         }
+      } else if (existing.status === "pending") {
+        // Idempotently repair missed admin alerts for pending requests.
+        try {
+          const { notifyAdminsOfRoleRequest } = await import("./admin-notify.server");
+          await notifyAdminsOfRoleRequest({
+            requesterId: user.id,
+            requesterName: fullName,
+            requesterEmail: email,
+            requestedRole,
+            notes: `Self-requested ${requestedRole} access at sign-up.`,
+            source: "self-signup",
+            approvalId: existing.id,
+          });
+        } catch (err) {
+          console.error("notifyAdminsOfRoleRequest repair failed", err);
+        }
       }
 
       return { status: "pending_approval" as const, redirectTo: "/rakshak-platform/dashboard" as const };
