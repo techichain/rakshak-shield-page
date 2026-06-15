@@ -1,14 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 function resolveOrigin(provided?: string | null) {
-  if (provided && /^https?:\/\//.test(provided)) return provided;
-  const proto = getRequestHeader("x-forwarded-proto") ?? "https";
-  const host = getRequestHeader("x-forwarded-host") ?? getRequestHeader("host");
-  if (!host) throw new Error("Could not determine request origin");
-  return `${proto}://${host}`;
+  if (provided && /^https?:\/\//.test(provided)) return provided.replace(/\/+$/, "");
+  // Production fallback — matches Google Console redirect URI.
+  return "https://rakshak.crashfreeindia.org";
 }
 
 export const getCalendarStatus = createServerFn({ method: "GET" })
