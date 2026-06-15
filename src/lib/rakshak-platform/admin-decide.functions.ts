@@ -111,7 +111,23 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
       })
       .eq('id', approval.id)
     if (updErr) throw updErr
-    // rp_tg_audit_role_approvals already writes to rp_audit_logs with actor + status + notes.
+
+    // Explicit audit row with the real reviewer (the trigger uses auth.uid()
+    // which is NULL under the service-role client, so we record the decider here).
+    await supabaseAdmin.from('rp_audit_logs').insert({
+      actor_id: userId,
+      action: `role_approval_${data.decision}`,
+      entity_type: 'rp_role_approvals',
+      entity_id: approval.id,
+      old_value: { status: approval.status },
+      new_value: {
+        status: data.decision,
+        role: requestedRole,
+        notes: data.reason,
+        reviewed_at: reviewedAt,
+      },
+    })
+
 
     // 5. Notify the requester via email (best-effort; never block the decision)
     let emailed = false
