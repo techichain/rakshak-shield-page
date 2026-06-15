@@ -66,6 +66,13 @@ const Email = ({
                 <strong>{roleLabel}</strong> access on the Rakshak Platform. You
                 can sign in and start using your portal right away.
               </Text>
+              {reason ? (
+                <Text style={{ ...text, borderLeft: '3px solid #4A35FF', paddingLeft: 12 }}>
+                  <strong>Notes from the reviewer:</strong>
+                  <br />
+                  {reason}
+                </Text>
+              ) : null}
               <Section style={{ textAlign: 'center', margin: '28px 0' }}>
                 <Button href={landing} style={button}>Open my portal</Button>
               </Section>
