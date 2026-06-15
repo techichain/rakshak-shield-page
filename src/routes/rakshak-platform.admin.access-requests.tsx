@@ -157,6 +157,42 @@ function AccessRequestsPage() {
     setBusy(null);
   }
 
+  async function approveMentorApp(app: MentorApp) {
+    setBusy("ma" + app.id);
+    try {
+      const { error } = await supabase.from("rp_mentor_applications")
+        .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId })
+        .eq("id", app.id);
+      if (error) throw error;
+      // Also create a role invite so this email auto-grants `mentor` on first sign-in
+      await supabase.from("rp_role_invites").insert({
+        email: app.email,
+        role: "mentor",
+        status: "pending",
+        invited_by: userId,
+        note: `Approved via mentor application ${app.id}`,
+      });
+      toast.success(`Approved ${app.full_name} — they will get mentor access on sign-in`);
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to approve");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function rejectMentorApp(app: MentorApp) {
+    if (!confirm(`Reject mentor application from ${app.full_name}?`)) return;
+    setBusy("mr" + app.id);
+    const { error } = await supabase.from("rp_mentor_applications")
+      .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userId })
+      .eq("id", app.id);
+    if (error) toast.error(error.message);
+    else toast.success("Rejected");
+    await load();
+    setBusy(null);
+  }
+
   if (loading || !isAdmin) {
     return <PlatformShell><Section><Loader2 className="h-5 w-5 animate-spin text-brand" /></Section></PlatformShell>;
   }
