@@ -88,14 +88,20 @@ export const getApprovalDetails = createServerFn({ method: 'POST' })
     }
 
     const emails: Record<string, ApprovalEmailEntry[]> = {}
-    if (messageIds.length) {
-      const { data: sendRows } = await supabaseAdmin
-        .from('email_send_log')
-        .select('message_id, recipient_email, status, error_message, created_at, metadata')
-        .in('message_id', messageIds)
-      for (const row of sendRows ?? []) {
+    const emailRowsByApproval = await Promise.all(
+      data.approvalIds.map((approvalId) =>
+        supabaseAdmin
+          .from('email_send_log')
+          .select('message_id, recipient_email, status, error_message, created_at, metadata')
+          .eq('template_name', 'rp-role-decision')
+          .contains('metadata', { approval_id: approvalId })
+          .order('created_at', { ascending: false }),
+      ),
+    )
+    for (const result of emailRowsByApproval) {
+      for (const row of result.data ?? []) {
         const approvalId = (row as any).metadata?.approval_id as string | undefined
-        if (!approvalId) continue
+        if (!approvalId || !data.approvalIds.includes(approvalId)) continue
         ;(emails[approvalId] ||= []).push({
           message_id: (row as any).message_id,
           recipient_email: (row as any).recipient_email,
