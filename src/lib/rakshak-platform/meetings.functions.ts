@@ -252,7 +252,7 @@ export const listMyMeetings = createServerFn({ method: "GET" })
       query = query.eq("created_by", context.userId);
     }
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) throw new Error(error.message || "Failed to load meetings");
     return { meetings: data ?? [] };
   });
 
