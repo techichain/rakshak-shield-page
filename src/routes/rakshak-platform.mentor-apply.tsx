@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { submitMentorApplication } from "@/lib/rakshak-platform/mentor-apply.functions";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
@@ -27,6 +28,7 @@ const empty: Form = {
 };
 
 function ApplyPage() {
+  const submitFn = useServerFn(submitMentorApplication);
   const [form, setForm] = useState<Form>(empty);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -44,14 +46,19 @@ function ApplyPage() {
     e.preventDefault();
     setSubmitting(true);
     setErr(null);
-    const payload = {
-      ...form,
-      years_experience: form.years_experience ? Number(form.years_experience) : null,
-    };
-    const { error } = await supabase.from("rp_mentor_applications").insert(payload as any);
-    setSubmitting(false);
-    if (error) { setErr(error.message); return; }
-    setDone(true);
+    try {
+      await submitFn({
+        data: {
+          ...form,
+          years_experience: form.years_experience ? Number(form.years_experience) : null,
+        },
+      });
+      setDone(true);
+    } catch (e: any) {
+      setErr(e?.message ?? "Failed to submit application");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (done) {
