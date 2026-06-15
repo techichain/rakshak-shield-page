@@ -199,6 +199,7 @@ function AccessRequestsPage() {
 
   const pendingInvites = invites.filter((i) => i.status === "pending");
   const otherInvites = invites.filter((i) => i.status !== "pending");
+  const pendingMentorApps = mentorApps.filter((a) => a.status === "pending");
 
   return (
     <PlatformShell>
@@ -206,25 +207,27 @@ function AccessRequestsPage() {
         <Link to="/rakshak-platform/admin" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand mb-4">
           <ArrowLeft className="h-4 w-4" /> Back to admin
         </Link>
-        <Eyebrow>Access requests</Eyebrow>
+        <Eyebrow>Pending approvals</Eyebrow>
         <h1 className="mt-3 font-heading text-3xl sm:text-4xl font-bold tracking-tight">
-          Approve mentor & evaluator access
+          Team, mentor &amp; evaluator approvals
         </h1>
         <p className="mt-2 text-muted-foreground max-w-2xl">
-          Review notifications from people requesting roles, and manage the email invites you've sent out.
+          Review every access request in one place — self-signup notifications, mentor applications, and email invites you have sent out.
         </p>
 
         {/* Notification-style summary */}
-        <div className="mt-6 grid sm:grid-cols-3 gap-4">
-          <SummaryCard icon={<BellRing className="h-5 w-5" />} label="Pending requests" value={pending.length} tone="amber" />
+        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SummaryCard icon={<BellRing className="h-5 w-5" />} label="Role requests" value={pending.length} tone="amber" />
+          <SummaryCard icon={<GraduationCap className="h-5 w-5" />} label="Mentor applications" value={pendingMentorApps.length} tone="emerald" />
           <SummaryCard icon={<Mail className="h-5 w-5" />} label="Open invites" value={pendingInvites.length} tone="brand" />
           <SummaryCard icon={<Shield className="h-5 w-5" />} label="Total invites" value={invites.length} tone="muted" />
         </div>
 
         {/* Tabs */}
-        <div className="mt-8 flex items-center gap-1 border-b border-border">
+        <div className="mt-8 flex items-center gap-1 border-b border-border overflow-x-auto">
           {([
-            ["requests", `Notifications (${pending.length})`, <BellRing className="h-4 w-4" key="i1" />],
+            ["requests", `Role requests (${pending.length})`, <BellRing className="h-4 w-4" key="i1" />],
+            ["mentor-apps", `Mentor applications (${pendingMentorApps.length})`, <GraduationCap className="h-4 w-4" key="i3" />],
             ["invites", `Email invites (${invites.length})`, <Mail className="h-4 w-4" key="i2" />],
           ] as const).map(([id, label, icon]) => {
             const active = tab === id;
@@ -232,7 +235,7 @@ function AccessRequestsPage() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors ${
                   active ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
