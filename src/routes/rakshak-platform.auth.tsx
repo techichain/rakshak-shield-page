@@ -144,8 +144,6 @@ function AuthPage() {
     e.preventDefault();
     setError(null);
     setInfo(null);
-    setCaptchaError(null);
-    if (!checkCaptcha()) return;
     setBusy(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
