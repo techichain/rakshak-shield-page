@@ -98,11 +98,9 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
       }
     }
 
-    // 4. Update the approval row — notes capture the reject reason for audit + email
-    const mergedNotes =
-      data.decision === 'rejected'
-        ? `${approval.notes ? approval.notes + '\n\n' : ''}Reject reason: ${data.reason}`
-        : approval.notes
+    // 4. Update the approval row — notes capture decision notes for audit + email
+    const noteLabel = data.decision === 'rejected' ? 'Reject reason' : 'Approval notes'
+    const mergedNotes = `${approval.notes ? approval.notes + '\n\n' : ''}${noteLabel}: ${data.reason}`
     const { error: updErr } = await supabaseAdmin
       .from('rp_role_approvals')
       .update({
