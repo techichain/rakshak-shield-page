@@ -532,11 +532,110 @@ function AccessRequestsPage() {
               />
             </div>
 
-            <div className="mt-2 text-xs text-muted-foreground">
-              {filtered.length === 0
-                ? "No matching requests."
-                : `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-xs text-muted-foreground">
+                {filtered.length === 0
+                  ? "No matching requests."
+                  : `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+              </div>
+              <div className="flex items-center gap-2">
+                {pendingOnPage.length > 0 && (
+                  <button
+                    onClick={togglePageSelection}
+                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted"
+                  >
+                    {allPendingSelected ? "Clear page" : "Select page (pending)"}
+                  </button>
+                )}
+                <button
+                  onClick={exportCsv}
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted"
+                  title="Export filtered rows to CSV"
+                >
+                  <Download className="h-3.5 w-3.5" /> Export CSV
+                </button>
+              </div>
             </div>
+
+            {selected.size > 0 && (
+              <div className="mt-3 rounded-2xl border border-brand/30 bg-brand/5 p-3 sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-sm font-medium">
+                    {selected.size} selected
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => { setBulkMode("approved"); setBulkNote(""); }}
+                      disabled={bulkBusy}
+                      className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                    >
+                      <Check className="h-3.5 w-3.5" /> Bulk approve
+                    </button>
+                    <button
+                      onClick={() => { setBulkMode("rejected"); setBulkNote(""); }}
+                      disabled={bulkBusy}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                    >
+                      <X className="h-3.5 w-3.5" /> Bulk reject
+                    </button>
+                    <button
+                      onClick={clearSelection}
+                      disabled={bulkBusy}
+                      className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                {bulkMode && (
+                  <div className={`mt-3 rounded-xl border p-3 ${
+                    bulkMode === "approved" ? "border-emerald-200 bg-emerald-50/60" : "border-red-200 bg-red-50/60"
+                  }`}>
+                    <label className="block text-xs font-semibold mb-1">
+                      Shared {bulkMode === "approved" ? "approval notes" : "reject reason"}{" "}
+                      <span className="text-red-600">*</span>
+                    </label>
+                    <p className="text-[11px] text-muted-foreground mb-2">
+                      This note is saved to every selected request and included in each
+                      requester's notification email.
+                    </p>
+                    <textarea
+                      value={bulkNote}
+                      onChange={(e) => setBulkNote(e.target.value)}
+                      rows={3}
+                      required
+                      placeholder={bulkMode === "approved"
+                        ? "e.g. Batch onboarding cohort — welcome aboard."
+                        : "e.g. Applications outside current eligibility window."}
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand"
+                    />
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button
+                        onClick={() => { setBulkMode(null); setBulkNote(""); }}
+                        disabled={bulkBusy}
+                        className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmBulk}
+                        disabled={bulkBusy || !bulkNote.trim()}
+                        className={`inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-50 ${
+                          bulkMode === "approved" ? "bg-brand hover:bg-brand/90" : "bg-red-600 hover:bg-red-700"
+                        }`}
+                      >
+                        {bulkBusy ? (
+                          <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Processing…</>
+                        ) : (
+                          <>{bulkMode === "approved" ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+                          Confirm {bulkMode === "approved" ? "approve" : "reject"} {selected.size}</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-3 space-y-3">
               {pageRows.length === 0 ? (
@@ -564,10 +663,15 @@ function AccessRequestsPage() {
                     }
                     audit={auditMap[p.id]}
                     emails={emailMap[p.id]}
+                    selected={selected.has(p.id)}
+                    onToggleSelect={() => toggleSelect(p.id)}
+                    onResendEmail={resendEmail}
+                    resendBusy={resendBusy === p.id}
                   />
                 ))
               )}
             </div>
+
 
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-center gap-2">
