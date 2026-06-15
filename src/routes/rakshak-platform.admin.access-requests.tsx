@@ -21,6 +21,7 @@ import {
   type ApprovalAuditEntry,
   type ApprovalEmailEntry,
 } from "@/lib/rakshak-platform/admin-approval-details.functions";
+import { AdminMentorTeamRequestsPanel } from "@/components/rakshak-platform/AdminMentorTeamRequestsPanel";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
