@@ -64,6 +64,7 @@ import { Route as RakshakPlatformEvaluatorCompareRouteImport } from './routes/ra
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
 import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
 import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
+import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
 import { Route as RakshakPlatformAdminSponsorshipsRouteImport } from './routes/rakshak-platform.admin.sponsorships'
 import { Route as RakshakPlatformAdminSeedRouteImport } from './routes/rakshak-platform.admin.seed'
 import { Route as RakshakPlatformAdminRolesRouteImport } from './routes/rakshak-platform.admin.roles'
@@ -415,6 +416,12 @@ const RakshakPlatformAuthCallbackRoute =
     path: '/callback',
     getParentRoute: () => RakshakPlatformAuthRoute,
   } as any)
+const RakshakPlatformAuthCalendarCallbackRoute =
+  RakshakPlatformAuthCalendarCallbackRouteImport.update({
+    id: '/calendar-callback',
+    path: '/calendar-callback',
+    getParentRoute: () => RakshakPlatformAuthRoute,
+  } as any)
 const RakshakPlatformAdminSponsorshipsRoute =
   RakshakPlatformAdminSponsorshipsRouteImport.update({
     id: '/sponsorships',
@@ -753,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
+  '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
@@ -847,6 +855,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
+  '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
@@ -949,6 +958,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
+  '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
@@ -1054,6 +1064,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
+    | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
@@ -1148,6 +1159,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
+    | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
@@ -1249,6 +1261,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/sponsorships'
+    | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
@@ -1688,6 +1701,13 @@ declare module '@tanstack/react-router' {
       path: '/callback'
       fullPath: '/rakshak-platform/auth/callback'
       preLoaderRoute: typeof RakshakPlatformAuthCallbackRouteImport
+      parentRoute: typeof RakshakPlatformAuthRoute
+    }
+    '/rakshak-platform/auth/calendar-callback': {
+      id: '/rakshak-platform/auth/calendar-callback'
+      path: '/calendar-callback'
+      fullPath: '/rakshak-platform/auth/calendar-callback'
+      preLoaderRoute: typeof RakshakPlatformAuthCalendarCallbackRouteImport
       parentRoute: typeof RakshakPlatformAuthRoute
     }
     '/rakshak-platform/admin/sponsorships': {
@@ -2178,10 +2198,13 @@ const RakshakPlatformAdminRouteWithChildren =
   RakshakPlatformAdminRoute._addFileChildren(RakshakPlatformAdminRouteChildren)
 
 interface RakshakPlatformAuthRouteChildren {
+  RakshakPlatformAuthCalendarCallbackRoute: typeof RakshakPlatformAuthCalendarCallbackRoute
   RakshakPlatformAuthCallbackRoute: typeof RakshakPlatformAuthCallbackRoute
 }
 
 const RakshakPlatformAuthRouteChildren: RakshakPlatformAuthRouteChildren = {
+  RakshakPlatformAuthCalendarCallbackRoute:
+    RakshakPlatformAuthCalendarCallbackRoute,
   RakshakPlatformAuthCallbackRoute: RakshakPlatformAuthCallbackRoute,
 }
 
@@ -2396,13 +2419,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
