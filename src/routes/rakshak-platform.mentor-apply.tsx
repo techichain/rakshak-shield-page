@@ -28,6 +28,7 @@ const empty: Form = {
 };
 
 function ApplyPage() {
+  const submitFn = useServerFn(submitMentorApplication);
   const [form, setForm] = useState<Form>(empty);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
