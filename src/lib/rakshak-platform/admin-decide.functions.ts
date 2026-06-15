@@ -31,6 +31,10 @@ const ROLE_LANDING: Record<string, string> = {
   super_admin: '/rakshak-platform/admin',
 }
 
+function normalizeRequestedRole(role: string) {
+  return role === 'team' ? 'team_leader' : role
+}
+
 // In-process rate limiter: max 30 decisions per admin per minute.
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 30
@@ -61,16 +65,17 @@ async function sendDecisionEmail(
   },
 ): Promise<{ emailed: boolean; messageId: string | null; error: string | null }> {
   try {
+    const requestedRole = normalizeRequestedRole(args.requestedRole)
     const React = await import('react')
     const { render } = await import('@react-email/components')
     const { TEMPLATES } = await import('@/lib/email-templates/registry')
     const tpl = TEMPLATES['rp-role-decision']
     if (!tpl) return { emailed: false, messageId: null, error: 'Template missing' }
 
-    const portalUrl = `${PORTAL_BASE}${ROLE_LANDING[args.requestedRole] ?? '/rakshak-platform/dashboard'}`
+    const portalUrl = `${PORTAL_BASE}${ROLE_LANDING[requestedRole] ?? '/rakshak-platform/dashboard'}`
     const element = React.createElement(tpl.component, {
       requester_name: args.requesterName ?? args.requesterEmail.split('@')[0],
-      requested_role: args.requestedRole,
+      requested_role: requestedRole,
       decision: args.decision,
       reason: args.reason,
       reviewer_name: args.reviewerName ?? 'Admin',
@@ -81,7 +86,7 @@ async function sendDecisionEmail(
     const plainText = await render(element, { plainText: true })
     const subject =
       typeof tpl.subject === 'function'
-        ? tpl.subject({ requested_role: args.requestedRole, decision: args.decision })
+        ? tpl.subject({ requested_role: requestedRole, decision: args.decision })
         : tpl.subject
     const messageId = crypto.randomUUID()
 
@@ -90,7 +95,7 @@ async function sendDecisionEmail(
       template_name: 'rp-role-decision',
       recipient_email: args.requesterEmail,
       status: 'pending',
-      metadata: { approval_id: args.approvalId, decision: args.decision, role: args.requestedRole },
+      metadata: { approval_id: args.approvalId, decision: args.decision, role: requestedRole },
     })
 
     const { error: enqErr } = await supabaseAdmin.rpc('enqueue_email', {
@@ -165,7 +170,7 @@ async function applyDecision(
     .eq('id', approval.user_id)
     .maybeSingle()
 
-  const requestedRole = approval.requested_role as string
+  const requestedRole = normalizeRequestedRole(approval.requested_role as string)
   const reviewedAt = new Date().toISOString()
 
   if (decision === 'approved') {
@@ -184,15 +189,17 @@ async function applyDecision(
     }
 
     if (requester?.email) {
-      await supabaseAdmin.from('rp_role_invites').insert({
+      const { error: inviteErr } = await supabaseAdmin.from('rp_role_invites').insert({
         email: requester.email,
         role: requestedRole as any,
         status: 'accepted',
         accepted_user_id: approval.user_id,
         invited_by: reviewerId,
+        reviewed_by: reviewerId,
         reviewed_at: reviewedAt,
         note: `Auto-issued on approval of ${requestedRole} request ${approval.id}.`,
       })
+      if (inviteErr && !String(inviteErr.message).toLowerCase().includes('duplicate')) throw inviteErr
     }
   }
 

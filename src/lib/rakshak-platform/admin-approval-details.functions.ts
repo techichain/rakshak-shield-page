@@ -68,7 +68,6 @@ export const getApprovalDetails = createServerFn({ method: 'POST' })
     }
 
     const audit: Record<string, ApprovalAuditEntry[]> = {}
-    const messageIds: string[] = []
     for (const log of logs ?? []) {
       const entityId = (log as any).entity_id as string
       const actor = (log as any).actor_id ? actorMap.get((log as any).actor_id) : null
@@ -83,19 +82,23 @@ export const getApprovalDetails = createServerFn({ method: 'POST' })
         new_value: (log as any).new_value,
       }
       ;(audit[entityId] ||= []).push(entry)
-      const mid = (log as any).new_value?.message_id
-      if (mid) messageIds.push(mid)
     }
 
     const emails: Record<string, ApprovalEmailEntry[]> = {}
-    if (messageIds.length) {
-      const { data: sendRows } = await supabaseAdmin
-        .from('email_send_log')
-        .select('message_id, recipient_email, status, error_message, created_at, metadata')
-        .in('message_id', messageIds)
-      for (const row of sendRows ?? []) {
+    const emailRowsByApproval = await Promise.all(
+      data.approvalIds.map((approvalId) =>
+        supabaseAdmin
+          .from('email_send_log')
+          .select('message_id, recipient_email, status, error_message, created_at, metadata')
+          .eq('template_name', 'rp-role-decision')
+          .contains('metadata', { approval_id: approvalId })
+          .order('created_at', { ascending: false }),
+      ),
+    )
+    for (const result of emailRowsByApproval) {
+      for (const row of result.data ?? []) {
         const approvalId = (row as any).metadata?.approval_id as string | undefined
-        if (!approvalId) continue
+        if (!approvalId || !data.approvalIds.includes(approvalId)) continue
         ;(emails[approvalId] ||= []).push({
           message_id: (row as any).message_id,
           recipient_email: (row as any).recipient_email,
