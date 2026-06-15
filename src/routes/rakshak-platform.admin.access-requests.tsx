@@ -378,11 +378,12 @@ function AccessRequestsPage() {
 
 function SummaryCard({
   icon, label, value, tone,
-}: { icon: React.ReactNode; label: string; value: number; tone: "amber" | "brand" | "muted" }) {
+}: { icon: React.ReactNode; label: string; value: number; tone: "amber" | "brand" | "muted" | "emerald" }) {
   const tones = {
     amber: "bg-amber-50 text-amber-700 border-amber-200",
     brand: "bg-brand/10 text-brand border-brand/20",
     muted: "bg-muted text-muted-foreground border-border",
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
   } as const;
   return (
     <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
