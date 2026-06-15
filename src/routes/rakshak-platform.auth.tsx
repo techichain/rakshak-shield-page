@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { Captcha } from "@/components/rakshak-platform/Captcha";
+
 import { verifyEmailDeliverable } from "@/lib/rakshak-platform/email-verify.functions";
 import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 import {
@@ -62,10 +62,6 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
-  // Captcha
-  const [captcha, setCaptcha] = useState("");
-  const [captchaError, setCaptchaError] = useState<string | null>(null);
-  const expectedCaptcha = useRef<number>(0);
 
   // If already signed in, bounce straight to the dashboard.
   useEffect(() => {
@@ -130,22 +126,12 @@ function AuthPage() {
   const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
-  function checkCaptcha(): boolean {
-    const parsed = Number.parseInt(captcha.trim(), 10);
-    if (!Number.isFinite(parsed) || parsed !== expectedCaptcha.current) {
-      setCaptchaError("Incorrect answer. Please solve the new challenge.");
-      return false;
-    }
-    return true;
-  }
 
   // LOGIN — email + password
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfo(null);
-    setCaptchaError(null);
-    if (!checkCaptcha()) return;
     setBusy(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -163,8 +149,6 @@ function AuthPage() {
     e.preventDefault();
     setError(null);
     setInfo(null);
-    setCaptchaError(null);
-    if (!checkCaptcha()) return;
 
     if (mode === "register") {
       if (!fullName.trim()) {
@@ -399,12 +383,6 @@ function AuthPage() {
                   />
                 </Field>
               )}
-              <Captcha
-                value={captcha}
-                onChange={setCaptcha}
-                onChallenge={(n) => { expectedCaptcha.current = n; setCaptchaError(null); }}
-                error={captchaError}
-              />
               {!(mode === "login" && !loginWithCode) && (
                 <p className="text-xs text-muted-foreground">
                   We'll email a 6-digit code to verify this address before {mode === "login" ? "signing in" : "creating your account"}.
