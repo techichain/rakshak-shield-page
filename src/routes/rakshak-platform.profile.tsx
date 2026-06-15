@@ -1,9 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calendar, CheckCircle2 } from "lucide-react";
+import {
+  getCalendarStatus,
+  getCalendarAuthUrl,
+  disconnectCalendar,
+} from "@/lib/rakshak-platform/google-calendar.functions";
 
 export const Route = createFileRoute("/rakshak-platform/profile")({
   component: ProfilePage,
@@ -19,6 +25,11 @@ function ProfilePage() {
     full_name: "", phone: "", city: "", state: "", organization: "", avatar_url: "",
   });
   const [newPwd, setNewPwd] = useState("");
+  const [cal, setCal] = useState<{ connected: boolean; email: string | null } | null>(null);
+  const [calBusy, setCalBusy] = useState(false);
+  const fetchCalStatus = useServerFn(getCalendarStatus);
+  const fetchCalAuthUrl = useServerFn(getCalendarAuthUrl);
+  const fetchCalDisconnect = useServerFn(disconnectCalendar);
 
   useEffect(() => {
     if (loading) return;
@@ -34,7 +45,31 @@ function ProfilePage() {
         avatar_url: data.avatar_url ?? "",
       });
     })();
-  }, [loading, userId, navigate]);
+    fetchCalStatus().then((s) => setCal({ connected: s.connected, email: s.email })).catch(() => setCal({ connected: false, email: null }));
+  }, [loading, userId, navigate, fetchCalStatus]);
+
+  async function connectCalendar() {
+    setCalBusy(true); setErr(null);
+    try {
+      const { url } = await fetchCalAuthUrl({ data: { origin: window.location.origin } });
+      window.location.href = url;
+    } catch (e: any) {
+      setErr(e?.message ?? "Failed to start Google Calendar connection.");
+      setCalBusy(false);
+    }
+  }
+  async function disconnectCal() {
+    setCalBusy(true); setErr(null); setMsg(null);
+    try {
+      await fetchCalDisconnect();
+      setCal({ connected: false, email: null });
+      setMsg("Google Calendar disconnected.");
+    } catch (e: any) {
+      setErr(e?.message ?? "Failed to disconnect.");
+    } finally {
+      setCalBusy(false);
+    }
+  }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -108,6 +143,37 @@ function ProfilePage() {
             Update password
           </button>
         </form>
+
+        <h2 className="mt-16 font-heading text-2xl tracking-tight">Google Calendar</h2>
+        <p className="mt-2 text-sm text-muted-foreground max-w-xl">
+          Connect your Google Calendar so Rakshak meetings (mentor sessions, team check-ins, evaluations) are added to your calendar automatically.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {cal?.connected ? (
+            <>
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 text-emerald-700 px-4 py-2 text-sm">
+                <CheckCircle2 className="h-4 w-4" />
+                Connected{cal.email ? ` as ${cal.email}` : ""}
+              </span>
+              <button
+                onClick={disconnectCal}
+                disabled={calBusy}
+                className="h-10 px-5 rounded-full border border-border hover:bg-muted text-sm disabled:opacity-50"
+              >
+                Disconnect
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={connectCalendar}
+              disabled={calBusy || !cal}
+              className="inline-flex items-center gap-2 h-11 px-6 rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+            >
+              <Calendar className="h-4 w-4" />
+              {calBusy ? "Connecting…" : "Connect Google Calendar"}
+            </button>
+          )}
+        </div>
 
         <h2 className="mt-16 font-heading text-2xl tracking-tight">Session</h2>
         <button onClick={signOut} className="mt-4 h-11 px-6 rounded-full border border-red-500/40 text-red-600 hover:bg-red-500/10">

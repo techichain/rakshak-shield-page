@@ -1320,6 +1320,42 @@ export type Database = {
           },
         ]
       }
+      rp_google_calendar_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          expiry_at: string
+          google_email: string | null
+          refresh_token: string
+          scope: string | null
+          token_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          expiry_at: string
+          google_email?: string | null
+          refresh_token: string
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          expiry_at?: string
+          google_email?: string | null
+          refresh_token?: string
+          scope?: string | null
+          token_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rp_knowledge_articles: {
         Row: {
           author_id: string | null
