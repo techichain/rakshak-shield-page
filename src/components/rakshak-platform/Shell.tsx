@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
+import { PendingApprovalsBell } from "@/components/rakshak-platform/PendingApprovalsBell";
 import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
 
 type NavItem = { to: string; label: string; icon?: LucideIcon; desc?: string };
@@ -238,6 +239,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             )}
             {userId ? (
               <>
+                {isAdmin && <PendingApprovalsBell />}
                 <NotificationBell userId={userId} />
                 <Link
                   to="/rakshak-platform/profile"
