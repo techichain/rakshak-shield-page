@@ -2875,6 +2875,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      rp_can_view_meeting: {
+        Args: { _meeting: string; _user: string }
+        Returns: boolean
+      }
       rp_has_role: {
         Args: {
           _role: Database["public"]["Enums"]["rp_app_role"]
@@ -2883,6 +2887,10 @@ export type Database = {
         Returns: boolean
       }
       rp_is_admin: { Args: { _user_id: string }; Returns: boolean }
+      rp_is_meeting_attendee: {
+        Args: { _meeting: string; _user: string }
+        Returns: boolean
+      }
       rp_is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       rp_is_team_member: {
         Args: { _team: string; _user: string }
