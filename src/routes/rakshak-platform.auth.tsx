@@ -214,8 +214,13 @@ function AuthPage() {
           },
         });
         if (result.status === "pending_approval") {
+          const label =
+            role === "admin" ? "CFI Admin"
+              : role === "mentor" ? "Mentor"
+                : role === "evaluator" ? "Evaluator"
+                  : "Team Lead";
           setError(
-            `Account created. Your ${role === "admin" ? "CFI Admin" : "Evaluator"} access request is pending super-admin approval.`,
+            `Account created. Your ${label} access request is pending admin approval — you'll receive an email once it's reviewed.`,
           );
           setMode("login");
           return;
