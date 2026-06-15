@@ -6,6 +6,8 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
 import { MentorCreateTeamPanel } from "@/components/rakshak-platform/MentorCreateTeamPanel";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
+import { Loader2, UsersRound } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/mentor")({
   ssr: false,
