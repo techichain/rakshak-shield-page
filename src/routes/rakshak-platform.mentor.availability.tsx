@@ -14,7 +14,7 @@ export const Route = createFileRoute("/rakshak-platform/mentor/availability")({
   },
   component: AvailabilityPage,
   errorComponent: ({ error }) => (
-    <PlatformShell><Section><p className="text-red-600">{String(error)}</p></Section></PlatformShell>
+    <PlatformShell><Section><p className="text-red-600">{error instanceof Error ? error.message : (typeof error === "object" && error && "message" in (error as any) ? String((error as any).message) : "Something went wrong.")}</p></Section></PlatformShell>
   ),
   notFoundComponent: () => (
     <PlatformShell><Section><p>Not found.</p></Section></PlatformShell>
