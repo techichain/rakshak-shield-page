@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { createMentorSlot, listMySlots, cancelMentorSlot } from "@/lib/rakshak-platform/mentor-sessions.functions";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
@@ -45,20 +46,42 @@ function AvailabilityPage() {
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget; // capture before any await — React nulls currentTarget after async boundary
+    const fd = new FormData(form);
+    const startsRaw = String(fd.get("starts_at") || "");
+    const endsRaw = String(fd.get("ends_at") || "");
+    if (!startsRaw || !endsRaw) {
+      setErr("Please fill in both Starts and Ends.");
+      return;
+    }
+    const startsDate = new Date(startsRaw);
+    const endsDate = new Date(endsRaw);
+    if (isNaN(startsDate.getTime()) || isNaN(endsDate.getTime())) {
+      setErr("Invalid date/time.");
+      return;
+    }
+    if (endsDate.getTime() <= startsDate.getTime()) {
+      setErr("End time must be after start time.");
+      return;
+    }
     setBusy(true); setErr(null);
-    const fd = new FormData(e.currentTarget);
     try {
       await createFn({
         data: {
-          starts_at: new Date(String(fd.get("starts_at"))).toISOString(),
-          ends_at: new Date(String(fd.get("ends_at"))).toISOString(),
+          starts_at: startsDate.toISOString(),
+          ends_at: endsDate.toISOString(),
           capacity: Number(fd.get("capacity") || 1),
           notes: String(fd.get("notes") || ""),
         },
       });
-      (e.currentTarget as HTMLFormElement).reset();
-      qc.invalidateQueries({ queryKey: ["rp-my-slots"] });
-    } catch (e: any) { setErr(e?.message ?? "Failed"); }
+      try { form.reset(); } catch {}
+      await qc.invalidateQueries({ queryKey: ["rp-my-slots"] });
+      toast.success("Slot published");
+    } catch (e: any) {
+      const msg = e?.message ?? "Failed to publish slot";
+      setErr(msg);
+      toast.error(msg);
+    }
     finally { setBusy(false); }
   }
 
@@ -97,7 +120,7 @@ function AvailabilityPage() {
               <input name="notes" maxLength={400} className="rp-input w-full mt-1" placeholder="e.g. Office hours · ask anything" />
             </label>
             {err && <p className="text-red-600 text-sm">{err}</p>}
-            <button disabled={busy} className="rp-btn-primary w-full">{busy ? "Saving…" : "Publish slot"}</button>
+            <button type="submit" disabled={busy} className="rp-btn-primary w-full">{busy ? "Saving…" : "Publish slot"}</button>
           </form>
 
           <div className="lg:col-span-2 space-y-6">
