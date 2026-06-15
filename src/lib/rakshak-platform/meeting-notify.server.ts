@@ -82,6 +82,39 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
             : tpl.subject
         const messageId = crypto.randomUUID()
 
+        // Transactional emails MUST carry an unsubscribe token, or the
+        // Lovable email API rejects them with 400 missing_unsubscribe.
+        const normalizedEmail = (p.email as string).toLowerCase()
+        let unsubscribeToken: string | null = null
+        {
+          const { data: existing } = await supabaseAdmin
+            .from('email_unsubscribe_tokens')
+            .select('token, used_at')
+            .eq('email', normalizedEmail)
+            .maybeSingle()
+          if (existing && !existing.used_at) {
+            unsubscribeToken = existing.token as string
+          } else {
+            const bytes = new Uint8Array(32)
+            crypto.getRandomValues(bytes)
+            const token = Array.from(bytes)
+              .map((b) => b.toString(16).padStart(2, '0'))
+              .join('')
+            await supabaseAdmin
+              .from('email_unsubscribe_tokens')
+              .upsert(
+                { token, email: normalizedEmail },
+                { onConflict: 'email', ignoreDuplicates: true },
+              )
+            const { data: stored } = await supabaseAdmin
+              .from('email_unsubscribe_tokens')
+              .select('token')
+              .eq('email', normalizedEmail)
+              .maybeSingle()
+            unsubscribeToken = (stored?.token as string) || token
+          }
+        }
+
         await supabaseAdmin.from('email_send_log').insert({
           message_id: messageId,
           template_name: 'rp-meeting-scheduled',
@@ -102,6 +135,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
             text: plainText,
             purpose: 'transactional',
             label: 'rp-meeting-scheduled',
+            unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
           },
