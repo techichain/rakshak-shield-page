@@ -33,13 +33,31 @@ type Pending = {
   email: string | null;
 };
 
+type MentorApp = {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  city: string | null;
+  state: string | null;
+  organization: string | null;
+  designation: string | null;
+  expertise: string | null;
+  years_experience: number | null;
+  linkedin_url: string | null;
+  motivation: string | null;
+  status: string;
+  created_at: string;
+};
+
 function AccessRequestsPage() {
   const navigate = useNavigate();
   const { loading, userId, isAdmin } = useRPAuth();
   const [invites, setInvites] = useState<Invite[]>([]);
   const [pending, setPending] = useState<Pending[]>([]);
+  const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
-  const [tab, setTab] = useState<"requests" | "invites">("requests");
+  const [tab, setTab] = useState<"requests" | "mentor-apps" | "invites">("requests");
 
   const load = useCallback(async () => {
     const [{ data: inv }, { data: pend }] = await Promise.all([
