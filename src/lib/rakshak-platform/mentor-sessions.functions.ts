@@ -197,6 +197,15 @@ export const bookMentorSlot = createServerFn({ method: "POST" })
         related_entity_id: meeting.id,
       });
     }
+
+    // Email both mentor and booker (best-effort).
+    try {
+      const { sendMeetingScheduledEmails } = await import("./meeting-notify.server");
+      await sendMeetingScheduledEmails(meeting.id);
+    } catch (err) {
+      console.error("[bookMentorSlot] notify failed", err);
+    }
+
     return { meeting_id: meeting.id, video_room_id: videoRoom };
   });
 

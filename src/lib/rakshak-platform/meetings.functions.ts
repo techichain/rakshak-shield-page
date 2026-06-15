@@ -73,6 +73,15 @@ export const createMeeting = createServerFn({ method: "POST" })
           responded_at: pid === context.userId ? new Date().toISOString() : null,
         })),
       );
+
+    // Fire-and-forget confirmation emails (best effort).
+    try {
+      const { sendMeetingScheduledEmails } = await import("./meeting-notify.server");
+      await sendMeetingScheduledEmails(row.id);
+    } catch (err) {
+      console.error("[createMeeting] notify failed", err);
+    }
+
     return { meeting: row };
   });
 
