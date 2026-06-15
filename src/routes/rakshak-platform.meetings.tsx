@@ -15,6 +15,7 @@ import {
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/meetings")({
+  ssr: false,
   component: MeetingsPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p>{String(error)}</p></Section></PlatformShell>
