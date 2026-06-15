@@ -93,6 +93,9 @@ export function MentorCreateTeamPanel() {
           <input required type="email" placeholder="Verified team leader email *" value={form.leaderEmail}
             onChange={(e) => setForm({ ...form, leaderEmail: e.target.value })}
             className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" />
+          <textarea rows={2} placeholder="Verified team member emails (optional · comma or newline)" value={form.membersRaw}
+            onChange={(e) => setForm({ ...form, membersRaw: e.target.value })}
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" />
           <input placeholder="College (optional)" value={form.college}
             onChange={(e) => setForm({ ...form, college: e.target.value })}
             className="rounded-lg border border-border bg-background px-3 py-2 text-sm sm:col-span-2" />
