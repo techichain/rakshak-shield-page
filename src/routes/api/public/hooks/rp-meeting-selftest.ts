@@ -118,6 +118,22 @@ export const Route = createFileRoute("/api/public/hooks/rp-meeting-selftest")({
             mentorRow = newMentor;
           }
 
+          // Ensure cohort (pick any existing, else create one)
+          let { data: cohortRow } = await supabaseAdmin
+            .from("rp_cohorts")
+            .select("id")
+            .limit(1)
+            .maybeSingle();
+          if (!cohortRow) {
+            const { data: newCohort, error: cErr } = await supabaseAdmin
+              .from("rp_cohorts")
+              .insert({ name: "TEST - Selftest Cohort" } as any)
+              .select("id")
+              .single();
+            if (cErr) throw cErr;
+            cohortRow = newCohort;
+          }
+
           // Ensure team
           let { data: teamRow } = await supabaseAdmin
             .from("rp_teams")
@@ -134,13 +150,13 @@ export const Route = createFileRoute("/api/public/hooks/rp-meeting-selftest")({
                 college: "TEST College",
                 status: "active",
                 team_leader_id: leaderUserId,
+                cohort_id: cohortRow!.id,
               } as any)
               .select("id")
               .single();
             if (tErr) throw tErr;
             teamRow = newTeam;
           } else {
-            // Make sure leader is set correctly
             await supabaseAdmin
               .from("rp_teams")
               .update({ team_leader_id: leaderUserId } as any)
