@@ -1803,6 +1803,79 @@ export type Database = {
           },
         ]
       }
+      rp_mentor_team_requests: {
+        Row: {
+          admin_notes: string | null
+          city: string | null
+          college: string | null
+          created_at: string
+          created_team_id: string | null
+          id: string
+          leader_email: string
+          mentor_profile_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state: string | null
+          status: string
+          team_name: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          city?: string | null
+          college?: string | null
+          created_at?: string
+          created_team_id?: string | null
+          id?: string
+          leader_email: string
+          mentor_profile_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string | null
+          status?: string
+          team_name: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          city?: string | null
+          college?: string | null
+          created_at?: string
+          created_team_id?: string | null
+          id?: string
+          leader_email?: string
+          mentor_profile_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state?: string | null
+          status?: string
+          team_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mentor_team_requests_created_team_id_fkey"
+            columns: ["created_team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_team_requests_created_team_id_fkey"
+            columns: ["created_team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_team_requests_mentor_profile_id_fkey"
+            columns: ["mentor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_mentors: {
         Row: {
           avg_response_time_hours: number | null

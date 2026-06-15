@@ -21,6 +21,7 @@ import {
   type ApprovalAuditEntry,
   type ApprovalEmailEntry,
 } from "@/lib/rakshak-platform/admin-approval-details.functions";
+import { AdminMentorTeamRequestsPanel } from "@/components/rakshak-platform/AdminMentorTeamRequestsPanel";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
@@ -78,7 +79,7 @@ function AccessRequestsPage() {
   const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
-  const [tab, setTab] = useState<"requests" | "mentor-apps" | "invites">("requests");
+  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites">("requests");
 
   // Decision form state
   const [decidingId, setDecidingId] = useState<string | null>(null);
@@ -466,6 +467,7 @@ function AccessRequestsPage() {
           {([
             ["requests", `Role requests (${pendingCount})`, <BellRing className="h-4 w-4" key="i1" />],
             ["mentor-apps", `Mentor applications (${pendingMentorApps.length})`, <GraduationCap className="h-4 w-4" key="i3" />],
+            ["team-requests", `Team creation requests`, <UserPlus className="h-4 w-4" key="i4" />],
             ["invites", `Email invites (${invites.length})`, <Mail className="h-4 w-4" key="i2" />],
           ] as const).map(([id, label, icon]) => {
             const active = tab === id;
@@ -751,6 +753,14 @@ function AccessRequestsPage() {
             )}
           </div>
         )}
+
+        {tab === "team-requests" && (
+          <div className="mt-6">
+            <AdminMentorTeamRequestsPanel />
+          </div>
+        )}
+
+
 
         {tab === "invites" && (
           <div className="mt-6 space-y-6">
