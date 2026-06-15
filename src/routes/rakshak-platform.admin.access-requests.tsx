@@ -60,7 +60,7 @@ function AccessRequestsPage() {
   const [tab, setTab] = useState<"requests" | "mentor-apps" | "invites">("requests");
 
   const load = useCallback(async () => {
-    const [{ data: inv }, { data: pend }] = await Promise.all([
+    const [{ data: inv }, { data: pend }, { data: apps }] = await Promise.all([
       supabase.from("rp_role_invites")
         .select("id, email, role, status, note, created_at, invited_by")
         .order("created_at", { ascending: false })
@@ -69,9 +69,14 @@ function AccessRequestsPage() {
         .select("id, user_id, requested_role, requested_at, notes")
         .eq("status", "pending")
         .order("requested_at", { ascending: false }),
+      supabase.from("rp_mentor_applications")
+        .select("id, full_name, email, phone, city, state, organization, designation, expertise, years_experience, linkedin_url, motivation, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(200),
     ]);
 
     setInvites((inv ?? []) as any);
+    setMentorApps((apps ?? []) as any);
 
     const ids = Array.from(new Set((pend ?? []).map((p: any) => p.user_id)));
     let profileMap = new Map<string, any>();
