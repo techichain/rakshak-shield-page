@@ -68,7 +68,6 @@ export const getApprovalDetails = createServerFn({ method: 'POST' })
     }
 
     const audit: Record<string, ApprovalAuditEntry[]> = {}
-    const messageIds: string[] = []
     for (const log of logs ?? []) {
       const entityId = (log as any).entity_id as string
       const actor = (log as any).actor_id ? actorMap.get((log as any).actor_id) : null
@@ -83,8 +82,6 @@ export const getApprovalDetails = createServerFn({ method: 'POST' })
         new_value: (log as any).new_value,
       }
       ;(audit[entityId] ||= []).push(entry)
-      const mid = (log as any).new_value?.message_id
-      if (mid) messageIds.push(mid)
     }
 
     const emails: Record<string, ApprovalEmailEntry[]> = {}
