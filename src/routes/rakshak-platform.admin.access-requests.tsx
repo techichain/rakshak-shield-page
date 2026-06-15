@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
@@ -8,10 +9,12 @@ import {
   GraduationCap, Briefcase, MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
+import { decideRoleApproval } from "@/lib/rakshak-platform/admin-decide.functions";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
 });
+
 
 type Invite = {
   id: string;
