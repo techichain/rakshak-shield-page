@@ -117,30 +117,50 @@ function AccessRequestsPage() {
 
   async function approvePending(row: Pending) {
     setBusy("ap" + row.id);
-    const { error: insErr } = await supabase
-      .from("rp_user_roles")
-      .insert({ user_id: row.user_id, role: row.requested_role as any });
-    if (insErr && !String(insErr.message).includes("duplicate")) {
-      toast.error(insErr.message); setBusy(null); return;
+    try {
+      const res = await decideFn({
+        data: { approvalId: row.id, decision: "approved" },
+      });
+      toast.success(
+        `Granted ${res.role}${res.emailed ? " — requester notified by email" : ""}`,
+      );
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to approve");
+    } finally {
+      setBusy(null);
     }
-    await supabase.from("rp_role_approvals")
-      .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId })
-      .eq("id", row.id);
-    toast.success(`Granted ${row.requested_role}`);
-    await load();
-    setBusy(null);
   }
 
-  async function rejectPending(row: Pending) {
-    if (!confirm(`Reject ${row.requested_role} request from ${row.email ?? row.user_id}?`)) return;
-    setBusy("rj" + row.id);
-    await supabase.from("rp_role_approvals")
-      .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userId })
-      .eq("id", row.id);
-    toast.success("Rejected");
-    await load();
-    setBusy(null);
+  function openReject(row: Pending) {
+    setRejectingId(row.id);
+    setRejectReason("");
   }
+
+  async function confirmReject(row: Pending) {
+    const reason = rejectReason.trim();
+    if (!reason) {
+      toast.error("Please add a reason — it will be included in the email to the requester.");
+      return;
+    }
+    setBusy("rj" + row.id);
+    try {
+      const res = await decideFn({
+        data: { approvalId: row.id, decision: "rejected", reason },
+      });
+      toast.success(
+        `Rejected${res.emailed ? " — requester notified by email" : ""}`,
+      );
+      setRejectingId(null);
+      setRejectReason("");
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to reject");
+    } finally {
+      setBusy(null);
+    }
+  }
+
 
   async function revokeInvite(inv: Invite) {
     if (!confirm(`Revoke invite to ${inv.email}?`)) return;
