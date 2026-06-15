@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 const inputSchema = z.object({
   approvalId: z.string().uuid(),
   decision: z.enum(['approved', 'rejected']),
-  reason: z.string().trim().max(2000).optional().nullable(),
+  reason: z.string().trim().min(1, 'Decision notes are required').max(2000),
 })
 
 const SITE_NAME = 'rakshak-crashfreeindia'
