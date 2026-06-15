@@ -8,9 +8,14 @@ import {
   Loader2, Mail, Check, X, BellRing, UserPlus, Clock, Shield, ArrowLeft,
   GraduationCap, Briefcase, MapPin, Search, ChevronDown, ChevronRight,
   ChevronLeft, AlertCircle, CheckCircle2, MailCheck, MailX, MailWarning,
+  Download, Send, AlarmClock,
 } from "lucide-react";
 import { toast } from "sonner";
-import { decideRoleApproval } from "@/lib/rakshak-platform/admin-decide.functions";
+import {
+  decideRoleApproval,
+  bulkDecideRoleApprovals,
+  resendDecisionEmail,
+} from "@/lib/rakshak-platform/admin-decide.functions";
 import {
   getApprovalDetails,
   type ApprovalAuditEntry,
@@ -94,6 +99,15 @@ function AccessRequestsPage() {
 
   const decideFn = useServerFn(decideRoleApproval);
   const detailsFn = useServerFn(getApprovalDetails);
+  const bulkDecideFn = useServerFn(bulkDecideRoleApprovals);
+  const resendFn = useServerFn(resendDecisionEmail);
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkMode, setBulkMode] = useState<"approved" | "rejected" | null>(null);
+  const [bulkNote, setBulkNote] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [resendBusy, setResendBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: inv }, { data: pend }, { data: apps }] = await Promise.all([
