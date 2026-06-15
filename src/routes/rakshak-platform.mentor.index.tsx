@@ -9,7 +9,7 @@ import { MentorCreateTeamPanel } from "@/components/rakshak-platform/MentorCreat
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { Loader2, UsersRound } from "lucide-react";
 
-export const Route = createFileRoute("/rakshak-platform/mentor")({
+export const Route = createFileRoute("/rakshak-platform/mentor/")({
   ssr: false,
   beforeLoad: async () => {
     await rpRequireRole(["mentor"]);
