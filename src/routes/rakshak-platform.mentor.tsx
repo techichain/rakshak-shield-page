@@ -5,6 +5,7 @@ import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
+import { MentorCreateTeamPanel } from "@/components/rakshak-platform/MentorCreateTeamPanel";
 
 export const Route = createFileRoute("/rakshak-platform/mentor")({
   ssr: false,
