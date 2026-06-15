@@ -66,13 +66,34 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
       }
 
       if (!existing) {
-        const { error: approvalError } = await supabaseAdmin.from("rp_role_approvals").insert({
-          user_id: user.id,
-          requested_role: requestedRole,
-          status: "pending",
-          notes: `Self-requested ${requestedRole} access at sign-up.`,
-        });
+        const { data: inserted, error: approvalError } = await supabaseAdmin
+          .from("rp_role_approvals")
+          .insert({
+            user_id: user.id,
+            requested_role: requestedRole,
+            status: "pending",
+            notes: `Self-requested ${requestedRole} access at sign-up.`,
+          })
+          .select("id")
+          .single();
         if (approvalError) throw approvalError;
+
+        // Fire-and-forget admin notification + email so onboarding never blocks
+        // on transient email infra issues.
+        try {
+          const { notifyAdminsOfRoleRequest } = await import("./admin-notify.server");
+          await notifyAdminsOfRoleRequest({
+            requesterId: user.id,
+            requesterName: fullName,
+            requesterEmail: email,
+            requestedRole,
+            notes: `Self-requested ${requestedRole} access at sign-up.`,
+            source: "self-signup",
+            approvalId: inserted?.id,
+          });
+        } catch (err) {
+          console.error("notifyAdminsOfRoleRequest failed", err);
+        }
       }
 
       return { status: "pending_approval" as const, redirectTo: "/rakshak-platform/dashboard" as const };
