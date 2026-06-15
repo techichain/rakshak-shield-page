@@ -8,9 +8,14 @@ import {
   Loader2, Mail, Check, X, BellRing, UserPlus, Clock, Shield, ArrowLeft,
   GraduationCap, Briefcase, MapPin, Search, ChevronDown, ChevronRight,
   ChevronLeft, AlertCircle, CheckCircle2, MailCheck, MailX, MailWarning,
+  Download, Send, AlarmClock,
 } from "lucide-react";
 import { toast } from "sonner";
-import { decideRoleApproval } from "@/lib/rakshak-platform/admin-decide.functions";
+import {
+  decideRoleApproval,
+  bulkDecideRoleApprovals,
+  resendDecisionEmail,
+} from "@/lib/rakshak-platform/admin-decide.functions";
 import {
   getApprovalDetails,
   type ApprovalAuditEntry,
@@ -94,6 +99,15 @@ function AccessRequestsPage() {
 
   const decideFn = useServerFn(decideRoleApproval);
   const detailsFn = useServerFn(getApprovalDetails);
+  const bulkDecideFn = useServerFn(bulkDecideRoleApprovals);
+  const resendFn = useServerFn(resendDecisionEmail);
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkMode, setBulkMode] = useState<"approved" | "rejected" | null>(null);
+  const [bulkNote, setBulkNote] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [resendBusy, setResendBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [{ data: inv }, { data: pend }, { data: apps }] = await Promise.all([
@@ -169,11 +183,14 @@ function AccessRequestsPage() {
   }, [approvals, statusFilter, roleFilter, query, sort]);
 
   // Reset page on filter change
-  useEffect(() => { setPage(1); }, [statusFilter, roleFilter, query, sort]);
+  useEffect(() => { setPage(1); setSelected(new Set()); }, [statusFilter, roleFilter, query, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pendingOnPage = pageRows.filter((r) => r.status === "pending");
+  const allPendingSelected =
+    pendingOnPage.length > 0 && pendingOnPage.every((r) => selected.has(r.id));
 
   // Lazy fetch audit + email for decided rows currently on the page
   useEffect(() => {
@@ -198,12 +215,147 @@ function AccessRequestsPage() {
     setDecisionNote("");
   }
 
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+
+  function togglePageSelection() {
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (allPendingSelected) pendingOnPage.forEach((r) => n.delete(r.id));
+      else pendingOnPage.forEach((r) => n.add(r.id));
+      return n;
+    });
+  }
+
+  function clearSelection() {
+    setSelected(new Set());
+    setBulkMode(null);
+    setBulkNote("");
+  }
+
+  async function confirmBulk() {
+    const note = bulkNote.trim();
+    if (!bulkMode) return;
+    if (!note) {
+      toast.error("Shared decision notes are required for bulk actions.");
+      return;
+    }
+    if (selected.size === 0) return;
+    setBulkBusy(true);
+    try {
+      const ids = Array.from(selected);
+      const res = await bulkDecideFn({
+        data: { approvalIds: ids, decision: bulkMode, reason: note },
+      });
+      toast.success(
+        `${bulkMode === "approved" ? "Approved" : "Rejected"} ${res.processed}/${res.total}` +
+          (res.emailed ? ` · ${res.emailed} emailed` : "") +
+          (res.skipped ? ` · ${res.skipped} skipped` : ""),
+      );
+      if (res.errors.length > 0) {
+        toast.error(`${res.errors.length} failed — see console`);
+        console.error("Bulk decision errors", res.errors);
+      }
+      // Drop stale per-row details so they reload
+      setAuditMap((prev) => {
+        const n = { ...prev };
+        for (const id of ids) delete n[id];
+        return n;
+      });
+      setEmailMap((prev) => {
+        const n = { ...prev };
+        for (const id of ids) delete n[id];
+        return n;
+      });
+      clearSelection();
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Bulk action failed");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function resendEmail(row: ApprovalRow) {
+    setResendBusy(row.id);
+    try {
+      const res = await resendFn({ data: { approvalId: row.id } });
+      if (res.emailed) toast.success("Decision email re-queued");
+      else toast.error(res.error ?? "Failed to resend email");
+      setAuditMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
+      setEmailMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to resend");
+    } finally {
+      setResendBusy(null);
+    }
+  }
+
+  function exportCsv() {
+    const rows = filtered;
+    if (rows.length === 0) {
+      toast.error("Nothing to export with current filters.");
+      return;
+    }
+    const escape = (v: unknown) => {
+      const s = v == null ? "" : String(v);
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = [
+      "Requester name",
+      "Email",
+      "Role",
+      "Status",
+      "Requested at",
+      "Reviewed at",
+      "Decision notes",
+      "Audit timestamps",
+    ];
+    const lines = [header.map(escape).join(",")];
+    for (const r of rows) {
+      const auditTs = (auditMap[r.id] ?? [])
+        .map((a) => `${a.action}@${a.created_at}`)
+        .join(" | ");
+      lines.push(
+        [
+          r.full_name ?? "",
+          r.email ?? "",
+          r.requested_role,
+          r.status,
+          r.requested_at,
+          r.reviewed_at ?? "",
+          r.notes ?? "",
+          auditTs,
+        ].map(escape).join(","),
+      );
+    }
+    const blob = new Blob(["\ufeff" + lines.join("\r\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rp-access-requests-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${rows.length} request${rows.length === 1 ? "" : "s"}`);
+  }
+
   async function confirmDecide(row: ApprovalRow) {
     const note = decisionNote.trim();
     if (!note) {
       toast.error("Decision notes are required — they will be included in the email to the requester.");
       return;
     }
+    if (busy === decidingMode + row.id) return; // duplicate-click guard
     setBusy(decidingMode + row.id);
     try {
       const res = await decideFn({
@@ -214,7 +366,6 @@ function AccessRequestsPage() {
       );
       setDecidingId(null);
       setDecisionNote("");
-      // Force a refresh of details for this row next render
       setAuditMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
       setEmailMap((prev) => { const n = { ...prev }; delete n[row.id]; return n; });
       await load();
@@ -381,11 +532,110 @@ function AccessRequestsPage() {
               />
             </div>
 
-            <div className="mt-2 text-xs text-muted-foreground">
-              {filtered.length === 0
-                ? "No matching requests."
-                : `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-xs text-muted-foreground">
+                {filtered.length === 0
+                  ? "No matching requests."
+                  : `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} of ${filtered.length}`}
+              </div>
+              <div className="flex items-center gap-2">
+                {pendingOnPage.length > 0 && (
+                  <button
+                    onClick={togglePageSelection}
+                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted"
+                  >
+                    {allPendingSelected ? "Clear page" : "Select page (pending)"}
+                  </button>
+                )}
+                <button
+                  onClick={exportCsv}
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted"
+                  title="Export filtered rows to CSV"
+                >
+                  <Download className="h-3.5 w-3.5" /> Export CSV
+                </button>
+              </div>
             </div>
+
+            {selected.size > 0 && (
+              <div className="mt-3 rounded-2xl border border-brand/30 bg-brand/5 p-3 sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-sm font-medium">
+                    {selected.size} selected
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => { setBulkMode("approved"); setBulkNote(""); }}
+                      disabled={bulkBusy}
+                      className="inline-flex items-center gap-1 rounded-full bg-brand px-3 py-1.5 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                    >
+                      <Check className="h-3.5 w-3.5" /> Bulk approve
+                    </button>
+                    <button
+                      onClick={() => { setBulkMode("rejected"); setBulkNote(""); }}
+                      disabled={bulkBusy}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-white px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                    >
+                      <X className="h-3.5 w-3.5" /> Bulk reject
+                    </button>
+                    <button
+                      onClick={clearSelection}
+                      disabled={bulkBusy}
+                      className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                {bulkMode && (
+                  <div className={`mt-3 rounded-xl border p-3 ${
+                    bulkMode === "approved" ? "border-emerald-200 bg-emerald-50/60" : "border-red-200 bg-red-50/60"
+                  }`}>
+                    <label className="block text-xs font-semibold mb-1">
+                      Shared {bulkMode === "approved" ? "approval notes" : "reject reason"}{" "}
+                      <span className="text-red-600">*</span>
+                    </label>
+                    <p className="text-[11px] text-muted-foreground mb-2">
+                      This note is saved to every selected request and included in each
+                      requester's notification email.
+                    </p>
+                    <textarea
+                      value={bulkNote}
+                      onChange={(e) => setBulkNote(e.target.value)}
+                      rows={3}
+                      required
+                      placeholder={bulkMode === "approved"
+                        ? "e.g. Batch onboarding cohort — welcome aboard."
+                        : "e.g. Applications outside current eligibility window."}
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-brand"
+                    />
+                    <div className="mt-2 flex justify-end gap-2">
+                      <button
+                        onClick={() => { setBulkMode(null); setBulkNote(""); }}
+                        disabled={bulkBusy}
+                        className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmBulk}
+                        disabled={bulkBusy || !bulkNote.trim()}
+                        className={`inline-flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-50 ${
+                          bulkMode === "approved" ? "bg-brand hover:bg-brand/90" : "bg-red-600 hover:bg-red-700"
+                        }`}
+                      >
+                        {bulkBusy ? (
+                          <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Processing…</>
+                        ) : (
+                          <>{bulkMode === "approved" ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+                          Confirm {bulkMode === "approved" ? "approve" : "reject"} {selected.size}</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-3 space-y-3">
               {pageRows.length === 0 ? (
@@ -413,10 +663,15 @@ function AccessRequestsPage() {
                     }
                     audit={auditMap[p.id]}
                     emails={emailMap[p.id]}
+                    selected={selected.has(p.id)}
+                    onToggleSelect={() => toggleSelect(p.id)}
+                    onResendEmail={resendEmail}
+                    resendBusy={resendBusy === p.id}
                   />
                 ))
               )}
             </div>
+
 
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-center gap-2">
@@ -526,6 +781,7 @@ function ApprovalCard({
   row, busy, decidingId, decidingMode, decisionNote, setDecisionNote,
   onOpenDecide, onCancelDecide, onConfirmDecide,
   expanded, onToggleExpand, audit, emails,
+  selected, onToggleSelect, onResendEmail, resendBusy,
 }: {
   row: ApprovalRow;
   busy: string | null;
@@ -540,6 +796,10 @@ function ApprovalCard({
   onToggleExpand: () => void;
   audit: ApprovalAuditEntry[] | undefined;
   emails: ApprovalEmailEntry[] | undefined;
+  selected: boolean;
+  onToggleSelect: () => void;
+  onResendEmail: (r: ApprovalRow) => void;
+  resendBusy: boolean;
 }) {
   const isDeciding = decidingId === row.id;
   const isPending = row.status === "pending";
@@ -549,9 +809,29 @@ function ApprovalCard({
     "bg-amber-100 text-amber-700";
   const latestEmail = (emails ?? [])[0];
 
+  // SLA / age tracking
+  const ageHours = isPending
+    ? Math.floor((Date.now() - new Date(row.requested_at).getTime()) / 3_600_000)
+    : 0;
+  const overdue = isPending && ageHours >= 48;
+  const warning = isPending && ageHours >= 24 && ageHours < 48;
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+    <div className={`rounded-2xl border bg-card p-4 sm:p-5 shadow-sm ${
+      overdue ? "border-red-300 ring-1 ring-red-200" : "border-border"
+    }`}>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        {isPending && (
+          <label className="shrink-0 inline-flex items-center pt-1">
+            <input
+              type="checkbox"
+              checked={selected}
+              onChange={onToggleSelect}
+              className="h-4 w-4 rounded border-border text-brand focus:ring-brand"
+              aria-label="Select request for bulk action"
+            />
+          </label>
+        )}
         <div className={`h-10 w-10 rounded-full ${tone} grid place-items-center shrink-0`}>
           <UserPlus className="h-5 w-5" />
         </div>
@@ -564,6 +844,23 @@ function ApprovalCard({
             </span>{" "}
             <span className="text-muted-foreground">access</span>
             {!isPending && <span className="ml-2"><StatusBadge status={row.status} /></span>}
+            {isPending && (
+              <span
+                className={`ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                  overdue
+                    ? "bg-red-100 text-red-700"
+                    : warning
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-muted text-muted-foreground"
+                }`}
+                title={`Requested ${new Date(row.requested_at).toLocaleString()}`}
+              >
+                <AlarmClock className="h-3 w-3" />
+                {overdue
+                  ? `Overdue · pending ${ageHours}h`
+                  : `Pending ${ageHours < 1 ? "<1h" : `${ageHours}h`}`}
+              </span>
+            )}
           </div>
           <div className="text-xs text-muted-foreground mt-1 truncate">{row.email}</div>
           {row.notes && (
@@ -605,15 +902,29 @@ function ApprovalCard({
           </div>
         )}
         {!isPending && (
-          <button
-            onClick={onToggleExpand}
-            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted shrink-0"
-          >
-            {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-            Audit log
-          </button>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={() => onResendEmail(row)}
+              disabled={resendBusy}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-50"
+              title="Re-queue the decision email to the requester"
+            >
+              {resendBusy
+                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                : <Send className="h-3.5 w-3.5" />}
+              Resend email
+            </button>
+            <button
+              onClick={onToggleExpand}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-muted"
+            >
+              {expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+              Audit log
+            </button>
+          </div>
         )}
       </div>
+
 
       {isDeciding && (
         <div className={`mt-4 rounded-xl border p-3 ${
