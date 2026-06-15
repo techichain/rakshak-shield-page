@@ -276,57 +276,96 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         {menuOpen && (
-          <div className={`border-t border-border bg-background max-h-[70vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
-            <nav className="mx-auto w-full max-w-7xl px-6 py-4 flex flex-col gap-3 text-sm">
-              <Link to="/rakshak-platform/map" onClick={() => setMenuOpen(false)}>Hotspots</Link>
-              <Link to="/rakshak-platform/knowledge" onClick={() => setMenuOpen(false)}>Knowledge</Link>
-              <Link to="/rakshak-platform/leaderboard" onClick={() => setMenuOpen(false)}>Leaderboard</Link>
-              <Link to="/rakshak-platform/impact" onClick={() => setMenuOpen(false)}>Impact</Link>
-              <Link to="/rakshak-platform/mentors" onClick={() => setMenuOpen(false)}>Mentors</Link>
-              <Link to="/rakshak-platform/sponsor" onClick={() => setMenuOpen(false)}>Sponsor</Link>
-              {isAuthority && <Link to="/rakshak-platform/authority" onClick={() => setMenuOpen(false)}>Authority</Link>}
-              {isEvaluator && <Link to="/rakshak-platform/evaluator" onClick={() => setMenuOpen(false)}>Evaluator</Link>}
-              {(isMentor || isTeam) && <Link to="/rakshak-platform/meetings" onClick={() => setMenuOpen(false)}>Meetings</Link>}
-              {isMentor && <Link to="/rakshak-platform/mentor" onClick={() => setMenuOpen(false)}>Mentor</Link>}
+          <div className={`border-t border-border bg-background max-h-[75vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
+            <nav className="mx-auto w-full max-w-7xl px-5 py-5 flex flex-col gap-5 text-sm">
+              <MobileGroup
+                label="Explore"
+                items={[
+                  { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
+                  { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
+                  { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
+                  { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
+                  { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
+                  { to: "/rakshak-platform/sponsor", label: "Sponsor", icon: HeartHandshake },
+                ]}
+                onPick={() => setMenuOpen(false)}
+              />
+
+              {isAuthority && (
+                <MobileGroup label="Authority" items={[
+                  { to: "/rakshak-platform/authority", label: "Authority dashboard", icon: ShieldCheck },
+                ]} onPick={() => setMenuOpen(false)} />
+              )}
+
+              {isEvaluator && (
+                <MobileGroup label="Evaluator" items={[
+                  { to: "/rakshak-platform/evaluator", label: "Queue", icon: ClipboardCheck },
+                  { to: "/rakshak-platform/evaluator/compare", label: "Compare", icon: ScanSearch },
+                ]} onPick={() => setMenuOpen(false)} />
+              )}
+
+              {isMentor && (
+                <MobileGroup label="Mentor" items={[
+                  { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
+                  { to: "/rakshak-platform/mentor/availability", label: "Availability", icon: CalendarDays },
+                  { to: "/rakshak-platform/meetings", label: "Meetings", icon: CalendarDays },
+                ]} onPick={() => setMenuOpen(false)} />
+              )}
+
               {isTeam && (
-                <>
-                  <Link to="/rakshak-platform/team" onClick={() => setMenuOpen(false)}>My Team</Link>
-                  <Link to="/rakshak-platform/team/locations" onClick={() => setMenuOpen(false)}>Locations</Link>
-                  <Link to="/rakshak-platform/team/reports" onClick={() => setMenuOpen(false)}>Reports</Link>
-                  <Link to="/rakshak-platform/team/ai-check" onClick={() => setMenuOpen(false)}>AI check</Link>
-                </>
+                <MobileGroup label="My Team" items={[
+                  { to: "/rakshak-platform/team", label: "Overview", icon: LayoutDashboard },
+                  { to: "/rakshak-platform/team/phases", label: "Phases", icon: ClipboardCheck },
+                  { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
+                  { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
+                  { to: "/rakshak-platform/team/ai-check", label: "AI check", icon: ScanSearch },
+                  { to: "/rakshak-platform/meetings", label: "Meetings", icon: CalendarDays },
+                ]} onPick={() => setMenuOpen(false)} />
               )}
-              {(isAdmin || isFinance) && (
-                <>
-                  <Link to="/rakshak-platform/admin/finance" onClick={() => setMenuOpen(false)}>Finance</Link>
-                  <Link to="/rakshak-platform/admin/sponsorships" onClick={() => setMenuOpen(false)}>Sponsorships</Link>
-                </>
-              )}
+
               {isAdmin && (
                 <>
-                  <Link to="/rakshak-platform/admin" onClick={() => setMenuOpen(false)}>Admin</Link>
-                  <Link to="/rakshak-platform/admin/certificates" onClick={() => setMenuOpen(false)}>Certificates</Link>
-                  <Link to="/rakshak-platform/admin/knowledge" onClick={() => setMenuOpen(false)}>Articles</Link>
-                  <Link to="/rakshak-platform/admin/map" onClick={() => setMenuOpen(false)}>Programme map</Link>
-                  <Link to="/rakshak-platform/admin/analytics" onClick={() => setMenuOpen(false)}>Analytics</Link>
-                  <Link to="/rakshak-platform/admin/mentor-applications" onClick={() => setMenuOpen(false)}>Mentor applications</Link>
-                  <Link to="/rakshak-platform/admin/bulk-import" onClick={() => setMenuOpen(false)}>Bulk import</Link>
-                  <Link to="/rakshak-platform/admin/exports" onClick={() => setMenuOpen(false)}>Exports</Link>
-                  <Link to="/rakshak-platform/admin/audit" onClick={() => setMenuOpen(false)}>Audit</Link>
-                  <Link to="/rakshak-platform/admin/meetings" onClick={() => setMenuOpen(false)}>All meetings</Link>
-                  <Link to="/rakshak-platform/admin/cohorts" onClick={() => setMenuOpen(false)}>Cohorts</Link>
-                  <Link to="/rakshak-platform/admin/cron-health" onClick={() => setMenuOpen(false)}>Cron health</Link>
-                  <Link to="/rakshak-platform/admin/roles" onClick={() => setMenuOpen(false)}>Roles</Link>
-                  <Link to="/rakshak-platform/admin/evaluator-queue" onClick={() => setMenuOpen(false)}>Evaluator queue</Link>
-                  <Link to="/rakshak-platform/admin/evaluator-leaderboard" onClick={() => setMenuOpen(false)}>Eval analytics</Link>
-                  <Link to="/rakshak-platform/admin/alerts" onClick={() => setMenuOpen(false)}>Alerts</Link>
-                  <Link to="/rakshak-platform/admin/qa" onClick={() => setMenuOpen(false)}>QA</Link>
-                  <Link to="/rakshak-platform/admin/integrations" onClick={() => setMenuOpen(false)}>Integrations</Link>
-                  <Link to="/rakshak-platform/admin/qa-checklist" onClick={() => setMenuOpen(false)}>QA checklist</Link>
-                  <Link to="/rakshak-platform/admin/reviews" onClick={() => setMenuOpen(false)}>Reviews</Link>
-                  <Link to="/rakshak-platform/admin/badges" onClick={() => setMenuOpen(false)}>Badges</Link>
-                  <Link to="/rakshak-platform/admin/seed" onClick={() => setMenuOpen(false)}>Seed</Link>
+                  <MobileGroup label="Admin" items={[
+                    { to: "/rakshak-platform/admin", label: "Overview", icon: LayoutDashboard },
+                  ]} onPick={() => setMenuOpen(false)} />
+                  <MobileGroup label="People" items={[
+                    { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing },
+                    { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor applications", icon: GraduationCap },
+                    { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
+                    { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
+                    { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
+                  ]} onPick={() => setMenuOpen(false)} />
+                  <MobileGroup label="Content" items={[
+                    { to: "/rakshak-platform/admin/knowledge", label: "Articles", icon: BookOpen },
+                    { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
+                    { to: "/rakshak-platform/admin/badges", label: "Badges", icon: Trophy },
+                    { to: "/rakshak-platform/admin/map", label: "Programme map", icon: MapPin },
+                  ]} onPick={() => setMenuOpen(false)} />
+                  <MobileGroup label="Review" items={[
+                    { to: "/rakshak-platform/admin/evaluator-queue", label: "Evaluator queue", icon: ClipboardCheck },
+                    { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
+                    { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
+                    { to: "/rakshak-platform/admin/qa", label: "QA", icon: ScanSearch },
+                    { to: "/rakshak-platform/admin/qa-checklist", label: "QA checklist", icon: ClipboardCheck },
+                  ]} onPick={() => setMenuOpen(false)} />
+                  <MobileGroup label="Operations" items={[
+                    { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: Sparkles },
+                    { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
+                    { to: "/rakshak-platform/admin/exports", label: "Exports", icon: FileText },
+                    { to: "/rakshak-platform/admin/audit", label: "Audit log", icon: FileText },
+                    { to: "/rakshak-platform/admin/alerts", label: "Alerts", icon: BellRing },
+                    { to: "/rakshak-platform/admin/cron-health", label: "Cron health", icon: Wrench },
+                    { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
+                    { to: "/rakshak-platform/admin/seed", label: "Seed data", icon: Wrench },
+                  ]} onPick={() => setMenuOpen(false)} />
                 </>
+              )}
+
+              {(isAdmin || isFinance) && (
+                <MobileGroup label="Finance" items={[
+                  { to: "/rakshak-platform/admin/finance", label: "Finance", icon: Wallet },
+                  { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships", icon: HeartHandshake },
+                ]} onPick={() => setMenuOpen(false)} />
               )}
             </nav>
           </div>
