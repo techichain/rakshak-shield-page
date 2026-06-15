@@ -210,36 +210,53 @@ export const verifyOtpAndCreateAccount = createServerFn({ method: "POST" })
 
     const user = created.user;
 
-    // Onboard: profile + roles + mentor/approval, mirroring onboardRPWorkspace.
+    // Onboard: profile + approval queue. ALL self-signup roles (team_leader,
+    // mentor, evaluator, cfi_admin) go through the approval queue so an admin
+    // must explicitly grant access — and admins are notified in-app + by email.
     await supabaseAdmin
       .from("rp_profiles")
       .upsert({ id: user.id, full_name: data.fullName, email }, { onConflict: "id" });
 
-    if (data.role === "evaluator" || data.role === "admin") {
-      const requestedRole = data.role === "admin" ? "cfi_admin" : "evaluator";
-      await supabaseAdmin.from("rp_role_approvals").insert({
+    const requestedRole =
+      data.role === "admin"
+        ? "cfi_admin"
+        : data.role === "mentor"
+          ? "mentor"
+          : data.role === "team"
+            ? "team_leader"
+            : "evaluator";
+
+    const { data: inserted, error: approvalError } = await supabaseAdmin
+      .from("rp_role_approvals")
+      .insert({
         user_id: user.id,
         requested_role: requestedRole,
         status: "pending",
         notes: `Self-requested ${requestedRole} access at sign-up.`,
+      })
+      .select("id")
+      .single();
+    if (approvalError) throw approvalError;
+
+    // Fire-and-forget admin notification + email so signup never blocks
+    // on transient email infra issues.
+    try {
+      const { notifyAdminsOfRoleRequest } = await import("./admin-notify.server");
+      await notifyAdminsOfRoleRequest({
+        requesterId: user.id,
+        requesterName: data.fullName,
+        requesterEmail: email,
+        requestedRole,
+        notes: `Self-requested ${requestedRole} access at sign-up.`,
+        source: "self-signup",
+        approvalId: inserted?.id,
       });
-      return {
-        status: "pending_approval" as const,
-        redirectTo: "/rakshak-platform/dashboard" as const,
-      };
+    } catch (err) {
+      console.error("notifyAdminsOfRoleRequest failed", err);
     }
 
-    const dbRole = data.role === "mentor" ? "mentor" : "team_leader";
-    await supabaseAdmin
-      .from("rp_user_roles")
-      .upsert({ user_id: user.id, role: dbRole }, { onConflict: "user_id,role" });
-
-    if (data.role === "mentor") {
-      await supabaseAdmin
-        .from("rp_mentors")
-        .upsert({ profile_id: user.id }, { onConflict: "profile_id" });
-      return { status: "active" as const, redirectTo: "/rakshak-platform/mentor" as const };
-    }
-
-    return { status: "active" as const, redirectTo: "/rakshak-platform/team" as const };
+    return {
+      status: "pending_approval" as const,
+      redirectTo: "/rakshak-platform/dashboard" as const,
+    };
   });
