@@ -278,45 +278,87 @@ function AccessRequestsPage() {
             {pending.length === 0 ? (
               <EmptyNote icon={<BellRing className="h-8 w-8 text-brand" />} title="All caught up" subtitle="No pending role requests right now." />
             ) : (
-              pending.map((p) => (
-                <div key={p.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-amber-100 text-amber-700 grid place-items-center shrink-0">
-                    <UserPlus className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm">
-                      <span className="font-semibold">{p.full_name ?? p.email ?? "User"}</span>{" "}
-                      <span className="text-muted-foreground">requested</span>{" "}
-                      <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
-                        {p.requested_role}
-                      </span>{" "}
-                      <span className="text-muted-foreground">access</span>
+              pending.map((p) => {
+                const isRejecting = rejectingId === p.id;
+                return (
+                  <div key={p.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="h-10 w-10 rounded-full bg-amber-100 text-amber-700 grid place-items-center shrink-0">
+                        <UserPlus className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm">
+                          <span className="font-semibold">{p.full_name ?? p.email ?? "User"}</span>{" "}
+                          <span className="text-muted-foreground">requested</span>{" "}
+                          <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
+                            {p.requested_role}
+                          </span>{" "}
+                          <span className="text-muted-foreground">access</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 truncate">{p.email}</div>
+                        {p.notes && <div className="text-xs text-muted-foreground mt-1 italic">"{p.notes}"</div>}
+                        <div className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> {new Date(p.requested_at).toLocaleString()}
+                        </div>
+                      </div>
+                      {!isRejecting && (
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => approvePending(p)}
+                            disabled={busy === "ap" + p.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            {busy === "ap" + p.id ? "Approving…" : "Approve"}
+                          </button>
+                          <button
+                            onClick={() => openReject(p)}
+                            disabled={busy === "rj" + p.id}
+                            className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                          >
+                            <X className="h-3.5 w-3.5" /> Reject
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1 truncate">{p.email}</div>
-                    {p.notes && <div className="text-xs text-muted-foreground mt-1 italic">"{p.notes}"</div>}
-                    <div className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {new Date(p.requested_at).toLocaleString()}
-                    </div>
+                    {isRejecting && (
+                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+                        <label className="block text-xs font-semibold text-amber-900 mb-1">
+                          Reason for rejection <span className="text-red-600">*</span>
+                        </label>
+                        <p className="text-[11px] text-amber-800/80 mb-2">
+                          This message is included in the email sent to the requester.
+                        </p>
+                        <textarea
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          rows={3}
+                          required
+                          placeholder="e.g. We could not verify your affiliation. Please reply with your university ID and reapply."
+                          className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500"
+                        />
+                        <div className="mt-2 flex justify-end gap-2">
+                          <button
+                            onClick={() => { setRejectingId(null); setRejectReason(""); }}
+                            className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => confirmReject(p)}
+                            disabled={busy === "rj" + p.id || !rejectReason.trim()}
+                            className="inline-flex items-center gap-1 rounded-full bg-red-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            {busy === "rj" + p.id ? "Rejecting…" : "Confirm reject"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => approvePending(p)}
-                      disabled={busy === "ap" + p.id}
-                      className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      {busy === "ap" + p.id ? "Approving…" : "Approve"}
-                    </button>
-                    <button
-                      onClick={() => rejectPending(p)}
-                      disabled={busy === "rj" + p.id}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
-                    >
-                      <X className="h-3.5 w-3.5" /> Reject
-                    </button>
-                  </div>
-                </div>
-              ))
+                );
+              })
+
             )}
           </div>
         )}
