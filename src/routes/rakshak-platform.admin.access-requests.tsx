@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
@@ -8,10 +9,12 @@ import {
   GraduationCap, Briefcase, MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
+import { decideRoleApproval } from "@/lib/rakshak-platform/admin-decide.functions";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
 });
+
 
 type Invite = {
   id: string;
@@ -58,6 +61,10 @@ function AccessRequestsPage() {
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [tab, setTab] = useState<"requests" | "mentor-apps" | "invites">("requests");
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const decideFn = useServerFn(decideRoleApproval);
+
 
   const load = useCallback(async () => {
     const [{ data: inv }, { data: pend }, { data: apps }] = await Promise.all([
@@ -110,30 +117,50 @@ function AccessRequestsPage() {
 
   async function approvePending(row: Pending) {
     setBusy("ap" + row.id);
-    const { error: insErr } = await supabase
-      .from("rp_user_roles")
-      .insert({ user_id: row.user_id, role: row.requested_role as any });
-    if (insErr && !String(insErr.message).includes("duplicate")) {
-      toast.error(insErr.message); setBusy(null); return;
+    try {
+      const res = await decideFn({
+        data: { approvalId: row.id, decision: "approved" },
+      });
+      toast.success(
+        `Granted ${res.role}${res.emailed ? " — requester notified by email" : ""}`,
+      );
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to approve");
+    } finally {
+      setBusy(null);
     }
-    await supabase.from("rp_role_approvals")
-      .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: userId })
-      .eq("id", row.id);
-    toast.success(`Granted ${row.requested_role}`);
-    await load();
-    setBusy(null);
   }
 
-  async function rejectPending(row: Pending) {
-    if (!confirm(`Reject ${row.requested_role} request from ${row.email ?? row.user_id}?`)) return;
-    setBusy("rj" + row.id);
-    await supabase.from("rp_role_approvals")
-      .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userId })
-      .eq("id", row.id);
-    toast.success("Rejected");
-    await load();
-    setBusy(null);
+  function openReject(row: Pending) {
+    setRejectingId(row.id);
+    setRejectReason("");
   }
+
+  async function confirmReject(row: Pending) {
+    const reason = rejectReason.trim();
+    if (!reason) {
+      toast.error("Please add a reason — it will be included in the email to the requester.");
+      return;
+    }
+    setBusy("rj" + row.id);
+    try {
+      const res = await decideFn({
+        data: { approvalId: row.id, decision: "rejected", reason },
+      });
+      toast.success(
+        `Rejected${res.emailed ? " — requester notified by email" : ""}`,
+      );
+      setRejectingId(null);
+      setRejectReason("");
+      await load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to reject");
+    } finally {
+      setBusy(null);
+    }
+  }
+
 
   async function revokeInvite(inv: Invite) {
     if (!confirm(`Revoke invite to ${inv.email}?`)) return;
@@ -251,45 +278,87 @@ function AccessRequestsPage() {
             {pending.length === 0 ? (
               <EmptyNote icon={<BellRing className="h-8 w-8 text-brand" />} title="All caught up" subtitle="No pending role requests right now." />
             ) : (
-              pending.map((p) => (
-                <div key={p.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-amber-100 text-amber-700 grid place-items-center shrink-0">
-                    <UserPlus className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm">
-                      <span className="font-semibold">{p.full_name ?? p.email ?? "User"}</span>{" "}
-                      <span className="text-muted-foreground">requested</span>{" "}
-                      <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
-                        {p.requested_role}
-                      </span>{" "}
-                      <span className="text-muted-foreground">access</span>
+              pending.map((p) => {
+                const isRejecting = rejectingId === p.id;
+                return (
+                  <div key={p.id} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="h-10 w-10 rounded-full bg-amber-100 text-amber-700 grid place-items-center shrink-0">
+                        <UserPlus className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm">
+                          <span className="font-semibold">{p.full_name ?? p.email ?? "User"}</span>{" "}
+                          <span className="text-muted-foreground">requested</span>{" "}
+                          <span className="inline-flex items-center rounded-full bg-brand/10 text-brand px-2 py-0.5 text-xs font-medium">
+                            {p.requested_role}
+                          </span>{" "}
+                          <span className="text-muted-foreground">access</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 truncate">{p.email}</div>
+                        {p.notes && <div className="text-xs text-muted-foreground mt-1 italic">"{p.notes}"</div>}
+                        <div className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> {new Date(p.requested_at).toLocaleString()}
+                        </div>
+                      </div>
+                      {!isRejecting && (
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => approvePending(p)}
+                            disabled={busy === "ap" + p.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            {busy === "ap" + p.id ? "Approving…" : "Approve"}
+                          </button>
+                          <button
+                            onClick={() => openReject(p)}
+                            disabled={busy === "rj" + p.id}
+                            className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+                          >
+                            <X className="h-3.5 w-3.5" /> Reject
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1 truncate">{p.email}</div>
-                    {p.notes && <div className="text-xs text-muted-foreground mt-1 italic">"{p.notes}"</div>}
-                    <div className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {new Date(p.requested_at).toLocaleString()}
-                    </div>
+                    {isRejecting && (
+                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-3">
+                        <label className="block text-xs font-semibold text-amber-900 mb-1">
+                          Reason for rejection <span className="text-red-600">*</span>
+                        </label>
+                        <p className="text-[11px] text-amber-800/80 mb-2">
+                          This message is included in the email sent to the requester.
+                        </p>
+                        <textarea
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          rows={3}
+                          required
+                          placeholder="e.g. We could not verify your affiliation. Please reply with your university ID and reapply."
+                          className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500"
+                        />
+                        <div className="mt-2 flex justify-end gap-2">
+                          <button
+                            onClick={() => { setRejectingId(null); setRejectReason(""); }}
+                            className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => confirmReject(p)}
+                            disabled={busy === "rj" + p.id || !rejectReason.trim()}
+                            className="inline-flex items-center gap-1 rounded-full bg-red-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            {busy === "rj" + p.id ? "Rejecting…" : "Confirm reject"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => approvePending(p)}
-                      disabled={busy === "ap" + p.id}
-                      className="inline-flex items-center gap-1 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      {busy === "ap" + p.id ? "Approving…" : "Approve"}
-                    </button>
-                    <button
-                      onClick={() => rejectPending(p)}
-                      disabled={busy === "rj" + p.id}
-                      className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-xs font-semibold hover:bg-muted disabled:opacity-50"
-                    >
-                      <X className="h-3.5 w-3.5" /> Reject
-                    </button>
-                  </div>
-                </div>
-              ))
+                );
+              })
+
             )}
           </div>
         )}
