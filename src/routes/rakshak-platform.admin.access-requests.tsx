@@ -61,6 +61,10 @@ function AccessRequestsPage() {
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [tab, setTab] = useState<"requests" | "mentor-apps" | "invites">("requests");
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const decideFn = useServerFn(decideRoleApproval);
+
 
   const load = useCallback(async () => {
     const [{ data: inv }, { data: pend }, { data: apps }] = await Promise.all([
