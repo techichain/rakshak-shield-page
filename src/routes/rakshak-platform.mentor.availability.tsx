@@ -120,7 +120,7 @@ function AvailabilityPage() {
               <input name="notes" maxLength={400} className="rp-input w-full mt-1" placeholder="e.g. Office hours · ask anything" />
             </label>
             {err && <p className="text-red-600 text-sm">{err}</p>}
-            <button disabled={busy} className="rp-btn-primary w-full">{busy ? "Saving…" : "Publish slot"}</button>
+            <button type="submit" disabled={busy} className="rp-btn-primary w-full">{busy ? "Saving…" : "Publish slot"}</button>
           </form>
 
           <div className="lg:col-span-2 space-y-6">
