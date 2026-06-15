@@ -145,6 +145,7 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
             template_name: 'rp-role-decision',
             recipient_email: requester.email,
             status: 'pending',
+            metadata: { approval_id: approval.id, decision: data.decision, role: requestedRole },
           })
 
           const { error: enqErr } = await supabaseAdmin.rpc('enqueue_email', {
@@ -171,6 +172,20 @@ export const decideRoleApproval = createServerFn({ method: 'POST' })
           } else {
             emailed = true
           }
+
+          // Link the message to the approval in audit logs for the admin UI
+          await supabaseAdmin.from('rp_audit_logs').insert({
+            actor_id: userId,
+            action: enqErr ? 'role_approval_email_failed' : 'role_approval_email_queued',
+            entity_type: 'rp_role_approvals',
+            entity_id: approval.id,
+            new_value: {
+              message_id: messageId,
+              recipient_email: requester.email,
+              template: 'rp-role-decision',
+              error: enqErr?.message ?? null,
+            },
+          })
         }
       } catch (err) {
         console.error('rp-role-decision email failed', err)
