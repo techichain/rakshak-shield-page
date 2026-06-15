@@ -32,12 +32,22 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
       .upsert({ id: user.id, full_name: fullName, email }, { onConflict: "id" });
     if (profileError) throw profileError;
 
-    // Evaluator, mentor, and admin self-sign-ups are routed through the approval
-    // queue. Only `team` is auto-granted. This prevents privilege escalation by
-    // anyone who hits /rakshak-platform/auth?role=mentor or ?role=admin.
-    if (data.role === "evaluator" || data.role === "admin" || data.role === "mentor") {
+    // Mentor, evaluator, admin, AND team-leader self-sign-ups are routed
+    // through the approval queue so an admin must explicitly grant access.
+    if (
+      data.role === "evaluator" ||
+      data.role === "admin" ||
+      data.role === "mentor" ||
+      data.role === "team"
+    ) {
       const requestedRole =
-        data.role === "admin" ? "cfi_admin" : data.role === "mentor" ? "mentor" : "evaluator";
+        data.role === "admin"
+          ? "cfi_admin"
+          : data.role === "mentor"
+            ? "mentor"
+            : data.role === "team"
+              ? "team_leader"
+              : "evaluator";
       const { data: existing, error: existingError } = await supabaseAdmin
         .from("rp_role_approvals")
         .select("id, status")
@@ -61,7 +71,9 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
         const redirectTo =
           requestedRole === "mentor"
             ? ("/rakshak-platform/mentor" as const)
-            : ("/rakshak-platform/dashboard" as const);
+            : requestedRole === "team_leader"
+              ? ("/rakshak-platform/team" as const)
+              : ("/rakshak-platform/dashboard" as const);
         return { status: "active" as const, redirectTo };
       }
 
@@ -99,11 +111,7 @@ export const onboardRPWorkspace = createServerFn({ method: "POST" })
       return { status: "pending_approval" as const, redirectTo: "/rakshak-platform/dashboard" as const };
     }
 
-    // Only team role is auto-granted.
-    const { error: roleError } = await supabaseAdmin
-      .from("rp_user_roles")
-      .upsert({ user_id: user.id, role: "team_leader" }, { onConflict: "user_id,role" });
-    if (roleError) throw roleError;
-
-    return { status: "active" as const, redirectTo: "/rakshak-platform/team" as const };
+    // No remaining auto-granted self-signup roles — every role goes through approval.
+    return { status: "pending_approval" as const, redirectTo: "/rakshak-platform/dashboard" as const };
   });
+
