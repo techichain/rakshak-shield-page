@@ -27,7 +27,7 @@ export function MentorCreateTeamPanel() {
   const [rows, setRows] = useState<Row[]>([]);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ teamName: "", leaderEmail: "", college: "", city: "", state: "" });
+  const [form, setForm] = useState({ teamName: "", leaderEmail: "", membersRaw: "", college: "", city: "", state: "" });
 
   async function load() {
     try {
