@@ -754,6 +754,14 @@ function AccessRequestsPage() {
           </div>
         )}
 
+        {tab === "team-requests" && (
+          <div className="mt-6">
+            <AdminMentorTeamRequestsPanel />
+          </div>
+        )}
+
+
+
         {tab === "invites" && (
           <div className="mt-6 space-y-6">
             <InviteSection
