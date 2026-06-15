@@ -130,14 +130,6 @@ function AuthPage() {
   const setRole = (r: typeof role) =>
     navigate({ to: "/rakshak-platform/auth", search: { mode, role: r } });
 
-  function checkCaptcha(): boolean {
-    const parsed = Number.parseInt(captcha.trim(), 10);
-    if (!Number.isFinite(parsed) || parsed !== expectedCaptcha.current) {
-      setCaptchaError("Incorrect answer. Please solve the new challenge.");
-      return false;
-    }
-    return true;
-  }
 
   // LOGIN — email + password
   async function handlePasswordLogin(e: React.FormEvent) {
