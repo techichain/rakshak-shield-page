@@ -296,7 +296,17 @@ function MeetingsPage() {
                   ))}
                 </div>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">Type at least 2 characters to search. Invitees receive email reminders.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Type at least 2 characters to search by name or email. Invitees receive email reminders.</p>
+
+              <label className="mt-4 block text-xs uppercase tracking-wide text-muted-foreground">Invite by email</label>
+              <textarea
+                value={extraEmailsText}
+                onChange={(e) => setExtraEmailsText(e.target.value)}
+                rows={2}
+                placeholder="name@example.com, another@example.com"
+                className="rp-input mt-1 w-full"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Add emails (comma-separated) — they'll receive a meeting invite with the meet link.</p>
             </div>
           </div>
 
