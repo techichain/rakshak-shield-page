@@ -28,6 +28,7 @@ const CreateInput = z.object({
   location: z.string().max(200).optional(),
   status: z.enum(["proposed", "confirmed", "cancelled", "completed"]).default("proposed"),
   invitee_ids: z.array(z.string().uuid()).max(50).default([]),
+  extra_emails: z.array(z.string().email()).max(50).default([]),
 });
 
 export const createMeeting = createServerFn({ method: "POST" })
