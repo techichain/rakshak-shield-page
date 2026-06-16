@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect, useMemo } from "react";
@@ -30,6 +30,12 @@ function formatErr(e: unknown): string {
 
 export const Route = createFileRoute("/rakshak-platform/meetings")({
   ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      throw redirect({ to: "/rakshak-platform/auth" as any });
+    }
+  },
   component: MeetingsPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p className="text-red-600">{formatErr(error)}</p></Section></PlatformShell>
