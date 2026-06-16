@@ -13,6 +13,7 @@ import {
   rescheduleMeeting,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
+import { toast } from "sonner";
 
 function formatErr(e: unknown): string {
   if (!e) return "Something went wrong.";
