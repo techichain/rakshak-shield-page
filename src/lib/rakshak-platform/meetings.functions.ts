@@ -311,7 +311,7 @@ export const listInvitees = createServerFn({ method: "GET" })
     const { data: rows, error } = await context.supabase
       .from("rp_profiles")
       .select("id, full_name")
-      .ilike("full_name", `%${data.search}%`)
+      .or(`full_name.ilike.%${data.search}%,email.ilike.%${data.search}%`)
       .order("full_name", { ascending: true })
       .limit(25);
     if (error) throw error;
