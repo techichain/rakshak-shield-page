@@ -187,6 +187,49 @@
 .rp-platform textarea.rp-input { height: auto; padding: 0.75rem 0.875rem; resize: vertical; }
 .rp-platform .rp-input:focus { outline: none; border-color: var(--color-brand); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand) 20%, transparent); }
 
+.rp-btn-primary,
+.rp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+.rp-btn-primary {
+  background: var(--brand);
+  color: var(--brand-foreground);
+  border-color: var(--brand);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.rp-btn-primary:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--brand) 88%, black);
+  border-color: color-mix(in oklab, var(--brand) 88%, black);
+}
+.rp-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.rp-btn-secondary {
+  background: var(--color-background);
+  color: var(--brand);
+  border-color: var(--rp-border);
+}
+.rp-btn-secondary:hover:not(:disabled) {
+  background: var(--brand-lite);
+  border-color: var(--brand);
+}
+.rp-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 
 
