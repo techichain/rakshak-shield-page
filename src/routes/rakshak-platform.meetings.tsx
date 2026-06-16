@@ -90,7 +90,8 @@ function MeetingsPage() {
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true); setErr(null);
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     try {
       const extraEmails = extraEmailsText
         .split(/[,\n;]+/)
@@ -116,7 +117,7 @@ function MeetingsPage() {
           extra_emails: extraEmails,
         },
       });
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
       setSelected([]);
       setExtraEmailsText("");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
