@@ -63,7 +63,31 @@ export const createMeeting = createServerFn({ method: "POST" })
       .single();
     if (error) throw error;
 
-    const attendees = new Set<string>([context.userId, ...data.invitee_ids]);
+    const inviteeIds = new Set<string>(data.invitee_ids);
+
+    // Resolve extra_emails: if a profile exists, add as attendee; otherwise
+    // remember the raw email for direct send.
+    const normalizedEmails = Array.from(
+      new Set((data.extra_emails ?? []).map((e) => e.trim().toLowerCase()).filter(Boolean)),
+    );
+    const rawEmailsToSend: string[] = [];
+    if (normalizedEmails.length) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: matched } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("id, email")
+        .in("email", normalizedEmails);
+      const matchedMap = new Map<string, string>(
+        (matched ?? []).map((p: any) => [String(p.email).toLowerCase(), p.id]),
+      );
+      for (const email of normalizedEmails) {
+        const pid = matchedMap.get(email);
+        if (pid) inviteeIds.add(pid);
+        else rawEmailsToSend.push(email);
+      }
+    }
+
+    const attendees = new Set<string>([context.userId, ...inviteeIds]);
     await context.supabase
       .from("rp_meeting_attendees")
       .insert(
@@ -77,13 +101,16 @@ export const createMeeting = createServerFn({ method: "POST" })
 
     // Fire-and-forget confirmation emails (best effort).
     try {
-      const { sendMeetingScheduledEmails } = await import("./meeting-notify.server");
+      const { sendMeetingScheduledEmails, sendMeetingEmailToAddresses } = await import("./meeting-notify.server");
       await sendMeetingScheduledEmails(row.id);
+      if (rawEmailsToSend.length) {
+        await sendMeetingEmailToAddresses(row.id, rawEmailsToSend);
+      }
     } catch (err) {
       console.error("[createMeeting] notify failed", err);
     }
 
-    return { meeting: row };
+    return { meeting: row, extra_emails_sent: normalizedEmails.length };
   });
 
 export const cancelMeeting = createServerFn({ method: "POST" })
