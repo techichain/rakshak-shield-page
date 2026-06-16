@@ -92,6 +92,15 @@ function MeetingsPage() {
     setBusy(true); setErr(null);
     const fd = new FormData(e.currentTarget);
     try {
+      const extraEmails = extraEmailsText
+        .split(/[,\n;]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      // Light client-side validation; server re-validates with Zod.
+      const invalid = extraEmails.filter((e) => !/.+@.+\..+/.test(e));
+      if (invalid.length) {
+        throw new Error(`Invalid email${invalid.length > 1 ? "s" : ""}: ${invalid.join(", ")}`);
+      }
       await create({
         data: {
           team_id: needsTeam ? String(fd.get("team_id")) : null,
@@ -104,11 +113,18 @@ function MeetingsPage() {
           location: String(fd.get("location") || ""),
           status: "proposed",
           invitee_ids: selected.map((p) => p.id),
+          extra_emails: extraEmails,
         },
       });
       (e.currentTarget as HTMLFormElement).reset();
       setSelected([]);
+      setExtraEmailsText("");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+      if (extraEmails.length) {
+        toast.success(`Meeting created — invites sent to ${extraEmails.length} email${extraEmails.length > 1 ? "s" : ""}`);
+      } else {
+        toast.success("Meeting created");
+      }
     } catch (e: any) {
       setErr(e?.message ?? "Could not create meeting");
     } finally {
