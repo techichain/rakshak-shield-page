@@ -13,6 +13,7 @@ import {
   rescheduleMeeting,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
+import { toast } from "sonner";
 
 function formatErr(e: unknown): string {
   if (!e) return "Something went wrong.";
@@ -65,6 +66,7 @@ function MeetingsPage() {
   const [selected, setSelected] = useState<{ id: string; full_name: string }[]>([]);
   const [inviteeSearch, setInviteeSearch] = useState("");
   const [searchResults, setSearchResults] = useState<{ id: string; full_name: string }[]>([]);
+  const [extraEmailsText, setExtraEmailsText] = useState("");
 
   useEffect(() => {
     const term = inviteeSearch.trim();
@@ -90,6 +92,15 @@ function MeetingsPage() {
     setBusy(true); setErr(null);
     const fd = new FormData(e.currentTarget);
     try {
+      const extraEmails = extraEmailsText
+        .split(/[,\n;]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      // Light client-side validation; server re-validates with Zod.
+      const invalid = extraEmails.filter((e) => !/.+@.+\..+/.test(e));
+      if (invalid.length) {
+        throw new Error(`Invalid email${invalid.length > 1 ? "s" : ""}: ${invalid.join(", ")}`);
+      }
       await create({
         data: {
           team_id: needsTeam ? String(fd.get("team_id")) : null,
@@ -102,11 +113,18 @@ function MeetingsPage() {
           location: String(fd.get("location") || ""),
           status: "proposed",
           invitee_ids: selected.map((p) => p.id),
+          extra_emails: extraEmails,
         },
       });
       (e.currentTarget as HTMLFormElement).reset();
       setSelected([]);
+      setExtraEmailsText("");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+      if (extraEmails.length) {
+        toast.success(`Meeting created — invites sent to ${extraEmails.length} email${extraEmails.length > 1 ? "s" : ""}`);
+      } else {
+        toast.success("Meeting created");
+      }
     } catch (e: any) {
       setErr(e?.message ?? "Could not create meeting");
     } finally {
@@ -278,7 +296,17 @@ function MeetingsPage() {
                   ))}
                 </div>
               )}
-              <p className="mt-1 text-xs text-muted-foreground">Type at least 2 characters to search. Invitees receive email reminders.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Type at least 2 characters to search by name or email. Invitees receive email reminders.</p>
+
+              <label className="mt-4 block text-xs uppercase tracking-wide text-muted-foreground">Invite by email</label>
+              <textarea
+                value={extraEmailsText}
+                onChange={(e) => setExtraEmailsText(e.target.value)}
+                rows={2}
+                placeholder="name@example.com, another@example.com"
+                className="rp-input mt-1 w-full"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Add emails (comma-separated) — they'll receive a meeting invite with the meet link.</p>
             </div>
           </div>
 
