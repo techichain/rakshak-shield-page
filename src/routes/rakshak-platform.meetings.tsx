@@ -66,6 +66,7 @@ function MeetingsPage() {
   const [selected, setSelected] = useState<{ id: string; full_name: string }[]>([]);
   const [inviteeSearch, setInviteeSearch] = useState("");
   const [searchResults, setSearchResults] = useState<{ id: string; full_name: string }[]>([]);
+  const [extraEmailsText, setExtraEmailsText] = useState("");
 
   useEffect(() => {
     const term = inviteeSearch.trim();
