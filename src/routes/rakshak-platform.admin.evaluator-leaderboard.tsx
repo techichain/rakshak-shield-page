@@ -23,6 +23,17 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
   validateSearch: zodValidator(searchSchema),
   component: EvaluatorLeaderboard,
+  errorComponent: ({ error }) => (
+    <PlatformShell>
+      <Section>
+        <Eyebrow>Evaluator analytics</Eyebrow>
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
+          <p className="font-semibold text-red-700">Failed to load evaluator analytics</p>
+          <p className="mt-1 text-sm text-red-600">{error instanceof Error ? error.message : "Unknown error"}</p>
+        </div>
+      </Section>
+    </PlatformShell>
+  ),
 });
 
 type EvalRow = {
