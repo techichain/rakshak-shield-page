@@ -152,6 +152,7 @@ export async function sendMeetingInviteViaResend(opts: {
   recipientName: string
   organizerEmail: string
   organizerName: string
+  recipientTimezone?: string
 }): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) {
@@ -170,15 +171,17 @@ export async function sendMeetingInviteViaResend(opts: {
     return
   }
 
+  const tz = opts.recipientTimezone || 'Asia/Kolkata'
   const startStr = new Date(meeting.scheduled_start as string).toLocaleString('en-IN', {
-    timeZone: 'Asia/Kolkata',
+    timeZone: tz,
     dateStyle: 'full',
     timeStyle: 'short',
-  })
+  }) + ` (${tz})`
   const endStr = new Date(meeting.scheduled_end as string).toLocaleString('en-IN', {
-    timeZone: 'Asia/Kolkata',
+    timeZone: tz,
     timeStyle: 'short',
   })
+
 
   const fmt = (iso: string) =>
     new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')

@@ -72,6 +72,11 @@ function MeetingsPage() {
   const [extraEmailsText, setExtraEmailsText] = useState("");
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
+  const userTimezone = useMemo(() => {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
+    catch { return "Asia/Kolkata"; }
+  }, []);
+
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
@@ -360,8 +365,9 @@ function MeetingsPage() {
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {m.rp_teams?.team_name ? `${m.rp_teams.team_name} · ` : ""}
-                        {new Date(m.scheduled_start).toLocaleString()} → {new Date(m.scheduled_end).toLocaleTimeString()}
+                        {new Date(m.scheduled_start).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} → {new Date(m.scheduled_end).toLocaleTimeString(undefined, { timeStyle: "short" } as any)} <span className="opacity-70">({userTimezone})</span>
                       </p>
+
                     </div>
                     <span className="text-xs uppercase tracking-wide text-muted-foreground">{m.status}</span>
                   </div>

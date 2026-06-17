@@ -38,7 +38,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
 
     const { data: profiles } = await supabaseAdmin
       .from('rp_profiles')
-      .select('id, full_name, email')
+      .select('id, full_name, email, timezone')
       .in('id', attendeeIds)
     const people = (profiles ?? []).filter((p: any) => !!p.email)
     if (people.length === 0) return
@@ -55,10 +55,8 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
       return
     }
 
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const startStr = new Date(meeting.scheduled_start as string).toLocaleString()
-    const endStr = new Date(meeting.scheduled_end as string).toLocaleString()
     const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
+
 
     // Build the Google Calendar deep link + ics URL once for all attendees
     const { buildGCalLink } = await import('./google-calendar.server')
@@ -74,6 +72,16 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
 
     for (const p of people as any[]) {
       try {
+        const tz = (p.timezone as string | null) || 'Asia/Kolkata'
+        const startStr = new Date(meeting.scheduled_start as string).toLocaleString('en-IN', {
+          timeZone: tz,
+          dateStyle: 'full',
+          timeStyle: 'short',
+        })
+        const endStr = new Date(meeting.scheduled_end as string).toLocaleString('en-IN', {
+          timeZone: tz,
+          timeStyle: 'short',
+        })
         const element = React.createElement(tpl.component, {
           recipient_name: p.full_name ?? (p.email as string).split('@')[0],
           title: meeting.title,
@@ -88,6 +96,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
           gcal_link: gcalLink,
           ics_url: icsUrl,
         })
+
         const html = await render(element)
         const plainText = await render(element, { plainText: true })
         const subject =
@@ -221,6 +230,16 @@ export async function sendMeetingEmailToAddresses(
       './meeting-invite-email.server'
     )
 
+    // Look up timezones for any recipients that are registered platform users.
+    const { data: recipProfiles } = await supabaseAdmin
+      .from('rp_profiles')
+      .select('email, timezone')
+      .in('email', cleaned)
+    const tzByEmail = new Map<string, string>()
+    for (const r of (recipProfiles ?? []) as any[]) {
+      if (r.email && r.timezone) tzByEmail.set((r.email as string).toLowerCase(), r.timezone)
+    }
+
     for (const email of cleaned) {
       try {
         await sendMeetingInviteViaResend({
@@ -229,6 +248,7 @@ export async function sendMeetingEmailToAddresses(
           recipientName: email.split('@')[0],
           organizerEmail,
           organizerName,
+          recipientTimezone: tzByEmail.get(email) ?? 'Asia/Kolkata',
         })
       } catch (err) {
         console.error(
@@ -238,6 +258,7 @@ export async function sendMeetingEmailToAddresses(
         )
       }
     }
+
   } catch (err) {
     console.error('[meeting-notify:addresses] failed', err)
   }
