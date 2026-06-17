@@ -203,7 +203,7 @@ export async function pushMeetingToAttendeeCalendars(meetingId: string) {
 
       try {
         const res = await fetch(
-          "https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=all",
+          "https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=none",
           {
             method: "POST",
             headers: {

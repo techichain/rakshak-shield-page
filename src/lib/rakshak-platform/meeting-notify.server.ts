@@ -92,6 +92,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
           location: meeting.location ?? undefined,
           organizer_name: organizer ?? undefined,
           portal_url: portalUrl,
+          ical_content: icsContent,
         })
         const html = await render(element)
         const plainText = await render(element, { plainText: true })
@@ -157,8 +158,6 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
             unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
-            ical_uid: `rp-${meetingId}@rakshak.crashfreeindia.org`,
-            ical_content: icsContent,
           },
         })
         if (enqErr) {
@@ -179,8 +178,9 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
   try {
     const { pushMeetingToAttendeeCalendars } = await import('./google-calendar.server')
     await pushMeetingToAttendeeCalendars(meetingId)
+    console.log('[meeting-notify] gcal push attempted for', meetingId)
   } catch (err) {
-    console.error('[meeting-notify] gcal push failed', err)
+    console.error('[meeting-notify] gcal push failed (non-fatal):', err)
   }
 }
 
@@ -269,6 +269,7 @@ export async function sendMeetingEmailToAddresses(
           location: meeting.location ?? undefined,
           organizer_name: organizer ?? undefined,
           portal_url: portalUrl,
+          ical_content: icsContentExt,
         })
         const html = await render(element)
         const plainText = await render(element, { plainText: true })
@@ -332,8 +333,6 @@ export async function sendMeetingEmailToAddresses(
             unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
-            ical_uid: `rp-${meetingId}@rakshak.crashfreeindia.org`,
-            ical_content: icsContentExt,
           },
         })
         if (enqErr) {
