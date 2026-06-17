@@ -144,6 +144,19 @@ function EvaluatorLeaderboard() {
 
   if (loading || busy) return <PlatformShell><Section><Loader2 className="animate-spin" /></Section></PlatformShell>;
 
+  if (fetchError) return (
+    <PlatformShell>
+      <Section>
+        <Eyebrow>Evaluator analytics</Eyebrow>
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
+          <p className="font-semibold text-red-700">Failed to load evaluator analytics</p>
+          <p className="mt-1 text-sm text-red-600">{fetchError}</p>
+          <p className="mt-3 text-xs text-red-500">This usually means the rp_evaluations table hasn't been seeded yet, or your role doesn't have read access. Check Supabase RLS policies.</p>
+        </div>
+      </Section>
+    </PlatformShell>
+  );
+
   return (
     <PlatformShell>
       <Section>
