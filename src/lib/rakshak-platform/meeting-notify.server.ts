@@ -60,24 +60,17 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
     const endStr = new Date(meeting.scheduled_end as string).toLocaleString()
     const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
 
-    // Build the .ics invite once for all attendees
-    const { buildICSInvite } = await import('./google-calendar.server')
-    const organizerProfile = people.find((p: any) => p.id === meeting.created_by)
-    const organizerEmail = organizerProfile?.email ?? `noreply@${FROM_DOMAIN}`
-    const organizerName = organizerProfile?.full_name ?? 'Rakshak Platform'
-    const attendeeEmailList = (people as any[]).map((p) => p.email as string).filter(Boolean)
-    const icsContent = buildICSInvite({
-      meetingId: meeting.id,
+    // Build the Google Calendar deep link + ics URL once for all attendees
+    const { buildGCalLink } = await import('./google-calendar.server')
+    const gcalLink = buildGCalLink({
       title: meeting.title,
       agenda: meeting.agenda ?? '',
       scheduledStart: meeting.scheduled_start as string,
       scheduledEnd: meeting.scheduled_end as string,
       meetingLink: meeting.meeting_link ?? undefined,
       location: meeting.location ?? undefined,
-      organizerEmail,
-      organizerName,
-      attendeeEmails: attendeeEmailList,
     })
+    const icsUrl = `${PORTAL_BASE}/rakshak-platform/meetings/ics/${meeting.id}`
 
     for (const p of people as any[]) {
       try {
