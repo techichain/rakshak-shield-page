@@ -38,7 +38,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
 
     const { data: profiles } = await supabaseAdmin
       .from('rp_profiles')
-      .select('id, full_name, email')
+      .select('id, full_name, email, timezone')
       .in('id', attendeeIds)
     const people = (profiles ?? []).filter((p: any) => !!p.email)
     if (people.length === 0) return
@@ -55,10 +55,8 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
       return
     }
 
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const startStr = new Date(meeting.scheduled_start as string).toLocaleString()
-    const endStr = new Date(meeting.scheduled_end as string).toLocaleString()
     const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
+
 
     // Build the Google Calendar deep link + ics URL once for all attendees
     const { buildGCalLink } = await import('./google-calendar.server')
