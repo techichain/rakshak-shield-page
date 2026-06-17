@@ -333,3 +333,38 @@ export const listInvitees = createServerFn({ method: "GET" })
     if (error) throw error;
     return { people: rows ?? [] };
   });
+
+export const notifyMeetingConfirmed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ meeting_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: meeting } = await context.supabase
+      .from("rp_meetings")
+      .select("id, title, created_by")
+      .eq("id", data.meeting_id)
+      .maybeSingle();
+    if (!meeting) return { ok: true };
+
+    const { data: attendees } = await context.supabase
+      .from("rp_meeting_attendees")
+      .select("profile_id")
+      .eq("meeting_id", data.meeting_id)
+      .neq("profile_id", context.userId);
+
+    const otherIds = (attendees ?? []).map((a: any) => a.profile_id).filter(Boolean);
+    if (!otherIds.length) return { ok: true };
+
+    await context.supabase.from("rp_notifications").insert(
+      otherIds.map((pid: string) => ({
+        recipient_id: pid,
+        type: "meeting_confirmed",
+        title: `Meeting confirmed: ${meeting.title}`,
+        message: `An attendee confirmed their attendance. Check the meeting details.`,
+        action_link: `/rakshak-platform/meetings`,
+        related_entity_type: "meeting",
+        related_entity_id: data.meeting_id,
+      })),
+    );
+
+    return { ok: true };
+  });
