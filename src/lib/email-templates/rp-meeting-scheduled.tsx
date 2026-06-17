@@ -104,6 +104,8 @@ export const template = {
     timezone: 'Asia/Kolkata',
     meeting_link: 'https://meet.jit.si/rakshak-demo',
     organizer_name: 'Muskan',
+    gcal_link: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Phase+2+review&dates=20260618T120000Z%2F20260618T130000Z&details=Walk+through+field+data&location=https%3A%2F%2Fmeet.jit.si%2Frakshak-demo',
+    ics_url: 'https://rakshak.crashfreeindia.org/rakshak-platform/meetings/ics/demo-meeting-id',
   },
 } satisfies TemplateEntry
 
