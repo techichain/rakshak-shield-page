@@ -224,3 +224,108 @@ export async function pushMeetingToAttendeeCalendars(meetingId: string) {
     console.error("[google-calendar] pushMeetingToAttendeeCalendars failed", err);
   }
 }
+
+/**
+ * Generates a valid iCalendar (RFC 5545) string for a meeting invitation.
+ * When attached to an email as text/calendar;method=REQUEST, Gmail and
+ * other calendar clients show Accept / Maybe / Decline buttons automatically.
+ */
+export function buildICSInvite(opts: {
+  meetingId: string;
+  title: string;
+  agenda: string;
+  scheduledStart: string;
+  scheduledEnd: string;
+  meetingLink?: string;
+  location?: string;
+  organizerEmail: string;
+  organizerName: string;
+  attendeeEmails: string[];
+}): string {
+  function fmtDate(iso: string) {
+    return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  }
+  const uid = `rp-${opts.meetingId}@rakshak.crashfreeindia.org`;
+  const now = fmtDate(new Date().toISOString());
+  const description = [
+    opts.agenda,
+    opts.meetingLink ? `Join: ${opts.meetingLink}` : "",
+  ].filter(Boolean).join("\\n\\n");
+
+  const attendeeLines = opts.attendeeEmails
+    .map(email => `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=${email}:mailto:${email}`)
+    .join("\r\n");
+
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Crashfree India//Rakshak Platform//EN",
+    "METHOD:REQUEST",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${now}Z`,
+    `DTSTART:${fmtDate(opts.scheduledStart)}Z`,
+    `DTEND:${fmtDate(opts.scheduledEnd)}Z`,
+    `SUMMARY:${opts.title.replace(/\n/g, " ")}`,
+    `DESCRIPTION:${description}`,
+    opts.location ? `LOCATION:${opts.location}` : "",
+    opts.meetingLink ? `URL:${opts.meetingLink}` : "",
+    `ORGANIZER;CN=${opts.organizerName}:mailto:${opts.organizerEmail}`,
+    attendeeLines,
+    "STATUS:CONFIRMED",
+    "SEQUENCE:0",
+    "BEGIN:VALARM",
+    "TRIGGER:-PT1H",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Meeting reminder",
+    "END:VALARM",
+    "BEGIN:VALARM",
+    "TRIGGER:-PT30M",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Meeting reminder",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].filter(Boolean).join("\r\n");
+}
+
+/**
+ * When a user RSVPs in the portal, update their Google Calendar event RSVP status too.
+ */
+export async function syncRsvpToGoogleCalendar(opts: {
+  meetingId: string;
+  userId: string;
+  rsvp: 'going' | 'maybe' | 'not_going';
+}) {
+  const cred = await getValidAccessToken(opts.userId);
+  if (!cred || !cred.email) return;
+
+  const searchRes = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events?privateExtendedProperty=rp_meeting_id%3D${opts.meetingId}&maxResults=1`,
+    { headers: { Authorization: `Bearer ${cred.token}` } },
+  );
+  if (!searchRes.ok) return;
+  const searchData = (await searchRes.json()) as { items?: { id: string }[] };
+  const eventId = searchData.items?.[0]?.id;
+  if (!eventId) return;
+
+  const partstatMap = { going: 'accepted', maybe: 'tentative', not_going: 'declined' } as const;
+  const responseStatus = partstatMap[opts.rsvp];
+
+  const patchRes = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}?sendUpdates=none`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${cred.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        attendees: [{ email: cred.email, responseStatus }],
+      }),
+    },
+  );
+  if (!patchRes.ok) {
+    console.error('[syncRsvpToGoogleCalendar] patch failed', patchRes.status, await patchRes.text());
+  }
+}
