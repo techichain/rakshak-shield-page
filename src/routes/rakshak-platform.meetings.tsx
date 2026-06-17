@@ -9,7 +9,6 @@ import {
   cancelMeeting,
   rsvpMeeting,
   listMyMeetings,
-  listInvitees,
   rescheduleMeeting,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
@@ -59,7 +58,6 @@ function MeetingsPage() {
   const create = useServerFn(createMeeting);
   const cancel = useServerFn(cancelMeeting);
   const rsvp = useServerFn(rsvpMeeting);
-  const invitees = useServerFn(listInvitees);
   const reschedule = useServerFn(rescheduleMeeting);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
@@ -69,23 +67,8 @@ function MeetingsPage() {
   const [err, setErr] = useState<string | null>(null);
   const [type, setType] = useState<string>("team_mentor");
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
-  const [selected, setSelected] = useState<{ id: string; full_name: string }[]>([]);
-  const [inviteeSearch, setInviteeSearch] = useState("");
-  const [searchResults, setSearchResults] = useState<{ id: string; full_name: string }[]>([]);
   const [extraEmailsText, setExtraEmailsText] = useState("");
 
-  useEffect(() => {
-    const term = inviteeSearch.trim();
-    if (term.length < 2) { setSearchResults([]); return; }
-    let cancelled = false;
-    const t = setTimeout(async () => {
-      try {
-        const res: any = await invitees({ data: { search: term } });
-        if (!cancelled) setSearchResults(res?.people ?? []);
-      } catch { if (!cancelled) setSearchResults([]); }
-    }, 250);
-    return () => { cancelled = true; clearTimeout(t); };
-  }, [inviteeSearch, invitees]);
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
@@ -119,12 +102,11 @@ function MeetingsPage() {
           meeting_link: String(fd.get("meeting_link") || ""),
           location: String(fd.get("location") || ""),
           status: "proposed",
-          invitee_ids: selected.map((p) => p.id),
+          invitee_ids: [],
           extra_emails: extraEmails,
         },
       });
       form.reset();
-      setSelected([]);
       setExtraEmailsText("");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
       if (extraEmails.length) {
@@ -270,50 +252,15 @@ function MeetingsPage() {
             <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
             <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
             <div className="md:col-span-2">
-              <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite (mentors / evaluators / members)</label>
-              <input
-                value={inviteeSearch}
-                onChange={(e) => setInviteeSearch(e.target.value)}
-                placeholder="Search by name…"
-                className="rp-input mt-1"
-              />
-              {searchResults.length > 0 && (
-                <div className="mt-1 max-h-40 overflow-auto rounded border border-border bg-card">
-                  {searchResults
-                    .filter((p) => !selected.some((s) => s.id === p.id))
-                    .map((p) => (
-                      <button
-                        type="button"
-                        key={p.id}
-                        onClick={() => { setSelected((s) => [...s, p]); setInviteeSearch(""); setSearchResults([]); }}
-                        className="block w-full text-left px-3 py-1.5 text-sm hover:bg-muted"
-                      >
-                        {p.full_name}
-                      </button>
-                    ))}
-                </div>
-              )}
-              {selected.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {selected.map((p) => (
-                    <span key={p.id} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs">
-                      {p.full_name}
-                      <button type="button" onClick={() => setSelected((s) => s.filter((x) => x.id !== p.id))} className="text-muted-foreground hover:text-foreground">×</button>
-                    </span>
-                  ))}
-                </div>
-              )}
-              <p className="mt-1 text-xs text-muted-foreground">Type at least 2 characters to search by name or email. Invitees receive email reminders.</p>
-
-              <label className="mt-4 block text-xs uppercase tracking-wide text-muted-foreground">Invite by email</label>
+              <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite people (comma-separated emails)</label>
               <textarea
                 value={extraEmailsText}
                 onChange={(e) => setExtraEmailsText(e.target.value)}
                 rows={2}
-                placeholder="name@example.com, another@example.com"
+                placeholder="mentor@example.com, team@example.com"
                 className="rp-input mt-1 w-full"
               />
-              <p className="mt-1 text-xs text-muted-foreground">Add emails (comma-separated) — they'll receive a meeting invite with the meet link.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Invitees receive a calendar invite with the meet link.</p>
             </div>
           </div>
 
