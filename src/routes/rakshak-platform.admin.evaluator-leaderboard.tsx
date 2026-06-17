@@ -54,6 +54,7 @@ function EvaluatorLeaderboard() {
   const [rows, setRows] = useState<EvalRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fromDate = search.from ? parseISO(search.from) : undefined;
   const toDate = search.to ? parseISO(search.to) : undefined;
