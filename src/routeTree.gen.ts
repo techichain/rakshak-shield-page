@@ -98,6 +98,7 @@ import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/em
 import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
 import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
 import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
+import { Route as ApiMeetingIcsMeetingIdRouteImport } from './routes/api/meeting-ics.$meetingId'
 import { Route as ApiGigriderPhotoUploadRouteImport } from './routes/api/gigrider.photo-upload'
 import { Route as ApiDocsFileRouteImport } from './routes/api/docs.$file'
 import { Route as RakshakPlatformTeamReportsIndexRouteImport } from './routes/rakshak-platform.team.reports.index'
@@ -618,6 +619,11 @@ const GigriderChecklistAdminIdRoute =
     path: '/$id',
     getParentRoute: () => GigriderChecklistAdminRoute,
   } as any)
+const ApiMeetingIcsMeetingIdRoute = ApiMeetingIcsMeetingIdRouteImport.update({
+  id: '/api/meeting-ics/$meetingId',
+  path: '/api/meeting-ics/$meetingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGigriderPhotoUploadRoute = ApiGigriderPhotoUploadRouteImport.update({
   id: '/api/gigrider/photo-upload',
   path: '/api/gigrider/photo-upload',
@@ -741,6 +747,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/': typeof RakshakPlatformIndexRoute
   '/api/docs/$file': typeof ApiDocsFileRoute
   '/api/gigrider/photo-upload': typeof ApiGigriderPhotoUploadRoute
+  '/api/meeting-ics/$meetingId': typeof ApiMeetingIcsMeetingIdRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
@@ -838,6 +845,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform': typeof RakshakPlatformIndexRoute
   '/api/docs/$file': typeof ApiDocsFileRoute
   '/api/gigrider/photo-upload': typeof ApiGigriderPhotoUploadRoute
+  '/api/meeting-ics/$meetingId': typeof ApiMeetingIcsMeetingIdRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
@@ -943,6 +951,7 @@ export interface FileRoutesById {
   '/rakshak-platform/': typeof RakshakPlatformIndexRoute
   '/api/docs/$file': typeof ApiDocsFileRoute
   '/api/gigrider/photo-upload': typeof ApiGigriderPhotoUploadRoute
+  '/api/meeting-ics/$meetingId': typeof ApiMeetingIcsMeetingIdRoute
   '/gigrider-checklist/admin/$id': typeof GigriderChecklistAdminIdRoute
   '/gigrider-checklist/observer/$id': typeof GigriderChecklistObserverIdRoute
   '/gigrider-checklist/observer/new': typeof GigriderChecklistObserverNewRoute
@@ -1051,6 +1060,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/'
     | '/api/docs/$file'
     | '/api/gigrider/photo-upload'
+    | '/api/meeting-ics/$meetingId'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
@@ -1148,6 +1158,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform'
     | '/api/docs/$file'
     | '/api/gigrider/photo-upload'
+    | '/api/meeting-ics/$meetingId'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
@@ -1252,6 +1263,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/'
     | '/api/docs/$file'
     | '/api/gigrider/photo-upload'
+    | '/api/meeting-ics/$meetingId'
     | '/gigrider-checklist/admin/$id'
     | '/gigrider-checklist/observer/$id'
     | '/gigrider-checklist/observer/new'
@@ -1334,6 +1346,7 @@ export interface RootRouteChildren {
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ApiDocsFileRoute: typeof ApiDocsFileRoute
   ApiGigriderPhotoUploadRoute: typeof ApiGigriderPhotoUploadRoute
+  ApiMeetingIcsMeetingIdRoute: typeof ApiMeetingIcsMeetingIdRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
@@ -1969,6 +1982,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistAdminIdRouteImport
       parentRoute: typeof GigriderChecklistAdminRoute
     }
+    '/api/meeting-ics/$meetingId': {
+      id: '/api/meeting-ics/$meetingId'
+      path: '/api/meeting-ics/$meetingId'
+      fullPath: '/api/meeting-ics/$meetingId'
+      preLoaderRoute: typeof ApiMeetingIcsMeetingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/gigrider/photo-upload': {
       id: '/api/gigrider/photo-upload'
       path: '/api/gigrider/photo-upload'
@@ -2454,6 +2474,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ApiDocsFileRoute: ApiDocsFileRoute,
   ApiGigriderPhotoUploadRoute: ApiGigriderPhotoUploadRoute,
+  ApiMeetingIcsMeetingIdRoute: ApiMeetingIcsMeetingIdRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
