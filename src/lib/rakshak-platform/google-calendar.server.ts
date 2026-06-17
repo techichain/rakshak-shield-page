@@ -242,8 +242,12 @@ export function buildICSInvite(opts: {
   organizerName: string;
   attendeeEmails: string[];
 }): string {
+  // RFC 5545 UTC form: YYYYMMDDTHHMMSSZ (no dashes, no colons, no millis, single trailing Z).
+  // Using UTC is timezone-safe — every calendar client converts to the viewer's local zone.
   function fmtDate(iso: string) {
-    return new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) throw new Error(`buildICSInvite: invalid date ${iso}`);
+    return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   }
   const uid = `rp-${opts.meetingId}@rakshak.crashfreeindia.org`;
   const now = fmtDate(new Date().toISOString());
