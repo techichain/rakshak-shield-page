@@ -124,14 +124,31 @@ function MeetingsPage() {
   }
 
   async function handleRsvp(meeting_id: string, r: "going" | "not_going" | "maybe") {
-    await rsvp({ data: { meeting_id, rsvp: r } });
-    qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    try {
+      await rsvp({ data: { meeting_id, rsvp: r } });
+      setRsvpState((s) => ({ ...s, [meeting_id]: r }));
+      toast.success(
+        r === "going"
+          ? "✅ Marked as Going"
+          : r === "maybe"
+          ? "🤔 Marked as Maybe"
+          : "❌ Marked as Can't make it",
+      );
+      qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    } catch (e) {
+      toast.error(formatErr(e));
+    }
   }
 
   async function handleCancel(id: string) {
     if (!confirm("Cancel this meeting?")) return;
-    await cancel({ data: { id } });
-    qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    try {
+      await cancel({ data: { id } });
+      toast.success("Meeting cancelled");
+      qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    } catch (e) {
+      toast.error(formatErr(e));
+    }
   }
 
   const [reschedFor, setReschedFor] = useState<any | null>(null);
