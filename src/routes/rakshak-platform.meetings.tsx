@@ -131,11 +131,14 @@ function MeetingsPage() {
       setRsvpState((s) => ({ ...s, [meeting_id]: r }));
       toast.success(
         r === "going"
-          ? "✅ Marked as Going"
+          ? "✅ Marked as Going — attendees notified"
           : r === "maybe"
           ? "🤔 Marked as Maybe"
           : "❌ Marked as Can't make it",
       );
+      if (r === "going") {
+        notify({ data: { meeting_id } }).catch(() => {});
+      }
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
     } catch (e) {
       toast.error(formatErr(e));
