@@ -277,6 +277,10 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-3">
+            <div className="hidden md:flex flex-col items-end leading-tight mr-1">
+              <span className="text-[11px] font-medium text-foreground/80">{timeStr}</span>
+              <span className="text-[10px] text-muted-foreground">{dateStr}</span>
+            </div>
             {isAdmin && (
               <div className="hidden lg:block w-72"><GlobalSearch /></div>
             )}
