@@ -68,9 +68,12 @@ function MeetingsPage() {
   const [type, setType] = useState<string>("team_mentor");
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
   const [extraEmailsText, setExtraEmailsText] = useState("");
+  const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
+  const [myId, setMyId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
+    supabase.auth.getSession().then(({ data }) => setMyId(data.session?.user?.id ?? null));
   }, []);
 
   const needsTeam = type === "team_mentor" || type === "evaluator_team" || type === "team_internal";
