@@ -230,6 +230,16 @@ export async function sendMeetingEmailToAddresses(
       './meeting-invite-email.server'
     )
 
+    // Look up timezones for any recipients that are registered platform users.
+    const { data: recipProfiles } = await supabaseAdmin
+      .from('rp_profiles')
+      .select('email, timezone')
+      .in('email', cleaned)
+    const tzByEmail = new Map<string, string>()
+    for (const r of (recipProfiles ?? []) as any[]) {
+      if (r.email && r.timezone) tzByEmail.set((r.email as string).toLowerCase(), r.timezone)
+    }
+
     for (const email of cleaned) {
       try {
         await sendMeetingInviteViaResend({
@@ -238,6 +248,7 @@ export async function sendMeetingEmailToAddresses(
           recipientName: email.split('@')[0],
           organizerEmail,
           organizerName,
+          recipientTimezone: tzByEmail.get(email) ?? 'Asia/Kolkata',
         })
       } catch (err) {
         console.error(
@@ -247,6 +258,7 @@ export async function sendMeetingEmailToAddresses(
         )
       }
     }
+
   } catch (err) {
     console.error('[meeting-notify:addresses] failed', err)
   }
