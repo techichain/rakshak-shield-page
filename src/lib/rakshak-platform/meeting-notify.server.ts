@@ -333,8 +333,6 @@ export async function sendMeetingEmailToAddresses(
             unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
-            ical_uid: `rp-${meetingId}@rakshak.crashfreeindia.org`,
-            ical_content: icsContentExt,
           },
         })
         if (enqErr) {
