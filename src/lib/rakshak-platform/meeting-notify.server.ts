@@ -85,7 +85,8 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
           location: meeting.location ?? undefined,
           organizer_name: organizer ?? undefined,
           portal_url: portalUrl,
-          ical_content: icsContent,
+          gcal_link: gcalLink,
+          ics_url: icsUrl,
         })
         const html = await render(element)
         const plainText = await render(element, { plainText: true })
