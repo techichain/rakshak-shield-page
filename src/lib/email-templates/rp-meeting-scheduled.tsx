@@ -53,14 +53,26 @@ const Email = ({
             {location ? <Text style={cardRow}><strong>Location:</strong> {location}</Text> : null}
             {agenda ? <Text style={cardRow}><strong>Agenda:</strong><br />{agenda}</Text> : null}
           </Section>
-          {ical_content ? (
-            <Section style={{ textAlign: 'center', margin: '12px 0' }}>
-              <Button
-                href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ical_content)}`}
-                style={{ ...button, backgroundColor: '#059669' }}
-              >
-                📅 Add to Google Calendar / iCal
-              </Button>
+          {(gcal_link || ics_url) ? (
+            <Section style={{ textAlign: 'center', margin: '16px 0' }}>
+              <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: 'collapse' }}>
+                <tr>
+                  {gcal_link ? (
+                    <td style={{ textAlign: 'center', paddingRight: ics_url ? 6 : 0 }}>
+                      <Button href={gcal_link} style={{ ...button, backgroundColor: '#059669', padding: '10px 20px', fontSize: 13 }}>
+                        📅 Google Calendar
+                      </Button>
+                    </td>
+                  ) : null}
+                  {ics_url ? (
+                    <td style={{ textAlign: 'center', paddingLeft: gcal_link ? 6 : 0 }}>
+                      <Button href={ics_url} style={{ ...button, backgroundColor: '#0284C7', padding: '10px 20px', fontSize: 13 }}>
+                        📥 Download .ics
+                      </Button>
+                    </td>
+                  ) : null}
+                </tr>
+              </table>
             </Section>
           ) : null}
           <Section style={{ textAlign: 'center', margin: '28px 0' }}>
