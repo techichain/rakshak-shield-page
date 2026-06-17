@@ -29,10 +29,10 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
       .select('profile_id')
       .eq('meeting_id', meetingId)
     const attendeeIds = Array.from(
-      new Set([
-        meeting.created_by,
-        ...((attRows ?? []).map((r: any) => r.profile_id) as string[]),
-      ].filter(Boolean) as string[]),
+      new Set(
+        ((attRows ?? []).map((r: any) => r.profile_id) as string[])
+          .filter((id): id is string => Boolean(id) && id !== meeting.created_by)
+      ),
     )
     if (attendeeIds.length === 0) return
 
