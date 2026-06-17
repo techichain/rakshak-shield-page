@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_bulk_delete_permissions: {
+        Row: {
+          consumed_at: string | null
+          consumed_count: number | null
+          created_at: string
+          enabled: boolean
+          enabled_at: string | null
+          enabled_by: string | null
+          expires_at: string | null
+          id: string
+          max_rows: number
+          pattern: string
+          updated_at: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          consumed_count?: number | null
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          enabled_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_rows?: number
+          pattern: string
+          updated_at?: string
+        }
+        Update: {
+          consumed_at?: string | null
+          consumed_count?: number | null
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          enabled_by?: string | null
+          expires_at?: string | null
+          id?: string
+          max_rows?: number
+          pattern?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       application_file_requests: {
         Row: {
           application_id: string
@@ -2830,6 +2872,11 @@ export type Database = {
       }
     }
     Functions: {
+      admin_delete_gmail_users: { Args: { _confirm: string }; Returns: number }
+      admin_enable_gmail_bulk_delete: {
+        Args: { _max_rows: number; _ttl_minutes: number }
+        Returns: string
+      }
       application_file_request_by_token: {
         Args: { _token: string }
         Returns: {
