@@ -15,7 +15,8 @@ interface Props {
   location?: string
   organizer_name?: string
   portal_url?: string
-  ical_content?: string
+  gcal_link?: string
+  ics_url?: string
 }
 
 const Email = ({
@@ -29,7 +30,8 @@ const Email = ({
   location,
   organizer_name,
   portal_url = 'https://rakshak.crashfreeindia.org/rakshak-platform/meetings',
-  ical_content,
+  gcal_link,
+  ics_url,
 }: Props) => {
   return (
     <Html lang="en" dir="ltr">
