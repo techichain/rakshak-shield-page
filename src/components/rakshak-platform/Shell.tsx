@@ -175,6 +175,13 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
     };
   }, [isAdmin, isAuthority, isEvaluator, isFinance, isMentor, isTeam]);
 
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000); // update every minute
+    return () => clearInterval(id);
+  }, []);
+  const dateStr = now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
 
   return (
     <div className="rp-platform min-h-dvh">
@@ -270,6 +277,10 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-3">
+            <div className="hidden md:flex flex-col items-end leading-tight mr-1">
+              <span className="text-[11px] font-medium text-foreground/80">{timeStr}</span>
+              <span className="text-[10px] text-muted-foreground">{dateStr}</span>
+            </div>
             {isAdmin && (
               <div className="hidden lg:block w-72"><GlobalSearch /></div>
             )}

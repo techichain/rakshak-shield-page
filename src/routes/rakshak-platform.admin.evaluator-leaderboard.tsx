@@ -23,6 +23,17 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
   validateSearch: zodValidator(searchSchema),
   component: EvaluatorLeaderboard,
+  errorComponent: ({ error }) => (
+    <PlatformShell>
+      <Section>
+        <Eyebrow>Evaluator analytics</Eyebrow>
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
+          <p className="font-semibold text-red-700">Failed to load evaluator analytics</p>
+          <p className="mt-1 text-sm text-red-600">{error instanceof Error ? error.message : "Unknown error"}</p>
+        </div>
+      </Section>
+    </PlatformShell>
+  ),
 });
 
 type EvalRow = {
@@ -43,6 +54,7 @@ function EvaluatorLeaderboard() {
   const [rows, setRows] = useState<EvalRow[]>([]);
   const [profiles, setProfiles] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fromDate = search.from ? parseISO(search.from) : undefined;
   const toDate = search.to ? parseISO(search.to) : undefined;
@@ -53,21 +65,27 @@ function EvaluatorLeaderboard() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     (async () => {
-      const { data } = await supabase
-        .from("rp_evaluations")
-        .select("id, evaluator_id, submission_id, team_id, phase_number, total_score, status, submitted_at")
-        .eq("status", "submitted")
-        .order("submitted_at", { ascending: false })
-        .limit(2000);
-      const list = (data ?? []) as EvalRow[];
-      setRows(list);
-      const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
-      if (ids.length) {
-        const { data: profs } = await supabase
-          .from("rp_profiles").select("id, full_name, email").in("id", ids);
-        setProfiles(Object.fromEntries((profs ?? []).map((p) => [p.id, p])));
+      try {
+        const { data, error: dbErr } = await supabase
+          .from("rp_evaluations")
+          .select("id, evaluator_id, submission_id, team_id, phase_number, total_score, status, submitted_at")
+          .eq("status", "submitted")
+          .order("submitted_at", { ascending: false })
+          .limit(2000);
+        if (dbErr) throw new Error(dbErr.message);
+        const list = (data ?? []) as EvalRow[];
+        setRows(list);
+        const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
+        if (ids.length) {
+          const { data: profs, error: profErr } = await supabase
+            .from("rp_profiles").select("id, full_name, email").in("id", ids);
+          if (!profErr) setProfiles(Object.fromEntries((profs ?? []).map((p) => [p.id, p])));
+        }
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : "Failed to load evaluations");
+      } finally {
+        setBusy(false);
       }
-      setBusy(false);
     })();
   }, [loading, userId, isAdmin, navigate]);
 
@@ -125,6 +143,19 @@ function EvaluatorLeaderboard() {
   const hasActiveFilters = !!(search.from || search.to || search.phase);
 
   if (loading || busy) return <PlatformShell><Section><Loader2 className="animate-spin" /></Section></PlatformShell>;
+
+  if (fetchError) return (
+    <PlatformShell>
+      <Section>
+        <Eyebrow>Evaluator analytics</Eyebrow>
+        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
+          <p className="font-semibold text-red-700">Failed to load evaluator analytics</p>
+          <p className="mt-1 text-sm text-red-600">{fetchError}</p>
+          <p className="mt-3 text-xs text-red-500">This usually means the rp_evaluations table hasn't been seeded yet, or your role doesn't have read access. Check Supabase RLS policies.</p>
+        </div>
+      </Section>
+    </PlatformShell>
+  );
 
   return (
     <PlatformShell>
