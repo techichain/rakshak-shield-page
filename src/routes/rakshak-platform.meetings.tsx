@@ -176,6 +176,7 @@ function MeetingsPage() {
         },
       });
       setReschedFor(null);
+      toast.success("Meeting rescheduled — attendees notified");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
     } catch (e: any) {
       setReschedErr(e?.message ?? "Could not reschedule");
