@@ -210,124 +210,32 @@ export async function sendMeetingEmailToAddresses(
 
     const { data: organizerRow } = await supabaseAdmin
       .from('rp_profiles')
-      .select('full_name')
+      .select('full_name, email')
       .eq('id', meeting.created_by)
       .maybeSingle()
-    const organizer = organizerRow?.full_name ?? null
+    const organizerName = (organizerRow as any)?.full_name ?? 'Crashfree India'
+    const organizerEmail =
+      (organizerRow as any)?.email ?? `noreply@${FROM_DOMAIN}`
 
-    const React = await import('react')
-    const { render } = await import('@react-email/components')
-    const { TEMPLATES } = await import('@/lib/email-templates/registry')
-    const tpl = TEMPLATES['rp-meeting-scheduled']
-    if (!tpl) {
-      console.error('[meeting-notify:addresses] template missing')
-      return
-    }
-
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const startStr = new Date(meeting.scheduled_start as string).toLocaleString()
-    const endStr = new Date(meeting.scheduled_end as string).toLocaleString()
-    const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
-
-    const { buildGCalLink } = await import('./google-calendar.server')
-    const gcalLinkExt = buildGCalLink({
-      title: meeting.title,
-      agenda: meeting.agenda ?? '',
-      scheduledStart: meeting.scheduled_start as string,
-      scheduledEnd: meeting.scheduled_end as string,
-      meetingLink: meeting.meeting_link ?? undefined,
-      location: meeting.location ?? undefined,
-    })
-    const icsUrlExt = `${PORTAL_BASE}/api/meeting-ics/${meeting.id}`
+    const { sendMeetingInviteViaResend } = await import(
+      './meeting-invite-email.server'
+    )
 
     for (const email of cleaned) {
       try {
-        const element = React.createElement(tpl.component, {
-          recipient_name: email.split('@')[0],
-          title: meeting.title,
-          agenda: meeting.agenda ?? undefined,
-          scheduled_start: startStr,
-          scheduled_end: endStr,
-          timezone: tz,
-          meeting_link: meeting.meeting_link ?? undefined,
-          location: meeting.location ?? undefined,
-          organizer_name: organizer ?? undefined,
-          portal_url: portalUrl,
-          gcal_link: gcalLinkExt,
-          ics_url: icsUrlExt,
+        await sendMeetingInviteViaResend({
+          meetingId,
+          recipientEmail: email,
+          recipientName: email.split('@')[0],
+          organizerEmail,
+          organizerName,
         })
-        const html = await render(element)
-        const plainText = await render(element, { plainText: true })
-        const subject =
-          typeof tpl.subject === 'function'
-            ? tpl.subject({ title: meeting.title })
-            : tpl.subject
-        const messageId = crypto.randomUUID()
-
-        // Unsubscribe token (required by Lovable email API)
-        let unsubscribeToken: string | null = null
-        {
-          const { data: existing } = await supabaseAdmin
-            .from('email_unsubscribe_tokens')
-            .select('token, used_at')
-            .eq('email', email)
-            .maybeSingle()
-          if (existing && !existing.used_at) {
-            unsubscribeToken = existing.token as string
-          } else {
-            const bytes = new Uint8Array(32)
-            crypto.getRandomValues(bytes)
-            const token = Array.from(bytes)
-              .map((b) => b.toString(16).padStart(2, '0'))
-              .join('')
-            await supabaseAdmin
-              .from('email_unsubscribe_tokens')
-              .upsert(
-                { token, email },
-                { onConflict: 'email', ignoreDuplicates: true },
-              )
-            const { data: stored } = await supabaseAdmin
-              .from('email_unsubscribe_tokens')
-              .select('token')
-              .eq('email', email)
-              .maybeSingle()
-            unsubscribeToken = (stored?.token as string) || token
-          }
-        }
-
-        await supabaseAdmin.from('email_send_log').insert({
-          message_id: messageId,
-          template_name: 'rp-meeting-scheduled',
-          recipient_email: email,
-          status: 'pending',
-          metadata: { meeting_id: meetingId, external_invite: true },
-        })
-
-        const { error: enqErr } = await supabaseAdmin.rpc('enqueue_email', {
-          queue_name: 'transactional_emails',
-          payload: {
-            message_id: messageId,
-            to: email,
-            from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-            sender_domain: SENDER_DOMAIN,
-            subject,
-            html,
-            text: plainText,
-            purpose: 'transactional',
-            label: 'rp-meeting-scheduled',
-            unsubscribe_token: unsubscribeToken,
-            idempotency_key: messageId,
-            queued_at: new Date().toISOString(),
-          },
-        })
-        if (enqErr) {
-          await supabaseAdmin
-            .from('email_send_log')
-            .update({ status: 'failed', error_message: enqErr.message })
-            .eq('message_id', messageId)
-        }
       } catch (err) {
-        console.error('[meeting-notify:addresses] enqueue failed for', email, err)
+        console.error(
+          '[meeting-notify:addresses] invite failed for',
+          email,
+          err,
+        )
       }
     }
   } catch (err) {
