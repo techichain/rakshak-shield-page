@@ -269,6 +269,7 @@ export async function sendMeetingEmailToAddresses(
           location: meeting.location ?? undefined,
           organizer_name: organizer ?? undefined,
           portal_url: portalUrl,
+          ical_content: icsContentExt,
         })
         const html = await render(element)
         const plainText = await render(element, { plainText: true })
