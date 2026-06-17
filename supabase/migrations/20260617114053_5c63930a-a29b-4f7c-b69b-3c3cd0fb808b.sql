@@ -1,0 +1,1 @@
+ALTER TABLE public.rp_profiles ADD COLUMN IF NOT EXISTS timezone text;
