@@ -305,6 +305,7 @@ export function buildGCalLink(opts: {
   meetingLink?: string;
   location?: string;
 }): string {
+  // Google Calendar expects compact UTC: YYYYMMDDTHHmmSSZ
   const fmt = (iso: string) =>
     new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
@@ -313,14 +314,15 @@ export function buildGCalLink(opts: {
     opts.meetingLink ? `Join: ${opts.meetingLink}` : '',
   ].filter(Boolean).join('\n\n');
 
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: opts.title,
-    dates: `${fmt(opts.scheduledStart)}/${fmt(opts.scheduledEnd)}`,
-    details,
-    ...(opts.location ? { location: opts.location } : {}),
-    ...(opts.meetingLink ? { location: opts.meetingLink } : {}),
-  });
+  // Use the physical location if provided, otherwise fall back to the meet link
+  const locationVal = opts.location || opts.meetingLink || '';
+
+  const params = new URLSearchParams();
+  params.set('action', 'TEMPLATE');
+  params.set('text', opts.title);
+  params.set('dates', `${fmt(opts.scheduledStart)}/${fmt(opts.scheduledEnd)}`);
+  if (details) params.set('details', details);
+  if (locationVal) params.set('location', locationVal);
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
