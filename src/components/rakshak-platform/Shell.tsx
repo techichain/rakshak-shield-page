@@ -181,8 +181,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
     const id = setInterval(() => setNow(new Date()), 1_000);
     return () => clearInterval(id);
   }, []);
-  const dateStr = now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-  const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+  const tz = "Asia/Kolkata";
+  const dateStr = now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: tz });
+  const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: tz });
 
   return (
     <div className="rp-platform min-h-dvh">
@@ -278,11 +279,14 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <div className="hidden lg:flex items-center gap-2 shrink-0">
-              <div className="h-5 w-px bg-slate-200" aria-hidden />
-              <div className="flex flex-col items-end leading-none rounded-lg bg-slate-100/80 border border-slate-200/60 px-2.5 py-1.5 shadow-sm">
-                <span className="text-[12px] font-semibold text-slate-700 tabular-nums">{timeStr}</span>
-                <span className="text-[10px] text-slate-500 mt-0.5">{dateStr}</span>
+            <div className="hidden sm:flex items-center gap-2 shrink-0" title={`Timezone: India Standard Time (${tz})`}>
+              <div className="hidden md:block h-5 w-px bg-slate-200 dark:bg-slate-700" aria-hidden />
+              <div className="flex items-center gap-1.5 leading-none rounded-lg bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 shadow-sm">
+                <div className="flex flex-col items-end">
+                  <span className="text-[12px] font-semibold text-slate-800 dark:text-slate-100 tabular-nums">{timeStr}</span>
+                  <span className="hidden md:block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{dateStr}</span>
+                </div>
+                <span className="text-[9px] font-semibold tracking-wide text-brand bg-brand/10 rounded px-1 py-0.5">IST</span>
               </div>
             </div>
             {isAdmin && (
