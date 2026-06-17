@@ -65,21 +65,27 @@ function EvaluatorLeaderboard() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     (async () => {
-      const { data } = await supabase
-        .from("rp_evaluations")
-        .select("id, evaluator_id, submission_id, team_id, phase_number, total_score, status, submitted_at")
-        .eq("status", "submitted")
-        .order("submitted_at", { ascending: false })
-        .limit(2000);
-      const list = (data ?? []) as EvalRow[];
-      setRows(list);
-      const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
-      if (ids.length) {
-        const { data: profs } = await supabase
-          .from("rp_profiles").select("id, full_name, email").in("id", ids);
-        setProfiles(Object.fromEntries((profs ?? []).map((p) => [p.id, p])));
+      try {
+        const { data, error: dbErr } = await supabase
+          .from("rp_evaluations")
+          .select("id, evaluator_id, submission_id, team_id, phase_number, total_score, status, submitted_at")
+          .eq("status", "submitted")
+          .order("submitted_at", { ascending: false })
+          .limit(2000);
+        if (dbErr) throw new Error(dbErr.message);
+        const list = (data ?? []) as EvalRow[];
+        setRows(list);
+        const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
+        if (ids.length) {
+          const { data: profs, error: profErr } = await supabase
+            .from("rp_profiles").select("id, full_name, email").in("id", ids);
+          if (!profErr) setProfiles(Object.fromEntries((profs ?? []).map((p) => [p.id, p])));
+        }
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : "Failed to load evaluations");
+      } finally {
+        setBusy(false);
       }
-      setBusy(false);
     })();
   }, [loading, userId, isAdmin, navigate]);
 
