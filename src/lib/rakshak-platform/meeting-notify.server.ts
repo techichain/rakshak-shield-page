@@ -70,7 +70,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
       meetingLink: meeting.meeting_link ?? undefined,
       location: meeting.location ?? undefined,
     })
-    const icsUrl = `${PORTAL_BASE}/rakshak-platform/meetings/ics/${meeting.id}`
+    const icsUrl = `${PORTAL_BASE}/api/meeting-ics/${meeting.id}`
 
     for (const p of people as any[]) {
       try {
@@ -238,7 +238,7 @@ export async function sendMeetingEmailToAddresses(
       meetingLink: meeting.meeting_link ?? undefined,
       location: meeting.location ?? undefined,
     })
-    const icsUrlExt = `${PORTAL_BASE}/rakshak-platform/meetings/ics/${meeting.id}`
+    const icsUrlExt = `${PORTAL_BASE}/api/meeting-ics/${meeting.id}`
 
     for (const email of cleaned) {
       try {
