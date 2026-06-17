@@ -101,10 +101,14 @@ export const createMeeting = createServerFn({ method: "POST" })
 
     // Fire-and-forget confirmation emails (best effort).
     try {
-      const { sendMeetingScheduledEmails, sendMeetingEmailToAddresses } = await import("./meeting-notify.server");
-      await sendMeetingScheduledEmails(row.id);
-      if (rawEmailsToSend.length) {
-        await sendMeetingEmailToAddresses(row.id, rawEmailsToSend);
+      const { sendMeetingEmailToAddresses } = await import("./meeting-notify.server");
+      // Send invite to ALL extra_emails directly — this covers both
+      // external (no profile) and internal (has profile) invitees.
+      // We do NOT call sendMeetingScheduledEmails here because that
+      // function includes the creator in the recipient list, and the
+      // creator doesn't need an invite to their own meeting.
+      if (normalizedEmails.length) {
+        await sendMeetingEmailToAddresses(row.id, normalizedEmails);
       }
     } catch (err) {
       console.error("[createMeeting] notify failed", err);
