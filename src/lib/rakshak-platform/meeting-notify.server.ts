@@ -72,6 +72,16 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
 
     for (const p of people as any[]) {
       try {
+        const tz = (p.timezone as string | null) || 'Asia/Kolkata'
+        const startStr = new Date(meeting.scheduled_start as string).toLocaleString('en-IN', {
+          timeZone: tz,
+          dateStyle: 'full',
+          timeStyle: 'short',
+        })
+        const endStr = new Date(meeting.scheduled_end as string).toLocaleString('en-IN', {
+          timeZone: tz,
+          timeStyle: 'short',
+        })
         const element = React.createElement(tpl.component, {
           recipient_name: p.full_name ?? (p.email as string).split('@')[0],
           title: meeting.title,
@@ -86,6 +96,7 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
           gcal_link: gcalLink,
           ics_url: icsUrl,
         })
+
         const html = await render(element)
         const plainText = await render(element, { plainText: true })
         const subject =
