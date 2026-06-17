@@ -294,6 +294,38 @@ export function buildICSInvite(opts: {
 }
 
 /**
+ * Builds a Google Calendar "Add to Calendar" deep link.
+ * Works in any email client — no auth required, opens google.com/calendar in browser.
+ */
+export function buildGCalLink(opts: {
+  title: string;
+  agenda: string;
+  scheduledStart: string;
+  scheduledEnd: string;
+  meetingLink?: string;
+  location?: string;
+}): string {
+  const fmt = (iso: string) =>
+    new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+  const details = [
+    opts.agenda,
+    opts.meetingLink ? `Join: ${opts.meetingLink}` : '',
+  ].filter(Boolean).join('\n\n');
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: opts.title,
+    dates: `${fmt(opts.scheduledStart)}/${fmt(opts.scheduledEnd)}`,
+    details,
+    ...(opts.location ? { location: opts.location } : {}),
+    ...(opts.meetingLink ? { location: opts.meetingLink } : {}),
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+/**
  * When a user RSVPs in the portal, update their Google Calendar event RSVP status too.
  */
 export async function syncRsvpToGoogleCalendar(opts: {

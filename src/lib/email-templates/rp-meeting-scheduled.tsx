@@ -15,7 +15,8 @@ interface Props {
   location?: string
   organizer_name?: string
   portal_url?: string
-  ical_content?: string
+  gcal_link?: string
+  ics_url?: string
 }
 
 const Email = ({
@@ -29,7 +30,8 @@ const Email = ({
   location,
   organizer_name,
   portal_url = 'https://rakshak.crashfreeindia.org/rakshak-platform/meetings',
-  ical_content,
+  gcal_link,
+  ics_url,
 }: Props) => {
   return (
     <Html lang="en" dir="ltr">
@@ -51,14 +53,26 @@ const Email = ({
             {location ? <Text style={cardRow}><strong>Location:</strong> {location}</Text> : null}
             {agenda ? <Text style={cardRow}><strong>Agenda:</strong><br />{agenda}</Text> : null}
           </Section>
-          {ical_content ? (
-            <Section style={{ textAlign: 'center', margin: '12px 0' }}>
-              <Button
-                href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ical_content)}`}
-                style={{ ...button, backgroundColor: '#059669' }}
-              >
-                📅 Add to Google Calendar / iCal
-              </Button>
+          {(gcal_link || ics_url) ? (
+            <Section style={{ textAlign: 'center', margin: '16px 0' }}>
+              <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: 'collapse' }}>
+                <tr>
+                  {gcal_link ? (
+                    <td style={{ textAlign: 'center', paddingRight: ics_url ? 6 : 0 }}>
+                      <Button href={gcal_link} style={{ ...button, backgroundColor: '#059669', padding: '10px 20px', fontSize: 13 }}>
+                        📅 Google Calendar
+                      </Button>
+                    </td>
+                  ) : null}
+                  {ics_url ? (
+                    <td style={{ textAlign: 'center', paddingLeft: gcal_link ? 6 : 0 }}>
+                      <Button href={ics_url} style={{ ...button, backgroundColor: '#0284C7', padding: '10px 20px', fontSize: 13 }}>
+                        📥 Download .ics
+                      </Button>
+                    </td>
+                  ) : null}
+                </tr>
+              </table>
             </Section>
           ) : null}
           <Section style={{ textAlign: 'center', margin: '28px 0' }}>
@@ -90,6 +104,8 @@ export const template = {
     timezone: 'Asia/Kolkata',
     meeting_link: 'https://meet.jit.si/rakshak-demo',
     organizer_name: 'Muskan',
+    gcal_link: 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Phase+2+review&dates=20260618T120000Z%2F20260618T130000Z&details=Walk+through+field+data&location=https%3A%2F%2Fmeet.jit.si%2Frakshak-demo',
+    ics_url: 'https://rakshak.crashfreeindia.org/rakshak-platform/meetings/ics/demo-meeting-id',
   },
 } satisfies TemplateEntry
 
