@@ -178,8 +178,9 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
   try {
     const { pushMeetingToAttendeeCalendars } = await import('./google-calendar.server')
     await pushMeetingToAttendeeCalendars(meetingId)
+    console.log('[meeting-notify] gcal push attempted for', meetingId)
   } catch (err) {
-    console.error('[meeting-notify] gcal push failed', err)
+    console.error('[meeting-notify] gcal push failed (non-fatal):', err)
   }
 }
 
