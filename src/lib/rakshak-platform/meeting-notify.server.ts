@@ -158,8 +158,6 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
             unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
-            ical_uid: `rp-${meetingId}@rakshak.crashfreeindia.org`,
-            ical_content: icsContent,
           },
         })
         if (enqErr) {
