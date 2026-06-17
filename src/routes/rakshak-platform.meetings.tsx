@@ -10,6 +10,7 @@ import {
   rsvpMeeting,
   listMyMeetings,
   rescheduleMeeting,
+  notifyMeetingConfirmed,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ function MeetingsPage() {
   const cancel = useServerFn(cancelMeeting);
   const rsvp = useServerFn(rsvpMeeting);
   const reschedule = useServerFn(rescheduleMeeting);
+  const notify = useServerFn(notifyMeetingConfirmed);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
 
@@ -129,11 +131,14 @@ function MeetingsPage() {
       setRsvpState((s) => ({ ...s, [meeting_id]: r }));
       toast.success(
         r === "going"
-          ? "✅ Marked as Going"
+          ? "✅ Marked as Going — attendees notified"
           : r === "maybe"
           ? "🤔 Marked as Maybe"
           : "❌ Marked as Can't make it",
       );
+      if (r === "going") {
+        notify({ data: { meeting_id } }).catch(() => {});
+      }
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
     } catch (e) {
       toast.error(formatErr(e));
@@ -369,11 +374,22 @@ function MeetingsPage() {
                   </div>
                   {!cancelled && view === "upcoming" && (
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                      <button onClick={() => handleRsvp(m.id, "going")} className={rsvpBtn(myRsvp === "going")}><Check className="h-3 w-3" /> Going</button>
-                      <button onClick={() => handleRsvp(m.id, "maybe")} className={rsvpBtn(myRsvp === "maybe")}><HelpCircle className="h-3 w-3" /> Maybe</button>
-                      <button onClick={() => handleRsvp(m.id, "not_going")} className={rsvpBtn(myRsvp === "not_going")}><X className="h-3 w-3" /> Can't make it</button>
-                      <button onClick={() => { setReschedErr(null); setReschedFor(m); }} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><CalendarClock className="h-3 w-3" /> Reschedule</button>
-                      <button onClick={() => handleCancel(m.id)} className="ml-auto text-muted-foreground hover:text-red-600">Cancel meeting</button>
+                      {(myRsvp === null || myRsvp === "pending") ? (
+                        <button
+                          onClick={() => handleRsvp(m.id, "going")}
+                          className="inline-flex items-center gap-1 rounded-full border border-brand bg-brand text-brand-foreground px-4 py-1.5 text-xs font-medium hover:bg-brand/90 transition-colors"
+                        >
+                          <Check className="h-3 w-3" /> Going
+                        </button>
+                      ) : (
+                        <>
+                          <button onClick={() => handleRsvp(m.id, "going")} className={rsvpBtn(myRsvp === "going")}><Check className="h-3 w-3" /> Going</button>
+                          <button onClick={() => handleRsvp(m.id, "maybe")} className={rsvpBtn(myRsvp === "maybe")}><HelpCircle className="h-3 w-3" /> Maybe</button>
+                          <button onClick={() => handleRsvp(m.id, "not_going")} className={rsvpBtn(myRsvp === "not_going")}><X className="h-3 w-3" /> Can't make it</button>
+                          <button onClick={() => { setReschedErr(null); setReschedFor(m); }} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><CalendarClock className="h-3 w-3" /> Reschedule</button>
+                          <button onClick={() => handleCancel(m.id)} className="ml-auto text-muted-foreground hover:text-red-600">Cancel meeting</button>
+                        </>
+                      )}
                     </div>
                   )}
                 </article>
