@@ -51,6 +51,16 @@ const Email = ({
             {location ? <Text style={cardRow}><strong>Location:</strong> {location}</Text> : null}
             {agenda ? <Text style={cardRow}><strong>Agenda:</strong><br />{agenda}</Text> : null}
           </Section>
+          {ical_content ? (
+            <Section style={{ textAlign: 'center', margin: '12px 0' }}>
+              <Button
+                href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ical_content)}`}
+                style={{ ...button, backgroundColor: '#059669' }}
+              >
+                📅 Add to Google Calendar / iCal
+              </Button>
+            </Section>
+          ) : null}
           <Section style={{ textAlign: 'center', margin: '28px 0' }}>
             <Button href={portal_url} style={button}>Open meeting</Button>
           </Section>
