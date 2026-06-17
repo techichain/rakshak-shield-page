@@ -69,7 +69,6 @@ function MeetingsPage() {
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
   const [extraEmailsText, setExtraEmailsText] = useState("");
 
-
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
   }, []);
