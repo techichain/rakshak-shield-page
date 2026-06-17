@@ -177,7 +177,8 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
 
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000); // update every minute
+    // tick every second so time is always accurate on first render
+    const id = setInterval(() => setNow(new Date()), 1_000);
     return () => clearInterval(id);
   }, []);
   const dateStr = now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
@@ -277,9 +278,12 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex flex-col items-end leading-tight mr-1">
-              <span className="text-[11px] font-medium text-foreground/80">{timeStr}</span>
-              <span className="text-[10px] text-muted-foreground">{dateStr}</span>
+            <div className="hidden lg:flex items-center gap-2 shrink-0">
+              <div className="h-5 w-px bg-slate-200" aria-hidden />
+              <div className="flex flex-col items-end leading-none rounded-lg bg-slate-100/80 border border-slate-200/60 px-2.5 py-1.5 shadow-sm">
+                <span className="text-[12px] font-semibold text-slate-700 tabular-nums">{timeStr}</span>
+                <span className="text-[10px] text-slate-500 mt-0.5">{dateStr}</span>
+              </div>
             </div>
             {isAdmin && (
               <div className="hidden lg:block w-72"><GlobalSearch /></div>
