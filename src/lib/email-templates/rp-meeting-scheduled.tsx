@@ -54,25 +54,19 @@ const Email = ({
             {agenda ? <Text style={cardRow}><strong>Agenda:</strong><br />{agenda}</Text> : null}
           </Section>
           {(gcal_link || ics_url) ? (
-            <Section style={{ textAlign: 'center', margin: '16px 0' }}>
-              <table width="100%" cellPadding={0} cellSpacing={0} style={{ borderCollapse: 'collapse' }}>
-                <tr>
-                  {gcal_link ? (
-                    <td style={{ textAlign: 'center', paddingRight: ics_url ? 6 : 0 }}>
-                      <Button href={gcal_link} style={{ ...button, backgroundColor: '#059669', padding: '10px 20px', fontSize: 13 }}>
-                        📅 Google Calendar
-                      </Button>
-                    </td>
-                  ) : null}
-                  {ics_url ? (
-                    <td style={{ textAlign: 'center', paddingLeft: gcal_link ? 6 : 0 }}>
-                      <Button href={ics_url} style={{ ...button, backgroundColor: '#0284C7', padding: '10px 20px', fontSize: 13 }}>
-                        📥 Download .ics
-                      </Button>
-                    </td>
-                  ) : null}
-                </tr>
-              </table>
+            <Section style={{ textAlign: 'center', margin: '20px 0' }}>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: [
+                    gcal_link
+                      ? `<a href="${gcal_link}" target="_blank" rel="noopener noreferrer" style="background-color:#059669;color:#ffffff;border-radius:8px;padding:11px 22px;font-size:13px;font-weight:600;text-decoration:none;display:inline-block;margin:0 4px;font-family:Inter,Arial,sans-serif;">&#x1F4C5; Google Calendar</a>`
+                      : '',
+                    ics_url
+                      ? `<a href="${ics_url}" target="_blank" rel="noopener noreferrer" style="background-color:#0284C7;color:#ffffff;border-radius:8px;padding:11px 22px;font-size:13px;font-weight:600;text-decoration:none;display:inline-block;margin:0 4px;font-family:Inter,Arial,sans-serif;">&#x1F4E5; Download .ics</a>`
+                      : '',
+                  ].join('')
+                }}
+              />
             </Section>
           ) : null}
           <Section style={{ textAlign: 'center', margin: '28px 0' }}>
