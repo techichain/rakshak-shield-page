@@ -60,6 +60,7 @@ function MeetingsPage() {
   const cancel = useServerFn(cancelMeeting);
   const rsvp = useServerFn(rsvpMeeting);
   const reschedule = useServerFn(rescheduleMeeting);
+  const notify = useServerFn(notifyMeetingConfirmed);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
 
