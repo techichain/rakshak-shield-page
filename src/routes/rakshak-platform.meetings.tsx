@@ -335,6 +335,16 @@ function MeetingsPage() {
             )}
             {visible.map((m: any) => {
               const cancelled = m.status === "cancelled";
+              const myRsvp =
+                rsvpState[m.id] ??
+                m.rp_meeting_attendees?.find((a: any) => a.profile_id === myId)?.rsvp ??
+                null;
+              const rsvpBtn = (active: boolean) =>
+                `inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs transition-colors ${
+                  active
+                    ? "border-brand bg-brand text-brand-foreground"
+                    : "border-border hover:border-brand/40"
+                }`;
               return (
                 <article key={m.id} className={`rounded-2xl border p-5 ${cancelled ? "border-border bg-muted/30 opacity-60" : "border-border bg-background"}`}>
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -359,9 +369,9 @@ function MeetingsPage() {
                   </div>
                   {!cancelled && view === "upcoming" && (
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                      <button onClick={() => handleRsvp(m.id, "going")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><Check className="h-3 w-3" /> Going</button>
-                      <button onClick={() => handleRsvp(m.id, "maybe")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><HelpCircle className="h-3 w-3" /> Maybe</button>
-                      <button onClick={() => handleRsvp(m.id, "not_going")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><X className="h-3 w-3" /> Can't make it</button>
+                      <button onClick={() => handleRsvp(m.id, "going")} className={rsvpBtn(myRsvp === "going")}><Check className="h-3 w-3" /> Going</button>
+                      <button onClick={() => handleRsvp(m.id, "maybe")} className={rsvpBtn(myRsvp === "maybe")}><HelpCircle className="h-3 w-3" /> Maybe</button>
+                      <button onClick={() => handleRsvp(m.id, "not_going")} className={rsvpBtn(myRsvp === "not_going")}><X className="h-3 w-3" /> Can't make it</button>
                       <button onClick={() => { setReschedErr(null); setReschedFor(m); }} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 hover:border-brand/40"><CalendarClock className="h-3 w-3" /> Reschedule</button>
                       <button onClick={() => handleCancel(m.id)} className="ml-auto text-muted-foreground hover:text-red-600">Cancel meeting</button>
                     </div>
