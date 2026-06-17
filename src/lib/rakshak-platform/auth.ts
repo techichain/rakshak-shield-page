@@ -56,11 +56,26 @@ export function useRPAuth(): RPAuthState {
       try {
         const [rolesRes, profileRes] = await Promise.all([
           supabase.from("rp_user_roles").select("role").eq("user_id", userId),
-          supabase.from("rp_profiles").select("full_name").eq("id", userId).maybeSingle(),
+          supabase.from("rp_profiles").select("full_name, timezone").eq("id", userId).maybeSingle(),
         ]);
         if (rolesRes.error) console.error("[rp-auth] roles query failed", rolesRes.error);
         if (profileRes.error) console.error("[rp-auth] profile query failed", profileRes.error);
         const roles = (rolesRes.data ?? []).map((r) => r.role as RPRole);
+
+        // Detect & persist browser timezone if missing or changed.
+        try {
+          const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const storedTz = (profileRes.data as any)?.timezone ?? null;
+          if (browserTz && browserTz !== storedTz) {
+            await supabase
+              .from("rp_profiles")
+              .update({ timezone: browserTz })
+              .eq("id", userId);
+          }
+        } catch (err) {
+          console.warn("[rp-auth] timezone sync failed", err);
+        }
+
         if (cancelled || currentRequest !== requestId) return;
         setState({
           loading: false,
@@ -80,6 +95,7 @@ export function useRPAuth(): RPAuthState {
         if (!cancelled && currentRequest === requestId) setState({ ...empty, loading: false, userId, email });
       }
     };
+
 
     const timeout = window.setTimeout(() => {
       if (!cancelled) setState((current) => ({ ...current, loading: false }));
