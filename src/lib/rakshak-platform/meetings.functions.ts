@@ -240,6 +240,18 @@ export const rsvpMeeting = createServerFn({ method: "POST" })
         responded_at: new Date().toISOString(),
       }, { onConflict: "meeting_id,profile_id" });
     if (error) throw error;
+
+    try {
+      const { syncRsvpToGoogleCalendar } = await import('./google-calendar.server');
+      await syncRsvpToGoogleCalendar({
+        meetingId: data.meeting_id,
+        userId: context.userId,
+        rsvp: data.rsvp,
+      });
+    } catch (err) {
+      console.error('[rsvpMeeting] gcal sync failed', err);
+    }
+
     return { ok: true };
   });
 

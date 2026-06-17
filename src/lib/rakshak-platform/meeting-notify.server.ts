@@ -60,6 +60,25 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
     const endStr = new Date(meeting.scheduled_end as string).toLocaleString()
     const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
 
+    // Build the .ics invite once for all attendees
+    const { buildICSInvite } = await import('./google-calendar.server')
+    const organizerProfile = people.find((p: any) => p.id === meeting.created_by)
+    const organizerEmail = organizerProfile?.email ?? `noreply@${FROM_DOMAIN}`
+    const organizerName = organizerProfile?.full_name ?? 'Rakshak Platform'
+    const attendeeEmailList = (people as any[]).map((p) => p.email as string).filter(Boolean)
+    const icsContent = buildICSInvite({
+      meetingId: meeting.id,
+      title: meeting.title,
+      agenda: meeting.agenda ?? '',
+      scheduledStart: meeting.scheduled_start as string,
+      scheduledEnd: meeting.scheduled_end as string,
+      meetingLink: meeting.meeting_link ?? undefined,
+      location: meeting.location ?? undefined,
+      organizerEmail,
+      organizerName,
+      attendeeEmails: attendeeEmailList,
+    })
+
     for (const p of people as any[]) {
       try {
         const element = React.createElement(tpl.component, {
@@ -138,6 +157,8 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
             unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
+            ical_uid: `rp-${meetingId}@rakshak.crashfreeindia.org`,
+            ical_content: icsContent,
           },
         })
         if (enqErr) {
@@ -213,6 +234,27 @@ export async function sendMeetingEmailToAddresses(
     const startStr = new Date(meeting.scheduled_start as string).toLocaleString()
     const endStr = new Date(meeting.scheduled_end as string).toLocaleString()
     const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
+
+    const { buildICSInvite } = await import('./google-calendar.server')
+    const { data: organizerRow2 } = await supabaseAdmin
+      .from('rp_profiles')
+      .select('full_name, email')
+      .eq('id', meeting.created_by)
+      .maybeSingle()
+    const orgEmail = (organizerRow2 as any)?.email ?? `noreply@${FROM_DOMAIN}`
+    const orgName = (organizerRow2 as any)?.full_name ?? 'Rakshak Platform'
+    const icsContentExt = buildICSInvite({
+      meetingId: meeting.id,
+      title: meeting.title,
+      agenda: meeting.agenda ?? '',
+      scheduledStart: meeting.scheduled_start as string,
+      scheduledEnd: meeting.scheduled_end as string,
+      meetingLink: meeting.meeting_link ?? undefined,
+      location: meeting.location ?? undefined,
+      organizerEmail: orgEmail,
+      organizerName: orgName,
+      attendeeEmails: cleaned,
+    })
 
     for (const email of cleaned) {
       try {
@@ -290,6 +332,8 @@ export async function sendMeetingEmailToAddresses(
             unsubscribe_token: unsubscribeToken,
             idempotency_key: messageId,
             queued_at: new Date().toISOString(),
+            ical_uid: `rp-${meetingId}@rakshak.crashfreeindia.org`,
+            ical_content: icsContentExt,
           },
         })
         if (enqErr) {
