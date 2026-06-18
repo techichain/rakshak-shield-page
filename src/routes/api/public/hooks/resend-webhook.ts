@@ -75,7 +75,7 @@ export const Route = createFileRoute("/api/public/hooks/resend-webhook")({
               await supabaseAdmin
                 .from("email_send_log")
                 .update({ status: newStatus })
-                .eq("message_id", rows[0].message_id);
+                .eq("message_id", rows[0].message_id as string);
               updated = true;
             }
           }

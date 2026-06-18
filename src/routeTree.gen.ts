@@ -111,6 +111,7 @@ import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lova
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
+import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
@@ -694,6 +695,12 @@ const ApiPublicHooksRpMeetingSelftestRoute =
     path: '/api/public/hooks/rp-meeting-selftest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksResendWebhookRoute =
+  ApiPublicHooksResendWebhookRouteImport.update({
+    id: '/api/public/hooks/resend-webhook',
+    path: '/api/public/hooks/resend-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMeetingRemindersRoute =
   ApiPublicHooksMeetingRemindersRouteImport.update({
     id: '/api/public/hooks/meeting-reminders',
@@ -809,6 +816,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
+  '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -905,6 +913,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
+  '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -1013,6 +1022,7 @@ export interface FileRoutesById {
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
+  '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -1122,6 +1132,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
+    | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -1218,6 +1229,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
+    | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -1325,6 +1337,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
+    | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
@@ -1351,6 +1364,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
+  ApiPublicHooksResendWebhookRoute: typeof ApiPublicHooksResendWebhookRoute
   ApiPublicHooksRpMeetingSelftestRoute: typeof ApiPublicHooksRpMeetingSelftestRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -2073,6 +2087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRpMeetingSelftestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/resend-webhook': {
+      id: '/api/public/hooks/resend-webhook'
+      path: '/api/public/hooks/resend-webhook'
+      fullPath: '/api/public/hooks/resend-webhook'
+      preLoaderRoute: typeof ApiPublicHooksResendWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/meeting-reminders': {
       id: '/api/public/hooks/meeting-reminders'
       path: '/api/public/hooks/meeting-reminders'
@@ -2479,6 +2500,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
+  ApiPublicHooksResendWebhookRoute: ApiPublicHooksResendWebhookRoute,
   ApiPublicHooksRpMeetingSelftestRoute: ApiPublicHooksRpMeetingSelftestRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
