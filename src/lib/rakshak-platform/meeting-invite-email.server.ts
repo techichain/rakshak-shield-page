@@ -237,7 +237,7 @@ export async function sendMeetingInviteViaResend(opts: {
   try {
     const { error } = await resend.emails.send({
       from: `Rakshak Platform <noreply@${FROM_DOMAIN}>`,
-      reply_to: opts.organizerEmail,
+      replyTo: opts.organizerEmail,
       to: opts.recipientEmail,
       subject: `Meeting invite: ${meeting.title}`,
       html,
