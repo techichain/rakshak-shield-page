@@ -156,7 +156,7 @@ export async function sendMeetingInviteViaResend(opts: {
 }): Promise<void> {
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) {
-    console.error('[meeting-invite] RESEND_API_KEY not set — falling back to queue')
+    console.error('[meeting-invite] RESEND_API_KEY not set in Lovable Project Settings → Secrets. Meeting invite NOT sent to', opts.recipientEmail)
     return
   }
 
@@ -236,20 +236,26 @@ export async function sendMeetingInviteViaResend(opts: {
 
   try {
     const { error } = await resend.emails.send({
-      from: `${opts.organizerName || 'Crashfree India'} <noreply@${SENDER_DOMAIN}>`,
+      from: `Rakshak Platform <noreply@${FROM_DOMAIN}>`,
+      replyTo: opts.organizerEmail,
       to: opts.recipientEmail,
       subject: `Meeting invite: ${meeting.title}`,
       html,
       attachments: [
         {
           filename: `${meeting.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.ics`,
-          content: Buffer.from(icsContent).toString('base64'),
+          content: btoa(unescape(encodeURIComponent(icsContent))),
         },
       ],
     })
 
     if (error) {
-      console.error('[meeting-invite] Resend error', error)
+      console.error('[meeting-invite] Resend send failed:', JSON.stringify(error))
+      await supabaseAdmin
+        .from('email_send_log')
+        .update({ status: 'failed', error_message: JSON.stringify(error) })
+        .eq('metadata->meeting_id', opts.meetingId)
+        .eq('recipient_email', opts.recipientEmail)
       return
     }
 
