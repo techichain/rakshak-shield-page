@@ -59,6 +59,20 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        // Security: only admins may trigger transactional sends. Otherwise any
+        // authenticated user could send phishing emails from the platform
+        // domain with attacker-controlled URLs (e.g. mentor-file-request).
+        const { data: roles } = await supabase
+          .from('rp_user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+        const isAdmin = (roles ?? []).some((r: any) =>
+          ['cfi_admin', 'super_admin'].includes(r.role))
+        if (!isAdmin) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
+        }
+
+
         // Parse request body
         let templateName: string
         let recipientEmail: string

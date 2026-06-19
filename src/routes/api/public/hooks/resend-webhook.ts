@@ -1,19 +1,78 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createHmac, timingSafeEqual } from "crypto";
 
 // Resend delivery webhook — receives email events and updates email_send_log.
 // Configure in Resend dashboard → Webhooks → add URL:
 //   https://rakshak.crashfreeindia.org/api/public/hooks/resend-webhook
-// Events: email.sent, email.delivered, email.delivery_delayed,
-//         email.bounced, email.complained, email.opened, email.clicked
+// Set RESEND_WEBHOOK_SECRET to the signing secret shown by Resend.
+//
+// Security: Resend uses Svix-style HMAC-SHA256 signatures. We verify them
+// before processing any payload — otherwise anyone could POST fake
+// `email.bounced` events and permanently suppress arbitrary addresses.
+
+function verifySvixSignature(opts: {
+  secret: string;
+  svixId: string;
+  svixTimestamp: string;
+  svixSignature: string;
+  body: string;
+}): boolean {
+  // Reject replay attempts >5 minutes old.
+  const ts = Number(opts.svixTimestamp);
+  if (!Number.isFinite(ts)) return false;
+  if (Math.abs(Date.now() / 1000 - ts) > 5 * 60) return false;
+
+  // Svix signing secret is "whsec_<base64>"; strip prefix and decode.
+  const rawSecret = opts.secret.startsWith("whsec_")
+    ? opts.secret.slice("whsec_".length)
+    : opts.secret;
+  let keyBytes: Buffer;
+  try {
+    keyBytes = Buffer.from(rawSecret, "base64");
+  } catch {
+    return false;
+  }
+
+  const signedContent = `${opts.svixId}.${opts.svixTimestamp}.${opts.body}`;
+  const expected = createHmac("sha256", keyBytes).update(signedContent).digest("base64");
+
+  // svix-signature looks like "v1,<sig> v1,<sig2> ..."; any match wins.
+  for (const part of opts.svixSignature.split(" ")) {
+    const [version, sig] = part.split(",");
+    if (version !== "v1" || !sig) continue;
+    const a = Buffer.from(sig);
+    const b = Buffer.from(expected);
+    if (a.length === b.length && timingSafeEqual(a, b)) return true;
+  }
+  return false;
+}
 
 export const Route = createFileRoute("/api/public/hooks/resend-webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
         try {
+          const secret = process.env.RESEND_WEBHOOK_SECRET;
+          if (!secret) {
+            console.error("[resend-webhook] RESEND_WEBHOOK_SECRET not configured");
+            return new Response("Not configured", { status: 503 });
+          }
+
+          const svixId = request.headers.get("svix-id") ?? "";
+          const svixTimestamp = request.headers.get("svix-timestamp") ?? "";
+          const svixSignature = request.headers.get("svix-signature") ?? "";
+          const body = await request.text();
+
+          if (!svixId || !svixTimestamp || !svixSignature) {
+            return new Response("Missing signature headers", { status: 401 });
+          }
+          if (!verifySvixSignature({ secret, svixId, svixTimestamp, svixSignature, body })) {
+            return new Response("Invalid signature", { status: 401 });
+          }
+
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-          const payload = (await request.json()) as {
+          const payload = JSON.parse(body) as {
             type: string;
             data: {
               email_id: string;
@@ -62,7 +121,6 @@ export const Route = createFileRoute("/api/public/hooks/resend-webhook")({
             });
           }
 
-          // Find the log row by resend_message_id stored in metadata
           let updated = false;
           if (resendId) {
             const { data: rows } = await supabaseAdmin
@@ -81,7 +139,6 @@ export const Route = createFileRoute("/api/public/hooks/resend-webhook")({
           }
 
           if (!updated && recipientEmail) {
-            // Fallback: update the most recent matching row by recipient
             const { data: rows } = await supabaseAdmin
               .from("email_send_log")
               .select("message_id")
@@ -96,7 +153,6 @@ export const Route = createFileRoute("/api/public/hooks/resend-webhook")({
             }
           }
 
-          // Bounced → add to suppression list to avoid retries
           if (type === "email.bounced" && recipientEmail) {
             await supabaseAdmin
               .from("suppressed_emails")
