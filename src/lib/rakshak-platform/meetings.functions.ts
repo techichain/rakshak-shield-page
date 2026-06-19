@@ -235,6 +235,23 @@ export const rsvpMeeting = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
+    // Security: only users who were actually invited (or admins, or the
+    // meeting's team members/mentor) may RSVP. Without this, any
+    // authenticated user could add themselves to any meeting and gain
+    // access to the meeting link, agenda, and video room.
+    const { data: existing } = await context.supabase
+      .from("rp_meeting_attendees")
+      .select("id")
+      .eq("meeting_id", data.meeting_id)
+      .eq("profile_id", context.userId)
+      .maybeSingle();
+
+    if (!existing) {
+      const { data: canView } = await context.supabase
+        .rpc("rp_can_view_meeting", { _meeting: data.meeting_id, _user: context.userId });
+      if (!canView) throw new Error("Forbidden: not invited to this meeting");
+    }
+
     const { error } = await context.supabase
       .from("rp_meeting_attendees")
       .upsert({
@@ -258,6 +275,7 @@ export const rsvpMeeting = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
 
 export const listMyMeetings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

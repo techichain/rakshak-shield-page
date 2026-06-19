@@ -189,7 +189,17 @@ export const completeUpload = createServerFn({ method: 'POST' })
       .rpc('application_file_request_by_token', { _token: data.token })
     const row = (rows ?? [])[0]
     if (!row) throw new Error('Invalid link')
+    if (new Date(row.expires_at).getTime() < Date.now()) throw new Error('This link has expired')
     if (row.status === 'fulfilled') throw new Error('Already submitted')
+    if (row.status === 'cancelled') throw new Error('This request was cancelled')
+
+    // Security: the storage_path MUST be scoped to this application's folder.
+    // This prevents a caller with a valid token from linking arbitrary
+    // storage paths (belonging to other applications) to their record.
+    const expectedPrefix = `${row.application_id}/`
+    if (!data.storage_path.startsWith(expectedPrefix)) {
+      throw new Error('Invalid storage path')
+    }
 
     const dbKind = row.kind === 'resume' ? 'cv' : 'assignment'
 
@@ -220,3 +230,4 @@ export const completeUpload = createServerFn({ method: 'POST' })
 
     return { ok: true }
   })
+
