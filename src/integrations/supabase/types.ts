@@ -2908,6 +2908,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      mentor_app_upload_path_valid: {
+        Args: { _path: string }
+        Returns: boolean
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
