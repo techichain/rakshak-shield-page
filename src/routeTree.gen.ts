@@ -112,6 +112,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
 import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
+import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
@@ -701,6 +702,12 @@ const ApiPublicHooksResendWebhookRoute =
     path: '/api/public/hooks/resend-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMentorUploadRoute =
+  ApiPublicHooksMentorUploadRouteImport.update({
+    id: '/api/public/hooks/mentor-upload',
+    path: '/api/public/hooks/mentor-upload',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMeetingRemindersRoute =
   ApiPublicHooksMeetingRemindersRouteImport.update({
     id: '/api/public/hooks/meeting-reminders',
@@ -816,6 +823,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
+  '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -913,6 +921,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
+  '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1022,6 +1031,7 @@ export interface FileRoutesById {
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
+  '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1132,6 +1142,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
+    | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/lovable/email/queue/process'
@@ -1229,6 +1240,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
+    | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/lovable/email/queue/process'
@@ -1337,6 +1349,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
+    | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/lovable/email/queue/process'
@@ -1364,6 +1377,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
+  ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
   ApiPublicHooksResendWebhookRoute: typeof ApiPublicHooksResendWebhookRoute
   ApiPublicHooksRpMeetingSelftestRoute: typeof ApiPublicHooksRpMeetingSelftestRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -2094,6 +2108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksResendWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/mentor-upload': {
+      id: '/api/public/hooks/mentor-upload'
+      path: '/api/public/hooks/mentor-upload'
+      fullPath: '/api/public/hooks/mentor-upload'
+      preLoaderRoute: typeof ApiPublicHooksMentorUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/meeting-reminders': {
       id: '/api/public/hooks/meeting-reminders'
       path: '/api/public/hooks/meeting-reminders'
@@ -2500,6 +2521,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
+  ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,
   ApiPublicHooksResendWebhookRoute: ApiPublicHooksResendWebhookRoute,
   ApiPublicHooksRpMeetingSelftestRoute: ApiPublicHooksRpMeetingSelftestRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
