@@ -139,6 +139,9 @@ export function ObservationForm({
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [photos, setPhotos] = useState<ObservationPhoto[]>(initialPhotos);
+  const [lastSaveError, setLastSaveError] = useState<string | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(initial.id ? Date.now() : null);
+  const [sessionMissing, setSessionMissing] = useState(false);
   const isDraftObservation = initialStatus !== "submitted" && initialStatus !== "reviewed";
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
