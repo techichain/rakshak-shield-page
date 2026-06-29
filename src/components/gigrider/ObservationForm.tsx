@@ -1558,3 +1558,41 @@ function InPageCamera({
     </div>
   );
 }
+
+function SaveStatus({
+  savedAt,
+  error,
+  sessionMissing,
+  busy,
+  onRetry,
+}: {
+  savedAt: number | null;
+  error: string | null;
+  sessionMissing: boolean;
+  busy: boolean;
+  onRetry: () => void;
+}) {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => force((n) => n + 1), 15000);
+    return () => clearInterval(t);
+  }, []);
+  if (error || sessionMissing) {
+    return (
+      <div className="mt-1 flex items-center justify-between text-[11px] text-red-700">
+        <span className="font-semibold">⚠ Not saved to server</span>
+        <button type="button" onClick={onRetry} className="underline font-medium">Retry</button>
+      </div>
+    );
+  }
+  if (busy) {
+    return <div className="mt-1 text-[11px] text-slate-500">Saving…</div>;
+  }
+  if (savedAt) {
+    const secs = Math.max(0, Math.floor((Date.now() - savedAt) / 1000));
+    const label =
+      secs < 5 ? "just now" : secs < 60 ? `${secs}s ago` : secs < 3600 ? `${Math.floor(secs / 60)}m ago` : `${Math.floor(secs / 3600)}h ago`;
+    return <div className="mt-1 text-[11px] text-emerald-700">✓ Saved {label}</div>;
+  }
+  return <div className="mt-1 text-[11px] text-slate-400">Not yet saved</div>;
+}
