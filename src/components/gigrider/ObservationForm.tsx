@@ -601,7 +601,38 @@ export function ObservationForm({
             />
           ))}
         </div>
+        <SaveStatus
+          savedAt={lastSavedAt}
+          error={lastSaveError}
+          sessionMissing={sessionMissing}
+          busy={busy}
+          onRetry={() => {
+            saveDraftSilently().catch(() => {});
+          }}
+        />
       </div>
+
+      {(lastSaveError || sessionMissing) && (
+        <div className="sticky top-[110px] z-10 bg-red-600 text-white text-sm px-4 py-2 flex items-center justify-between gap-3 shadow-md">
+          <div className="min-w-0">
+            <p className="font-semibold">Not saved to server</p>
+            <p className="text-xs text-red-100 truncate">
+              {sessionMissing
+                ? "You're signed out. Sign in again — your entries are kept locally until then."
+                : lastSaveError}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              saveDraftSilently().catch(() => {});
+            }}
+            className="shrink-0 bg-white text-red-700 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-red-50"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       <main className="max-w-2xl mx-auto px-4 py-5 space-y-6">
         {error && (
