@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyObservations } from "@/lib/gigrider/observations.functions";
 import { useAuth } from "@/lib/gigrider/auth";
@@ -10,12 +10,51 @@ export const Route = createFileRoute("/gigrider-checklist/observer/")({
 
 type Row = Awaited<ReturnType<typeof listMyObservations>>[number];
 
+type LocalDraft = {
+  storageKey: string;
+  id: string | null;
+  updatedAt: number;
+  preview: string;
+};
+
+function readLocalDrafts(): LocalDraft[] {
+  if (typeof window === "undefined") return [];
+  const out: LocalDraft[] = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith("gigrider:draft:")) continue;
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      try {
+        const parsed = JSON.parse(raw);
+        out.push({
+          storageKey: key,
+          id: typeof parsed?.id === "string" ? parsed.id : null,
+          updatedAt: Number(parsed?.updated_at_local) || Date.now(),
+          preview:
+            parsed?.additional_notes?.slice(0, 60) ||
+            parsed?.surveyor_name ||
+            parsed?.vehicle_brand_model ||
+            "Unsynced draft",
+        });
+      } catch {
+        /* ignore */
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return out;
+}
+
 function ObserverDashboard() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const fetchList = useServerFn(listMyObservations);
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [localDrafts, setLocalDrafts] = useState<LocalDraft[]>([]);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -24,8 +63,25 @@ function ObserverDashboard() {
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
   }, [user, loading, fetchList]);
 
+  useEffect(() => {
+    setLocalDrafts(readLocalDrafts());
+  }, [rows]);
+
   const drafts = (rows ?? []).filter((r) => r.status === "draft");
   const submitted = (rows ?? []).filter((r) => r.status !== "draft");
+
+  const serverIds = useMemo(() => new Set((rows ?? []).map((r) => r.id)), [rows]);
+  const pendingLocal = localDrafts.filter((d) => !d.id || !serverIds.has(d.id));
+
+  const discardLocal = (key: string) => {
+    if (!confirm("Discard this unsynced draft? It only exists on this device.")) return;
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* ignore */
+    }
+    setLocalDrafts(readLocalDrafts());
+  };
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-5 space-y-5">
@@ -48,6 +104,51 @@ function ObserverDashboard() {
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2 rounded-md">{error}</div>
+      )}
+
+      {pendingLocal.length > 0 && (
+        <section className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-1">
+            <h3 className="text-sm font-semibold text-amber-900">
+              ⚠ {pendingLocal.length} unsynced draft{pendingLocal.length === 1 ? "" : "s"} on this device
+            </h3>
+          </div>
+          <p className="text-xs text-amber-800 mb-3">
+            These were saved in your browser but never reached the server. Open one to retry the save, or
+            discard if no longer needed.
+          </p>
+          <ul className="space-y-2">
+            {pendingLocal.map((d) => (
+              <li
+                key={d.storageKey}
+                className="bg-white rounded-lg border border-amber-200 px-3 py-2 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-900 truncate">{d.preview}</p>
+                  <p className="text-[11px] text-slate-500">Local only — not on server</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() =>
+                      d.id
+                        ? navigate({ to: "/gigrider-checklist/observer/$id", params: { id: d.id } })
+                        : navigate({ to: "/gigrider-checklist/observer/new" })
+                    }
+                    className="text-xs font-semibold text-emerald-700 px-2 py-1 rounded border border-emerald-300 hover:bg-emerald-50"
+                  >
+                    Open & retry
+                  </button>
+                  <button
+                    onClick={() => discardLocal(d.storageKey)}
+                    className="text-xs text-slate-500 hover:text-red-600"
+                  >
+                    Discard
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {drafts.length > 0 && (

@@ -139,6 +139,9 @@ export function ObservationForm({
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [photos, setPhotos] = useState<ObservationPhoto[]>(initialPhotos);
+  const [lastSaveError, setLastSaveError] = useState<string | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(initial.id ? Date.now() : null);
+  const [sessionMissing, setSessionMissing] = useState(false);
   const isDraftObservation = initialStatus !== "submitted" && initialStatus !== "reviewed";
 
   const draftKey = `gigrider:draft:${form.id ?? "new"}`;
@@ -384,12 +387,28 @@ export function ObservationForm({
     flag_reason: source.flag_reason || null,
   });
 
+  const assertSession = async (): Promise<boolean> => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const ok = !!data.session?.access_token;
+      setSessionMissing(!ok);
+      return ok;
+    } catch {
+      setSessionMissing(true);
+      return false;
+    }
+  };
+
   const saveDraftSilently = async (): Promise<string | null> => {
     if (draftSavePromiseRef.current) {
       draftSaveQueuedRef.current = true;
       return draftSavePromiseRef.current;
     }
     const run = (async () => {
+      const hasSession = await assertSession();
+      if (!hasSession) {
+        throw new Error("You're signed out. Please sign in again — your entries are kept locally until you do.");
+      }
       const latestForm = latestFormRef.current;
       const res = await save({ data: toSavePayload(latestForm, false) });
       if (!latestForm.id && res?.id) {
@@ -402,7 +421,14 @@ export function ObservationForm({
     })();
     draftSavePromiseRef.current = run;
     try {
-      return await run;
+      const id = await run;
+      setLastSaveError(null);
+      setLastSavedAt(Date.now());
+      return id;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Auto-save failed";
+      setLastSaveError(msg);
+      throw e;
     } finally {
       draftSavePromiseRef.current = null;
       if (draftSaveQueuedRef.current) {
@@ -426,7 +452,13 @@ export function ObservationForm({
       }
     }
     try {
+      const hasSession = await assertSession();
+      if (!hasSession) {
+        throw new Error("You're signed out. Sign in again, then tap Save — your entries are kept locally.");
+      }
       const res = await save({ data: toSavePayload(latestForm, asSubmit) });
+      setLastSaveError(null);
+      setLastSavedAt(Date.now());
       if (asSubmit) {
         clearLocalDraft(latestForm);
         try {
@@ -443,7 +475,9 @@ export function ObservationForm({
       }
       return res?.id ?? latestForm.id ?? null;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      const msg = e instanceof Error ? e.message : "Save failed";
+      setError(msg);
+      setLastSaveError(msg);
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
       return null;
     } finally {
@@ -567,7 +601,38 @@ export function ObservationForm({
             />
           ))}
         </div>
+        <SaveStatus
+          savedAt={lastSavedAt}
+          error={lastSaveError}
+          sessionMissing={sessionMissing}
+          busy={busy}
+          onRetry={() => {
+            saveDraftSilently().catch(() => {});
+          }}
+        />
       </div>
+
+      {(lastSaveError || sessionMissing) && (
+        <div className="sticky top-[110px] z-10 bg-red-600 text-white text-sm px-4 py-2 flex items-center justify-between gap-3 shadow-md">
+          <div className="min-w-0">
+            <p className="font-semibold">Not saved to server</p>
+            <p className="text-xs text-red-100 truncate">
+              {sessionMissing
+                ? "You're signed out. Sign in again — your entries are kept locally until then."
+                : lastSaveError}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              saveDraftSilently().catch(() => {});
+            }}
+            className="shrink-0 bg-white text-red-700 text-xs font-semibold px-3 py-1.5 rounded-md hover:bg-red-50"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       <main className="max-w-2xl mx-auto px-4 py-5 space-y-6">
         {error && (
@@ -1492,4 +1557,42 @@ function InPageCamera({
       </div>
     </div>
   );
+}
+
+function SaveStatus({
+  savedAt,
+  error,
+  sessionMissing,
+  busy,
+  onRetry,
+}: {
+  savedAt: number | null;
+  error: string | null;
+  sessionMissing: boolean;
+  busy: boolean;
+  onRetry: () => void;
+}) {
+  const [, force] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => force((n) => n + 1), 15000);
+    return () => clearInterval(t);
+  }, []);
+  if (error || sessionMissing) {
+    return (
+      <div className="mt-1 flex items-center justify-between text-[11px] text-red-700">
+        <span className="font-semibold">⚠ Not saved to server</span>
+        <button type="button" onClick={onRetry} className="underline font-medium">Retry</button>
+      </div>
+    );
+  }
+  if (busy) {
+    return <div className="mt-1 text-[11px] text-slate-500">Saving…</div>;
+  }
+  if (savedAt) {
+    const secs = Math.max(0, Math.floor((Date.now() - savedAt) / 1000));
+    const label =
+      secs < 5 ? "just now" : secs < 60 ? `${secs}s ago` : secs < 3600 ? `${Math.floor(secs / 60)}m ago` : `${Math.floor(secs / 3600)}h ago`;
+    return <div className="mt-1 text-[11px] text-emerald-700">✓ Saved {label}</div>;
+  }
+  return <div className="mt-1 text-[11px] text-slate-400">Not yet saved</div>;
 }
