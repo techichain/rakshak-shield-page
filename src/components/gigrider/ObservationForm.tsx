@@ -452,7 +452,13 @@ export function ObservationForm({
       }
     }
     try {
+      const hasSession = await assertSession();
+      if (!hasSession) {
+        throw new Error("You're signed out. Sign in again, then tap Save — your entries are kept locally.");
+      }
       const res = await save({ data: toSavePayload(latestForm, asSubmit) });
+      setLastSaveError(null);
+      setLastSavedAt(Date.now());
       if (asSubmit) {
         clearLocalDraft(latestForm);
         try {
@@ -469,7 +475,9 @@ export function ObservationForm({
       }
       return res?.id ?? latestForm.id ?? null;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Save failed");
+      const msg = e instanceof Error ? e.message : "Save failed";
+      setError(msg);
+      setLastSaveError(msg);
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
       return null;
     } finally {
