@@ -387,12 +387,28 @@ export function ObservationForm({
     flag_reason: source.flag_reason || null,
   });
 
+  const assertSession = async (): Promise<boolean> => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const ok = !!data.session?.access_token;
+      setSessionMissing(!ok);
+      return ok;
+    } catch {
+      setSessionMissing(true);
+      return false;
+    }
+  };
+
   const saveDraftSilently = async (): Promise<string | null> => {
     if (draftSavePromiseRef.current) {
       draftSaveQueuedRef.current = true;
       return draftSavePromiseRef.current;
     }
     const run = (async () => {
+      const hasSession = await assertSession();
+      if (!hasSession) {
+        throw new Error("You're signed out. Please sign in again — your entries are kept locally until you do.");
+      }
       const latestForm = latestFormRef.current;
       const res = await save({ data: toSavePayload(latestForm, false) });
       if (!latestForm.id && res?.id) {
@@ -405,7 +421,14 @@ export function ObservationForm({
     })();
     draftSavePromiseRef.current = run;
     try {
-      return await run;
+      const id = await run;
+      setLastSaveError(null);
+      setLastSavedAt(Date.now());
+      return id;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Auto-save failed";
+      setLastSaveError(msg);
+      throw e;
     } finally {
       draftSavePromiseRef.current = null;
       if (draftSaveQueuedRef.current) {
