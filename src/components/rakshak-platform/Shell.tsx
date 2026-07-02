@@ -141,6 +141,7 @@ function MobileGroup({
 export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
+  const evaluatorOnly = isEvaluator && !isAdmin && !isMentor && !isTeam && !isAuthority && !isFinance;
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -199,12 +200,16 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
           <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
-            <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />
-            <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />
-            <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
-            <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
-            <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />
-            <NavLink to="/rakshak-platform/sponsor" label="Sponsor" icon={HeartHandshake} />
+            {!evaluatorOnly && (
+              <>
+                <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />
+                <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />
+                <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
+                <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
+                <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />
+                <NavLink to="/rakshak-platform/sponsor" label="Sponsor" icon={HeartHandshake} />
+              </>
+            )}
 
             {isAuthority && (
               <NavLink to="/rakshak-platform/authority" label="Authority" icon={ShieldCheck} />
@@ -331,18 +336,20 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
         {menuOpen && (
           <div className={`border-t border-border bg-background max-h-[75vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
             <nav className="mx-auto w-full max-w-7xl px-5 py-5 flex flex-col gap-5 text-sm">
-              <MobileGroup
-                label="Explore"
-                items={[
-                  { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
-                  { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
-                  { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
-                  { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                  { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
-                  { to: "/rakshak-platform/sponsor", label: "Sponsor", icon: HeartHandshake },
-                ]}
-                onPick={() => setMenuOpen(false)}
-              />
+              {!evaluatorOnly && (
+                <MobileGroup
+                  label="Explore"
+                  items={[
+                    { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
+                    { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
+                    { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
+                    { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
+                    { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
+                    { to: "/rakshak-platform/sponsor", label: "Sponsor", icon: HeartHandshake },
+                  ]}
+                  onPick={() => setMenuOpen(false)}
+                />
+              )}
 
               {isAuthority && (
                 <MobileGroup label="Authority" items={[
