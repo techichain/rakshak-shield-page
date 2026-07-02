@@ -172,7 +172,7 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
       .from("rp_submissions")
       .select(`
         id, team_id, phase_number, title, summary, status, submitted_at,
-        rp_teams ( id, team_name, city, state, college, current_phase ),
+        rp_teams ( id, team_name, current_phase ),
         rp_submission_files ( id, file_name, file_url, file_type, evidence_type, caption )
       `)
       .eq("id", data.submissionId)
