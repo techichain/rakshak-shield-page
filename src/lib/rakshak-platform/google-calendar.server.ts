@@ -367,3 +367,105 @@ export async function syncRsvpToGoogleCalendar(opts: {
     console.error('[syncRsvpToGoogleCalendar] patch failed', patchRes.status, await patchRes.text());
   }
 }
+
+/**
+ * Query a user's Google Calendar for busy intervals over a window.
+ * Returns null if the user hasn't connected Google or the request fails.
+ */
+export async function getFreeBusy(
+  userId: string,
+  opts: { timeMin: string; timeMax: string; timeZone?: string },
+): Promise<{ busy: Array<{ start: string; end: string }>; email: string | null } | null> {
+  const cred = await getValidAccessToken(userId);
+  if (!cred) return null;
+  try {
+    const res = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cred.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        timeMin: opts.timeMin,
+        timeMax: opts.timeMax,
+        timeZone: opts.timeZone ?? "Asia/Kolkata",
+        items: [{ id: "primary" }],
+      }),
+    });
+    if (!res.ok) {
+      console.error("[getFreeBusy] failed", res.status, await res.text());
+      return null;
+    }
+    const json = (await res.json()) as any;
+    const busy = (json?.calendars?.primary?.busy ?? []) as Array<{ start: string; end: string }>;
+    return { busy, email: cred.email };
+  } catch (err) {
+    console.error("[getFreeBusy] error", err);
+    return null;
+  }
+}
+
+/**
+ * Create a Google Calendar event on `organizerUserId`'s primary calendar,
+ * with an auto-generated Google Meet link, and email the invite to attendees
+ * via Google (`sendUpdates=all`).
+ * Returns { meetLink, eventId } on success, null on failure.
+ */
+export async function createEventWithMeet(opts: {
+  organizerUserId: string;
+  title: string;
+  description: string;
+  location?: string;
+  startISO: string;
+  endISO: string;
+  attendeeEmails: string[];
+  meetingId: string;
+  timeZone?: string;
+}): Promise<{ meetLink: string | null; eventId: string; organizerEmail: string | null } | null> {
+  const cred = await getValidAccessToken(opts.organizerUserId);
+  if (!cred) return null;
+
+  const requestId = `rp-${opts.meetingId}-${Date.now().toString(36)}`;
+  const body: any = {
+    summary: opts.title,
+    description: opts.description,
+    location: opts.location || undefined,
+    start: { dateTime: opts.startISO, timeZone: opts.timeZone ?? "Asia/Kolkata" },
+    end: { dateTime: opts.endISO, timeZone: opts.timeZone ?? "Asia/Kolkata" },
+    attendees: opts.attendeeEmails.map((email) => ({ email })),
+    guestsCanModify: false,
+    reminders: { useDefault: true },
+    conferenceData: {
+      createRequest: {
+        requestId,
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    },
+    extendedProperties: { private: { rp_meeting_id: opts.meetingId } },
+  };
+
+  const res = await fetch(
+    "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${cred.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
+  if (!res.ok) {
+    console.error("[createEventWithMeet] failed", res.status, await res.text());
+    return null;
+  }
+  const event = (await res.json()) as any;
+  const meetEntry = (event?.conferenceData?.entryPoints ?? []).find(
+    (e: any) => e?.entryPointType === "video",
+  );
+  return {
+    meetLink: meetEntry?.uri ?? event?.hangoutLink ?? null,
+    eventId: event.id as string,
+    organizerEmail: cred.email,
+  };
+}
