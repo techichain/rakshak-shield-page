@@ -218,6 +218,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             {isMentor && (
               <NavDropdown id="mentor" label="Mentor" icon={GraduationCap} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                 { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
+                { to: "/rakshak-platform/mentor/resources", label: "Resources", icon: BookOpen, desc: "Share files & links with your teams" },
               ]} />
             )}
             {isTeam && (
