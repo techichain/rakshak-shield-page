@@ -5,7 +5,7 @@ import { rpRequireRole, useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { getMyTeamMemberOverview } from "@/lib/rakshak-platform/team-members.functions";
-import { listMeetings } from "@/lib/rakshak-platform/meetings.functions";
+import { listMyMeetings } from "@/lib/rakshak-platform/meetings.functions";
 import { CalendarDays, Loader2, UsersRound, Video, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/member")({
