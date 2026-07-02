@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ChevronDown, LogOut, Menu, X,
-  MapPin, BookOpen, Trophy, Sparkles, Users, HeartHandshake,
+  MapPin, BookOpen, Trophy, Sparkles, Users,
   ShieldCheck, ClipboardCheck, CalendarDays, GraduationCap, UsersRound,
   LayoutDashboard, FileText, UserCog, ScanSearch, Wrench, Wallet, BellRing,
   type LucideIcon,
