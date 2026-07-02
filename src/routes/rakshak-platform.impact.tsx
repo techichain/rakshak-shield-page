@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getPublicImpactStats } from "@/lib/rakshak-platform/stats.functions";
-import { Users, MapPin, Megaphone, Award, IndianRupee, Target } from "lucide-react";
+import { Users, MapPin, Megaphone, Award, Target } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/impact")({
   loader: ({ context }) =>
@@ -43,10 +43,6 @@ function ImpactPage() {
     queryFn: () => getPublicImpactStats(),
   });
 
-  const inr = (n: number) =>
-    n >= 10_000_000 ? `₹${(n / 10_000_000).toFixed(2)} Cr` :
-    n >= 100_000   ? `₹${(n / 100_000).toFixed(2)} L` :
-    `₹${n.toLocaleString("en-IN")}`;
 
   return (
     <PlatformShell>
@@ -65,7 +61,6 @@ function ImpactPage() {
           <Stat icon={Target} label="Locations chosen for fixes" value={data.finalLocations} />
           <Stat icon={Megaphone} label="Pitches sent to authorities" value={data.authorityReports} />
           <Stat icon={Award} label="Certificates issued" value={data.certificates} />
-          <Stat icon={IndianRupee} label="Funds raised (paid sponsorships)" value={inr(data.totalFundsInr)} tone="brand" />
         </div>
       </Section>
 
