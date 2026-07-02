@@ -108,7 +108,7 @@ export async function exchangeAndStoreCode(opts: {
   return { email };
 }
 
-async function getValidAccessToken(userId: string): Promise<{ token: string; email: string | null } | null> {
+export async function getValidAccessToken(userId: string): Promise<{ token: string; email: string | null } | null> {
   const { data: row } = await supabaseAdmin
     .from("rp_google_calendar_tokens")
     .select("*")
