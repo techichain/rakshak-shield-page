@@ -339,11 +339,11 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <MobileGroup
                   label="Explore"
                   items={[
-                    { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
-                    { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin }] : []),
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen }] : []),
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                    { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
                   ]}
                   onPick={() => setMenuOpen(false)}
                 />
