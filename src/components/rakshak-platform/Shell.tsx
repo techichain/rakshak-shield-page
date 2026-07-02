@@ -215,13 +215,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/evaluator/compare", label: "Compare", icon: ScanSearch },
               ]} />
             )}
-            {(isMentor || isTeam) && (
-              <NavLink to="/rakshak-platform/meetings" label="Meetings" icon={CalendarDays} />
-            )}
             {isMentor && (
               <NavDropdown id="mentor" label="Mentor" icon={GraduationCap} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                 { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
-                { to: "/rakshak-platform/mentor/availability", label: "Availability", icon: CalendarDays },
               ]} />
             )}
             {isTeam && (
@@ -362,8 +358,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isMentor && (
                 <MobileGroup label="Mentor" items={[
                   { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
-                  { to: "/rakshak-platform/mentor/availability", label: "Availability", icon: CalendarDays },
-                  { to: "/rakshak-platform/meetings", label: "Meetings", icon: CalendarDays },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
@@ -374,7 +368,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                   { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
                   { to: "/rakshak-platform/team/ai-check", label: "AI check", icon: ScanSearch },
-                  { to: "/rakshak-platform/meetings", label: "Meetings", icon: CalendarDays },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 

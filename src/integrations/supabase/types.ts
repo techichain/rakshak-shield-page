@@ -1647,6 +1647,8 @@ export type Database = {
           agenda: string
           created_at: string
           created_by: string
+          google_event_id: string | null
+          google_organizer_user_id: string | null
           id: string
           location: string | null
           meeting_link: string | null
@@ -1670,6 +1672,8 @@ export type Database = {
           agenda?: string
           created_at?: string
           created_by: string
+          google_event_id?: string | null
+          google_organizer_user_id?: string | null
           id?: string
           location?: string | null
           meeting_link?: string | null
@@ -1693,6 +1697,8 @@ export type Database = {
           agenda?: string
           created_at?: string
           created_by?: string
+          google_event_id?: string | null
+          google_organizer_user_id?: string | null
           id?: string
           location?: string | null
           meeting_link?: string | null

@@ -72,6 +72,7 @@ function MeetingsPage() {
   const [extraEmailsText, setExtraEmailsText] = useState("");
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
+  const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
@@ -80,7 +81,17 @@ function MeetingsPage() {
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
-    supabase.auth.getSession().then(({ data }) => setMyId(data.session?.user?.id ?? null));
+    supabase.auth.getSession().then(async ({ data }) => {
+      const uid = data.session?.user?.id ?? null;
+      setMyId(uid);
+      if (uid) {
+        const { data: roles } = await supabase.from("rp_user_roles").select("role").eq("user_id", uid);
+        const rs = (roles ?? []).map((r: any) => r.role);
+        // "Team leader only" = has team_leader role and no privileged scheduling role
+        const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
+        setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
+      }
+    });
   }, []);
 
   const needsTeam = type === "team_mentor" || type === "evaluator_team" || type === "team_internal";
@@ -261,44 +272,56 @@ function MeetingsPage() {
           Automatic email reminders fire 24h, 1h, and 30min before every meeting.
         </p>
 
-        <form onSubmit={handleCreate} className="mt-10 rounded-2xl border border-border bg-background p-6">
-          <h2 className="font-heading text-xl">Schedule a meeting</h2>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <select value={type} onChange={(e) => setType(e.target.value)} className="rp-input">
-              {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-            {needsTeam ? (
-              <select name="team_id" required className="rp-input">
-                <option value="">Team…</option>
-                {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
-              </select>
-            ) : (
-              <div className="rp-input text-xs text-muted-foreground flex items-center">No team — invite people below.</div>
-            )}
-            <input name="title" required maxLength={200} placeholder="Title" className="rp-input" />
-            <input name="meeting_link" type="url" placeholder="Meet/Zoom/Jitsi link" className="rp-input" />
-            <input name="scheduled_start" type="datetime-local" required className="rp-input" />
-            <input name="scheduled_end" type="datetime-local" required className="rp-input" />
-            <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
-            <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
-            <div className="md:col-span-2">
-              <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite people (comma-separated emails)</label>
-              <textarea
-                value={extraEmailsText}
-                onChange={(e) => setExtraEmailsText(e.target.value)}
-                rows={2}
-                placeholder="mentor@example.com, team@example.com"
-                className="rp-input mt-1 w-full"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">Invitees receive a calendar invite with the meet link.</p>
+        {isTeamLeaderOnly ? (
+          <div className="mt-10 rounded-2xl border border-brand/30 bg-brand-lite p-6 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-heading text-xl">Book with your assigned mentor</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Live availability from Google Calendar. Auto-creates a Google Meet link and emails the invite.</p>
             </div>
+            <a href="/rakshak-platform/team/book-mentor" className="inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground shrink-0">
+              <Calendar className="h-4 w-4" /> Book mentor session
+            </a>
           </div>
+        ) : (
+          <form onSubmit={handleCreate} className="mt-10 rounded-2xl border border-border bg-background p-6">
+            <h2 className="font-heading text-xl">Schedule a meeting</h2>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <select value={type} onChange={(e) => setType(e.target.value)} className="rp-input">
+                {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+              {needsTeam ? (
+                <select name="team_id" required className="rp-input">
+                  <option value="">Team…</option>
+                  {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
+                </select>
+              ) : (
+                <div className="rp-input text-xs text-muted-foreground flex items-center">No team — invite people below.</div>
+              )}
+              <input name="title" required maxLength={200} placeholder="Title" className="rp-input" />
+              <input name="meeting_link" type="url" placeholder="Meet/Zoom/Jitsi link" className="rp-input" />
+              <input name="scheduled_start" type="datetime-local" required className="rp-input" />
+              <input name="scheduled_end" type="datetime-local" required className="rp-input" />
+              <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
+              <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
+              <div className="md:col-span-2">
+                <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite people (comma-separated emails)</label>
+                <textarea
+                  value={extraEmailsText}
+                  onChange={(e) => setExtraEmailsText(e.target.value)}
+                  rows={2}
+                  placeholder="mentor@example.com, team@example.com"
+                  className="rp-input mt-1 w-full"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">Invitees receive a calendar invite with the meet link.</p>
+              </div>
+            </div>
 
-          {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
-          <button type="submit" disabled={busy} className="mt-4 inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground hover:bg-brand/90 disabled:opacity-60">
-            <Calendar className="h-4 w-4" /> {busy ? "Saving…" : "Propose meeting"}
-          </button>
-        </form>
+            {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
+            <button type="submit" disabled={busy} className="mt-4 inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground hover:bg-brand/90 disabled:opacity-60">
+              <Calendar className="h-4 w-4" /> {busy ? "Saving…" : "Propose meeting"}
+            </button>
+          </form>
+        )}
 
         <div className="mt-10 flex flex-wrap gap-2">
           {(["upcoming", "calendar", "past"] as const).map((v) => (

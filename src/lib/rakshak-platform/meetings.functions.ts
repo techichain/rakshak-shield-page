@@ -386,3 +386,173 @@ export const notifyMeetingConfirmed = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+// ---------------------------------------------------------------------------
+// Team-lead → assigned mentor booking (auto Google Meet)
+// ---------------------------------------------------------------------------
+
+async function resolveTeamLeaderMentor(
+  supabase: any,
+  supabaseAdmin: any,
+  userId: string,
+) {
+  // Find the team where the current user is the leader.
+  const { data: team } = await supabase
+    .from("rp_teams")
+    .select("id, team_name, assigned_mentor_id")
+    .eq("team_leader_id", userId)
+    .maybeSingle();
+  if (!team) throw new Error("You are not registered as a team leader.");
+  if (!team.assigned_mentor_id) {
+    throw new Error("Your team has no assigned mentor yet. Ask an admin to assign one.");
+  }
+  const { data: mentor } = await supabaseAdmin
+    .from("rp_mentors")
+    .select("id, profile_id")
+    .eq("id", team.assigned_mentor_id)
+    .maybeSingle();
+  if (!mentor?.profile_id) throw new Error("Assigned mentor profile not found.");
+  const { data: profiles } = await supabaseAdmin
+    .from("rp_profiles")
+    .select("id, full_name, email")
+    .in("id", [userId, mentor.profile_id]);
+  const leaderProfile = (profiles ?? []).find((p: any) => p.id === userId);
+  const mentorProfile = (profiles ?? []).find((p: any) => p.id === mentor.profile_id);
+  if (!leaderProfile?.email) throw new Error("Your account has no email on file.");
+  if (!mentorProfile?.email) throw new Error("Mentor account has no email on file.");
+  return {
+    team,
+    mentorProfileId: mentor.profile_id as string,
+    leaderProfile,
+    mentorProfile,
+  };
+}
+
+export const getMyMentorAvailability = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ days: z.number().int().min(1).max(28).default(14) }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getValidAccessToken, getFreeBusy } = await import("./google-calendar.server");
+
+    const { team, mentorProfileId, mentorProfile } = await resolveTeamLeaderMentor(
+      context.supabase,
+      supabaseAdmin,
+      context.userId,
+    );
+
+    // Gate checks
+    const leaderCred = await getValidAccessToken(context.userId);
+    const mentorCred = await getValidAccessToken(mentorProfileId);
+
+    const timeMin = new Date();
+    const timeMax = new Date(Date.now() + data.days * 24 * 60 * 60 * 1000);
+
+    let busy: Array<{ start: string; end: string }> = [];
+    if (mentorCred) {
+      const fb = await getFreeBusy(mentorProfileId, {
+        timeMin: timeMin.toISOString(),
+        timeMax: timeMax.toISOString(),
+      });
+      busy = fb?.busy ?? [];
+    }
+
+    return {
+      team: { id: team.id, team_name: team.team_name },
+      mentor: { full_name: mentorProfile.full_name, email: mentorProfile.email },
+      leader_connected: !!leaderCred,
+      mentor_connected: !!mentorCred,
+      window: { start: timeMin.toISOString(), end: timeMax.toISOString() },
+      busy,
+    };
+  });
+
+export const bookMentorMeeting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      scheduled_start: z.string(),
+      scheduled_end: z.string(),
+      title: z.string().min(1).max(200),
+      agenda: z.string().max(4000).default(""),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    if (new Date(data.scheduled_end).getTime() <= new Date(data.scheduled_start).getTime()) {
+      throw new Error("End time must be after start time.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getValidAccessToken, createEventWithMeet } = await import("./google-calendar.server");
+
+    const { team, mentorProfileId, leaderProfile, mentorProfile } =
+      await resolveTeamLeaderMentor(context.supabase, supabaseAdmin, context.userId);
+
+    const leaderCred = await getValidAccessToken(context.userId);
+    if (!leaderCred) {
+      throw new Error("Please connect your Google Calendar first (Profile → Google Calendar).");
+    }
+
+    // Insert placeholder row first so we have an id for the Meet request.
+    const { data: row, error } = await context.supabase
+      .from("rp_meetings")
+      .insert({
+        team_id: team.id,
+        meeting_type: "team_mentor",
+        title: data.title,
+        agenda: data.agenda,
+        scheduled_start: data.scheduled_start,
+        scheduled_end: data.scheduled_end,
+        location: null,
+        status: "confirmed",
+        created_by: context.userId,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    // Attendees: leader + mentor (RLS allows creator inserts).
+    await context.supabase.from("rp_meeting_attendees").insert([
+      { meeting_id: row.id, profile_id: context.userId, rsvp: "going", responded_at: new Date().toISOString() },
+      { meeting_id: row.id, profile_id: mentorProfileId, rsvp: "pending" },
+    ]);
+
+    const description = [
+      data.agenda,
+      "",
+      `Team: ${team.team_name}`,
+      `Organizer: ${leaderProfile.full_name ?? leaderProfile.email}`,
+    ].filter(Boolean).join("\n");
+
+    const gcal = await createEventWithMeet({
+      organizerUserId: context.userId,
+      title: data.title,
+      description,
+      startISO: new Date(data.scheduled_start).toISOString(),
+      endISO: new Date(data.scheduled_end).toISOString(),
+      attendeeEmails: [leaderProfile.email, mentorProfile.email],
+      meetingId: row.id,
+    });
+
+    if (!gcal) {
+      // Roll back: the calendar step is the whole point of this flow.
+      await supabaseAdmin.from("rp_meetings").delete().eq("id", row.id);
+      throw new Error("Failed to create Google Calendar event. Reconnect Google Calendar and try again.");
+    }
+
+    await supabaseAdmin
+      .from("rp_meetings")
+      .update({
+        meeting_link: gcal.meetLink,
+        google_event_id: gcal.eventId,
+        google_organizer_user_id: context.userId,
+      })
+      .eq("id", row.id);
+
+    return {
+      meeting_id: row.id,
+      meet_link: gcal.meetLink,
+      mentor_email: mentorProfile.email,
+    };
+  });
