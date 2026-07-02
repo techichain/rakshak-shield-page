@@ -43,10 +43,6 @@ function ImpactPage() {
     queryFn: () => getPublicImpactStats(),
   });
 
-  const inr = (n: number) =>
-    n >= 10_000_000 ? `₹${(n / 10_000_000).toFixed(2)} Cr` :
-    n >= 100_000   ? `₹${(n / 100_000).toFixed(2)} L` :
-    `₹${n.toLocaleString("en-IN")}`;
 
   return (
     <PlatformShell>
