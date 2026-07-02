@@ -142,6 +142,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const evaluatorOnly = isEvaluator && !isAdmin && !isMentor && !isTeam && !isAuthority && !isFinance;
+  const mentorOnly = isMentor && !isAdmin && !isTeam && !isAuthority && !isFinance;
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -202,11 +203,11 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
             {!evaluatorOnly && (
               <>
-                <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />
-                <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />
+                {!mentorOnly && <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />}
+                {!mentorOnly && <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />}
                 <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
-                <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />
+                {!mentorOnly && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
               </>
             )}
 
@@ -338,11 +339,11 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <MobileGroup
                   label="Explore"
                   items={[
-                    { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
-                    { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin }] : []),
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen }] : []),
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                    { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
                   ]}
                   onPick={() => setMenuOpen(false)}
                 />
