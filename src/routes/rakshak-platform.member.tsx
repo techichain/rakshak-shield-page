@@ -174,10 +174,10 @@ function MemberDashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold truncate">{m.title}</div>
                       <div className="text-xs text-muted-foreground">
-                        {formatMeetingDate(m.start_time)}
-                        {m.duration_minutes ? ` · ${m.duration_minutes} min` : ""}
+                        {formatMeetingDate(m.scheduled_start)}
                       </div>
                     </div>
+
                     {m.meet_link ? (
                       <a
                         href={m.meet_link}
