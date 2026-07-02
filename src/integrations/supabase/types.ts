@@ -2953,6 +2953,10 @@ export type Database = {
         Returns: boolean
       }
       rp_is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      rp_is_team_leader: {
+        Args: { _team: string; _user: string }
+        Returns: boolean
+      }
       rp_is_team_member: {
         Args: { _team: string; _user: string }
         Returns: boolean
