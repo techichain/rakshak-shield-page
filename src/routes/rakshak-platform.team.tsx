@@ -11,10 +11,11 @@ import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 export const Route = createFileRoute("/rakshak-platform/team")({
   ssr: false,
   beforeLoad: async () => {
-    await rpRequireRole(["team_leader", "team_member"]);
+    await rpRequireRole(["team_leader"]);
   },
   component: TeamDashboard,
 });
+
 
 function TeamDashboard() {
   const navigate = useNavigate();

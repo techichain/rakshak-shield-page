@@ -244,6 +244,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing, desc: "Team, mentor & evaluator requests" },
                   { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor apps", icon: GraduationCap },
                   { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
+                  { to: "/rakshak-platform/admin/team-members", label: "Team members", icon: UsersRound, desc: "Add & invite team members" },
                   { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                 ]} />
@@ -380,6 +381,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing },
                     { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor applications", icon: GraduationCap },
                     { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
+                    { to: "/rakshak-platform/admin/team-members", label: "Team members", icon: UsersRound },
                     { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                   ]} onPick={() => setMenuOpen(false)} />

@@ -12,6 +12,8 @@ export interface RPAuthState {
   isAdmin: boolean;
   isMentor: boolean;
   isTeam: boolean;
+  isTeamLeader: boolean;
+  isTeamMember: boolean;
   isEvaluator: boolean;
   isAuthority: boolean;
   isFinance: boolean;
@@ -26,10 +28,13 @@ const empty: RPAuthState = {
   isAdmin: false,
   isMentor: false,
   isTeam: false,
+  isTeamLeader: false,
+  isTeamMember: false,
   isEvaluator: false,
   isAuthority: false,
   isFinance: false,
 };
+
 
 export function useRPAuth(): RPAuthState {
   const [state, setState] = useState<RPAuthState>(empty);
@@ -86,6 +91,8 @@ export function useRPAuth(): RPAuthState {
           isAdmin: roles.includes("cfi_admin") || roles.includes("super_admin"),
           isMentor: roles.includes("mentor"),
           isTeam: roles.includes("team_leader") || roles.includes("team_member"),
+          isTeamLeader: roles.includes("team_leader"),
+          isTeamMember: roles.includes("team_member"),
           isEvaluator: roles.includes("evaluator"),
           isAuthority: roles.includes("authority"),
           isFinance: roles.includes("finance"),
