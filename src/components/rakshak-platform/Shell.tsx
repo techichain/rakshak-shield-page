@@ -212,7 +212,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             {isEvaluator && (
               <NavDropdown id="evaluator" label="Evaluator" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                 { to: "/rakshak-platform/evaluator", label: "Queue", icon: ClipboardCheck },
-                { to: "/rakshak-platform/evaluator/compare", label: "Compare", icon: ScanSearch },
               ]} />
             )}
             {isMentor && (
@@ -354,7 +353,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isEvaluator && (
                 <MobileGroup label="Evaluator" items={[
                   { to: "/rakshak-platform/evaluator", label: "Queue", icon: ClipboardCheck },
-                  { to: "/rakshak-platform/evaluator/compare", label: "Compare", icon: ScanSearch },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 

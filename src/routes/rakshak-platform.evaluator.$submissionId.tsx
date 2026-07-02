@@ -81,7 +81,9 @@ function ScoringPage() {
   const submission = data.submission;
   const team = submission.rp_teams;
   const files = submission.rp_submission_files ?? [];
-  const locked = data.myEval?.status === "submitted";
+  const isSubmitted = data.myEval?.status === "submitted";
+  const history: any[] = Array.isArray((data.myEval as any)?.edit_history) ? ((data.myEval as any).edit_history as any[]) : [];
+  const currentSubmittedTotal = isSubmitted ? Number(data.myEval?.total_score ?? 0) : null;
 
   return (
     <PlatformShell>
@@ -93,9 +95,44 @@ function ScoringPage() {
           <Eyebrow>Score submission</Eyebrow>
           <h1 className="mt-4 font-heading text-3xl sm:text-4xl font-bold">{submission.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {team?.team_name} · {team?.city}, {team?.state} · Phase {submission.phase_number} — {PHASE_TITLES[submission.phase_number]}
+            {team?.team_name} · Phase {submission.phase_number} — {PHASE_TITLES[submission.phase_number]}
           </p>
         </div>
+
+        {(currentSubmittedTotal !== null || history.length > 0) && (
+          <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+            <div className="flex items-baseline justify-between gap-4 flex-wrap">
+              <div>
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Current submitted score</div>
+                <div className="mt-1 font-heading text-3xl font-bold">
+                  {currentSubmittedTotal !== null ? `${currentSubmittedTotal} / ${max}` : "— (draft)"}
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                You can update the scores below and click <span className="font-semibold text-foreground">Update</span> anytime.
+              </div>
+            </div>
+            {history.length > 0 && (
+              <details className="mt-4">
+                <summary className="text-xs uppercase tracking-wider text-muted-foreground cursor-pointer">
+                  Change history ({history.length})
+                </summary>
+                <ul className="mt-3 space-y-1.5 text-xs">
+                  {[...history].reverse().map((h, i) => (
+                    <li key={i} className="flex items-center justify-between gap-3 border-b border-border/50 pb-1.5 last:border-0">
+                      <span className="text-muted-foreground">{new Date(h.at).toLocaleString()}</span>
+                      <span className="font-mono">
+                        {h.prev_total !== null && h.prev_total !== undefined ? `${h.prev_total} → ` : ""}
+                        <span className="font-semibold text-foreground">{h.total_score}</span>
+                        <span className="text-muted-foreground"> ({h.status})</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
+        )}
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_360px]">
           <div>
@@ -129,41 +166,47 @@ function ScoringPage() {
             <div className="mt-8">
               <div className="text-xs uppercase tracking-wider text-muted-foreground">Rubric — {data.rubric.title}</div>
               <p className="mt-2 text-sm text-muted-foreground">{data.rubric.description}</p>
-              <div className="mt-5 space-y-4">
+              <div className="mt-5 space-y-3">
                 {criteria.map((c) => (
-                  <div key={c.key} className="rounded-2xl border border-border bg-card p-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-heading text-base font-semibold">{c.label}</div>
-                        {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
-                      </div>
-                      <div className="font-mono text-sm text-muted-foreground">
-                        {scores[c.key] ?? 0} / {c.max_score}
-                      </div>
+                  <div key={c.key} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
+                    <div className="flex-1 min-w-[200px]">
+                      <div className="font-heading text-sm font-semibold">{c.label}</div>
+                      {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
                     </div>
-                    <input
-                      type="range"
-                      min={0}
-                      max={c.max_score}
-                      value={scores[c.key] ?? 0}
-                      disabled={locked}
-                      onChange={(e) => setScores((s) => ({ ...s, [c.key]: Number(e.target.value) }))}
-                      className="mt-4 w-full accent-brand"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={c.max_score}
+                        step={1}
+                        value={scores[c.key] ?? 0}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
+                          setScores((s) => ({ ...s, [c.key]: clamped }));
+                        }}
+                        className="rp-input w-20 text-right font-mono"
+                      />
+                      <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
+                    </div>
                   </div>
                 ))}
               </div>
 
               <div className="mt-6">
-                <label className="text-xs uppercase tracking-wider text-muted-foreground">Comments</label>
+                <label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Comments & improvement notes
+                </label>
                 <textarea
                   value={comments}
-                  disabled={locked}
                   onChange={(e) => setComments(e.target.value)}
                   rows={5}
                   className="rp-input mt-2 w-full"
-                  placeholder="Optional notes for the team and admin…"
+                  placeholder="Why this score? What can the team improve? (Visible to admin, mentor, and this team's leader & members only.)"
                 />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Visible to admins, the team's mentor, and only this team's leader & members. Other teams cannot see it.
+                </p>
               </div>
             </div>
           </div>
@@ -173,27 +216,31 @@ function ScoringPage() {
               <div className="text-xs uppercase tracking-wider text-brand">Score preview</div>
               <div className="mt-3 font-heading text-5xl font-bold">{total.toFixed(0)}</div>
               <div className="text-sm text-muted-foreground">out of {max}</div>
+              {currentSubmittedTotal !== null && total !== currentSubmittedTotal && (
+                <div className="mt-2 text-xs font-mono text-amber-700">
+                  Change: {currentSubmittedTotal} → {total} ({total > currentSubmittedTotal ? "+" : ""}{total - currentSubmittedTotal})
+                </div>
+              )}
               <div className="mt-4 text-sm">
                 Weighted contribution:
                 <span className="ml-2 font-mono font-semibold">{weighted.toFixed(2)} / {weight}</span>
               </div>
               <div className="mt-6 space-y-2">
                 <button
-                  disabled={locked || mutate.isPending}
+                  disabled={mutate.isPending}
                   onClick={() => mutate.mutate(false)}
                   className="w-full rounded-full border border-brand text-brand bg-background py-2 text-sm font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" /> Save draft
                 </button>
                 <button
-                  disabled={locked || mutate.isPending}
+                  disabled={mutate.isPending}
                   onClick={() => mutate.mutate(true)}
                   className="w-full rounded-full bg-brand text-brand-foreground py-2 text-sm font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <Send className="h-4 w-4" /> Submit evaluation
+                  <Send className="h-4 w-4" /> {isSubmitted ? "Update score" : "Submit evaluation"}
                 </button>
-                {locked && <p className="text-xs text-emerald-700 mt-2">This evaluation is locked. An admin can reopen it.</p>}
-                {savedAt && !locked && <p className="text-xs text-muted-foreground mt-2">Saved at {savedAt}</p>}
+                {savedAt && <p className="text-xs text-muted-foreground mt-2">Saved at {savedAt}</p>}
               </div>
             </div>
           </aside>

@@ -1145,6 +1145,7 @@ export type Database = {
         Row: {
           comments: string | null
           created_at: string
+          edit_history: Json
           evaluator_id: string | null
           id: string
           phase_number: number
@@ -1160,6 +1161,7 @@ export type Database = {
         Insert: {
           comments?: string | null
           created_at?: string
+          edit_history?: Json
           evaluator_id?: string | null
           id?: string
           phase_number: number
@@ -1175,6 +1177,7 @@ export type Database = {
         Update: {
           comments?: string | null
           created_at?: string
+          edit_history?: Json
           evaluator_id?: string | null
           id?: string
           phase_number?: number
