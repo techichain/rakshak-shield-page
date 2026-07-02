@@ -91,6 +91,8 @@ export function useRPAuth(): RPAuthState {
           isAdmin: roles.includes("cfi_admin") || roles.includes("super_admin"),
           isMentor: roles.includes("mentor"),
           isTeam: roles.includes("team_leader") || roles.includes("team_member"),
+          isTeamLeader: roles.includes("team_leader"),
+          isTeamMember: roles.includes("team_member"),
           isEvaluator: roles.includes("evaluator"),
           isAuthority: roles.includes("authority"),
           isFinance: roles.includes("finance"),
