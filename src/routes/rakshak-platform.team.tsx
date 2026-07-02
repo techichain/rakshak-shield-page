@@ -86,6 +86,38 @@ function TeamDashboard() {
         </h1>
         <p className="mt-4 text-muted-foreground">{team.college} · {team.city}, {team.state}</p>
 
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <Link
+            to="/rakshak-platform/team/book-mentor"
+            className="group rounded-2xl border border-brand/30 bg-brand-lite p-5 hover:border-brand transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-brand text-brand-foreground flex items-center justify-center">
+                <Video className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="font-heading text-lg">Book mentor session</div>
+                <div className="text-xs text-muted-foreground">Live availability · auto Google Meet</div>
+              </div>
+            </div>
+          </Link>
+          <Link
+            to="/rakshak-platform/meetings"
+            className="group rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                <CalendarDays className="h-5 w-5 text-brand" />
+              </div>
+              <div>
+                <div className="font-heading text-lg">All meetings</div>
+                <div className="text-xs text-muted-foreground">Upcoming & past sessions, RSVPs</div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-7">
             <h2 className="font-heading text-xl font-semibold">Phase timeline</h2>
