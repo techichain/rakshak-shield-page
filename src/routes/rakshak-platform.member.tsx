@@ -6,7 +6,9 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { getMyTeamMemberOverview } from "@/lib/rakshak-platform/team-members.functions";
 import { listMyMeetings } from "@/lib/rakshak-platform/meetings.functions";
-import { CalendarDays, Loader2, UsersRound, Video, ExternalLink } from "lucide-react";
+import { CalendarDays, Loader2, UsersRound, Video, ExternalLink, BookOpen } from "lucide-react";
+import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 
 export const Route = createFileRoute("/rakshak-platform/member")({
   ssr: false,
