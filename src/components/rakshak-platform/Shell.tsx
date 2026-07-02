@@ -336,18 +336,20 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
         {menuOpen && (
           <div className={`border-t border-border bg-background max-h-[75vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
             <nav className="mx-auto w-full max-w-7xl px-5 py-5 flex flex-col gap-5 text-sm">
-              <MobileGroup
-                label="Explore"
-                items={[
-                  { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
-                  { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
-                  { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
-                  { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                  { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
-                  { to: "/rakshak-platform/sponsor", label: "Sponsor", icon: HeartHandshake },
-                ]}
-                onPick={() => setMenuOpen(false)}
-              />
+              {!evaluatorOnly && (
+                <MobileGroup
+                  label="Explore"
+                  items={[
+                    { to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin },
+                    { to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen },
+                    { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
+                    { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
+                    { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
+                    { to: "/rakshak-platform/sponsor", label: "Sponsor", icon: HeartHandshake },
+                  ]}
+                  onPick={() => setMenuOpen(false)}
+                />
+              )}
 
               {isAuthority && (
                 <MobileGroup label="Authority" items={[
