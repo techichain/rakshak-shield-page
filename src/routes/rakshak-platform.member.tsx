@@ -33,7 +33,7 @@ function formatMeetingDate(iso: string) {
 function MemberDashboard() {
   const { loading, fullName, email } = useRPAuth();
   const fetchOverview = useServerFn(getMyTeamMemberOverview);
-  const fetchMeetings = useServerFn(listMeetings);
+  const fetchMeetings = useServerFn(listMyMeetings);
   const [overview, setOverview] = useState<any>(null);
   const [meetings, setMeetings] = useState<any[]>([]);
   const [err, setErr] = useState<string | null>(null);
