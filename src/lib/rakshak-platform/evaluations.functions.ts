@@ -250,6 +250,30 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
     const weight = Number(rubric.phase_weight) || 0;
     const weighted = Number(((total / max) * weight).toFixed(2));
 
+    // Fetch existing eval to build history entry (allows re-submission with change log).
+    const { data: existing } = await supabase
+      .from("rp_evaluations")
+      .select("id, total_score, weighted_score, edit_history, status")
+      .eq("submission_id", data.submissionId)
+      .eq("evaluator_id", userId)
+      .maybeSingle();
+
+    const prevHistory: any[] = Array.isArray(existing?.edit_history) ? (existing!.edit_history as any[]) : [];
+    const changed = !existing || Number(existing.total_score ?? -1) !== total || Number(existing.weighted_score ?? -1) !== weighted;
+    const newHistory = changed
+      ? [
+          ...prevHistory,
+          {
+            at: new Date().toISOString(),
+            by: userId,
+            total_score: total,
+            weighted_score: weighted,
+            status: data.submit ? "submitted" : "draft",
+            prev_total: existing ? Number(existing.total_score ?? 0) : null,
+          },
+        ].slice(-50)
+      : prevHistory;
+
     const payload: any = {
       submission_id: data.submissionId,
       team_id: submission.team_id,
@@ -260,7 +284,8 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
       weighted_score: weighted,
       comments: data.comments ?? null,
       status: data.submit ? "submitted" : "draft",
-      submitted_at: data.submit ? new Date().toISOString() : null,
+      submitted_at: data.submit ? new Date().toISOString() : (existing?.status === "submitted" ? new Date().toISOString() : null),
+      edit_history: newHistory,
     };
 
     const { data: row, error } = await supabase
