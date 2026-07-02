@@ -215,13 +215,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/evaluator/compare", label: "Compare", icon: ScanSearch },
               ]} />
             )}
-            {(isMentor || isTeam) && (
-              <NavLink to="/rakshak-platform/meetings" label="Meetings" icon={CalendarDays} />
-            )}
             {isMentor && (
               <NavDropdown id="mentor" label="Mentor" icon={GraduationCap} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                 { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
-                { to: "/rakshak-platform/mentor/availability", label: "Availability", icon: CalendarDays },
               ]} />
             )}
             {isTeam && (
