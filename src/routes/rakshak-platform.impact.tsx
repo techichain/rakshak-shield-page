@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getPublicImpactStats } from "@/lib/rakshak-platform/stats.functions";
-import { Users, MapPin, Megaphone, Award, Target } from "lucide-react";
+import { Building2, ClipboardList, MapPin, Map } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/impact")({
   loader: ({ context }) =>
@@ -55,12 +55,11 @@ function ImpactPage() {
           Every number on this page comes straight from the field — student teams documenting hazards, mentors signing off, authorities receiving formal pitches.
         </p>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Stat icon={Users} label="Active student teams" value={data.teams} tone="brand" />
-          <Stat icon={MapPin} label="Hazards mapped" value={data.locations} />
-          <Stat icon={Target} label="Locations chosen for fixes" value={data.finalLocations} />
-          <Stat icon={Megaphone} label="Pitches sent to authorities" value={data.authorityReports} />
-          <Stat icon={Award} label="Certificates issued" value={data.certificates} />
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat icon={Building2} label="Institutions" value={data.institutions} tone="brand" />
+          <Stat icon={ClipboardList} label="Stakeholder surveys" value={data.stakeholderSurveys} />
+          <Stat icon={MapPin} label="Cities" value={data.cities} />
+          <Stat icon={Map} label="States" value={data.states} />
         </div>
       </Section>
 

@@ -8,19 +8,28 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
       locationsQ,
       finalLocationsQ,
       authorityQ,
-      sponsorsQ,
       certsQ,
+      teamsMetaQ,
+      surveysQ,
     ] = await Promise.all([
       supabaseAdmin.from("rp_teams").select("id", { count: "exact", head: true }).eq("status", "active"),
       supabaseAdmin.from("rp_locations").select("id", { count: "exact", head: true }),
       supabaseAdmin.from("rp_locations").select("id", { count: "exact", head: true }).eq("is_final_selected", true),
       supabaseAdmin.from("rp_authority_reports").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("rp_sponsorships").select("amount_inr").eq("status", "paid"),
       supabaseAdmin.from("rp_certificates").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("rp_teams").select("college, city, state").eq("status", "active").limit(5000),
+      supabaseAdmin.from("rp_submissions").select("id", { count: "exact", head: true }).eq("phase_number", 2),
     ]);
 
-    const totalFundsInr =
-      (sponsorsQ.data ?? []).reduce((acc: number, r: any) => acc + Number(r.amount_inr || 0), 0);
+    const norm = (s: any) => (s == null ? "" : String(s).trim().toLowerCase());
+    const institutions = new Set<string>();
+    const cities = new Set<string>();
+    const states = new Set<string>();
+    (teamsMetaQ.data ?? []).forEach((r: any) => {
+      const c = norm(r.college); if (c) institutions.add(c);
+      const ci = norm(r.city); if (ci) cities.add(ci);
+      const st = norm(r.state); if (st) states.add(st);
+    });
 
     // Top cities by # of mapped locations (light query)
     const { data: cityRows } = await supabaseAdmin
@@ -44,7 +53,10 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
       finalLocations: finalLocationsQ.count ?? 0,
       authorityReports: authorityQ.count ?? 0,
       certificates: certsQ.count ?? 0,
-      totalFundsInr,
+      institutions: institutions.size,
+      cities: cities.size,
+      states: states.size,
+      stakeholderSurveys: surveysQ.count ?? 0,
       topCities,
     };
   });
