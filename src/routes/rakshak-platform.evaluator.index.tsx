@@ -265,7 +265,6 @@ function QueueRow({ item }: { item: any }) {
           <div className="mt-0.5 text-xs text-muted-foreground truncate">
             <span className="font-medium text-foreground/80">{item.title}</span>
             <span className="opacity-60"> · {PHASE_TITLES[item.phase_number]}</span>
-            {team?.city && <span className="opacity-60"> · {team.city}{team.state ? `, ${team.state}` : ""}</span>}
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
