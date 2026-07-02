@@ -62,11 +62,14 @@ function DashboardRedirect() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (isAdmin) { navigate({ to: "/rakshak-platform/admin" }); return; }
     if (isMentor) { navigate({ to: "/rakshak-platform/mentor" }); return; }
+    if (isTeamLeader) { navigate({ to: "/rakshak-platform/team" }); return; }
+    if (isTeamMember) { navigate({ to: "/rakshak-platform/member" }); return; }
     if (isTeam) { navigate({ to: "/rakshak-platform/team" }); return; }
     if (isEvaluator) { navigate({ to: "/rakshak-platform/evaluator" }); return; }
     if (isAuthority) { navigate({ to: "/rakshak-platform/authority" }); return; }
     if (isFinance) { navigate({ to: "/rakshak-platform/admin/finance" }); return; }
-  }, [loading, userId, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance, navigate]);
+  }, [loading, userId, isAdmin, isMentor, isTeam, isTeamLeader, isTeamMember, isEvaluator, isAuthority, isFinance, navigate]);
+
 
   async function chooseRole() {
     if (!userId) return;
