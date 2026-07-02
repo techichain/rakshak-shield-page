@@ -207,7 +207,26 @@ function MemberDashboard() {
             </div>
           </div>
         </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <RecentFeedbackCard />
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-brand" />
+              <h2 className="font-heading text-lg font-semibold">Mentor resources</h2>
+            </div>
+            {teams.map((t: any) => (
+              <div key={t.id} className="mt-3">
+                {teams.length > 1 && (
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">{t.team_name}</div>
+                )}
+                <MentorResourcesList mode="viewer" teamId={t.id} />
+              </div>
+            ))}
+          </div>
+        </div>
       </Section>
     </PlatformShell>
   );
 }
+
