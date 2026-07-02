@@ -1830,6 +1830,79 @@ export type Database = {
           },
         ]
       }
+      rp_mentor_resources: {
+        Row: {
+          created_at: string
+          description: string | null
+          external_url: string | null
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          kind: string
+          mentor_id: string
+          storage_path: string | null
+          team_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          kind: string
+          mentor_id: string
+          storage_path?: string | null
+          team_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          kind?: string
+          mentor_id?: string
+          storage_path?: string | null
+          team_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mentor_resources_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_resources_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_resources_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_mentor_slots: {
         Row: {
           booked_count: number
@@ -2938,6 +3011,10 @@ export type Database = {
       }
       rp_can_view_meeting: {
         Args: { _meeting: string; _user: string }
+        Returns: boolean
+      }
+      rp_can_view_mentor_resource: {
+        Args: { _mentor: string; _team: string; _user: string }
         Returns: boolean
       }
       rp_has_role: {
