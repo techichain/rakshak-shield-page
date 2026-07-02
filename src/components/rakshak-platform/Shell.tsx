@@ -207,7 +207,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
                 <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />
-                <NavLink to="/rakshak-platform/sponsor" label="Sponsor" icon={HeartHandshake} />
               </>
             )}
 
@@ -276,7 +275,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             {(isAdmin || isFinance) && (
               <NavDropdown id="finance" label="Finance" icon={Wallet} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                 { to: "/rakshak-platform/admin/finance", label: "Finance", icon: Wallet },
-                { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships", icon: HeartHandshake },
               ]} />
             )}
           </nav>
@@ -345,7 +343,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
                     { to: "/rakshak-platform/mentors", label: "Mentors", icon: Users },
-                    { to: "/rakshak-platform/sponsor", label: "Sponsor", icon: HeartHandshake },
                   ]}
                   onPick={() => setMenuOpen(false)}
                 />
@@ -422,7 +419,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {(isAdmin || isFinance) && (
                 <MobileGroup label="Finance" items={[
                   { to: "/rakshak-platform/admin/finance", label: "Finance", icon: Wallet },
-                  { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships", icon: HeartHandshake },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
             </nav>
@@ -447,7 +443,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
               <li><Link to="/rakshak-platform/impact">Impact</Link></li>
               <li><Link to="/rakshak-platform/mentors">Mentor network</Link></li>
-              <li><Link to="/rakshak-platform/sponsor">Sponsor</Link></li>
+              
               <li><Link to="/rakshak-platform/mentor-apply">Become a mentor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
             </ul>
