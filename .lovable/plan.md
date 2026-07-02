@@ -1,76 +1,68 @@
-## Goal
+## Scope
 
-Ship 4 workstreams plus mobile responsiveness pass across the Rakshak admin/team surfaces.
+Based on your answers:
+- **Team lead** can only meet with their team's assigned mentor (no picker, no email textarea).
+- **Google Meet link** is auto-created by the Google Calendar API on the team lead's calendar (requires them to have connected Google — otherwise we tell them to connect first).
+- **Mentor availability** is read live from the mentor's connected Google Calendar (free/busy). If the mentor hasn't connected Google, we show a clear "mentor hasn't shared availability" message instead of falling back.
+- **Buttons** for "Meetings" and "Availability" live only in each role's primary dashboard card. All other nav entries are removed.
 
-## 1. Integrations smoke tests (in-app + script)
+## 1. Team lead — new "Book mentor session" page
 
-- Add `runIntegrationSmoke` server fn in `src/lib/rakshak-platform/integrations.functions.ts`:
-  - For each placeholder hook (cron health ping, webhook signature echo, AI gateway ping, storage bucket reachability, supabase admin ping) return `{ name, status: 'pass'|'fail'|'skip', latencyMs, detail }`.
-  - Real checks where cheap (env var presence, `select 1` on supabase, HEAD on cron endpoint, AI gateway models list). Placeholder integrations return `skip` with reason.
-- Update `rakshak-platform.admin.integrations.tsx`:
-  - Per-row "Run smoke test" button + "Run all" header button.
-  - Badge column for last result, timestamp, latency, detail tooltip.
-  - Results held in component state (no DB persistence for v1).
-- Add `/api/public/hooks/health-ping` route returning `{ ok: true, ts }` so smoke test has a real target.
+New route: `src/routes/rakshak-platform.team.book-mentor.tsx`.
 
-## 2. Cron monitoring upgrade
+Flow:
+1. Loads the team leader's team → resolves `assigned_mentor_id` + mentor's `profile_id` + `full_name`.
+2. Requires the team lead to have connected Google Calendar. If not, shows one-click "Connect Google Calendar" (existing OAuth). Same gate: if the mentor hasn't connected Google, show "Mentor hasn't shared availability yet — please contact them" (no fallback to manual slots).
+3. New server fn `getMentorFreeBusy` (in `src/lib/rakshak-platform/mentor-sessions.functions.ts`):
+   - Verifies caller is the leader of a team whose `assigned_mentor_id` maps to the target mentor.
+   - Uses `supabaseAdmin` to fetch the mentor's stored access token (refreshed via existing `getValidAccessToken`, exported from `google-calendar.server.ts`).
+   - Calls `POST https://www.googleapis.com/calendar/v3/freeBusy` for the next 14 days on the mentor's primary calendar.
+   - Returns busy intervals + mentor working hours (default 9am–7pm IST, 30-min slots) so the client can render free slots.
+4. Team lead picks a slot + title + agenda → calls new server fn `bookMentorMeeting`:
+   - Inserts into `rp_meetings` (type `team_mentor`, `created_by = team lead`, `team_id`).
+   - Adds attendees: team lead + mentor.
+   - Calls **new** `createMeetingOnCreatorCalendar(meetingId)` which uses the team lead's Google token to `POST /calendars/primary/events?conferenceDataVersion=1&sendUpdates=all` with:
+     - `attendees: [mentorEmail, teamLeadEmail]`
+     - `conferenceData.createRequest` → Google Meet auto-generated
+     - `extendedProperties.private.rp_meeting_id`
+   - Writes the returned Meet link + Google event id into `rp_meetings` (`meeting_link`, new column `google_event_id`).
+   - Google sends the calendar invite email automatically (`sendUpdates=all`) — no separate Resend/queue send for this path.
+5. Success screen shows the confirmed slot + Meet link.
 
-- `cron-alerts.functions.ts`: add `listGroupedHealth` returning hooks grouped by status bucket (`healthy`, `degraded`, `failing`, `stale`, `unknown`) with counts and per-hook last-run/last-error.
-- `rakshak-platform.admin.cron-health.tsx`:
-  - Render grouped accordions, group counts in header chips, color-coded.
-  - "Acknowledge" + "Open alert rule" actions per row.
-  - Top summary bar with totals + last evaluation time.
-- `rakshak-platform.admin.alerts.tsx`:
-  - Clearer rule editor: failure threshold, stale-minutes, severity, notify-roles multi-select.
-  - Show recent triggered alerts (read `rp_notifications` filtered by type `cron_alert_*`).
-- Notification trigger improvements: include hook name, last error excerpt, deep link to cron-health filtered row in `action_link`.
+## 2. Existing "Schedule a meeting" form (`/rakshak-platform/meetings`)
 
-## 3. Accessibility audit + fixes
+- For **team leaders**, the free-form scheduling form is replaced with a prominent card that links to the new "Book with mentor" page (per your "only assigned mentor" answer). Their upcoming/past meeting list stays.
+- For **mentors, evaluators, admins**, the existing form remains (they still need free-form scheduling), but the type dropdown removes `team_mentor` for team leaders and the extra-emails textarea stays for the other roles.
 
-Targets: leaderboard (`rakshak-platform.leaderboard.tsx`, `.print.tsx`), admin shell + key admin pages (cron-health, alerts, qa, integrations, exports, evaluator-leaderboard), certificate verification (`rakshak-platform.verify.$code.tsx` or equivalent).
+## 3. Mentor `/mentor/availability` page
 
-Fixes applied directly:
-- Replace icon-only buttons with `aria-label`.
-- Ensure single `<main>` per route; add landmarks (`<nav>`, `<section aria-labelledby>`).
-- Add visible labels / `htmlFor` for filter selects and date inputs.
-- Replace `text-gray-*` / low-contrast tokens with semantic tokens.
-- Heading order pass (single h1, sequential h2/h3).
-- `aria-live="polite"` regions for async filter results and smoke-test output.
-- Tap-target sizing `min-h-11 min-w-11` on icon buttons; `h-dvh` swap where `h-screen` blocks mobile chrome.
-- Tables: `<caption>` + `scope="col"` on headers; add "Skip to content" link in admin shell.
+Kept as-is for now (mentors still see their bookings there), but the "publish manual slots" form is hidden behind a collapsed "Advanced" section, and a new prominent panel says "Your Google Calendar is your availability" with connect/disconnect status. No new manual-slot workflow is added.
 
-## 4. Mobile / responsive pass
+## 4. Consolidate nav
 
-- Admin Shell: collapsible nav with Sheet trigger on `<md`, sticky top bar with hamburger.
-- Tables (leaderboard, evaluator-leaderboard, qa, exports): wrap in `overflow-x-auto`, add stacked card view on `sm:` for leaderboard.
-- Filter bars: switch to `flex-wrap gap-2`, full-width inputs on mobile.
-- Verify cert page: center card, `max-w-md` mobile, larger QR area.
-- Set responsive font sizing via `text-base md:text-lg` where headings overflowed.
+In `src/components/rakshak-platform/Shell.tsx`:
+- Remove standalone `Meetings` and `Availability` links from desktop nav and mobile menu for all roles.
+- Add a single "Meetings" CTA card at the top of each role's home dashboard (`team.tsx`, `mentor.index.tsx`, `evaluator.index.tsx`, `admin.index.tsx`) linking to `/rakshak-platform/meetings` (or `/team/book-mentor` for team leads).
+- Admin "All meetings" stays inside the Admin → People dropdown (single entry, no duplicate).
 
-## 5. End-to-end regression suite
+## 5. DB migration
 
-- Add Playwright: `bun add -d @playwright/test`, `playwright.config.ts` pointing at preview URL via `PLAYWRIGHT_BASE_URL` env.
-- Test specs under `tests/e2e/`:
-  - `auth.spec.ts` — sign-in form renders, validation errors show, redirect to `/auth` when hitting protected route.
-  - `admin-dashboards.spec.ts` — admin home loads, nav links resolve, cron-health groups render.
-  - `qa-sweep.spec.ts` — `/rakshak-platform/admin/qa` renders, severity filter changes count.
-  - `certificates.spec.ts` — verify page handles invalid code + valid code (mocked).
-  - `exports.spec.ts` — print route renders dataset table.
-  - `integrations-smoke.spec.ts` — "Run all" populates result badges.
-- In-app QA checklist page `rakshak-platform.admin.qa-checklist.tsx` listing manual scenarios + pass/fail toggles (persisted to localStorage) for cases Playwright can't cover (real webhook delivery, real OAuth).
-- README note: tests are opt-in (`bun run test:e2e`), not part of Lovable build.
+Add columns to `rp_meetings`:
+- `google_event_id text` — for later RSVP sync + reschedule via API.
+- `google_organizer_user_id uuid` — which user's calendar hosts the event.
+
+No RLS changes.
+
+## Technical notes
+
+- Reuse existing OAuth flow in `google-calendar.functions.ts` / `google-calendar.server.ts`. No new secrets needed (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` already present).
+- Export `getValidAccessToken` from `google-calendar.server.ts` so the new mentor-sessions functions can reuse it (currently module-private).
+- `conferenceDataVersion=1` + `conferenceData.createRequest.conferenceSolutionKey.type = "hangoutsMeet"` gives us Meet links; works with `calendar.events` scope already granted.
+- `sendUpdates=all` makes Google email the invite — this replaces the current Resend path for the team-lead flow (Resend path stays for the other roles' free-form form).
+- If either party disconnects Google mid-flow, the booking button surfaces the specific missing side.
 
 ## Out of scope
 
-- New DB tables (reuse `rp_cron_alert_rules`, `rp_notifications`).
-- Persisting smoke-test history (v1 in-memory only).
-- Rewriting existing certificate generation logic.
-
-## Delivery order this turn
-
-1. Integrations smoke tests + health-ping route.
-2. Cron monitoring upgrade (grouping + alert UI polish).
-3. A11y + mobile responsiveness pass on the listed pages.
-4. Playwright config + spec files + in-app checklist.
-
-Confirm and I'll start.
+- Rewriting the Resend/ICS pipeline for non-team-lead scheduling.
+- Reschedule/cancel via GCal API (current portal-side cancel still works; adding `google_event_id` sets us up for a later pass).
+- Mentor manual-slot page migration (kept but de-emphasized).
