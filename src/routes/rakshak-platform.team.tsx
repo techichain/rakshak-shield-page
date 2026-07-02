@@ -151,6 +151,17 @@ function TeamDashboard() {
             {team.risk_reason && <p className="text-xs text-red-600 mt-1">{team.risk_reason}</p>}
           </div>
         </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <RecentFeedbackCard />
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-brand" />
+              <h2 className="font-heading text-lg font-semibold">Resources from your mentor</h2>
+            </div>
+            <MentorResourcesList mode="viewer" teamId={team.id} />
+          </div>
+        </div>
       </Section>
     </PlatformShell>
   );
