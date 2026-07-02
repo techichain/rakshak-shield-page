@@ -72,6 +72,7 @@ function MeetingsPage() {
   const [extraEmailsText, setExtraEmailsText] = useState("");
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
+  const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
