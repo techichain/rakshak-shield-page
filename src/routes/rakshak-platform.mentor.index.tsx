@@ -58,6 +58,28 @@ function MentorDashboard() {
           Your assigned
           <br /><span className="text-brand">teams.</span>
         </h1>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <Link to="/rakshak-platform/mentor/availability" className="rounded-2xl border border-brand/30 bg-brand-lite p-5 hover:border-brand transition">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-brand text-brand-foreground flex items-center justify-center"><Clock className="h-5 w-5" /></div>
+              <div>
+                <div className="font-heading text-lg">Availability</div>
+                <div className="text-xs text-muted-foreground">Connect Google Calendar so teams can book you</div>
+              </div>
+            </div>
+          </Link>
+          <Link to="/rakshak-platform/meetings" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><CalendarDays className="h-5 w-5 text-brand" /></div>
+              <div>
+                <div className="font-heading text-lg">Meetings</div>
+                <div className="text-xs text-muted-foreground">Upcoming sessions & RSVPs</div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {teams.length === 0 ? (
           <div className="mt-12">
             <EmptyState
