@@ -361,6 +361,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isMentor && (
                 <MobileGroup label="Mentor" items={[
                   { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
+                  { to: "/rakshak-platform/mentor/resources", label: "Resources", icon: BookOpen },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
