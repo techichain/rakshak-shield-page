@@ -81,7 +81,17 @@ function MeetingsPage() {
 
   useEffect(() => {
     supabase.from("rp_teams").select("id, team_name").then(({ data }) => setTeams(data ?? []));
-    supabase.auth.getSession().then(({ data }) => setMyId(data.session?.user?.id ?? null));
+    supabase.auth.getSession().then(async ({ data }) => {
+      const uid = data.session?.user?.id ?? null;
+      setMyId(uid);
+      if (uid) {
+        const { data: roles } = await supabase.from("rp_user_roles").select("role").eq("user_id", uid);
+        const rs = (roles ?? []).map((r: any) => r.role);
+        // "Team leader only" = has team_leader role and no privileged scheduling role
+        const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
+        setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
+      }
+    });
   }, []);
 
   const needsTeam = type === "team_mentor" || type === "evaluator_team" || type === "team_internal";
