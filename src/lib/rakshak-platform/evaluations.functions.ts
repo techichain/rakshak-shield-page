@@ -119,7 +119,7 @@ export const getEvaluatorQueue = createServerFn({ method: "GET" })
     // assigned teams
     const { data: assignedTeams } = await supabase
       .from("rp_teams")
-      .select("id, team_name, city, state, current_phase")
+      .select("id, team_name, current_phase")
       .eq("assigned_evaluator_id", userId);
     const assignedTeamIds = (assignedTeams ?? []).map((t) => t.id);
 
@@ -128,7 +128,7 @@ export const getEvaluatorQueue = createServerFn({ method: "GET" })
       .from("rp_submissions")
       .select(`
         id, team_id, phase_number, title, summary, status, submitted_at, updated_at,
-        rp_teams ( team_name, city, state, current_phase )
+        rp_teams ( team_name, current_phase )
       `)
       .in("status", ["mentor_approved", "under_admin_review", "admin_approved", "completed"])
       .order("submitted_at", { ascending: false, nullsFirst: false })
@@ -140,7 +140,7 @@ export const getEvaluatorQueue = createServerFn({ method: "GET" })
     const { data: mine } = submissionIds.length
       ? await supabase
           .from("rp_evaluations")
-          .select("id, submission_id, status, total_score, weighted_score")
+          .select("id, submission_id, status, total_score, weighted_score, updated_at, edit_history")
           .eq("evaluator_id", userId)
           .in("submission_id", submissionIds)
       : { data: [] as any[] };

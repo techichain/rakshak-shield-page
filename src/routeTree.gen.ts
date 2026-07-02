@@ -63,7 +63,6 @@ import { Route as RakshakPlatformMentorAvailabilityRouteImport } from './routes/
 import { Route as RakshakPlatformMIdRouteImport } from './routes/rakshak-platform.m.$id'
 import { Route as RakshakPlatformLeaderboardPrintRouteImport } from './routes/rakshak-platform.leaderboard.print'
 import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
-import { Route as RakshakPlatformEvaluatorCompareRouteImport } from './routes/rakshak-platform.evaluator.compare'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
 import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
 import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
@@ -420,12 +419,6 @@ const RakshakPlatformKnowledgeSlugRoute =
     id: '/$slug',
     path: '/$slug',
     getParentRoute: () => RakshakPlatformKnowledgeRoute,
-  } as any)
-const RakshakPlatformEvaluatorCompareRoute =
-  RakshakPlatformEvaluatorCompareRouteImport.update({
-    id: '/compare',
-    path: '/compare',
-    getParentRoute: () => RakshakPlatformEvaluatorRoute,
   } as any)
 const RakshakPlatformEvaluatorSubmissionIdRoute =
   RakshakPlatformEvaluatorSubmissionIdRouteImport.update({
@@ -842,7 +835,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
-  '/rakshak-platform/evaluator/compare': typeof RakshakPlatformEvaluatorCompareRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/leaderboard/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
@@ -948,7 +940,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
-  '/rakshak-platform/evaluator/compare': typeof RakshakPlatformEvaluatorCompareRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/leaderboard/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
@@ -1062,7 +1053,6 @@ export interface FileRoutesById {
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
-  '/rakshak-platform/evaluator/compare': typeof RakshakPlatformEvaluatorCompareRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/leaderboard/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
@@ -1179,7 +1169,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
-    | '/rakshak-platform/evaluator/compare'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/leaderboard/print'
     | '/rakshak-platform/m/$id'
@@ -1285,7 +1274,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
-    | '/rakshak-platform/evaluator/compare'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/leaderboard/print'
     | '/rakshak-platform/m/$id'
@@ -1398,7 +1386,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/auth/callback'
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
-    | '/rakshak-platform/evaluator/compare'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/leaderboard/print'
     | '/rakshak-platform/m/$id'
@@ -1841,13 +1828,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/knowledge/$slug'
       preLoaderRoute: typeof RakshakPlatformKnowledgeSlugRouteImport
       parentRoute: typeof RakshakPlatformKnowledgeRoute
-    }
-    '/rakshak-platform/evaluator/compare': {
-      id: '/rakshak-platform/evaluator/compare'
-      path: '/compare'
-      fullPath: '/rakshak-platform/evaluator/compare'
-      preLoaderRoute: typeof RakshakPlatformEvaluatorCompareRouteImport
-      parentRoute: typeof RakshakPlatformEvaluatorRoute
     }
     '/rakshak-platform/evaluator/$submissionId': {
       id: '/rakshak-platform/evaluator/$submissionId'
@@ -2442,7 +2422,6 @@ const RakshakPlatformAuthRouteWithChildren =
 
 interface RakshakPlatformEvaluatorRouteChildren {
   RakshakPlatformEvaluatorSubmissionIdRoute: typeof RakshakPlatformEvaluatorSubmissionIdRoute
-  RakshakPlatformEvaluatorCompareRoute: typeof RakshakPlatformEvaluatorCompareRoute
   RakshakPlatformEvaluatorIndexRoute: typeof RakshakPlatformEvaluatorIndexRoute
 }
 
@@ -2450,7 +2429,6 @@ const RakshakPlatformEvaluatorRouteChildren: RakshakPlatformEvaluatorRouteChildr
   {
     RakshakPlatformEvaluatorSubmissionIdRoute:
       RakshakPlatformEvaluatorSubmissionIdRoute,
-    RakshakPlatformEvaluatorCompareRoute: RakshakPlatformEvaluatorCompareRoute,
     RakshakPlatformEvaluatorIndexRoute: RakshakPlatformEvaluatorIndexRoute,
   }
 
