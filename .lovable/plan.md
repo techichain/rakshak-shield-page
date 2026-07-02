@@ -1,68 +1,69 @@
-## Scope
 
-Based on your answers:
-- **Team lead** can only meet with their team's assigned mentor (no picker, no email textarea).
-- **Google Meet link** is auto-created by the Google Calendar API on the team lead's calendar (requires them to have connected Google — otherwise we tell them to connect first).
-- **Mentor availability** is read live from the mentor's connected Google Calendar (free/busy). If the mentor hasn't connected Google, we show a clear "mentor hasn't shared availability" message instead of falling back.
-- **Buttons** for "Meetings" and "Availability" live only in each role's primary dashboard card. All other nav entries are removed.
+## What already works (no rebuild needed)
 
-## 1. Team lead — new "Book mentor session" page
+The submission → mentor review → admin review cascade is already live end-to-end:
+- Team leader/members submit via `/rakshak-platform/team/phases/$phase`; report stored in `rp_submissions` with files in `rp_submission_files`.
+- Mentor reviews on their dashboard → status becomes `mentor_approved` (routed to admin) or `changes_requested`.
+- Admin sees mentor-approved items in `/rakshak-platform/admin/reviews` and can final-approve.
+- Feedback (`rp_feedback`) is already visible to the team leader, team members, mentor, and admin on the phase page.
 
-New route: `src/routes/rakshak-platform.team.book-mentor.tsx`.
+Gap = **mentor resource sharing**, **admin per-team hub**, and **making feedback more visible** on team/member dashboards.
 
-Flow:
-1. Loads the team leader's team → resolves `assigned_mentor_id` + mentor's `profile_id` + `full_name`.
-2. Requires the team lead to have connected Google Calendar. If not, shows one-click "Connect Google Calendar" (existing OAuth). Same gate: if the mentor hasn't connected Google, show "Mentor hasn't shared availability yet — please contact them" (no fallback to manual slots).
-3. New server fn `getMentorFreeBusy` (in `src/lib/rakshak-platform/mentor-sessions.functions.ts`):
-   - Verifies caller is the leader of a team whose `assigned_mentor_id` maps to the target mentor.
-   - Uses `supabaseAdmin` to fetch the mentor's stored access token (refreshed via existing `getValidAccessToken`, exported from `google-calendar.server.ts`).
-   - Calls `POST https://www.googleapis.com/calendar/v3/freeBusy` for the next 14 days on the mentor's primary calendar.
-   - Returns busy intervals + mentor working hours (default 9am–7pm IST, 30-min slots) so the client can render free slots.
-4. Team lead picks a slot + title + agenda → calls new server fn `bookMentorMeeting`:
-   - Inserts into `rp_meetings` (type `team_mentor`, `created_by = team lead`, `team_id`).
-   - Adds attendees: team lead + mentor.
-   - Calls **new** `createMeetingOnCreatorCalendar(meetingId)` which uses the team lead's Google token to `POST /calendars/primary/events?conferenceDataVersion=1&sendUpdates=all` with:
-     - `attendees: [mentorEmail, teamLeadEmail]`
-     - `conferenceData.createRequest` → Google Meet auto-generated
-     - `extendedProperties.private.rp_meeting_id`
-   - Writes the returned Meet link + Google event id into `rp_meetings` (`meeting_link`, new column `google_event_id`).
-   - Google sends the calendar invite email automatically (`sendUpdates=all`) — no separate Resend/queue send for this path.
-5. Success screen shows the confirmed slot + Meet link.
+## What I'll build
 
-## 2. Existing "Schedule a meeting" form (`/rakshak-platform/meetings`)
+### 1. Mentor resources (files + links)
 
-- For **team leaders**, the free-form scheduling form is replaced with a prominent card that links to the new "Book with mentor" page (per your "only assigned mentor" answer). Their upcoming/past meeting list stays.
-- For **mentors, evaluators, admins**, the existing form remains (they still need free-form scheduling), but the type dropdown removes `team_mentor` for team leaders and the extra-emails textarea stays for the other roles.
+**Database (migration):**
+- Create `public.rp_mentor_resources`:
+  - `mentor_id uuid` (profile of the mentor)
+  - `team_id uuid` (nullable — null = shared with ALL teams this mentor is assigned to)
+  - `title`, `description`, `kind` (`'file' | 'link'`)
+  - `external_url` (for links)
+  - `file_name`, `file_type`, `file_size`, `storage_path`, `file_url` (for files)
+  - GRANTs to `authenticated` + `service_role`; RLS:
+    - INSERT/UPDATE/DELETE: only if `mentor_id = auth.uid()` AND caller has mentor role.
+    - SELECT: mentor themselves, admins, or (team member/leader of `team_id`, or of any team assigned to `mentor_id` when `team_id IS NULL`).
+- Create private storage bucket `rp-mentor-resources` with matching policies (mentor writes to `{mentor_id}/…`; team members & admin can read within their scope).
 
-## 3. Mentor `/mentor/availability` page
+**Server functions** (`src/lib/rakshak-platform/mentor-resources.functions.ts`):
+- `createMentorResource` — validates ownership, inserts row (file already uploaded via signed URL).
+- `getMentorResourceUploadUrl` — returns Supabase signed upload URL scoped to `{mentor_id}/{uuid}/{filename}`.
+- `getResourceDownloadUrl` — signed download URL after auth check.
+- `listMyMentorResources` — mentor's own.
+- `listTeamResourcesForViewer` — resources visible to a given team (team members, leader, admin call this).
+- `deleteMentorResource`.
 
-Kept as-is for now (mentors still see their bookings there), but the "publish manual slots" form is hidden behind a collapsed "Advanced" section, and a new prominent panel says "Your Google Calendar is your availability" with connect/disconnect status. No new manual-slot workflow is added.
+**UI:**
+- New route `/rakshak-platform/mentor/resources` — mentor uploads file or adds link, chooses target team ("All my teams" or a specific team), sees list, can delete.
+- CTA card added to mentor dashboard.
+- Team dashboard (`rakshak-platform.team.tsx`) + Member dashboard (`rakshak-platform.member.tsx`) get a **"Resources from your mentor"** section listing files (download) and links (open in new tab).
 
-## 4. Consolidate nav
+### 2. Admin per-team hub
 
-In `src/components/rakshak-platform/Shell.tsx`:
-- Remove standalone `Meetings` and `Availability` links from desktop nav and mobile menu for all roles.
-- Add a single "Meetings" CTA card at the top of each role's home dashboard (`team.tsx`, `mentor.index.tsx`, `evaluator.index.tsx`, `admin.index.tsx`) linking to `/rakshak-platform/meetings` (or `/team/book-mentor` for team leads).
-- Admin "All meetings" stays inside the Admin → People dropdown (single entry, no duplicate).
+- New index route `/rakshak-platform/admin/teams` — searchable table of all teams (name, leader, mentor, phase, status, score) → link to detail page.
+- New detail route `/rakshak-platform/admin/teams/$teamId` with 5 tabs:
+  1. **Overview** — team meta, phase, score, leader, mentor, member count.
+  2. **Submissions & Feedback** — each phase's submission, files, current status, full feedback thread (mentor + admin) with inline approve/request-changes actions.
+  3. **Resources** — everything the mentor shared with this team.
+  4. **Meetings** — upcoming/past meetings for the team (`rp_meetings`).
+  5. **Members** — leader + all team members with contact info.
+- Add "Teams" entry to admin nav in `Shell.tsx`.
 
-## 5. DB migration
+### 3. Feedback surfacing
 
-Add columns to `rp_meetings`:
-- `google_event_id text` — for later RSVP sync + reschedule via API.
-- `google_organizer_user_id uuid` — which user's calendar hosts the event.
-
-No RLS changes.
+- On team leader dashboard (`rakshak-platform.team.tsx`): compact "Recent mentor feedback" card showing latest 3 feedback rows across all phases with jump link to the phase.
+- Same card on member dashboard (`rakshak-platform.member.tsx`) — read-only.
 
 ## Technical notes
 
-- Reuse existing OAuth flow in `google-calendar.functions.ts` / `google-calendar.server.ts`. No new secrets needed (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` already present).
-- Export `getValidAccessToken` from `google-calendar.server.ts` so the new mentor-sessions functions can reuse it (currently module-private).
-- `conferenceDataVersion=1` + `conferenceData.createRequest.conferenceSolutionKey.type = "hangoutsMeet"` gives us Meet links; works with `calendar.events` scope already granted.
-- `sendUpdates=all` makes Google email the invite — this replaces the current Resend path for the team-lead flow (Resend path stays for the other roles' free-form form).
-- If either party disconnects Google mid-flow, the booking button surfaces the specific missing side.
+- Reuse existing `rp_submissions` / `rp_feedback` / `rp_meetings` RLS (already scoped).
+- New RLS helper `rp_can_view_mentor_resource(_resource, _user)` (SECURITY DEFINER) to avoid recursion.
+- File upload: browser gets signed URL from server fn → uploads directly → server fn records metadata.
+- Admin tab page reuses existing server fns (`getTeamReport`, `getSubmissionDetail`, `listMeetings`, `listTeamMembers`, `listTeamResourcesForViewer`, `adminReviewSubmission`).
+- No changes to submission flow itself — the review/approval cascade already routes mentor-approved reports to admin.
 
 ## Out of scope
+- No changes to how submissions are created or the mentor/admin approval statuses.
+- No email notifications for new resources (can add later if wanted).
 
-- Rewriting the Resend/ICS pipeline for non-team-lead scheduling.
-- Reschedule/cancel via GCal API (current portal-side cancel still works; adding `google_event_id` sets us up for a later pass).
-- Mentor manual-slot page migration (kept but de-emphasized).
+Approve and I'll implement in one pass.

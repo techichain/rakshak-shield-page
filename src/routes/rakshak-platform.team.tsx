@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
-import { Loader2, UsersRound, Video, CalendarDays } from "lucide-react";
+import { Loader2, UsersRound, Video, CalendarDays, BookOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
+import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 
 export const Route = createFileRoute("/rakshak-platform/team")({
   ssr: false,
@@ -149,6 +151,17 @@ function TeamDashboard() {
             <div className="mt-6 text-xs text-muted-foreground">Risk status</div>
             <div className="mt-1 font-semibold">{team.risk_status.replace("_"," ")}</div>
             {team.risk_reason && <p className="text-xs text-red-600 mt-1">{team.risk_reason}</p>}
+          </div>
+        </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <RecentFeedbackCard />
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-brand" />
+              <h2 className="font-heading text-lg font-semibold">Resources from your mentor</h2>
+            </div>
+            <MentorResourcesList mode="viewer" teamId={team.id} />
           </div>
         </div>
       </Section>

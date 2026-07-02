@@ -218,6 +218,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             {isMentor && (
               <NavDropdown id="mentor" label="Mentor" icon={GraduationCap} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                 { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
+                { to: "/rakshak-platform/mentor/resources", label: "Resources", icon: BookOpen, desc: "Share files & links with your teams" },
               ]} />
             )}
             {isTeam && (
@@ -244,6 +245,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing, desc: "Team, mentor & evaluator requests" },
                   { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor apps", icon: GraduationCap },
                   { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
+                  { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound, desc: "Per-team hub: submissions, feedback, resources, meetings" },
                   { to: "/rakshak-platform/admin/team-members", label: "Team members", icon: UsersRound, desc: "Add & invite team members" },
                   { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
@@ -359,6 +361,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               {isMentor && (
                 <MobileGroup label="Mentor" items={[
                   { to: "/rakshak-platform/mentor", label: "Dashboard", icon: LayoutDashboard },
+                  { to: "/rakshak-platform/mentor/resources", label: "Resources", icon: BookOpen },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
