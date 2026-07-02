@@ -24,10 +24,13 @@ function DashboardRedirect() {
     isAdmin,
     isMentor,
     isTeam,
+    isTeamLeader,
+    isTeamMember,
     isEvaluator,
     isAuthority,
     isFinance,
   } = useRPAuth();
+
 
   const [picking, setPicking] = useState<RoleChoice>("team");
   const [busy, setBusy] = useState(false);
