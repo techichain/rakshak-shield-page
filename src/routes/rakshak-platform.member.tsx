@@ -95,7 +95,7 @@ function MemberDashboard() {
   }
 
   const now = Date.now();
-  const upcoming = meetings.filter((m) => new Date(m.start_time).getTime() >= now - 15 * 60 * 1000);
+  const upcoming = meetings.filter((m: any) => new Date(m.scheduled_start).getTime() >= now - 15 * 60 * 1000);
 
   return (
     <PlatformShell>
