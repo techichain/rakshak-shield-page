@@ -3,7 +3,7 @@ import {
   ChevronDown, LogOut, Menu, X,
   MapPin, BookOpen, Trophy, Sparkles, Users,
   ShieldCheck, ClipboardCheck, CalendarDays, GraduationCap, UsersRound,
-  LayoutDashboard, FileText, UserCog, ScanSearch, Wrench, Wallet, BellRing,
+  LayoutDashboard, FileText, UserCog, Wrench, Wallet, BellRing,
   Mail,
   type LucideIcon,
 } from "lucide-react";
@@ -235,7 +235,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team/phases", label: "Phases" },
                 { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                 { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
-                { to: "/rakshak-platform/team/ai-check", label: "AI check", icon: ScanSearch },
               ]} />
             )}
 
@@ -361,7 +360,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team/phases", label: "Phases", icon: ClipboardCheck },
                   { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                   { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
-                  { to: "/rakshak-platform/team/ai-check", label: "AI check", icon: ScanSearch },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
