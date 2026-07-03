@@ -1831,6 +1831,9 @@ export type Database = {
           location: string | null
           meeting_link: string | null
           meeting_type: string
+          mentor_decision: string
+          mentor_decision_at: string | null
+          mentor_decision_reason: string | null
           mentor_id: string | null
           notes: string | null
           reminder_1h_sent_at: string | null
@@ -1856,6 +1859,9 @@ export type Database = {
           location?: string | null
           meeting_link?: string | null
           meeting_type?: string
+          mentor_decision?: string
+          mentor_decision_at?: string | null
+          mentor_decision_reason?: string | null
           mentor_id?: string | null
           notes?: string | null
           reminder_1h_sent_at?: string | null
@@ -1881,6 +1887,9 @@ export type Database = {
           location?: string | null
           meeting_link?: string | null
           meeting_type?: string
+          mentor_decision?: string
+          mentor_decision_at?: string | null
+          mentor_decision_reason?: string | null
           mentor_id?: string | null
           notes?: string | null
           reminder_1h_sent_at?: string | null
