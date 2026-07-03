@@ -42,10 +42,10 @@ const TEMPLATE_OPTIONS = [
 ] as const
 
 function MassEmailComposer() {
-  const { profile, loading } = useRPAuth()
+  const { isAdmin, loading } = useRPAuth()
   const navigate = useNavigate()
 
-  const isAdmin = profile?.roles?.some((r: string) => ['cfi_admin', 'super_admin'].includes(r))
+  // isAdmin from hook
   useEffect(() => {
     if (!loading && !isAdmin) navigate({ to: '/rakshak-platform/dashboard' })
   }, [loading, isAdmin, navigate])

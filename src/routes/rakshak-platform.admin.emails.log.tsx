@@ -13,9 +13,9 @@ export const Route = createFileRoute('/rakshak-platform/admin/emails/log')({
 })
 
 function MassEmailLog() {
-  const { profile, loading } = useRPAuth()
+  const { isAdmin, loading } = useRPAuth()
   const navigate = useNavigate()
-  const isAdmin = profile?.roles?.some((r: string) => ['cfi_admin', 'super_admin'].includes(r))
+  // isAdmin from hook
   const load = useServerFn(listMassEmailCampaigns)
   const [rows, setRows] = useState<any[]>([])
   const [busy, setBusy] = useState(true)
