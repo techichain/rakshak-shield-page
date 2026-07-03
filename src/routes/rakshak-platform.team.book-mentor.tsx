@@ -245,8 +245,24 @@ function BookMentorPage() {
 
           <div className="mt-8 grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 rounded-2xl border border-border bg-background p-5">
-              <h3 className="font-heading text-lg">Pick a free slot</h3>
-              {slotsByDay.length === 0 ? (
+              <h3 className="font-heading text-lg">
+                {data.mentor_connected ? "Pick a free slot" : "Pick a time"}
+              </h3>
+              {!data.mentor_connected ? (
+                <div className="mt-4">
+                  <input
+                    type="datetime-local"
+                    className="rp-input w-full"
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSelected(v ? new Date(v).toISOString() : null);
+                    }}
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Mentor will confirm availability during approval.
+                  </p>
+                </div>
+              ) : slotsByDay.length === 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
                   No free 30-min slots in mentor working hours over the next 2 weeks.
                   Try again later or contact your mentor.
@@ -281,13 +297,16 @@ function BookMentorPage() {
                   ))}
                 </div>
               )}
-              <button
-                onClick={() => refetch()}
-                className="mt-4 text-xs text-muted-foreground hover:text-brand"
-              >
-                Refresh availability
-              </button>
+              {data.mentor_connected && (
+                <button
+                  onClick={() => refetch()}
+                  className="mt-4 text-xs text-muted-foreground hover:text-brand"
+                >
+                  Refresh availability
+                </button>
+              )}
             </div>
+
 
             <div className="rounded-2xl border border-border bg-background p-5 space-y-3">
               <h3 className="font-heading text-lg">Details</h3>
