@@ -393,18 +393,6 @@ function AdminDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Link
-              to="/rakshak-platform/admin/access-requests"
-              className="relative h-10 w-10 rounded-full border border-border bg-card grid place-items-center hover:bg-brand-lite"
-              title="Access requests & notifications"
-            >
-              <BellRing className="h-4 w-4 text-brand" />
-              {pendingCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center">
-                  {pendingCount > 99 ? "99+" : pendingCount}
-                </span>
-              )}
-            </Link>
             <button
               onClick={() => setInviteOpen(true)}
               className="h-10 rounded-full bg-brand px-4 text-sm text-brand-foreground hover:bg-brand/90 inline-flex items-center gap-2 font-semibold"
@@ -1366,9 +1354,8 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     label: "People",
     tone: "from-rose-50 to-white border-rose-100",
     items: [
-      { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor applications", icon: GraduationCap, desc: "Review new mentors" },
       { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users, desc: "Programme cohorts" },
-      { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog, desc: "Role assignments" },
+      { to: "/rakshak-platform/admin/roles", label: "Roles & assignments", icon: UserCog, desc: "Mentor · evaluator · role approvals" },
       { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: Calendar, desc: "Mentor-team sessions" },
     ],
   },
@@ -1377,10 +1364,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     label: "Content",
     tone: "from-sky-50 to-white border-sky-100",
     items: [
-      { to: "/rakshak-platform/admin/knowledge", label: "Articles", icon: BookOpen, desc: "Knowledge hub" },
       { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
-      { to: "/rakshak-platform/admin/badges", label: "Badges", icon: Trophy },
-      { to: "/rakshak-platform/admin/map", label: "Programme map", icon: MapPin },
     ],
   },
   {
@@ -1388,11 +1372,8 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     label: "Review",
     tone: "from-violet-50 to-white border-violet-100",
     items: [
-      { to: "/rakshak-platform/admin/evaluator-queue", label: "Evaluator queue", icon: ClipboardCheck, desc: "Assign & monitor" },
       { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
       { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
-      { to: "/rakshak-platform/admin/qa", label: "QA", icon: ScanSearch },
-      { to: "/rakshak-platform/admin/qa-checklist", label: "QA checklist", icon: ClipboardCheck },
     ],
   },
   {
@@ -1403,20 +1384,8 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: BarChart3 },
       { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
       { to: "/rakshak-platform/admin/exports", label: "Exports", icon: Download },
-      { to: "/rakshak-platform/admin/audit", label: "Audit log", icon: FileText },
-      { to: "/rakshak-platform/admin/alerts", label: "Alerts", icon: AlertTriangle },
-      { to: "/rakshak-platform/admin/cron-health", label: "Cron health", icon: Wrench },
       { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
       { to: "/rakshak-platform/admin/seed", label: "Seed data", icon: Sparkles },
-    ],
-  },
-  {
-    id: "finance",
-    label: "Finance",
-    tone: "from-amber-50 to-white border-amber-100",
-    items: [
-      { to: "/rakshak-platform/admin/finance", label: "Finance", icon: Wallet, desc: "Budgets & spend" },
-      { to: "/rakshak-platform/admin/sponsorships", label: "Sponsorships", icon: HeartHandshake },
     ],
   },
 ];
