@@ -298,7 +298,7 @@ function MeetingsPage() {
                 <div className="rp-input text-xs text-muted-foreground flex items-center">No team — invite people below.</div>
               )}
               <input name="title" required maxLength={200} placeholder="Title" className="rp-input" />
-              <input name="meeting_link" type="url" placeholder="Meet/Zoom/Jitsi link" className="rp-input" />
+              <input name="meeting_link" type="url" placeholder="Google Meet / video link (optional)" className="rp-input" />
               <input name="scheduled_start" type="datetime-local" required className="rp-input" />
               <input name="scheduled_end" type="datetime-local" required className="rp-input" />
               <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
