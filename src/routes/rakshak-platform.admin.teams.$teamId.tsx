@@ -216,6 +216,7 @@ function AdminTeamDetail() {
             <div className="space-y-4">
               {[0, 1, 2, 3, 4].map((p) => {
                 const sub = data.submissions.find((s: any) => s.phase_number === p);
+                const phaseEvals = evalsByPhase.get(p) ?? [];
                 return (
                   <div key={p} className="rounded-2xl border border-border bg-card p-5">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -230,6 +231,7 @@ function AdminTeamDetail() {
                       </span>
                     </div>
                     {sub ? (
+
                       <>
                         {sub.summary && (
                           <p className="mt-3 text-sm whitespace-pre-line">{sub.summary}</p>
