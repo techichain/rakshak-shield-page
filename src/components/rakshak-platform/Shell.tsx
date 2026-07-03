@@ -3,7 +3,7 @@ import {
   ChevronDown, LogOut, Menu, X,
   MapPin, BookOpen, Trophy, Sparkles, Users,
   ShieldCheck, ClipboardCheck, CalendarDays, GraduationCap, UsersRound,
-  LayoutDashboard, FileText, UserCog, ScanSearch, Wrench, Wallet, BellRing,
+  LayoutDashboard, FileText, UserCog, Wrench, Wallet, BellRing,
   Mail,
   type LucideIcon,
 } from "lucide-react";
