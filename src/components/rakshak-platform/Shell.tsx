@@ -280,7 +280,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             )}
             {userId ? (
               <>
-                {isAdmin && <PendingApprovalsBell />}
                 <NotificationBell userId={userId} />
                 <Link
                   to="/rakshak-platform/profile"
