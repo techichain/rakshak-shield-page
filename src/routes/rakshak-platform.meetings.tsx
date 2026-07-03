@@ -11,6 +11,8 @@ import {
   listMyMeetings,
   rescheduleMeeting,
   notifyMeetingConfirmed,
+  listMentorPendingBookings,
+  respondToMentorBooking,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
@@ -63,6 +65,12 @@ function MeetingsPage() {
   const notify = useServerFn(notifyMeetingConfirmed);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
+  const listPending = useServerFn(listMentorPendingBookings);
+  const respondBooking = useServerFn(respondToMentorBooking);
+  const { data: pendingData } = useSuspenseQuery({
+    queryKey: ["rp-mentor-pending"],
+    queryFn: () => listPending(),
+  });
 
   const [teams, setTeams] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
@@ -73,6 +81,7 @@ function MeetingsPage() {
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
+  const [pendingBusy, setPendingBusy] = useState<string | null>(null);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
@@ -87,12 +96,29 @@ function MeetingsPage() {
       if (uid) {
         const { data: roles } = await supabase.from("rp_user_roles").select("role").eq("user_id", uid);
         const rs = (roles ?? []).map((r: any) => r.role);
-        // "Team leader only" = has team_leader role and no privileged scheduling role
         const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
       }
     });
   }, []);
+
+  async function respondPending(meeting_id: string, decision: "approved" | "declined") {
+    const reason =
+      decision === "declined"
+        ? (prompt("Optional: tell the team why you're declining") ?? undefined)
+        : undefined;
+    setPendingBusy(meeting_id);
+    try {
+      await respondBooking({ data: { meeting_id, decision, reason } });
+      toast.success(decision === "approved" ? "Approved — Meet link sent to the team" : "Request declined");
+      qc.invalidateQueries({ queryKey: ["rp-mentor-pending"] });
+      qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    } catch (e) {
+      toast.error(formatErr(e));
+    } finally {
+      setPendingBusy(null);
+    }
+  }
 
   const needsTeam = type === "team_mentor" || type === "evaluator_team" || type === "team_internal";
 
@@ -272,6 +298,54 @@ function MeetingsPage() {
           Automatic email reminders fire 24h, 1h, and 30min before every meeting.
         </p>
 
+        {pendingData?.pending?.length ? (
+          <div className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 p-5">
+            <div className="flex items-center gap-2">
+              <Bell className="h-4 w-4 text-amber-600" />
+              <h2 className="font-heading text-lg">Pending your approval</h2>
+              <span className="text-xs rounded-full bg-amber-200/70 px-2 py-0.5">{pendingData.pending.length}</span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Approving creates a Google Meet event on your calendar and emails the link to the team.
+            </p>
+            <div className="mt-4 space-y-3">
+              {pendingData.pending.map((m: any) => (
+                <div key={m.id} className="rounded-xl border border-border bg-background p-4">
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div>
+                      <div className="font-semibold">{m.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {m.team_name} · {new Date(m.scheduled_start).toLocaleString()}
+                        {" — "}
+                        {new Date(m.scheduled_end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                      {m.agenda && (
+                        <p className="mt-2 text-sm whitespace-pre-line">{m.agenda}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        disabled={pendingBusy === m.id}
+                        onClick={() => respondPending(m.id, "declined")}
+                        className="inline-flex items-center gap-1 h-9 px-3 rounded-full border border-border text-xs hover:bg-muted disabled:opacity-50"
+                      >
+                        <X className="h-3.5 w-3.5" /> Decline
+                      </button>
+                      <button
+                        disabled={pendingBusy === m.id}
+                        onClick={() => respondPending(m.id, "approved")}
+                        className="inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand text-brand-foreground text-xs disabled:opacity-50"
+                      >
+                        <Check className="h-3.5 w-3.5" /> {pendingBusy === m.id ? "Working…" : "Approve"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {isTeamLeaderOnly ? (
           <div className="mt-10 rounded-2xl border border-brand/30 bg-brand-lite p-6 flex items-center justify-between gap-4">
             <div>
@@ -298,7 +372,7 @@ function MeetingsPage() {
                 <div className="rp-input text-xs text-muted-foreground flex items-center">No team — invite people below.</div>
               )}
               <input name="title" required maxLength={200} placeholder="Title" className="rp-input" />
-              <input name="meeting_link" type="url" placeholder="Meet/Zoom/Jitsi link" className="rp-input" />
+              <input name="meeting_link" type="url" placeholder="Google Meet / video link (optional)" className="rp-input" />
               <input name="scheduled_start" type="datetime-local" required className="rp-input" />
               <input name="scheduled_end" type="datetime-local" required className="rp-input" />
               <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />

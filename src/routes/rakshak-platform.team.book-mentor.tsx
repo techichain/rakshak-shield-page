@@ -22,7 +22,6 @@ import {
   Calendar,
   CheckCircle2,
   Loader2,
-  Video,
   AlertTriangle,
 } from "lucide-react";
 
@@ -69,7 +68,7 @@ function BookMentorPage() {
   const [title, setTitle] = useState("Mentor sync");
   const [agenda, setAgenda] = useState("");
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ meet: string | null; email: string } | null>(null);
+  const [done, setDone] = useState<{ email: string; mentor_connected: boolean } | null>(null);
 
   const slotsByDay = useMemo(() => {
     if (!data || !data.mentor_connected) return [] as { day: Date; slots: Date[] }[];
@@ -87,7 +86,6 @@ function BookMentorPage() {
       const slots: Date[] = [];
       for (let h = DAY_START_HOUR; h < DAY_END_HOUR; h++) {
         for (let m = 0; m < 60; m += SLOT_MINUTES) {
-          // Compose an IST wall-clock time on this day and convert to UTC ms.
           const utcMs = Date.UTC(
             day.getFullYear(),
             day.getMonth(),
@@ -97,7 +95,7 @@ function BookMentorPage() {
           ) - IST_OFFSET_MIN * 60_000;
           const slotStart = utcMs;
           const slotEnd = utcMs + SLOT_MINUTES * 60_000;
-          if (slotStart < now + 60 * 60_000) continue; // 1h lead time
+          if (slotStart < now + 60 * 60_000) continue;
           const overlap = busyRanges.some(
             (b) => slotStart < b.e && slotEnd > b.s,
           );
@@ -129,12 +127,12 @@ function BookMentorPage() {
           agenda: agenda.trim(),
         },
       });
-      setDone({ meet: res.meet_link, email: res.mentor_email });
+      setDone({ email: res.mentor_email, mentor_connected: !!res.mentor_connected });
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
       qc.invalidateQueries({ queryKey: ["rp-mentor-availability"] });
-      toast.success("Booked — Google sent the invite to your mentor");
+      toast.success("Request sent to your mentor for approval");
     } catch (e: any) {
-      toast.error(e?.message ?? "Could not book meeting");
+      toast.error(e?.message ?? "Could not send request");
     } finally {
       setBusy(false);
     }
@@ -146,27 +144,23 @@ function BookMentorPage() {
         <Section>
           <div className="rounded-2xl border border-brand/40 bg-brand-lite p-8 text-center max-w-xl mx-auto">
             <CheckCircle2 className="mx-auto h-10 w-10 text-brand" />
-            <h1 className="mt-4 font-heading text-2xl">Meeting booked</h1>
+            <h1 className="mt-4 font-heading text-2xl">Request sent</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Google Calendar sent an invite to {done.email}. Both of you will get a
-              reminder 10 minutes before start.
+              We notified {done.email}. Once your mentor approves, a Google Meet link
+              is created on their calendar and emailed to every team member.
             </p>
-            {done.meet && (
-              <a
-                href={done.meet}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-5 h-10 text-sm text-brand-foreground"
-              >
-                <Video className="h-4 w-4" /> Open Google Meet
-              </a>
+            {!done.mentor_connected && (
+              <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left text-xs text-amber-800">
+                Heads up — your mentor hasn't connected Google Calendar yet, so they
+                can't approve the request until they do. We've told them.
+              </div>
             )}
-            <div className="mt-4">
+            <div className="mt-6">
               <button
                 onClick={() => navigate({ to: "/rakshak-platform/meetings" })}
-                className="text-sm text-muted-foreground hover:text-brand"
+                className="inline-flex items-center gap-2 rounded-full bg-brand px-5 h-10 text-sm text-brand-foreground"
               >
-                View all meetings →
+                View my meetings →
               </button>
             </div>
           </div>
@@ -174,6 +168,7 @@ function BookMentorPage() {
       </PlatformShell>
     );
   }
+
 
   return (
     <PlatformShell>
@@ -191,8 +186,9 @@ function BookMentorPage() {
             : "Book a session with your mentor"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Pick a 30-minute slot when your mentor is free. Google Calendar creates a
-          Meet link and emails the invite to both of you automatically.
+          Pick a 30-minute slot when your mentor is free. Your mentor reviews the
+          request — on approval, a Google Meet link is created on their calendar
+          and emailed to every team member.
         </p>
 
         {isLoading && (
@@ -208,50 +204,64 @@ function BookMentorPage() {
         )}
 
         {data && !data.leader_connected && (
-          <div className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 p-6">
+          <div className="mt-8 rounded-2xl border border-border bg-muted/40 p-4 text-sm">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+              <Calendar className="h-4 w-4 text-brand mt-0.5" />
               <div className="flex-1">
-                <h2 className="font-semibold">Connect your Google Calendar</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  We create the Meet link and calendar invite on your Google account.
-                </p>
+                <span className="font-medium">Optional:</span> connect your Google
+                Calendar so this meeting is added to your schedule automatically.
+                {calStatus?.email && (
+                  <span className="text-muted-foreground"> (detected {calStatus.email})</span>
+                )}
                 <button
                   onClick={connectCalendar}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-5 h-10 text-sm text-brand-foreground"
+                  className="ml-2 text-brand hover:underline"
                 >
-                  <Calendar className="h-4 w-4" /> Connect Google Calendar
+                  Connect
                 </button>
-                {calStatus?.email && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Detected {calStatus.email} — reconnect if needed.
-                  </p>
-                )}
               </div>
             </div>
           </div>
         )}
 
-        {data && data.leader_connected && !data.mentor_connected && (
+        {data && !data.mentor_connected && (
           <div className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 p-6">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
               <div>
                 <h2 className="font-semibold">Mentor hasn't shared availability yet</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Your mentor ({data.mentor.email}) hasn't connected Google Calendar.
-                  Please email them and ask them to connect it from their Profile page.
+                  Your mentor ({data.mentor.email}) hasn't connected Google Calendar,
+                  so we can't show live free slots. You can still send a request for
+                  any time below — they'll approve it once they connect.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {data && data.leader_connected && data.mentor_connected && (
+        {data && (
+
           <div className="mt-8 grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 rounded-2xl border border-border bg-background p-5">
-              <h3 className="font-heading text-lg">Pick a free slot</h3>
-              {slotsByDay.length === 0 ? (
+              <h3 className="font-heading text-lg">
+                {data.mentor_connected ? "Pick a free slot" : "Pick a time"}
+              </h3>
+              {!data.mentor_connected ? (
+                <div className="mt-4">
+                  <input
+                    type="datetime-local"
+                    className="rp-input w-full"
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSelected(v ? new Date(v).toISOString() : null);
+                    }}
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Mentor will confirm availability during approval.
+                  </p>
+                </div>
+              ) : slotsByDay.length === 0 ? (
                 <p className="mt-3 text-sm text-muted-foreground">
                   No free 30-min slots in mentor working hours over the next 2 weeks.
                   Try again later or contact your mentor.
@@ -286,13 +296,16 @@ function BookMentorPage() {
                   ))}
                 </div>
               )}
-              <button
-                onClick={() => refetch()}
-                className="mt-4 text-xs text-muted-foreground hover:text-brand"
-              >
-                Refresh availability
-              </button>
+              {data.mentor_connected && (
+                <button
+                  onClick={() => refetch()}
+                  className="mt-4 text-xs text-muted-foreground hover:text-brand"
+                >
+                  Refresh availability
+                </button>
+              )}
             </div>
+
 
             <div className="rounded-2xl border border-border bg-background p-5 space-y-3">
               <h3 className="font-heading text-lg">Details</h3>
@@ -326,7 +339,7 @@ function BookMentorPage() {
                 onClick={submit}
                 className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground disabled:opacity-50"
               >
-                <Calendar className="h-4 w-4" /> {busy ? "Booking…" : "Confirm & send invite"}
+                <Calendar className="h-4 w-4" /> {busy ? "Sending…" : "Send request to mentor"}
               </button>
             </div>
           </div>

@@ -10,7 +10,10 @@ const PORTAL_BASE = 'https://rakshak.crashfreeindia.org'
  * meeting. Reuses the existing email_send_log + enqueue_email pipeline.
  * Failures are logged but never thrown — email is best-effort.
  */
-export async function sendMeetingScheduledEmails(meetingId: string) {
+export async function sendMeetingScheduledEmails(
+  meetingId: string,
+  opts: { includeCreator?: boolean } = {},
+) {
   try {
     const { data: meeting, error: mErr } = await supabaseAdmin
       .from('rp_meetings')
@@ -31,7 +34,9 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
     const attendeeIds = Array.from(
       new Set(
         ((attRows ?? []).map((r: any) => r.profile_id) as string[])
-          .filter((id): id is string => Boolean(id) && id !== meeting.created_by)
+          .filter((id): id is string =>
+            Boolean(id) && (opts.includeCreator || id !== meeting.created_by),
+          ),
       ),
     )
     if (attendeeIds.length === 0) return
@@ -261,5 +266,122 @@ export async function sendMeetingEmailToAddresses(
 
   } catch (err) {
     console.error('[meeting-notify:addresses] failed', err)
+  }
+}
+
+/**
+ * Send a plain "booking request awaiting approval" email to the mentor.
+ * Uses the transactional_emails queue directly with inline HTML — no
+ * template needed since this is a one-off approval prompt.
+ */
+export async function sendBookingRequestEmail(opts: {
+  meetingId: string
+  mentorEmail: string
+  mentorName: string | null
+  leaderName: string
+  teamName: string
+  title: string
+  agenda: string
+  scheduledStart: string
+  scheduledEnd: string
+}) {
+  try {
+    const email = opts.mentorEmail.toLowerCase()
+    const when = new Date(opts.scheduledStart).toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'full',
+      timeStyle: 'short',
+    })
+    const endStr = new Date(opts.scheduledEnd).toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      timeStyle: 'short',
+    })
+    const portalUrl = `${PORTAL_BASE}/rakshak-platform/meetings`
+    const html = `
+      <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0F172A">
+        <h1 style="font-size:22px;margin:0 0 12px">Meeting request awaiting your approval</h1>
+        <p>Hi ${opts.mentorName ?? 'there'},</p>
+        <p><strong>${opts.leaderName}</strong> (team <strong>${opts.teamName}</strong>) has requested a meeting.</p>
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:16px;margin:16px 0">
+          <p style="margin:0 0 6px"><strong>Title:</strong> ${opts.title}</p>
+          <p style="margin:0 0 6px"><strong>When:</strong> ${when} → ${endStr} (IST)</p>
+          ${opts.agenda ? `<p style="margin:0"><strong>Agenda:</strong> ${opts.agenda}</p>` : ''}
+        </div>
+        <p>
+          Approve or decline from your Rakshak meetings page. On approval,
+          we automatically create a Google Meet event on your calendar and
+          email the link to the whole team.
+        </p>
+        <p style="margin:24px 0">
+          <a href="${portalUrl}" style="background:#4A35FF;color:#fff;padding:12px 22px;border-radius:8px;font-weight:600;text-decoration:none;display:inline-block">
+            Review request
+          </a>
+        </p>
+        <p style="font-size:12px;color:#94A3B8">Crashfree India · Rakshak Platform</p>
+      </div>
+    `
+    const text = `${opts.leaderName} (${opts.teamName}) requested a meeting: "${opts.title}" on ${when} → ${endStr} IST. Approve or decline at ${portalUrl}`
+
+    // Ensure an unsubscribe token exists for this address.
+    let unsubscribeToken: string | null = null
+    {
+      const { data: existing } = await supabaseAdmin
+        .from('email_unsubscribe_tokens')
+        .select('token, used_at')
+        .eq('email', email)
+        .maybeSingle()
+      if (existing && !(existing as any).used_at) {
+        unsubscribeToken = (existing as any).token as string
+      } else {
+        const bytes = new Uint8Array(32)
+        crypto.getRandomValues(bytes)
+        const token = Array.from(bytes)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('')
+        await supabaseAdmin
+          .from('email_unsubscribe_tokens')
+          .upsert({ token, email }, { onConflict: 'email', ignoreDuplicates: true })
+        const { data: stored } = await supabaseAdmin
+          .from('email_unsubscribe_tokens')
+          .select('token')
+          .eq('email', email)
+          .maybeSingle()
+        unsubscribeToken = ((stored as any)?.token as string) || token
+      }
+    }
+
+    const messageId = crypto.randomUUID()
+    await supabaseAdmin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: 'rp-meeting-booking-request',
+      recipient_email: opts.mentorEmail,
+      status: 'pending',
+      metadata: { meeting_id: opts.meetingId },
+    })
+    const { error: enqErr } = await supabaseAdmin.rpc('enqueue_email', {
+      queue_name: 'transactional_emails',
+      payload: {
+        message_id: messageId,
+        to: opts.mentorEmail,
+        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+        sender_domain: SENDER_DOMAIN,
+        subject: `Meeting request from ${opts.teamName} — ${opts.title}`,
+        html,
+        text,
+        purpose: 'transactional',
+        label: 'rp-meeting-booking-request',
+        unsubscribe_token: unsubscribeToken,
+        idempotency_key: messageId,
+        queued_at: new Date().toISOString(),
+      },
+    })
+    if (enqErr) {
+      await supabaseAdmin
+        .from('email_send_log')
+        .update({ status: 'failed', error_message: enqErr.message })
+        .eq('message_id', messageId)
+    }
+  } catch (err) {
+    console.error('[sendBookingRequestEmail] failed', err)
   }
 }
