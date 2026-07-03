@@ -340,7 +340,7 @@ function BookMentorPage() {
                 onClick={submit}
                 className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground disabled:opacity-50"
               >
-                <Calendar className="h-4 w-4" /> {busy ? "Booking…" : "Confirm & send invite"}
+                <Calendar className="h-4 w-4" /> {busy ? "Sending…" : "Send request to mentor"}
               </button>
             </div>
           </div>
