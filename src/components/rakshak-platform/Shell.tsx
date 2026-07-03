@@ -235,7 +235,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team/phases", label: "Phases" },
                 { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                 { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
-                { to: "/rakshak-platform/team/ai-check", label: "AI check", icon: ScanSearch },
               ]} />
             )}
 
