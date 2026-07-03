@@ -207,7 +207,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 {!mentorOnly && <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />}
                 <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
-                {!mentorOnly && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
+                {!mentorOnly && !isTeam && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
               </>
             )}
 
