@@ -69,7 +69,7 @@ function BookMentorPage() {
   const [title, setTitle] = useState("Mentor sync");
   const [agenda, setAgenda] = useState("");
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ meet: string | null; email: string } | null>(null);
+  const [done, setDone] = useState<{ email: string; mentor_connected: boolean } | null>(null);
 
   const slotsByDay = useMemo(() => {
     if (!data || !data.mentor_connected) return [] as { day: Date; slots: Date[] }[];
@@ -87,7 +87,6 @@ function BookMentorPage() {
       const slots: Date[] = [];
       for (let h = DAY_START_HOUR; h < DAY_END_HOUR; h++) {
         for (let m = 0; m < 60; m += SLOT_MINUTES) {
-          // Compose an IST wall-clock time on this day and convert to UTC ms.
           const utcMs = Date.UTC(
             day.getFullYear(),
             day.getMonth(),
@@ -97,7 +96,7 @@ function BookMentorPage() {
           ) - IST_OFFSET_MIN * 60_000;
           const slotStart = utcMs;
           const slotEnd = utcMs + SLOT_MINUTES * 60_000;
-          if (slotStart < now + 60 * 60_000) continue; // 1h lead time
+          if (slotStart < now + 60 * 60_000) continue;
           const overlap = busyRanges.some(
             (b) => slotStart < b.e && slotEnd > b.s,
           );
@@ -129,12 +128,12 @@ function BookMentorPage() {
           agenda: agenda.trim(),
         },
       });
-      setDone({ meet: res.meet_link, email: res.mentor_email });
+      setDone({ email: res.mentor_email, mentor_connected: !!res.mentor_connected });
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
       qc.invalidateQueries({ queryKey: ["rp-mentor-availability"] });
-      toast.success("Booked — Google sent the invite to your mentor");
+      toast.success("Request sent to your mentor for approval");
     } catch (e: any) {
-      toast.error(e?.message ?? "Could not book meeting");
+      toast.error(e?.message ?? "Could not send request");
     } finally {
       setBusy(false);
     }
@@ -146,27 +145,23 @@ function BookMentorPage() {
         <Section>
           <div className="rounded-2xl border border-brand/40 bg-brand-lite p-8 text-center max-w-xl mx-auto">
             <CheckCircle2 className="mx-auto h-10 w-10 text-brand" />
-            <h1 className="mt-4 font-heading text-2xl">Meeting booked</h1>
+            <h1 className="mt-4 font-heading text-2xl">Request sent</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Google Calendar sent an invite to {done.email}. Both of you will get a
-              reminder 10 minutes before start.
+              We notified {done.email}. Once your mentor approves, a Google Meet link
+              is created on their calendar and emailed to every team member.
             </p>
-            {done.meet && (
-              <a
-                href={done.meet}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-5 h-10 text-sm text-brand-foreground"
-              >
-                <Video className="h-4 w-4" /> Open Google Meet
-              </a>
+            {!done.mentor_connected && (
+              <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left text-xs text-amber-800">
+                Heads up — your mentor hasn't connected Google Calendar yet, so they
+                can't approve the request until they do. We've told them.
+              </div>
             )}
-            <div className="mt-4">
+            <div className="mt-6">
               <button
                 onClick={() => navigate({ to: "/rakshak-platform/meetings" })}
-                className="text-sm text-muted-foreground hover:text-brand"
+                className="inline-flex items-center gap-2 rounded-full bg-brand px-5 h-10 text-sm text-brand-foreground"
               >
-                View all meetings →
+                View my meetings →
               </button>
             </div>
           </div>
@@ -174,6 +169,7 @@ function BookMentorPage() {
       </PlatformShell>
     );
   }
+
 
   return (
     <PlatformShell>
