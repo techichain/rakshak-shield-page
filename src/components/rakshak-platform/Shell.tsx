@@ -234,8 +234,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team", label: "Overview", icon: LayoutDashboard },
                 { to: "/rakshak-platform/team/phases", label: "Phases" },
                 { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
-              </NavDropdown>
-            )}
               ]} />
             )}
 
