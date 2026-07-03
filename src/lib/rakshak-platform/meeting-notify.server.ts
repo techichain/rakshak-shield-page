@@ -10,7 +10,10 @@ const PORTAL_BASE = 'https://rakshak.crashfreeindia.org'
  * meeting. Reuses the existing email_send_log + enqueue_email pipeline.
  * Failures are logged but never thrown — email is best-effort.
  */
-export async function sendMeetingScheduledEmails(meetingId: string) {
+export async function sendMeetingScheduledEmails(
+  meetingId: string,
+  opts: { includeCreator?: boolean } = {},
+) {
   try {
     const { data: meeting, error: mErr } = await supabaseAdmin
       .from('rp_meetings')
@@ -31,7 +34,9 @@ export async function sendMeetingScheduledEmails(meetingId: string) {
     const attendeeIds = Array.from(
       new Set(
         ((attRows ?? []).map((r: any) => r.profile_id) as string[])
-          .filter((id): id is string => Boolean(id) && id !== meeting.created_by)
+          .filter((id): id is string =>
+            Boolean(id) && (opts.includeCreator || id !== meeting.created_by),
+          ),
       ),
     )
     if (attendeeIds.length === 0) return
