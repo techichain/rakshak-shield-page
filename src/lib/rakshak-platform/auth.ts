@@ -208,7 +208,7 @@ export async function rpRequireRole(
     });
   };
 
-  if (blockAdmin && isAdmin) deny("admin_blocked_from_role_route");
+  if (blockAdmin && isAdmin && !routeAllowsAdmin) deny("admin_blocked_from_role_route");
   if (!hasRole) deny("missing_required_role");
 }
 
