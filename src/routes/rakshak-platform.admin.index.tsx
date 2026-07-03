@@ -176,7 +176,7 @@ function AdminDashboard() {
   const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [tab, setTab] = useState<"leaderboard" | "tracker" | "mentorboard" | "analytics">("leaderboard");
   const [busy, setBusy] = useState(false);
-  const [seeding, setSeeding] = useState(false);
+  
   const [inviteOpen, setInviteOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
@@ -302,63 +302,6 @@ function AdminDashboard() {
     setTeams((prev) => prev.filter((t) => t.id !== teamId));
   }
 
-  /* Seed (kept from previous build, simplified). */
-  async function seed() {
-    setSeeding(true);
-    try {
-      const sampleNames = ["Suraksha","WORK WIZARDS","WARRIORS Tea","Vision Zero Squad","Tangerine","Sentinels","PATHRAKSHAK","NO/Nationpath","Eldians","Crashzero","Shaunak's Team","Pavement Pioneers","Saviour","AP","SVNIT","Crash Crackers","Zodiac","VisionSafe","Visioneers","Safegird","FTW","Civilians AKA","Zero Collision","Vignan","PLANNER LOKI"];
-      const cities = [["Jaipur","Rajasthan"],["Delhi","Delhi"],["Bengaluru","Karnataka"],["Pune","Maharashtra"],["Mumbai","Maharashtra"],["Chennai","Tamil Nadu"],["Kolkata","West Bengal"],["Hyderabad","Telangana"]];
-      const { data: cohorts } = await supabase.from("rp_cohorts").select("id").limit(1);
-      let cohortId = cohorts?.[0]?.id as string | undefined;
-      if (!cohortId) {
-        const { data: nc } = await supabase.from("rp_cohorts").insert({
-          name: "Cohort 1 · 2026", year: 2026, region: "Pan-India",
-          start_date: "2026-01-15", end_date: "2026-10-15", status: "active",
-          participating_states: ["Rajasthan","Delhi","Karnataka"], created_by: userId,
-        }).select("id").single();
-        cohortId = nc?.id;
-      }
-      const rows = sampleNames.map((name, i) => {
-        const [c, st] = cities[i % cities.length];
-        return {
-          cohort_id: cohortId, team_name: name,
-          college: ["IIT","NIT","BITS","DTU","VIT"][i % 5] + " " + c,
-          city: c, state: st,
-          current_phase: Math.min(4, Math.floor(i / 5)),
-          status: ["active","active","delayed","at_risk","completed"][i % 5] as any,
-          risk_status: (i % 6 === 0 ? "at_risk" : i % 4 === 0 ? "attention" : "on_track") as any,
-          completion_percentage: Math.min(100, 20 + i * 3),
-          final_score: Math.max(0, 35 + (i % 7) * 8 + (i % 3) * 4),
-          evaluated_phases: Math.min(4, Math.floor(i / 5)),
-        };
-      });
-      if (!cohortId) throw new Error("No cohort available");
-      const rowsWithCohort = rows.map((r) => ({ ...r, cohort_id: cohortId as string }));
-      const { data: inserted, error } = await supabase.from("rp_teams").insert(rowsWithCohort).select();
-      if (error) throw error;
-      // Phase progress
-      const tppRows: any[] = [];
-      for (const t of inserted!) {
-        for (let p = 0; p <= 4; p++) {
-          const isPast = p < t.current_phase;
-          const isCurr = p === t.current_phase;
-          tppRows.push({
-            team_id: t.id, phase_number: p,
-            status: isPast ? "completed" : isCurr ? "submitted" : "not_started",
-            completion_percentage: isPast ? 100 : isCurr ? 60 : 0,
-            deadline: isCurr ? new Date(Date.now() + 14 * 86400000).toISOString() : null,
-          });
-        }
-      }
-      await supabase.from("rp_team_phase_progress").insert(tppRows);
-      toast.success(`Seeded ${inserted!.length} teams`);
-      await load();
-    } catch (e: any) {
-      toast.error(e?.message ?? "Seed failed");
-    } finally {
-      setSeeding(false);
-    }
-  }
 
   if (loading || !isAdmin) {
     return (
@@ -399,13 +342,6 @@ function AdminDashboard() {
               title="Invite mentor or evaluator by email"
             >
               <Plus className="h-4 w-4" /> Invite by email
-            </button>
-            <button
-              onClick={seed} disabled={seeding}
-              className="h-10 rounded-full border border-border bg-card px-4 text-sm hover:bg-brand-lite inline-flex items-center gap-2 disabled:opacity-50"
-            >
-              {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-brand" />}
-              {seeding ? "Seeding…" : "Seed demo data"}
             </button>
           </div>
         </div>
@@ -475,7 +411,7 @@ function AdminDashboard() {
                   <p className="mt-3 text-sm">Loading dashboard…</p>
                 </div>
               ) : teams.length === 0 ? (
-                <EmptyState onSeed={seed} seeding={seeding} />
+                <EmptyState />
               ) : (
                 <>
                   {tab === "leaderboard" && <LeaderboardPanel rows={enriched} mentors={mentors} />}
@@ -505,19 +441,12 @@ function AdminDashboard() {
 /* Empty state                                                           */
 /* ──────────────────────────────────────────────────────────────────── */
 
-function EmptyState({ onSeed, seeding }: { onSeed: () => void; seeding: boolean }) {
+function EmptyState() {
   return (
     <div className="rounded-3xl border border-dashed border-border bg-card p-16 text-center">
       <Sparkles className="h-8 w-8 text-brand mx-auto" />
       <h3 className="mt-4 font-heading text-2xl font-semibold">No teams yet</h3>
-      <p className="mt-2 text-sm text-muted-foreground">Seed demo teams to explore the dashboard.</p>
-      <button
-        onClick={onSeed} disabled={seeding}
-        className="mt-6 h-11 rounded-full bg-brand px-6 text-sm text-brand-foreground hover:bg-brand/90 inline-flex items-center gap-2 disabled:opacity-50"
-      >
-        {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-        {seeding ? "Seeding…" : "Seed sample teams"}
-      </button>
+      <p className="mt-2 text-sm text-muted-foreground">Teams will appear here once they're created.</p>
     </div>
   );
 }
@@ -1385,7 +1314,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
       { to: "/rakshak-platform/admin/exports", label: "Exports", icon: Download },
       { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
-      { to: "/rakshak-platform/admin/seed", label: "Seed data", icon: Sparkles },
+      
     ],
   },
 ];
