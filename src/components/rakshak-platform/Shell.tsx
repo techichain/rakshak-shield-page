@@ -247,7 +247,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <NavDropdown id="people" label="People" icon={UsersRound} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                   { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing, desc: "Team, mentor & evaluator requests" },
                   { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound, desc: "Per-team hub: submissions, feedback, resources, meetings" },
-                  { to: "/rakshak-platform/admin/team-members", label: "Team members", icon: UsersRound, desc: "Add & invite team members" },
+                  
                   { to: "/rakshak-platform/admin/roles", label: "Roles & assignments", icon: UserCog, desc: "Mentor · evaluator · role approvals — one place" },
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                 ]} />
