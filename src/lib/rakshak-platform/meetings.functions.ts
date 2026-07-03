@@ -36,10 +36,8 @@ export const createMeeting = createServerFn({ method: "POST" })
          data.meeting_type === "team_internal") && !data.team_id) {
       throw new Error("A team is required for this meeting type.");
     }
-    const room = jitsiRoom();
-    const finalLink = data.meeting_link && data.meeting_link.length > 0
-      ? data.meeting_link
-      : jitsiUrl(room);
+    const finalLink =
+      data.meeting_link && data.meeting_link.length > 0 ? data.meeting_link : null;
     const { data: row, error } = await context.supabase
       .from("rp_meetings")
       .insert({
@@ -50,7 +48,7 @@ export const createMeeting = createServerFn({ method: "POST" })
         scheduled_start: data.scheduled_start,
         scheduled_end: data.scheduled_end,
         meeting_link: finalLink,
-        video_room_id: room,
+        video_room_id: null,
         location: data.location || null,
         status: data.status,
         created_by: context.userId,
