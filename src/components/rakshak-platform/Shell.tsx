@@ -329,7 +329,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     ...(!mentorOnly ? [{ to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen }] : []),
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                    ...(!mentorOnly ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
+                    ...(!mentorOnly && !isTeam ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
                   ]}
                   onPick={() => setMenuOpen(false)}
                 />
