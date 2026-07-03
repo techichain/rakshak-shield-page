@@ -351,22 +351,42 @@ function AdminTeamDetail() {
                         {fmtDate(m.scheduled_start)} — {fmtDate(m.scheduled_end)}
                       </div>
                     </div>
-                    <span className="text-xs rounded-full border border-border px-2 py-0.5">
-                      {m.status}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      <span className="text-xs rounded-full border border-border px-2 py-0.5">
+                        {m.status}
+                      </span>
+                      {m.mentor_decision && m.mentor_decision !== "not_required" && (
+                        <span
+                          className={`text-xs rounded-full px-2 py-0.5 border ${
+                            m.mentor_decision === "approved"
+                              ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                              : m.mentor_decision === "declined"
+                              ? "border-red-300 bg-red-50 text-red-700"
+                              : "border-amber-300 bg-amber-50 text-amber-700"
+                          }`}
+                        >
+                          mentor: {m.mentor_decision}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  {m.description && (
-                    <p className="mt-2 text-sm whitespace-pre-line">{m.description}</p>
+                  {m.agenda && (
+                    <p className="mt-2 text-sm whitespace-pre-line">{m.agenda}</p>
                   )}
-                  {m.meet_link && (
+                  {m.meeting_link && (
                     <a
-                      href={m.meet_link}
+                      href={m.meeting_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 text-xs text-brand hover:underline inline-flex items-center gap-1"
+                      className="mt-2 text-xs text-brand hover:underline inline-flex items-center gap-1 break-all"
                     >
-                      {m.meet_link}
+                      {m.meeting_link}
                     </a>
+                  )}
+                  {m.mentor_decision_reason && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Mentor note: {m.mentor_decision_reason}
+                    </p>
                   )}
                   {(m.rp_meeting_attendees ?? []).length > 0 && (
                     <div className="mt-2 text-xs text-muted-foreground">
