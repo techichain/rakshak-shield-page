@@ -105,9 +105,9 @@ async function resolve(
     if (leaderIds.length) {
       const { data: profs } = await admin
         .from('rp_profiles')
-        .select('user_id, full_name')
-        .in('user_id', leaderIds)
-      for (const p of profs ?? []) leaderNameById.set(p.user_id, p.full_name ?? '')
+        .select('id, full_name')
+        .in('id', leaderIds)
+      for (const p of profs ?? []) leaderNameById.set(p.id, p.full_name ?? '')
       // Email via auth admin
       for (const uid of leaderIds) {
         try {
