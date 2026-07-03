@@ -368,42 +368,26 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="People" items={[
                     { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing },
-                    { to: "/rakshak-platform/admin/mentor-applications", label: "Mentor applications", icon: GraduationCap },
                     { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users },
                     { to: "/rakshak-platform/admin/team-members", label: "Team members", icon: UsersRound },
-                    { to: "/rakshak-platform/admin/roles", label: "Roles", icon: UserCog },
+                    { to: "/rakshak-platform/admin/roles", label: "Roles & assignments", icon: UserCog },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Content" items={[
-                    { to: "/rakshak-platform/admin/knowledge", label: "Articles", icon: BookOpen },
                     { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
-                    { to: "/rakshak-platform/admin/badges", label: "Badges", icon: Trophy },
-                    { to: "/rakshak-platform/admin/map", label: "Programme map", icon: MapPin },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Review" items={[
-                    { to: "/rakshak-platform/admin/evaluator-queue", label: "Evaluator queue", icon: ClipboardCheck },
                     { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
                     { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
-                    { to: "/rakshak-platform/admin/qa", label: "QA", icon: ScanSearch },
-                    { to: "/rakshak-platform/admin/qa-checklist", label: "QA checklist", icon: ClipboardCheck },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Operations" items={[
                     { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: Sparkles },
                     { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
                     { to: "/rakshak-platform/admin/exports", label: "Exports", icon: FileText },
-                    { to: "/rakshak-platform/admin/audit", label: "Audit log", icon: FileText },
-                    { to: "/rakshak-platform/admin/alerts", label: "Alerts", icon: BellRing },
-                    { to: "/rakshak-platform/admin/cron-health", label: "Cron health", icon: Wrench },
                     { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
                     { to: "/rakshak-platform/admin/seed", label: "Seed data", icon: Wrench },
                   ]} onPick={() => setMenuOpen(false)} />
                 </>
-              )}
-
-              {(isAdmin || isFinance) && (
-                <MobileGroup label="Finance" items={[
-                  { to: "/rakshak-platform/admin/finance", label: "Finance", icon: Wallet },
-                ]} onPick={() => setMenuOpen(false)} />
               )}
             </nav>
           </div>
