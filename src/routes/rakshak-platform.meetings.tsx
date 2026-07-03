@@ -65,6 +65,12 @@ function MeetingsPage() {
   const notify = useServerFn(notifyMeetingConfirmed);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
+  const listPending = useServerFn(listMentorPendingBookings);
+  const respondBooking = useServerFn(respondToMentorBooking);
+  const { data: pendingData } = useSuspenseQuery({
+    queryKey: ["rp-mentor-pending"],
+    queryFn: () => listPending(),
+  });
 
   const [teams, setTeams] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
@@ -75,6 +81,7 @@ function MeetingsPage() {
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
+  const [pendingBusy, setPendingBusy] = useState<string | null>(null);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
@@ -89,12 +96,29 @@ function MeetingsPage() {
       if (uid) {
         const { data: roles } = await supabase.from("rp_user_roles").select("role").eq("user_id", uid);
         const rs = (roles ?? []).map((r: any) => r.role);
-        // "Team leader only" = has team_leader role and no privileged scheduling role
         const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
       }
     });
   }, []);
+
+  async function respondPending(meeting_id: string, decision: "approved" | "declined") {
+    const reason =
+      decision === "declined"
+        ? (prompt("Optional: tell the team why you're declining") ?? undefined)
+        : undefined;
+    setPendingBusy(meeting_id);
+    try {
+      await respondBooking({ data: { meeting_id, decision, reason } });
+      toast.success(decision === "approved" ? "Approved — Meet link sent to the team" : "Request declined");
+      qc.invalidateQueries({ queryKey: ["rp-mentor-pending"] });
+      qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+    } catch (e) {
+      toast.error(formatErr(e));
+    } finally {
+      setPendingBusy(null);
+    }
+  }
 
   const needsTeam = type === "team_mentor" || type === "evaluator_team" || type === "team_internal";
 
