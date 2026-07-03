@@ -106,6 +106,7 @@ export const Route = createFileRoute("/rakshak-platform/m/$id")({
 
 function PublicMentorPage() {
   const params = Route.useParams();
+  const { isTeamLeader, isTeam } = useRPAuth();
   const { data } = useSuspenseQuery({
     queryKey: ["rp-public-mentor", params.id],
     queryFn: () => getPublicMentor({ data: { id: params.id } }),
