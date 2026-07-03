@@ -68,29 +68,18 @@ import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/raksha
 import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
 import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
 import { Route as RakshakPlatformAdminTeamMembersRouteImport } from './routes/rakshak-platform.admin.team-members'
-import { Route as RakshakPlatformAdminSponsorshipsRouteImport } from './routes/rakshak-platform.admin.sponsorships'
 import { Route as RakshakPlatformAdminSeedRouteImport } from './routes/rakshak-platform.admin.seed'
 import { Route as RakshakPlatformAdminRolesRouteImport } from './routes/rakshak-platform.admin.roles'
 import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
-import { Route as RakshakPlatformAdminQaChecklistRouteImport } from './routes/rakshak-platform.admin.qa-checklist'
-import { Route as RakshakPlatformAdminQaRouteImport } from './routes/rakshak-platform.admin.qa'
 import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
 import { Route as RakshakPlatformAdminMeetingsRouteImport } from './routes/rakshak-platform.admin.meetings'
-import { Route as RakshakPlatformAdminMapRouteImport } from './routes/rakshak-platform.admin.map'
-import { Route as RakshakPlatformAdminKnowledgeRouteImport } from './routes/rakshak-platform.admin.knowledge'
 import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/rakshak-platform.admin.integrations'
-import { Route as RakshakPlatformAdminFinanceRouteImport } from './routes/rakshak-platform.admin.finance'
 import { Route as RakshakPlatformAdminExportsRouteImport } from './routes/rakshak-platform.admin.exports'
-import { Route as RakshakPlatformAdminEvaluatorQueueRouteImport } from './routes/rakshak-platform.admin.evaluator-queue'
 import { Route as RakshakPlatformAdminEvaluatorLeaderboardRouteImport } from './routes/rakshak-platform.admin.evaluator-leaderboard'
-import { Route as RakshakPlatformAdminCronHealthRouteImport } from './routes/rakshak-platform.admin.cron-health'
 import { Route as RakshakPlatformAdminCohortsRouteImport } from './routes/rakshak-platform.admin.cohorts'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
 import { Route as RakshakPlatformAdminBulkImportRouteImport } from './routes/rakshak-platform.admin.bulk-import'
-import { Route as RakshakPlatformAdminBadgesRouteImport } from './routes/rakshak-platform.admin.badges'
-import { Route as RakshakPlatformAdminAuditRouteImport } from './routes/rakshak-platform.admin.audit'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
-import { Route as RakshakPlatformAdminAlertsRouteImport } from './routes/rakshak-platform.admin.alerts'
 import { Route as RakshakPlatformAdminAccessRequestsRouteImport } from './routes/rakshak-platform.admin.access-requests'
 import { Route as RakshakMentorUploadTokenRouteImport } from './routes/rakshak-mentor.upload.$token'
 import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-mentor.apply.success'
@@ -450,12 +439,6 @@ const RakshakPlatformAdminTeamMembersRoute =
     path: '/team-members',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminSponsorshipsRoute =
-  RakshakPlatformAdminSponsorshipsRouteImport.update({
-    id: '/sponsorships',
-    path: '/sponsorships',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminSeedRoute =
   RakshakPlatformAdminSeedRouteImport.update({
     id: '/seed',
@@ -474,17 +457,6 @@ const RakshakPlatformAdminReviewsRoute =
     path: '/reviews',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminQaChecklistRoute =
-  RakshakPlatformAdminQaChecklistRouteImport.update({
-    id: '/qa-checklist',
-    path: '/qa-checklist',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminQaRoute = RakshakPlatformAdminQaRouteImport.update({
-  id: '/qa',
-  path: '/qa',
-  getParentRoute: () => RakshakPlatformAdminRoute,
-} as any)
 const RakshakPlatformAdminMentorApplicationsRoute =
   RakshakPlatformAdminMentorApplicationsRouteImport.update({
     id: '/mentor-applications',
@@ -497,27 +469,10 @@ const RakshakPlatformAdminMeetingsRoute =
     path: '/meetings',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminMapRoute = RakshakPlatformAdminMapRouteImport.update({
-  id: '/map',
-  path: '/map',
-  getParentRoute: () => RakshakPlatformAdminRoute,
-} as any)
-const RakshakPlatformAdminKnowledgeRoute =
-  RakshakPlatformAdminKnowledgeRouteImport.update({
-    id: '/knowledge',
-    path: '/knowledge',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminIntegrationsRoute =
   RakshakPlatformAdminIntegrationsRouteImport.update({
     id: '/integrations',
     path: '/integrations',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminFinanceRoute =
-  RakshakPlatformAdminFinanceRouteImport.update({
-    id: '/finance',
-    path: '/finance',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
 const RakshakPlatformAdminExportsRoute =
@@ -526,22 +481,10 @@ const RakshakPlatformAdminExportsRoute =
     path: '/exports',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminEvaluatorQueueRoute =
-  RakshakPlatformAdminEvaluatorQueueRouteImport.update({
-    id: '/evaluator-queue',
-    path: '/evaluator-queue',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminEvaluatorLeaderboardRoute =
   RakshakPlatformAdminEvaluatorLeaderboardRouteImport.update({
     id: '/evaluator-leaderboard',
     path: '/evaluator-leaderboard',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminCronHealthRoute =
-  RakshakPlatformAdminCronHealthRouteImport.update({
-    id: '/cron-health',
-    path: '/cron-health',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
 const RakshakPlatformAdminCohortsRoute =
@@ -562,28 +505,10 @@ const RakshakPlatformAdminBulkImportRoute =
     path: '/bulk-import',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminBadgesRoute =
-  RakshakPlatformAdminBadgesRouteImport.update({
-    id: '/badges',
-    path: '/badges',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminAuditRoute =
-  RakshakPlatformAdminAuditRouteImport.update({
-    id: '/audit',
-    path: '/audit',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminAnalyticsRoute =
   RakshakPlatformAdminAnalyticsRouteImport.update({
     id: '/analytics',
     path: '/analytics',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminAlertsRoute =
-  RakshakPlatformAdminAlertsRouteImport.update({
-    id: '/alerts',
-    path: '/alerts',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
 const RakshakPlatformAdminAccessRequestsRoute =
@@ -807,29 +732,18 @@ export interface FileRoutesByFullPath {
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
   '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
-  '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
-  '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
-  '/rakshak-platform/admin/badges': typeof RakshakPlatformAdminBadgesRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
-  '/rakshak-platform/admin/cron-health': typeof RakshakPlatformAdminCronHealthRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
-  '/rakshak-platform/admin/evaluator-queue': typeof RakshakPlatformAdminEvaluatorQueueRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
-  '/rakshak-platform/admin/finance': typeof RakshakPlatformAdminFinanceRoute
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
-  '/rakshak-platform/admin/knowledge': typeof RakshakPlatformAdminKnowledgeRoute
-  '/rakshak-platform/admin/map': typeof RakshakPlatformAdminMapRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
-  '/rakshak-platform/admin/qa': typeof RakshakPlatformAdminQaRoute
-  '/rakshak-platform/admin/qa-checklist': typeof RakshakPlatformAdminQaChecklistRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
-  '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -912,29 +826,18 @@ export interface FileRoutesByTo {
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
   '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
-  '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
-  '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
-  '/rakshak-platform/admin/badges': typeof RakshakPlatformAdminBadgesRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
-  '/rakshak-platform/admin/cron-health': typeof RakshakPlatformAdminCronHealthRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
-  '/rakshak-platform/admin/evaluator-queue': typeof RakshakPlatformAdminEvaluatorQueueRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
-  '/rakshak-platform/admin/finance': typeof RakshakPlatformAdminFinanceRoute
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
-  '/rakshak-platform/admin/knowledge': typeof RakshakPlatformAdminKnowledgeRoute
-  '/rakshak-platform/admin/map': typeof RakshakPlatformAdminMapRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
-  '/rakshak-platform/admin/qa': typeof RakshakPlatformAdminQaRoute
-  '/rakshak-platform/admin/qa-checklist': typeof RakshakPlatformAdminQaChecklistRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
-  '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -1025,29 +928,18 @@ export interface FileRoutesById {
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
   '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
-  '/rakshak-platform/admin/alerts': typeof RakshakPlatformAdminAlertsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
-  '/rakshak-platform/admin/audit': typeof RakshakPlatformAdminAuditRoute
-  '/rakshak-platform/admin/badges': typeof RakshakPlatformAdminBadgesRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
-  '/rakshak-platform/admin/cron-health': typeof RakshakPlatformAdminCronHealthRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
-  '/rakshak-platform/admin/evaluator-queue': typeof RakshakPlatformAdminEvaluatorQueueRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
-  '/rakshak-platform/admin/finance': typeof RakshakPlatformAdminFinanceRoute
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
-  '/rakshak-platform/admin/knowledge': typeof RakshakPlatformAdminKnowledgeRoute
-  '/rakshak-platform/admin/map': typeof RakshakPlatformAdminMapRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
-  '/rakshak-platform/admin/qa': typeof RakshakPlatformAdminQaRoute
-  '/rakshak-platform/admin/qa-checklist': typeof RakshakPlatformAdminQaChecklistRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
-  '/rakshak-platform/admin/sponsorships': typeof RakshakPlatformAdminSponsorshipsRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -1141,29 +1033,18 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
     | '/rakshak-platform/admin/access-requests'
-    | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
-    | '/rakshak-platform/admin/audit'
-    | '/rakshak-platform/admin/badges'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
-    | '/rakshak-platform/admin/cron-health'
     | '/rakshak-platform/admin/evaluator-leaderboard'
-    | '/rakshak-platform/admin/evaluator-queue'
     | '/rakshak-platform/admin/exports'
-    | '/rakshak-platform/admin/finance'
     | '/rakshak-platform/admin/integrations'
-    | '/rakshak-platform/admin/knowledge'
-    | '/rakshak-platform/admin/map'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
-    | '/rakshak-platform/admin/qa'
-    | '/rakshak-platform/admin/qa-checklist'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
-    | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1246,29 +1127,18 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
     | '/rakshak-platform/admin/access-requests'
-    | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
-    | '/rakshak-platform/admin/audit'
-    | '/rakshak-platform/admin/badges'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
-    | '/rakshak-platform/admin/cron-health'
     | '/rakshak-platform/admin/evaluator-leaderboard'
-    | '/rakshak-platform/admin/evaluator-queue'
     | '/rakshak-platform/admin/exports'
-    | '/rakshak-platform/admin/finance'
     | '/rakshak-platform/admin/integrations'
-    | '/rakshak-platform/admin/knowledge'
-    | '/rakshak-platform/admin/map'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
-    | '/rakshak-platform/admin/qa'
-    | '/rakshak-platform/admin/qa-checklist'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
-    | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1358,29 +1228,18 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
     | '/rakshak-platform/admin/access-requests'
-    | '/rakshak-platform/admin/alerts'
     | '/rakshak-platform/admin/analytics'
-    | '/rakshak-platform/admin/audit'
-    | '/rakshak-platform/admin/badges'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/cohorts'
-    | '/rakshak-platform/admin/cron-health'
     | '/rakshak-platform/admin/evaluator-leaderboard'
-    | '/rakshak-platform/admin/evaluator-queue'
     | '/rakshak-platform/admin/exports'
-    | '/rakshak-platform/admin/finance'
     | '/rakshak-platform/admin/integrations'
-    | '/rakshak-platform/admin/knowledge'
-    | '/rakshak-platform/admin/map'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
-    | '/rakshak-platform/admin/qa'
-    | '/rakshak-platform/admin/qa-checklist'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/seed'
-    | '/rakshak-platform/admin/sponsorships'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1864,13 +1723,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminTeamMembersRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/sponsorships': {
-      id: '/rakshak-platform/admin/sponsorships'
-      path: '/sponsorships'
-      fullPath: '/rakshak-platform/admin/sponsorships'
-      preLoaderRoute: typeof RakshakPlatformAdminSponsorshipsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/seed': {
       id: '/rakshak-platform/admin/seed'
       path: '/seed'
@@ -1892,20 +1744,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminReviewsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/qa-checklist': {
-      id: '/rakshak-platform/admin/qa-checklist'
-      path: '/qa-checklist'
-      fullPath: '/rakshak-platform/admin/qa-checklist'
-      preLoaderRoute: typeof RakshakPlatformAdminQaChecklistRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/qa': {
-      id: '/rakshak-platform/admin/qa'
-      path: '/qa'
-      fullPath: '/rakshak-platform/admin/qa'
-      preLoaderRoute: typeof RakshakPlatformAdminQaRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/mentor-applications': {
       id: '/rakshak-platform/admin/mentor-applications'
       path: '/mentor-applications'
@@ -1920,32 +1758,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminMeetingsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/map': {
-      id: '/rakshak-platform/admin/map'
-      path: '/map'
-      fullPath: '/rakshak-platform/admin/map'
-      preLoaderRoute: typeof RakshakPlatformAdminMapRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/knowledge': {
-      id: '/rakshak-platform/admin/knowledge'
-      path: '/knowledge'
-      fullPath: '/rakshak-platform/admin/knowledge'
-      preLoaderRoute: typeof RakshakPlatformAdminKnowledgeRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/integrations': {
       id: '/rakshak-platform/admin/integrations'
       path: '/integrations'
       fullPath: '/rakshak-platform/admin/integrations'
       preLoaderRoute: typeof RakshakPlatformAdminIntegrationsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/finance': {
-      id: '/rakshak-platform/admin/finance'
-      path: '/finance'
-      fullPath: '/rakshak-platform/admin/finance'
-      preLoaderRoute: typeof RakshakPlatformAdminFinanceRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
     '/rakshak-platform/admin/exports': {
@@ -1955,25 +1772,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminExportsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/evaluator-queue': {
-      id: '/rakshak-platform/admin/evaluator-queue'
-      path: '/evaluator-queue'
-      fullPath: '/rakshak-platform/admin/evaluator-queue'
-      preLoaderRoute: typeof RakshakPlatformAdminEvaluatorQueueRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/evaluator-leaderboard': {
       id: '/rakshak-platform/admin/evaluator-leaderboard'
       path: '/evaluator-leaderboard'
       fullPath: '/rakshak-platform/admin/evaluator-leaderboard'
       preLoaderRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/cron-health': {
-      id: '/rakshak-platform/admin/cron-health'
-      path: '/cron-health'
-      fullPath: '/rakshak-platform/admin/cron-health'
-      preLoaderRoute: typeof RakshakPlatformAdminCronHealthRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
     '/rakshak-platform/admin/cohorts': {
@@ -1997,32 +1800,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminBulkImportRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/badges': {
-      id: '/rakshak-platform/admin/badges'
-      path: '/badges'
-      fullPath: '/rakshak-platform/admin/badges'
-      preLoaderRoute: typeof RakshakPlatformAdminBadgesRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/audit': {
-      id: '/rakshak-platform/admin/audit'
-      path: '/audit'
-      fullPath: '/rakshak-platform/admin/audit'
-      preLoaderRoute: typeof RakshakPlatformAdminAuditRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/analytics': {
       id: '/rakshak-platform/admin/analytics'
       path: '/analytics'
       fullPath: '/rakshak-platform/admin/analytics'
       preLoaderRoute: typeof RakshakPlatformAdminAnalyticsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/alerts': {
-      id: '/rakshak-platform/admin/alerts'
-      path: '/alerts'
-      fullPath: '/rakshak-platform/admin/alerts'
-      preLoaderRoute: typeof RakshakPlatformAdminAlertsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
     '/rakshak-platform/admin/access-requests': {
@@ -2337,29 +2119,18 @@ const RakshakMentorRouteWithChildren = RakshakMentorRoute._addFileChildren(
 
 interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminAccessRequestsRoute: typeof RakshakPlatformAdminAccessRequestsRoute
-  RakshakPlatformAdminAlertsRoute: typeof RakshakPlatformAdminAlertsRoute
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
-  RakshakPlatformAdminAuditRoute: typeof RakshakPlatformAdminAuditRoute
-  RakshakPlatformAdminBadgesRoute: typeof RakshakPlatformAdminBadgesRoute
   RakshakPlatformAdminBulkImportRoute: typeof RakshakPlatformAdminBulkImportRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
   RakshakPlatformAdminCohortsRoute: typeof RakshakPlatformAdminCohortsRoute
-  RakshakPlatformAdminCronHealthRoute: typeof RakshakPlatformAdminCronHealthRoute
   RakshakPlatformAdminEvaluatorLeaderboardRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
-  RakshakPlatformAdminEvaluatorQueueRoute: typeof RakshakPlatformAdminEvaluatorQueueRoute
   RakshakPlatformAdminExportsRoute: typeof RakshakPlatformAdminExportsRoute
-  RakshakPlatformAdminFinanceRoute: typeof RakshakPlatformAdminFinanceRoute
   RakshakPlatformAdminIntegrationsRoute: typeof RakshakPlatformAdminIntegrationsRoute
-  RakshakPlatformAdminKnowledgeRoute: typeof RakshakPlatformAdminKnowledgeRoute
-  RakshakPlatformAdminMapRoute: typeof RakshakPlatformAdminMapRoute
   RakshakPlatformAdminMeetingsRoute: typeof RakshakPlatformAdminMeetingsRoute
   RakshakPlatformAdminMentorApplicationsRoute: typeof RakshakPlatformAdminMentorApplicationsRoute
-  RakshakPlatformAdminQaRoute: typeof RakshakPlatformAdminQaRoute
-  RakshakPlatformAdminQaChecklistRoute: typeof RakshakPlatformAdminQaChecklistRoute
   RakshakPlatformAdminReviewsRoute: typeof RakshakPlatformAdminReviewsRoute
   RakshakPlatformAdminRolesRoute: typeof RakshakPlatformAdminRolesRoute
   RakshakPlatformAdminSeedRoute: typeof RakshakPlatformAdminSeedRoute
-  RakshakPlatformAdminSponsorshipsRoute: typeof RakshakPlatformAdminSponsorshipsRoute
   RakshakPlatformAdminTeamMembersRoute: typeof RakshakPlatformAdminTeamMembersRoute
   RakshakPlatformAdminIndexRoute: typeof RakshakPlatformAdminIndexRoute
   RakshakPlatformAdminPrintDatasetRoute: typeof RakshakPlatformAdminPrintDatasetRoute
@@ -2370,32 +2141,20 @@ interface RakshakPlatformAdminRouteChildren {
 const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminAccessRequestsRoute:
     RakshakPlatformAdminAccessRequestsRoute,
-  RakshakPlatformAdminAlertsRoute: RakshakPlatformAdminAlertsRoute,
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
-  RakshakPlatformAdminAuditRoute: RakshakPlatformAdminAuditRoute,
-  RakshakPlatformAdminBadgesRoute: RakshakPlatformAdminBadgesRoute,
   RakshakPlatformAdminBulkImportRoute: RakshakPlatformAdminBulkImportRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
   RakshakPlatformAdminCohortsRoute: RakshakPlatformAdminCohortsRoute,
-  RakshakPlatformAdminCronHealthRoute: RakshakPlatformAdminCronHealthRoute,
   RakshakPlatformAdminEvaluatorLeaderboardRoute:
     RakshakPlatformAdminEvaluatorLeaderboardRoute,
-  RakshakPlatformAdminEvaluatorQueueRoute:
-    RakshakPlatformAdminEvaluatorQueueRoute,
   RakshakPlatformAdminExportsRoute: RakshakPlatformAdminExportsRoute,
-  RakshakPlatformAdminFinanceRoute: RakshakPlatformAdminFinanceRoute,
   RakshakPlatformAdminIntegrationsRoute: RakshakPlatformAdminIntegrationsRoute,
-  RakshakPlatformAdminKnowledgeRoute: RakshakPlatformAdminKnowledgeRoute,
-  RakshakPlatformAdminMapRoute: RakshakPlatformAdminMapRoute,
   RakshakPlatformAdminMeetingsRoute: RakshakPlatformAdminMeetingsRoute,
   RakshakPlatformAdminMentorApplicationsRoute:
     RakshakPlatformAdminMentorApplicationsRoute,
-  RakshakPlatformAdminQaRoute: RakshakPlatformAdminQaRoute,
-  RakshakPlatformAdminQaChecklistRoute: RakshakPlatformAdminQaChecklistRoute,
   RakshakPlatformAdminReviewsRoute: RakshakPlatformAdminReviewsRoute,
   RakshakPlatformAdminRolesRoute: RakshakPlatformAdminRolesRoute,
   RakshakPlatformAdminSeedRoute: RakshakPlatformAdminSeedRoute,
-  RakshakPlatformAdminSponsorshipsRoute: RakshakPlatformAdminSponsorshipsRoute,
   RakshakPlatformAdminTeamMembersRoute: RakshakPlatformAdminTeamMembersRoute,
   RakshakPlatformAdminIndexRoute: RakshakPlatformAdminIndexRoute,
   RakshakPlatformAdminPrintDatasetRoute: RakshakPlatformAdminPrintDatasetRoute,
@@ -2640,13 +2399,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
