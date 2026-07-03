@@ -113,6 +113,7 @@ function AdminTeamDetail() {
   const t = data.team;
   const mentor = t.rp_mentors?.rp_profiles;
   const leader = t.leader;
+  const evaluator = t.evaluator;
   const filesBySubmission = new Map<string, any[]>();
   for (const f of data.files) {
     const arr = filesBySubmission.get(f.submission_id) ?? [];
@@ -126,6 +127,14 @@ function AdminTeamDetail() {
     arr.push(fb);
     feedbackBySubmission.set(fb.submission_id, arr);
   }
+  const evalsByPhase = new Map<number, any[]>();
+  for (const e of data.evaluations ?? []) {
+    const arr = evalsByPhase.get(e.phase_number) ?? [];
+    arr.push(e);
+    evalsByPhase.set(e.phase_number, arr);
+  }
+  const completion = Math.max(0, Math.min(100, Number(t.completion_percentage ?? 0)));
+
 
   const TABS: { id: Tab; label: string; icon: any }[] = [
     { id: "overview", label: "Overview", icon: Sparkles },
