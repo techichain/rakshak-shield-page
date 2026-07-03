@@ -22,7 +22,6 @@ import {
   Calendar,
   CheckCircle2,
   Loader2,
-  Video,
   AlertTriangle,
 } from "lucide-react";
 
