@@ -29,11 +29,6 @@ export function AdminFAB() {
       icon: UserPlus,
       onClick: () => { setOpen(false); navigate({ to: "/rakshak-platform/admin/access-requests" }); },
     },
-    {
-      label: "New cohort",
-      icon: FolderPlus,
-      onClick: () => { setOpen(false); navigate({ to: "/rakshak-platform/admin/cohorts" }); },
-    },
   ];
 
   return (

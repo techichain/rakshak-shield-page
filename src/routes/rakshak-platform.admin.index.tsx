@@ -1283,7 +1283,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     label: "People",
     tone: "from-rose-50 to-white border-rose-100",
     items: [
-      { to: "/rakshak-platform/admin/cohorts", label: "Cohorts", icon: Users, desc: "Programme cohorts" },
+      { to: "/rakshak-platform/admin/teams", label: "Teams", icon: Users, desc: "All teams · members · reports" },
       { to: "/rakshak-platform/admin/roles", label: "Roles & assignments", icon: UserCog, desc: "Mentor · evaluator · role approvals" },
       { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: Calendar, desc: "Mentor-team sessions" },
     ],

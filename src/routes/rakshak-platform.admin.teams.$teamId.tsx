@@ -113,6 +113,7 @@ function AdminTeamDetail() {
   const t = data.team;
   const mentor = t.rp_mentors?.rp_profiles;
   const leader = t.leader;
+  const evaluator = t.evaluator;
   const filesBySubmission = new Map<string, any[]>();
   for (const f of data.files) {
     const arr = filesBySubmission.get(f.submission_id) ?? [];
@@ -126,6 +127,14 @@ function AdminTeamDetail() {
     arr.push(fb);
     feedbackBySubmission.set(fb.submission_id, arr);
   }
+  const evalsByPhase = new Map<number, any[]>();
+  for (const e of data.evaluations ?? []) {
+    const arr = evalsByPhase.get(e.phase_number) ?? [];
+    arr.push(e);
+    evalsByPhase.set(e.phase_number, arr);
+  }
+  const completion = Math.max(0, Math.min(100, Number(t.completion_percentage ?? 0)));
+
 
   const TABS: { id: Tab; label: string; icon: any }[] = [
     { id: "overview", label: "Overview", icon: Sparkles },
@@ -175,23 +184,39 @@ function AdminTeamDetail() {
 
         <div className="mt-6">
           {tab === "overview" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Card label="Current phase" value={`Phase ${t.current_phase} — ${PHASE_TITLES[t.current_phase] ?? ""}`} />
-              <Card label="Status" value={t.status ?? "—"} />
-              <Card label="Risk" value={t.risk_status ?? "—"} />
-              <Card label="Final score" value={t.final_score ?? "—"} />
-              <Card label="Evaluated phases" value={t.evaluated_phases ?? 0} />
-              <Card label="Members" value={data.members.length} />
-              <Card label="Team leader" value={leader?.full_name ?? "—"} sub={leader?.email} />
-              <Card label="Mentor" value={mentor?.full_name ?? "—"} sub={mentor?.email} />
-              <Card label="Created" value={fmtDate(t.created_at)} />
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold uppercase tracking-wide text-muted-foreground">Overall completion</span>
+                  <span className="font-semibold">{completion}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-brand" style={{ width: `${completion}%` }} />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Card label="Rank" value={t.rank ? `#${t.rank}` : "—"} />
+                <Card label="Current phase" value={`Phase ${t.current_phase} — ${PHASE_TITLES[t.current_phase] ?? ""}`} />
+                <Card label="Status" value={t.status ?? "—"} />
+                <Card label="Risk" value={t.risk_status ?? "—"} />
+                <Card label="Final score" value={t.final_score ?? "—"} />
+                <Card label="Evaluated phases" value={`${t.evaluated_phases ?? 0} / 5`} />
+                <Card label="Team leader" value={leader?.full_name ?? "—"} sub={leader?.email} />
+                <Card label="Mentor" value={mentor?.full_name ?? "Unassigned"} sub={mentor?.email} />
+                <Card label="Evaluator" value={evaluator?.full_name ?? "Unassigned"} sub={evaluator?.email} />
+                <Card label="Members" value={data.members.length} />
+                <Card label="College" value={t.college ?? "—"} sub={[t.city, t.state].filter(Boolean).join(", ")} />
+                <Card label="Created" value={fmtDate(t.created_at)} />
+              </div>
             </div>
           )}
+
 
           {tab === "submissions" && (
             <div className="space-y-4">
               {[0, 1, 2, 3, 4].map((p) => {
                 const sub = data.submissions.find((s: any) => s.phase_number === p);
+                const phaseEvals = evalsByPhase.get(p) ?? [];
                 return (
                   <div key={p} className="rounded-2xl border border-border bg-card p-5">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -206,6 +231,7 @@ function AdminTeamDetail() {
                       </span>
                     </div>
                     {sub ? (
+
                       <>
                         {sub.summary && (
                           <p className="mt-3 text-sm whitespace-pre-line">{sub.summary}</p>
@@ -247,6 +273,31 @@ function AdminTeamDetail() {
                                     · {fb.reviewer_role} · {new Date(fb.created_at).toLocaleString()}
                                   </div>
                                   <p className="mt-1 whitespace-pre-line">{fb.feedback_text}</p>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {phaseEvals.length > 0 && (
+                          <div className="mt-4 border-t border-border pt-3">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Evaluator scoring
+                            </div>
+                            <ul className="mt-2 space-y-2">
+                              {phaseEvals.map((e: any) => (
+                                <li key={e.id} className="rounded-lg border border-border p-2 text-sm">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap text-[11px] text-muted-foreground">
+                                    <span>
+                                      <span className="font-semibold text-foreground">{e.evaluator?.full_name ?? "Evaluator"}</span>
+                                      {e.evaluator?.email ? ` · ${e.evaluator.email}` : ""}
+                                    </span>
+                                    <span>
+                                      Score: <span className="font-semibold text-foreground">{e.weighted_score ?? e.total_score ?? "—"}</span> · {e.status}
+                                    </span>
+                                  </div>
+                                  {e.comments && (
+                                    <p className="mt-1 whitespace-pre-line">{e.comments}</p>
+                                  )}
                                 </li>
                               ))}
                             </ul>
