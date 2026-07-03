@@ -4,6 +4,7 @@ import {
   MapPin, BookOpen, Trophy, Sparkles, Users,
   ShieldCheck, ClipboardCheck, CalendarDays, GraduationCap, UsersRound,
   LayoutDashboard, FileText, UserCog, ScanSearch, Wrench, Wallet, BellRing,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -208,6 +209,10 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
                 {!mentorOnly && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
               </>
+            )}
+
+            {(isTeam || isMentor || isAdmin || isEvaluator) && (
+              <NavLink to="/rakshak-platform/mails" label="Mails" icon={Mail} />
             )}
 
             {isAuthority && (

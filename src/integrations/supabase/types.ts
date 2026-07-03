@@ -1651,6 +1651,130 @@ export type Database = {
           },
         ]
       }
+      rp_mail_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          sender_id: string
+          sent_at: string
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          sent_at?: string
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          sent_at?: string
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mail_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mail_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_mail_participants: {
+        Row: {
+          added_at: string
+          id: string
+          last_read_at: string | null
+          profile_id: string
+          role_in_thread: string
+          thread_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          last_read_at?: string | null
+          profile_id: string
+          role_in_thread?: string
+          thread_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          last_read_at?: string | null
+          profile_id?: string
+          role_in_thread?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mail_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "rp_mail_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_mail_threads: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          related_team_id: string | null
+          scope: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          related_team_id?: string | null
+          scope?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          related_team_id?: string | null
+          scope?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_mail_threads_related_team_id_fkey"
+            columns: ["related_team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_mail_threads_related_team_id_fkey"
+            columns: ["related_team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_meeting_attendees: {
         Row: {
           created_at: string
@@ -3079,6 +3203,10 @@ export type Database = {
         Returns: boolean
       }
       rp_is_admin: { Args: { _user_id: string }; Returns: boolean }
+      rp_is_mail_participant: {
+        Args: { _thread: string; _user: string }
+        Returns: boolean
+      }
       rp_is_meeting_attendee: {
         Args: { _meeting: string; _user: string }
         Returns: boolean

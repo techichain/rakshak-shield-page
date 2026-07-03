@@ -18,6 +18,7 @@ import { template as rpMeetingScheduledTemplate } from './rp-meeting-scheduled'
 import { template as adminDeadlineTeamTemplate } from './admin-deadline-team'
 import { template as adminDeadlineMentorTemplate } from './admin-deadline-mentor'
 import { template as adminDeadlineEvaluatorTemplate } from './admin-deadline-evaluator'
+import { template as rpMailNotificationTemplate } from './rp-mail-notification'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'registration-otp': registrationOtpTemplate,
@@ -29,5 +30,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'admin-deadline-team': adminDeadlineTeamTemplate,
   'admin-deadline-mentor': adminDeadlineMentorTemplate,
   'admin-deadline-evaluator': adminDeadlineEvaluatorTemplate,
+  'rp-mail-notification': rpMailNotificationTemplate,
 }
 
