@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -6,9 +6,23 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { listMentorOpenSlots, bookMentorSlot } from "@/lib/rakshak-platform/mentor-sessions.functions";
 import { getMyTeams } from "@/lib/rakshak-platform/submissions.functions";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Calendar, ArrowLeft, Video } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/book/$mentorId")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: roles } = await supabase
+      .from("rp_user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const isLeader = (roles ?? []).some((r) => r.role === "team_leader");
+    if (isLeader) {
+      throw redirect({ to: "/rakshak-platform/team/book-mentor" });
+    }
+  },
   component: BookPage,
   errorComponent: ({ error }) => (
     <PlatformShell><Section><p className="text-red-600">{String(error)}</p></Section></PlatformShell>

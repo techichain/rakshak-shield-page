@@ -5,6 +5,7 @@ import { z } from "zod";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { Share2, Users, Star, Clock, Award, Building2, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { useRPAuth } from "@/lib/rakshak-platform/auth";
 
 const getPublicMentor = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
@@ -105,6 +106,7 @@ export const Route = createFileRoute("/rakshak-platform/m/$id")({
 
 function PublicMentorPage() {
   const params = Route.useParams();
+  const { isTeamLeader, isTeam } = useRPAuth();
   const { data } = useSuspenseQuery({
     queryKey: ["rp-public-mentor", params.id],
     queryFn: () => getPublicMentor({ data: { id: params.id } }),
@@ -191,13 +193,24 @@ function PublicMentorPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Link
-              to="/rakshak-platform/book/$mentorId"
-              params={{ mentorId: m.id }}
-              className="h-10 px-4 rounded-full bg-brand text-brand-foreground inline-flex items-center gap-2 text-sm font-medium hover:opacity-90"
-            >
-              Book a 1:1 session
-            </Link>
+            {isTeam ? (
+              isTeamLeader ? (
+                <Link
+                  to="/rakshak-platform/team/book-mentor"
+                  className="h-10 px-4 rounded-full bg-brand text-brand-foreground inline-flex items-center gap-2 text-sm font-medium hover:opacity-90"
+                >
+                  Book with your mentor
+                </Link>
+              ) : null
+            ) : (
+              <Link
+                to="/rakshak-platform/book/$mentorId"
+                params={{ mentorId: m.id }}
+                className="h-10 px-4 rounded-full bg-brand text-brand-foreground inline-flex items-center gap-2 text-sm font-medium hover:opacity-90"
+              >
+                Book a 1:1 session
+              </Link>
+            )}
             <button
               onClick={nativeShare}
               className="h-10 px-4 rounded-full border border-border inline-flex items-center gap-2 text-sm hover:border-brand/40"
