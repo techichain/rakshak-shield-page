@@ -179,6 +179,9 @@ export async function rpRequireRole(
 
   const isAdmin = roles.includes("cfi_admin") || roles.includes("super_admin");
   const hasRole = roles.some((role) => allowedRoles.includes(role));
+  // Never block admins from a route that explicitly allows an admin role.
+  const routeAllowsAdmin =
+    allowedRoles.includes("cfi_admin") || allowedRoles.includes("super_admin");
 
   const deny = (reason: string): never => {
     // Fire-and-forget server-side log (doesn't block redirect).
