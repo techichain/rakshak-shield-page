@@ -76,7 +76,6 @@ import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/r
 import { Route as RakshakPlatformAdminExportsRouteImport } from './routes/rakshak-platform.admin.exports'
 import { Route as RakshakPlatformAdminEvaluatorLeaderboardRouteImport } from './routes/rakshak-platform.admin.evaluator-leaderboard'
 import { Route as RakshakPlatformAdminEmailsRouteImport } from './routes/rakshak-platform.admin.emails'
-import { Route as RakshakPlatformAdminCohortsRouteImport } from './routes/rakshak-platform.admin.cohorts'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
 import { Route as RakshakPlatformAdminBulkImportRouteImport } from './routes/rakshak-platform.admin.bulk-import'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
@@ -488,12 +487,6 @@ const RakshakPlatformAdminEmailsRoute =
     path: '/emails',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminCohortsRoute =
-  RakshakPlatformAdminCohortsRouteImport.update({
-    id: '/cohorts',
-    path: '/cohorts',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminCertificatesRoute =
   RakshakPlatformAdminCertificatesRouteImport.update({
     id: '/certificates',
@@ -742,7 +735,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
-  '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRouteWithChildren
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
@@ -837,7 +829,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
-  '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRouteWithChildren
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
@@ -940,7 +931,6 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/bulk-import': typeof RakshakPlatformAdminBulkImportRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
-  '/rakshak-platform/admin/cohorts': typeof RakshakPlatformAdminCohortsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRouteWithChildren
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/exports': typeof RakshakPlatformAdminExportsRoute
@@ -1046,7 +1036,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
-    | '/rakshak-platform/admin/cohorts'
     | '/rakshak-platform/admin/emails'
     | '/rakshak-platform/admin/evaluator-leaderboard'
     | '/rakshak-platform/admin/exports'
@@ -1141,7 +1130,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
-    | '/rakshak-platform/admin/cohorts'
     | '/rakshak-platform/admin/emails'
     | '/rakshak-platform/admin/evaluator-leaderboard'
     | '/rakshak-platform/admin/exports'
@@ -1243,7 +1231,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/bulk-import'
     | '/rakshak-platform/admin/certificates'
-    | '/rakshak-platform/admin/cohorts'
     | '/rakshak-platform/admin/emails'
     | '/rakshak-platform/admin/evaluator-leaderboard'
     | '/rakshak-platform/admin/exports'
@@ -1792,13 +1779,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminEmailsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/cohorts': {
-      id: '/rakshak-platform/admin/cohorts'
-      path: '/cohorts'
-      fullPath: '/rakshak-platform/admin/cohorts'
-      preLoaderRoute: typeof RakshakPlatformAdminCohortsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/certificates': {
       id: '/rakshak-platform/admin/certificates'
       path: '/certificates'
@@ -2156,7 +2136,6 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminBulkImportRoute: typeof RakshakPlatformAdminBulkImportRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
-  RakshakPlatformAdminCohortsRoute: typeof RakshakPlatformAdminCohortsRoute
   RakshakPlatformAdminEmailsRoute: typeof RakshakPlatformAdminEmailsRouteWithChildren
   RakshakPlatformAdminEvaluatorLeaderboardRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   RakshakPlatformAdminExportsRoute: typeof RakshakPlatformAdminExportsRoute
@@ -2178,7 +2157,6 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminBulkImportRoute: RakshakPlatformAdminBulkImportRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
-  RakshakPlatformAdminCohortsRoute: RakshakPlatformAdminCohortsRoute,
   RakshakPlatformAdminEmailsRoute: RakshakPlatformAdminEmailsRouteWithChildren,
   RakshakPlatformAdminEvaluatorLeaderboardRoute:
     RakshakPlatformAdminEvaluatorLeaderboardRoute,
@@ -2433,13 +2411,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
