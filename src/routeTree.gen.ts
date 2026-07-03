@@ -27,6 +27,7 @@ import { Route as RakshakPlatformMentorApplyRouteImport } from './routes/rakshak
 import { Route as RakshakPlatformMemberRouteImport } from './routes/rakshak-platform.member'
 import { Route as RakshakPlatformMeetingsRouteImport } from './routes/rakshak-platform.meetings'
 import { Route as RakshakPlatformMapRouteImport } from './routes/rakshak-platform.map'
+import { Route as RakshakPlatformMailsRouteImport } from './routes/rakshak-platform.mails'
 import { Route as RakshakPlatformLeaderboardRouteImport } from './routes/rakshak-platform.leaderboard'
 import { Route as RakshakPlatformKnowledgeRouteImport } from './routes/rakshak-platform.knowledge'
 import { Route as RakshakPlatformImpactRouteImport } from './routes/rakshak-platform.impact'
@@ -202,6 +203,11 @@ const RakshakPlatformMeetingsRoute = RakshakPlatformMeetingsRouteImport.update({
 const RakshakPlatformMapRoute = RakshakPlatformMapRouteImport.update({
   id: '/map',
   path: '/map',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformMailsRoute = RakshakPlatformMailsRouteImport.update({
+  id: '/mails',
+  path: '/mails',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
 const RakshakPlatformLeaderboardRoute =
@@ -706,6 +712,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeRouteWithChildren
   '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRouteWithChildren
+  '/rakshak-platform/mails': typeof RakshakPlatformMailsRoute
   '/rakshak-platform/map': typeof RakshakPlatformMapRoute
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRouteWithChildren
   '/rakshak-platform/member': typeof RakshakPlatformMemberRoute
@@ -800,6 +807,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/dashboard': typeof RakshakPlatformDashboardRoute
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
   '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRouteWithChildren
+  '/rakshak-platform/mails': typeof RakshakPlatformMailsRoute
   '/rakshak-platform/map': typeof RakshakPlatformMapRoute
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRouteWithChildren
   '/rakshak-platform/member': typeof RakshakPlatformMemberRoute
@@ -902,6 +910,7 @@ export interface FileRoutesById {
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeRouteWithChildren
   '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRouteWithChildren
+  '/rakshak-platform/mails': typeof RakshakPlatformMailsRoute
   '/rakshak-platform/map': typeof RakshakPlatformMapRoute
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRouteWithChildren
   '/rakshak-platform/member': typeof RakshakPlatformMemberRoute
@@ -1007,6 +1016,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/impact'
     | '/rakshak-platform/knowledge'
     | '/rakshak-platform/leaderboard'
+    | '/rakshak-platform/mails'
     | '/rakshak-platform/map'
     | '/rakshak-platform/meetings'
     | '/rakshak-platform/member'
@@ -1101,6 +1111,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/dashboard'
     | '/rakshak-platform/impact'
     | '/rakshak-platform/leaderboard'
+    | '/rakshak-platform/mails'
     | '/rakshak-platform/map'
     | '/rakshak-platform/meetings'
     | '/rakshak-platform/member'
@@ -1202,6 +1213,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/impact'
     | '/rakshak-platform/knowledge'
     | '/rakshak-platform/leaderboard'
+    | '/rakshak-platform/mails'
     | '/rakshak-platform/map'
     | '/rakshak-platform/meetings'
     | '/rakshak-platform/member'
@@ -1434,6 +1446,13 @@ declare module '@tanstack/react-router' {
       path: '/map'
       fullPath: '/rakshak-platform/map'
       preLoaderRoute: typeof RakshakPlatformMapRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/mails': {
+      id: '/rakshak-platform/mails'
+      path: '/mails'
+      fullPath: '/rakshak-platform/mails'
+      preLoaderRoute: typeof RakshakPlatformMailsRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/leaderboard': {
@@ -2327,6 +2346,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformImpactRoute: typeof RakshakPlatformImpactRoute
   RakshakPlatformKnowledgeRoute: typeof RakshakPlatformKnowledgeRouteWithChildren
   RakshakPlatformLeaderboardRoute: typeof RakshakPlatformLeaderboardRouteWithChildren
+  RakshakPlatformMailsRoute: typeof RakshakPlatformMailsRoute
   RakshakPlatformMapRoute: typeof RakshakPlatformMapRoute
   RakshakPlatformMeetingsRoute: typeof RakshakPlatformMeetingsRouteWithChildren
   RakshakPlatformMemberRoute: typeof RakshakPlatformMemberRoute
@@ -2359,6 +2379,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformImpactRoute: RakshakPlatformImpactRoute,
   RakshakPlatformKnowledgeRoute: RakshakPlatformKnowledgeRouteWithChildren,
   RakshakPlatformLeaderboardRoute: RakshakPlatformLeaderboardRouteWithChildren,
+  RakshakPlatformMailsRoute: RakshakPlatformMailsRoute,
   RakshakPlatformMapRoute: RakshakPlatformMapRoute,
   RakshakPlatformMeetingsRoute: RakshakPlatformMeetingsRouteWithChildren,
   RakshakPlatformMemberRoute: RakshakPlatformMemberRoute,
