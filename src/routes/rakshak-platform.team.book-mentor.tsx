@@ -187,8 +187,9 @@ function BookMentorPage() {
             : "Book a session with your mentor"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Pick a 30-minute slot when your mentor is free. Google Calendar creates a
-          Meet link and emails the invite to both of you automatically.
+          Pick a 30-minute slot when your mentor is free. Your mentor reviews the
+          request — on approval, a Google Meet link is created on their calendar
+          and emailed to every team member.
         </p>
 
         {isLoading && (
@@ -204,46 +205,44 @@ function BookMentorPage() {
         )}
 
         {data && !data.leader_connected && (
-          <div className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 p-6">
+          <div className="mt-8 rounded-2xl border border-border bg-muted/40 p-4 text-sm">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+              <Calendar className="h-4 w-4 text-brand mt-0.5" />
               <div className="flex-1">
-                <h2 className="font-semibold">Connect your Google Calendar</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  We create the Meet link and calendar invite on your Google account.
-                </p>
+                <span className="font-medium">Optional:</span> connect your Google
+                Calendar so this meeting is added to your schedule automatically.
+                {calStatus?.email && (
+                  <span className="text-muted-foreground"> (detected {calStatus.email})</span>
+                )}
                 <button
                   onClick={connectCalendar}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-5 h-10 text-sm text-brand-foreground"
+                  className="ml-2 text-brand hover:underline"
                 >
-                  <Calendar className="h-4 w-4" /> Connect Google Calendar
+                  Connect
                 </button>
-                {calStatus?.email && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Detected {calStatus.email} — reconnect if needed.
-                  </p>
-                )}
               </div>
             </div>
           </div>
         )}
 
-        {data && data.leader_connected && !data.mentor_connected && (
+        {data && !data.mentor_connected && (
           <div className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 p-6">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
               <div>
                 <h2 className="font-semibold">Mentor hasn't shared availability yet</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Your mentor ({data.mentor.email}) hasn't connected Google Calendar.
-                  Please email them and ask them to connect it from their Profile page.
+                  Your mentor ({data.mentor.email}) hasn't connected Google Calendar,
+                  so we can't show live free slots. You can still send a request for
+                  any time below — they'll approve it once they connect.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {data && data.leader_connected && data.mentor_connected && (
+        {data && (
+
           <div className="mt-8 grid lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 rounded-2xl border border-border bg-background p-5">
               <h3 className="font-heading text-lg">Pick a free slot</h3>
