@@ -258,7 +258,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import" },
                   { to: "/rakshak-platform/admin/exports", label: "Exports" },
                   { to: "/rakshak-platform/admin/integrations", label: "Integrations" },
-                  { to: "/rakshak-platform/admin/seed", label: "Seed data" },
+                  
                 ]} />
               </>
             )}
@@ -385,7 +385,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
                     { to: "/rakshak-platform/admin/exports", label: "Exports", icon: FileText },
                     { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
-                    { to: "/rakshak-platform/admin/seed", label: "Seed data", icon: Wrench },
+                    
                   ]} onPick={() => setMenuOpen(false)} />
                 </>
               )}
