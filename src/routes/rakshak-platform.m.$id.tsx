@@ -5,6 +5,7 @@ import { z } from "zod";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { Share2, Users, Star, Clock, Award, Building2, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { useRPAuth } from "@/lib/rakshak-platform/auth";
 
 const getPublicMentor = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
