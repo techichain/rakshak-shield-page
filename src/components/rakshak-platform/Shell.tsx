@@ -211,6 +211,10 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
               </>
             )}
 
+            {(isTeam || isMentor || isAdmin || isEvaluator) && (
+              <NavLink to="/rakshak-platform/mails" label="Mails" icon={Mail} />
+            )}
+
             {isAuthority && (
               <NavLink to="/rakshak-platform/authority" label="Authority" icon={ShieldCheck} />
             )}
