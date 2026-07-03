@@ -1108,6 +1108,57 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_email_campaigns: {
+        Row: {
+          audience: Json
+          created_at: string
+          created_by: string
+          failed_count: number
+          id: string
+          merge_fields: Json
+          recipient_count: number
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject_override: string | null
+          success_count: number
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          audience: Json
+          created_at?: string
+          created_by: string
+          failed_count?: number
+          id?: string
+          merge_fields?: Json
+          recipient_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject_override?: string | null
+          success_count?: number
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: Json
+          created_at?: string
+          created_by?: string
+          failed_count?: number
+          id?: string
+          merge_fields?: Json
+          recipient_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject_override?: string | null
+          success_count?: number
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rp_email_otps: {
         Row: {
           attempts: number
