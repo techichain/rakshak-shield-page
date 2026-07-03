@@ -278,6 +278,31 @@ function AdminTeamDetail() {
                             </ul>
                           </div>
                         )}
+                        {phaseEvals.length > 0 && (
+                          <div className="mt-4 border-t border-border pt-3">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              Evaluator scoring
+                            </div>
+                            <ul className="mt-2 space-y-2">
+                              {phaseEvals.map((e: any) => (
+                                <li key={e.id} className="rounded-lg border border-border p-2 text-sm">
+                                  <div className="flex items-center justify-between gap-2 flex-wrap text-[11px] text-muted-foreground">
+                                    <span>
+                                      <span className="font-semibold text-foreground">{e.evaluator?.full_name ?? "Evaluator"}</span>
+                                      {e.evaluator?.email ? ` · ${e.evaluator.email}` : ""}
+                                    </span>
+                                    <span>
+                                      Score: <span className="font-semibold text-foreground">{e.weighted_score ?? e.total_score ?? "—"}</span> · {e.status}
+                                    </span>
+                                  </div>
+                                  {e.comments && (
+                                    <p className="mt-1 whitespace-pre-line">{e.comments}</p>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                         {(sub.status === "mentor_approved" || sub.status === "resubmitted" || sub.status === "submitted") && (
                           <div className="mt-4 flex gap-2">
                             <button
