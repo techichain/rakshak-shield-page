@@ -359,7 +359,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team", label: "Overview", icon: LayoutDashboard },
                   { to: "/rakshak-platform/team/phases", label: "Phases", icon: ClipboardCheck },
                   { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
-                  { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
