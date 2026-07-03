@@ -207,7 +207,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 {!mentorOnly && <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />}
                 <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
-                {!mentorOnly && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
+                {!mentorOnly && !isTeam && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
               </>
             )}
 
@@ -234,7 +234,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team", label: "Overview", icon: LayoutDashboard },
                 { to: "/rakshak-platform/team/phases", label: "Phases" },
                 { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
-                { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
               ]} />
             )}
 
@@ -329,7 +328,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     ...(!mentorOnly ? [{ to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen }] : []),
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                    ...(!mentorOnly ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
+                    ...(!mentorOnly && !isTeam ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
                   ]}
                   onPick={() => setMenuOpen(false)}
                 />
@@ -359,7 +358,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team", label: "Overview", icon: LayoutDashboard },
                   { to: "/rakshak-platform/team/phases", label: "Phases", icon: ClipboardCheck },
                   { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
-                  { to: "/rakshak-platform/team/reports", label: "Reports", icon: FileText },
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
