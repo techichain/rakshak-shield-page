@@ -15,6 +15,9 @@ import { template as gigriderResetOtpTemplate } from './gigrider-reset-otp'
 import { template as rpAdminRoleRequestTemplate } from './rp-admin-role-request'
 import { template as rpRoleDecisionTemplate } from './rp-role-decision'
 import { template as rpMeetingScheduledTemplate } from './rp-meeting-scheduled'
+import { template as adminDeadlineTeamTemplate } from './admin-deadline-team'
+import { template as adminDeadlineMentorTemplate } from './admin-deadline-mentor'
+import { template as adminDeadlineEvaluatorTemplate } from './admin-deadline-evaluator'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'registration-otp': registrationOtpTemplate,
@@ -23,5 +26,8 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'rp-admin-role-request': rpAdminRoleRequestTemplate,
   'rp-role-decision': rpRoleDecisionTemplate,
   'rp-meeting-scheduled': rpMeetingScheduledTemplate,
+  'admin-deadline-team': adminDeadlineTeamTemplate,
+  'admin-deadline-mentor': adminDeadlineMentorTemplate,
+  'admin-deadline-evaluator': adminDeadlineEvaluatorTemplate,
 }
 
