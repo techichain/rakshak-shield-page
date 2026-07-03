@@ -2,12 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-function jitsiRoom() {
-  return "rakshak-" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-}
-function jitsiUrl(room: string) {
-  return `https://meet.jit.si/${room}`;
-}
+// Video conferencing: Google Meet only. Meet links are created on the
+// mentor's Google Calendar after the mentor approves the request.
 
 const MeetingType = z.enum([
   "team_mentor",
