@@ -184,18 +184,33 @@ function AdminTeamDetail() {
 
         <div className="mt-6">
           {tab === "overview" && (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Card label="Current phase" value={`Phase ${t.current_phase} — ${PHASE_TITLES[t.current_phase] ?? ""}`} />
-              <Card label="Status" value={t.status ?? "—"} />
-              <Card label="Risk" value={t.risk_status ?? "—"} />
-              <Card label="Final score" value={t.final_score ?? "—"} />
-              <Card label="Evaluated phases" value={t.evaluated_phases ?? 0} />
-              <Card label="Members" value={data.members.length} />
-              <Card label="Team leader" value={leader?.full_name ?? "—"} sub={leader?.email} />
-              <Card label="Mentor" value={mentor?.full_name ?? "—"} sub={mentor?.email} />
-              <Card label="Created" value={fmtDate(t.created_at)} />
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="font-semibold uppercase tracking-wide text-muted-foreground">Overall completion</span>
+                  <span className="font-semibold">{completion}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-brand" style={{ width: `${completion}%` }} />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <Card label="Rank" value={t.rank ? `#${t.rank}` : "—"} />
+                <Card label="Current phase" value={`Phase ${t.current_phase} — ${PHASE_TITLES[t.current_phase] ?? ""}`} />
+                <Card label="Status" value={t.status ?? "—"} />
+                <Card label="Risk" value={t.risk_status ?? "—"} />
+                <Card label="Final score" value={t.final_score ?? "—"} />
+                <Card label="Evaluated phases" value={`${t.evaluated_phases ?? 0} / 5`} />
+                <Card label="Team leader" value={leader?.full_name ?? "—"} sub={leader?.email} />
+                <Card label="Mentor" value={mentor?.full_name ?? "Unassigned"} sub={mentor?.email} />
+                <Card label="Evaluator" value={evaluator?.full_name ?? "Unassigned"} sub={evaluator?.email} />
+                <Card label="Members" value={data.members.length} />
+                <Card label="College" value={t.college ?? "—"} sub={[t.city, t.state].filter(Boolean).join(", ")} />
+                <Card label="Created" value={fmtDate(t.created_at)} />
+              </div>
             </div>
           )}
+
 
           {tab === "submissions" && (
             <div className="space-y-4">
