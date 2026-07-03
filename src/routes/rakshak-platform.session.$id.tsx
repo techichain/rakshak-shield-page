@@ -35,7 +35,11 @@ function SessionPage() {
   const [tab, setTab] = useState<"video" | "whiteboard" | "both">("both");
   const [fs, setFs] = useState(false);
 
-  const videoUrl = useMemo(() => {
+  const meetLink: string | null = data.meeting.meeting_link ?? null;
+  const isGoogleMeet = !!meetLink && /meet\.google\.com/i.test(meetLink);
+  const isLegacyRoom = !!data.meeting.video_room_id && !isGoogleMeet;
+
+  const legacyVideoUrl = useMemo(() => {
     const room = data.meeting.video_room_id || `rakshak-${data.meeting.id}`;
     const name = encodeURIComponent(data.displayName);
     return `https://meet.jit.si/${room}#userInfo.displayName="${name}"&config.prejoinPageEnabled=false`;
@@ -43,8 +47,6 @@ function SessionPage() {
 
   const whiteboardUrl = useMemo(() => {
     const room = data.meeting.whiteboard_room_id || `rakshak-${data.meeting.id}`;
-    // Excalidraw plus.io collab uses a different format; tldraw.com has public read-only rooms.
-    // Use witeboard.com which supports public room URLs and iframe embedding.
     return `https://witeboard.com/${room}`;
   }, [data]);
 
@@ -63,15 +65,19 @@ function SessionPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="rp-card flex p-1 text-xs">
-              {(["both", "video", "whiteboard"] as const).map((t) => (
-                <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-md capitalize ${tab === t ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground"}`}>{t}</button>
-              ))}
-            </div>
-            <button onClick={() => setFs((v) => !v)} className="rp-btn-secondary inline-flex items-center gap-1">
-              {fs ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
-              {fs ? "Exit fullscreen" : "Fullscreen"}
-            </button>
+            {isLegacyRoom && (
+              <div className="rp-card flex p-1 text-xs">
+                {(["both", "video", "whiteboard"] as const).map((t) => (
+                  <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 rounded-md capitalize ${tab === t ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground"}`}>{t}</button>
+                ))}
+              </div>
+            )}
+            {isLegacyRoom && (
+              <button onClick={() => setFs((v) => !v)} className="rp-btn-secondary inline-flex items-center gap-1">
+                {fs ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
+                {fs ? "Exit fullscreen" : "Fullscreen"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -79,31 +85,57 @@ function SessionPage() {
           <p className="text-sm text-muted-foreground mt-3 whitespace-pre-line bg-muted/50 rounded-lg p-3">{data.meeting.agenda}</p>
         )}
 
-        <div className={`mt-4 grid gap-4 ${tab === "both" ? "lg:grid-cols-2" : "grid-cols-1"} ${fs ? "fixed inset-2 z-50 bg-background p-2 rounded-xl shadow-2xl" : ""}`}>
-          {(tab === "video" || tab === "both") && (
-            <Pane title="Video" icon={<Video className="size-4" />} url={videoUrl}>
-              <iframe
-                src={videoUrl}
-                allow="camera; microphone; fullscreen; display-capture; autoplay"
-                className="w-full h-full rounded-lg border border-border"
-                title="Jitsi video room"
-              />
-            </Pane>
-          )}
-          {(tab === "whiteboard" || tab === "both") && (
-            <Pane title="Whiteboard" icon={<Pencil className="size-4" />} url={whiteboardUrl}>
-              <iframe
-                src={whiteboardUrl}
-                className="w-full h-full rounded-lg border border-border bg-white"
-                title="Whiteboard"
-              />
-            </Pane>
-          )}
-        </div>
+        {isGoogleMeet ? (
+          <div className="mt-6 rounded-2xl border border-border bg-background p-8 text-center">
+            <Video className="mx-auto size-10 text-brand" />
+            <h2 className="mt-3 font-heading text-xl">Google Meet</h2>
+            <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+              Google Meet doesn't allow embedding. Click below to join in a new tab.
+              Everyone on the calendar invite can join.
+            </p>
+            <a
+              href={meetLink!}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-brand text-brand-foreground text-sm font-medium"
+            >
+              <Video className="size-4" /> Join Google Meet <ExternalLink className="size-3.5" />
+            </a>
+            <div className="mt-3 text-xs text-muted-foreground break-all">{meetLink}</div>
+          </div>
+        ) : isLegacyRoom ? (
+          <div className={`mt-4 grid gap-4 ${tab === "both" ? "lg:grid-cols-2" : "grid-cols-1"} ${fs ? "fixed inset-2 z-50 bg-background p-2 rounded-xl shadow-2xl" : ""}`}>
+            {(tab === "video" || tab === "both") && (
+              <Pane title="Video" icon={<Video className="size-4" />} url={legacyVideoUrl}>
+                <iframe
+                  src={legacyVideoUrl}
+                  allow="camera; microphone; fullscreen; display-capture; autoplay"
+                  className="w-full h-full rounded-lg border border-border"
+                  title="Video room"
+                />
+              </Pane>
+            )}
+            {(tab === "whiteboard" || tab === "both") && (
+              <Pane title="Whiteboard" icon={<Pencil className="size-4" />} url={whiteboardUrl}>
+                <iframe
+                  src={whiteboardUrl}
+                  className="w-full h-full rounded-lg border border-border bg-white"
+                  title="Whiteboard"
+                />
+              </Pane>
+            )}
+          </div>
+        ) : (
+          <div className="mt-6 rounded-2xl border border-dashed border-border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
+            No video link yet. If this is a mentor booking, it appears once your mentor approves the request.
+          </div>
+        )}
 
-        <div className="text-xs text-muted-foreground mt-4">
-          Room: <code>{data.meeting.video_room_id}</code> · Whiteboard: <code>{data.meeting.whiteboard_room_id}</code> · Share the URL of this page with attendees who already have access.
-        </div>
+        {isLegacyRoom && (
+          <div className="text-xs text-muted-foreground mt-4">
+            Room: <code>{data.meeting.video_room_id}</code> · Whiteboard: <code>{data.meeting.whiteboard_room_id}</code>
+          </div>
+        )}
       </Section>
     </PlatformShell>
   );
