@@ -68,7 +68,6 @@ import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/raksha
 import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
 import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
 import { Route as RakshakPlatformAdminTeamMembersRouteImport } from './routes/rakshak-platform.admin.team-members'
-import { Route as RakshakPlatformAdminSeedRouteImport } from './routes/rakshak-platform.admin.seed'
 import { Route as RakshakPlatformAdminRolesRouteImport } from './routes/rakshak-platform.admin.roles'
 import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
 import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
@@ -439,12 +438,6 @@ const RakshakPlatformAdminTeamMembersRoute =
     path: '/team-members',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminSeedRoute =
-  RakshakPlatformAdminSeedRouteImport.update({
-    id: '/seed',
-    path: '/seed',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminRolesRoute =
   RakshakPlatformAdminRolesRouteImport.update({
     id: '/roles',
@@ -743,7 +736,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
-  '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -837,7 +829,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
-  '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -939,7 +930,6 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
-  '/rakshak-platform/admin/seed': typeof RakshakPlatformAdminSeedRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -1044,7 +1034,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/mentor-applications'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/roles'
-    | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1138,7 +1127,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/mentor-applications'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/roles'
-    | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1239,7 +1227,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/mentor-applications'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/roles'
-    | '/rakshak-platform/admin/seed'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1723,13 +1710,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminTeamMembersRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/seed': {
-      id: '/rakshak-platform/admin/seed'
-      path: '/seed'
-      fullPath: '/rakshak-platform/admin/seed'
-      preLoaderRoute: typeof RakshakPlatformAdminSeedRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/roles': {
       id: '/rakshak-platform/admin/roles'
       path: '/roles'
@@ -2130,7 +2110,6 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminMentorApplicationsRoute: typeof RakshakPlatformAdminMentorApplicationsRoute
   RakshakPlatformAdminReviewsRoute: typeof RakshakPlatformAdminReviewsRoute
   RakshakPlatformAdminRolesRoute: typeof RakshakPlatformAdminRolesRoute
-  RakshakPlatformAdminSeedRoute: typeof RakshakPlatformAdminSeedRoute
   RakshakPlatformAdminTeamMembersRoute: typeof RakshakPlatformAdminTeamMembersRoute
   RakshakPlatformAdminIndexRoute: typeof RakshakPlatformAdminIndexRoute
   RakshakPlatformAdminPrintDatasetRoute: typeof RakshakPlatformAdminPrintDatasetRoute
@@ -2154,7 +2133,6 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
     RakshakPlatformAdminMentorApplicationsRoute,
   RakshakPlatformAdminReviewsRoute: RakshakPlatformAdminReviewsRoute,
   RakshakPlatformAdminRolesRoute: RakshakPlatformAdminRolesRoute,
-  RakshakPlatformAdminSeedRoute: RakshakPlatformAdminSeedRoute,
   RakshakPlatformAdminTeamMembersRoute: RakshakPlatformAdminTeamMembersRoute,
   RakshakPlatformAdminIndexRoute: RakshakPlatformAdminIndexRoute,
   RakshakPlatformAdminPrintDatasetRoute: RakshakPlatformAdminPrintDatasetRoute,
