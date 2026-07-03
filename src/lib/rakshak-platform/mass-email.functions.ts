@@ -321,7 +321,7 @@ export const sendMassEmailTest = createServerFn({ method: 'POST' })
     if (!data.testRecipient) throw new Error('testRecipient required')
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
     const { data: prof } = await context.supabase
-      .from('rp_profiles').select('full_name').eq('user_id', context.userId).maybeSingle()
+      .from('rp_profiles').select('full_name').eq('id', context.userId).maybeSingle()
     const senderName = (prof as any)?.full_name || 'Rakshak Admin'
     const result = await enqueueOne(
       supabaseAdmin,
@@ -348,7 +348,7 @@ export const sendMassEmail = createServerFn({ method: 'POST' })
     if (recipients.length > MAX_RECIPIENTS) throw new Error(`Too many recipients (max ${MAX_RECIPIENTS})`)
 
     const { data: prof } = await context.supabase
-      .from('rp_profiles').select('full_name').eq('user_id', context.userId).maybeSingle()
+      .from('rp_profiles').select('full_name').eq('id', context.userId).maybeSingle()
     const senderName = (prof as any)?.full_name || 'Rakshak Admin'
 
     const { data: campaign, error: campErr } = await context.supabase
