@@ -67,7 +67,7 @@ function DashboardRedirect() {
     if (isTeam) { navigate({ to: "/rakshak-platform/team" }); return; }
     if (isEvaluator) { navigate({ to: "/rakshak-platform/evaluator" }); return; }
     if (isAuthority) { navigate({ to: "/rakshak-platform/authority" }); return; }
-    if (isFinance) { navigate({ to: "/rakshak-platform/admin/finance" }); return; }
+    if (isFinance) { navigate({ to: "/rakshak-platform/admin" }); return; }
   }, [loading, userId, isAdmin, isMentor, isTeam, isTeamLeader, isTeamMember, isEvaluator, isAuthority, isFinance, navigate]);
 
 
