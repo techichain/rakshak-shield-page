@@ -81,7 +81,7 @@ function AccessRequestsPage() {
   const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
-  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites">("requests");
+  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites" | "roles">("requests");
 
   // Decision form state
   const [decidingId, setDecidingId] = useState<string | null>(null);
