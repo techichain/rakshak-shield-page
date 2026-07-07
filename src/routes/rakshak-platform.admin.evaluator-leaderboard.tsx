@@ -20,6 +20,38 @@ const searchSchema = z.object({
   phase: z.string().optional(),
 });
 
+const ALL_PHASES_VALUE = "all-phases";
+
+const DUMMY_PROFILES: Record<string, { full_name: string | null; email: string | null }> = {
+  "dummy-evaluator-1": { full_name: "Ananya Sharma", email: "ananya.evaluator@rakshak.test" },
+  "dummy-evaluator-2": { full_name: "Rohan Mehta", email: "rohan.evaluator@rakshak.test" },
+  "dummy-evaluator-3": { full_name: "Meera Nair", email: "meera.evaluator@rakshak.test" },
+  "dummy-evaluator-4": { full_name: "Kabir Sethi", email: "kabir.evaluator@rakshak.test" },
+  "dummy-evaluator-5": { full_name: "Fatima Khan", email: "fatima.evaluator@rakshak.test" },
+  "dummy-evaluator-6": { full_name: "Dev Patel", email: "dev.evaluator@rakshak.test" },
+};
+
+const DUMMY_EVALUATIONS: EvalRow[] = Array.from({ length: 96 }, (_, index) => {
+  const evaluatorNumber = (index % 6) + 1;
+  const phase = (index % 4) + 1;
+  const submissionNumber = Math.floor(index / 3) + 1;
+  const scoreBase = 58 + phase * 7 + evaluatorNumber * 1.4;
+  const scoreVariance = ((index * 5) % 17) - 8;
+  const submittedAt = new Date();
+  submittedAt.setDate(submittedAt.getDate() - (index % 42));
+
+  return {
+    id: `dummy-eval-${index + 1}`,
+    evaluator_id: `dummy-evaluator-${evaluatorNumber}`,
+    submission_id: `dummy-submission-${submissionNumber}`,
+    team_id: `dummy-team-${(index % 24) + 1}`,
+    phase_number: phase,
+    total_score: Math.max(42, Math.min(98, Number((scoreBase + scoreVariance).toFixed(1)))),
+    status: "submitted",
+    submitted_at: submittedAt.toISOString(),
+  };
+});
+
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
   validateSearch: zodValidator(searchSchema),
   component: EvaluatorLeaderboard,
@@ -55,6 +87,7 @@ function EvaluatorLeaderboard() {
   const [profiles, setProfiles] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [usingDummy, setUsingDummy] = useState(false);
 
   const fromDate = search.from ? parseISO(search.from) : undefined;
   const toDate = search.to ? parseISO(search.to) : undefined;
@@ -74,7 +107,14 @@ function EvaluatorLeaderboard() {
           .limit(2000);
         if (dbErr) throw new Error(dbErr.message);
         const list = (data ?? []) as EvalRow[];
+        if (list.length === 0) {
+          setRows(DUMMY_EVALUATIONS);
+          setProfiles(DUMMY_PROFILES);
+          setUsingDummy(true);
+          return;
+        }
         setRows(list);
+        setUsingDummy(false);
         const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
         if (ids.length) {
           const { data: profs, error: profErr } = await supabase
@@ -83,6 +123,9 @@ function EvaluatorLeaderboard() {
         }
       } catch (err) {
         setFetchError(err instanceof Error ? err.message : "Failed to load evaluations");
+        setRows(DUMMY_EVALUATIONS);
+        setProfiles(DUMMY_PROFILES);
+        setUsingDummy(true);
       } finally {
         setBusy(false);
       }
@@ -144,19 +187,6 @@ function EvaluatorLeaderboard() {
 
   if (loading || busy) return <PlatformShell><Section><Loader2 className="animate-spin" /></Section></PlatformShell>;
 
-  if (fetchError) return (
-    <PlatformShell>
-      <Section>
-        <Eyebrow>Evaluator analytics</Eyebrow>
-        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
-          <p className="font-semibold text-red-700">Failed to load evaluator analytics</p>
-          <p className="mt-1 text-sm text-red-600">{fetchError}</p>
-          <p className="mt-3 text-xs text-red-500">This usually means the rp_evaluations table hasn't been seeded yet, or your role doesn't have read access. Check Supabase RLS policies.</p>
-        </div>
-      </Section>
-    </PlatformShell>
-  );
-
   return (
     <PlatformShell>
       <Section>
@@ -211,13 +241,13 @@ function EvaluatorLeaderboard() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-xs uppercase tracking-wider text-muted-foreground">Phase</label>
-            <Select value={search.phase ?? ""} onValueChange={(v) => setFilter({ phase: v || undefined })}>
+            <Select value={search.phase ?? ALL_PHASES_VALUE} onValueChange={(v) => setFilter({ phase: v === ALL_PHASES_VALUE ? undefined : v })}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="All phases" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All phases</SelectItem>
-                {[0, 1, 2, 3, 4].map((p) => (
+                <SelectItem value={ALL_PHASES_VALUE}>All phases</SelectItem>
+                {[1, 2, 3, 4].map((p) => (
                   <SelectItem key={p} value={String(p)}>Phase {p}</SelectItem>
                 ))}
               </SelectContent>
@@ -236,6 +266,12 @@ function EvaluatorLeaderboard() {
             {search.from && <Badge variant="secondary">From {format(parseISO(search.from), "PP")}</Badge>}
             {search.to && <Badge variant="secondary">To {format(parseISO(search.to), "PP")}</Badge>}
             {search.phase && <Badge variant="secondary">Phase {search.phase}</Badge>}
+          </div>
+        )}
+
+        {usingDummy && (
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            Showing dummy evaluator analytics because live evaluation data {fetchError ? "could not be loaded" : "is not available yet"}.
           </div>
         )}
 
