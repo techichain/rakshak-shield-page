@@ -471,6 +471,7 @@ function AccessRequestsPage() {
             ["mentor-apps", `Mentor applications (${pendingMentorApps.length})`, <GraduationCap className="h-4 w-4" key="i3" />],
             ["team-requests", `Team creation requests`, <UserPlus className="h-4 w-4" key="i4" />],
             ["invites", `Email invites (${invites.length})`, <Mail className="h-4 w-4" key="i2" />],
+            ["roles", `Roles & assignments`, <UserCog className="h-4 w-4" key="i5" />],
           ] as const).map(([id, label, icon]) => {
             const active = tab === id;
             return (
