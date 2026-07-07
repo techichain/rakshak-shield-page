@@ -785,6 +785,8 @@ function AccessRequestsPage() {
             />
           </div>
         )}
+
+        {tab === "roles" && <RolesAssignmentsPanel />}
       </Section>
     </PlatformShell>
   );
