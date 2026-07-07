@@ -81,7 +81,13 @@ function AccessRequestsPage() {
   const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
-  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites" | "roles">("requests");
+  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites" | "roles">(() => {
+    if (typeof window !== "undefined") {
+      const t = new URLSearchParams(window.location.search).get("tab");
+      if (t === "roles" || t === "mentor-apps" || t === "team-requests" || t === "invites" || t === "requests") return t;
+    }
+    return "requests";
+  });
 
   // Decision form state
   const [decidingId, setDecidingId] = useState<string | null>(null);
