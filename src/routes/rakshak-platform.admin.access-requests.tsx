@@ -22,6 +22,8 @@ import {
   type ApprovalEmailEntry,
 } from "@/lib/rakshak-platform/admin-approval-details.functions";
 import { AdminMentorTeamRequestsPanel } from "@/components/rakshak-platform/AdminMentorTeamRequestsPanel";
+import { RolesAssignmentsPanel } from "@/components/rakshak-platform/RolesAssignmentsPanel";
+import { UserCog } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
@@ -79,7 +81,13 @@ function AccessRequestsPage() {
   const [approvals, setApprovals] = useState<ApprovalRow[]>([]);
   const [mentorApps, setMentorApps] = useState<MentorApp[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
-  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites">("requests");
+  const [tab, setTab] = useState<"requests" | "mentor-apps" | "team-requests" | "invites" | "roles">(() => {
+    if (typeof window !== "undefined") {
+      const t = new URLSearchParams(window.location.search).get("tab");
+      if (t === "roles" || t === "mentor-apps" || t === "team-requests" || t === "invites" || t === "requests") return t;
+    }
+    return "requests";
+  });
 
   // Decision form state
   const [decidingId, setDecidingId] = useState<string | null>(null);
@@ -469,6 +477,7 @@ function AccessRequestsPage() {
             ["mentor-apps", `Mentor applications (${pendingMentorApps.length})`, <GraduationCap className="h-4 w-4" key="i3" />],
             ["team-requests", `Team creation requests`, <UserPlus className="h-4 w-4" key="i4" />],
             ["invites", `Email invites (${invites.length})`, <Mail className="h-4 w-4" key="i2" />],
+            ["roles", `Roles & assignments`, <UserCog className="h-4 w-4" key="i5" />],
           ] as const).map(([id, label, icon]) => {
             const active = tab === id;
             return (
@@ -782,6 +791,8 @@ function AccessRequestsPage() {
             />
           </div>
         )}
+
+        {tab === "roles" && <RolesAssignmentsPanel />}
       </Section>
     </PlatformShell>
   );
