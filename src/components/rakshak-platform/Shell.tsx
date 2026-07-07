@@ -257,8 +257,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 ]} />
                 <NavDropdown id="ops" label="Operations" icon={Wrench} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                   { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: Sparkles },
-                  { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import" },
-                  { to: "/rakshak-platform/admin/exports", label: "Exports" },
+                  { to: "/rakshak-platform/admin/data", label: "Import & export" },
                   { to: "/rakshak-platform/admin/integrations", label: "Integrations" },
                   
                 ]} />
@@ -381,8 +380,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Operations" items={[
                     { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: Sparkles },
-                    { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
-                    { to: "/rakshak-platform/admin/exports", label: "Exports", icon: FileText },
+                    { to: "/rakshak-platform/admin/data", label: "Import & export", icon: FileText },
                     { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
                     
                   ]} onPick={() => setMenuOpen(false)} />
