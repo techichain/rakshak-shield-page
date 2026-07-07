@@ -22,6 +22,8 @@ import {
   type ApprovalEmailEntry,
 } from "@/lib/rakshak-platform/admin-approval-details.functions";
 import { AdminMentorTeamRequestsPanel } from "@/components/rakshak-platform/AdminMentorTeamRequestsPanel";
+import { RolesAssignmentsPanel } from "@/components/rakshak-platform/RolesAssignmentsPanel";
+import { UserCog } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/access-requests")({
   component: AccessRequestsPage,
