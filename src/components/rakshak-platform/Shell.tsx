@@ -364,9 +364,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/admin", label: "Overview", icon: LayoutDashboard },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="People" items={[
-                    { to: "/rakshak-platform/admin/access-requests", label: "Pending approvals", icon: BellRing },
-                    
-                    { to: "/rakshak-platform/admin/roles", label: "Roles & assignments", icon: UserCog },
+                    { to: "/rakshak-platform/admin/access-requests", label: "Approvals & roles", icon: BellRing },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Content" items={[
