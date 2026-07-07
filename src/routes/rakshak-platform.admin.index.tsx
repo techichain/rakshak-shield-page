@@ -1320,8 +1320,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     tone: "from-emerald-50 to-white border-emerald-100",
     items: [
       { to: "/rakshak-platform/admin/analytics", label: "Analytics", icon: BarChart3 },
-      { to: "/rakshak-platform/admin/bulk-import", label: "Bulk import", icon: FileText },
-      { to: "/rakshak-platform/admin/exports", label: "Exports", icon: Download },
+      { to: "/rakshak-platform/admin/data", label: "Import & export", icon: Download },
       { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
       
     ],

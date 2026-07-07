@@ -75,7 +75,7 @@ function PrintPage() {
         @page { margin: 1.5cm; }
       `}</style>
       <div className="no-print mb-6 flex items-center justify-between">
-        <a href="/rakshak-platform/admin/exports" className="text-sm text-brand">← Back to exports</a>
+        <a href="/rakshak-platform/admin/data" className="text-sm text-brand">← Back to data</a>
         <button onClick={() => window.print()} className="inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground">
           <Printer className="h-4 w-4" /> Print / Save as PDF
         </button>
