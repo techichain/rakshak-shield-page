@@ -2,10 +2,10 @@
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["npm i -g bun && bun install --frozen-lockfile"]
+cmds = ["npm ci --prefer-offline"]
 
 [phases.build]
-cmds = ["bun run build"]
+cmds = ["npm run build"]
 
 [start]
 cmd = "node .output/server/index.mjs"
