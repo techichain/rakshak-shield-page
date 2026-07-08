@@ -212,9 +212,6 @@ const RakshakPlatformAdminRoute = RakshakPlatformAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
-    id: '/observer',
-    path: '/observer',
-  } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   id: '/email/unsubscribe',
   path: '/email/unsubscribe',
@@ -243,12 +240,6 @@ const RakshakPlatformAdminIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-    id: '/',
-    path: '/',
-  } as any)
-    id: '/',
-    path: '/',
   } as any)
 const RakshakPlatformVerifySlugRoute =
   RakshakPlatformVerifySlugRouteImport.update({
@@ -428,29 +419,11 @@ const RakshakPlatformAdminAccessRequestsRoute =
     path: '/access-requests',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-    id: '/upload/$token',
-    path: '/upload/$token',
-  } as any)
-    id: '/success',
-    path: '/success',
-  } as any)
-    id: '/analytics',
-    path: '/analytics',
-  } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
-    id: '/new',
-    path: '/new',
-  } as any)
-    id: '/$id',
-    path: '/$id',
-  } as any)
-    id: '/$id',
-    path: '/$id',
-  } as any)
 const ApiMeetingIcsMeetingIdRoute = ApiMeetingIcsMeetingIdRouteImport.update({
   id: '/api/meeting-ics/$meetingId',
   path: '/api/meeting-ics/$meetingId',
@@ -1083,10 +1056,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
-      parentRoute: typeof rootRouteImport
-    }
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -1100,10 +1069,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/'
       preLoaderRoute: typeof RakshakPlatformIndexRouteImport
       parentRoute: typeof RakshakPlatformRoute
-    }
-      path: '/'
-    }
-      path: '/'
     }
     '/rakshak-platform/unauthorized': {
       id: '/rakshak-platform/unauthorized'
@@ -1238,16 +1203,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
-      path: '/apply'
-    }
-      path: '/admin'
-    }
-      path: '/observer'
-    }
-      path: '/login'
-    }
-      path: '/admin'
-    }
     '/email/unsubscribe': {
       id: '/email/unsubscribe'
       path: '/email/unsubscribe'
@@ -1282,12 +1237,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/admin/'
       preLoaderRoute: typeof RakshakPlatformAdminIndexRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
-    }
-      path: '/'
-    }
-      path: '/'
-    }
-      path: '/'
     }
     '/rakshak-platform/verify/$slug': {
       id: '/rakshak-platform/verify/$slug'
@@ -1499,16 +1448,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminAccessRequestsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-      path: '/upload/$token'
-    }
-      path: '/success'
-    }
-      path: '/login'
-    }
-      path: '/analytics'
-    }
-      path: '/$id'
-    }
     '/lovable/email/suppression': {
       id: '/lovable/email/suppression'
       path: '/lovable/email/suppression'
@@ -1516,19 +1455,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailSuppressionRouteImport
       parentRoute: typeof rootRouteImport
     }
-      path: '/new'
-    }
-      path: '/$id'
-    }
-      path: '/$id'
-    }
     '/api/meeting-ics/$meetingId': {
       id: '/api/meeting-ics/$meetingId'
       path: '/api/meeting-ics/$meetingId'
       fullPath: '/api/meeting-ics/$meetingId'
       preLoaderRoute: typeof ApiMeetingIcsMeetingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
       parentRoute: typeof rootRouteImport
     }
     '/api/docs/$file': {
@@ -1666,31 +1597,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-
-
-  {
-  }
-
-  )
-
-
-  {
-  }
-
-  )
-
-
-
-
-
-
-
-
-
-
-
-
-)
 
 interface RakshakPlatformAdminEmailsRouteChildren {
   RakshakPlatformAdminEmailsLogRoute: typeof RakshakPlatformAdminEmailsLogRoute
