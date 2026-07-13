@@ -162,6 +162,9 @@ export const getEvaluatorQueue = createServerFn({ method: "GET" })
 
 /**
  * Fetch a submission + rubric + my evaluation for the scoring form.
+ *
+ * BLIND REVIEW: Do not select or expose `college` here — evaluators must not see it,
+ * to reduce institutional bias. Team city/state and site GPS/severity are fine.
  */
 export const getSubmissionForScoring = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -196,7 +199,69 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
       .eq("evaluator_id", userId)
       .maybeSingle();
 
-    return { submission, rubric, myEval };
+    // Site evidence for this team + phase. Admin-set severity is read-only for evaluators.
+    const { data: locations } = await supabase
+      .from("rp_locations")
+      .select("id, location_name, address, city, state, latitude, longitude, severity, issue_type, description")
+      .eq("team_id", submission.team_id)
+      .eq("phase_number", submission.phase_number)
+      .order("created_at", { ascending: true });
+
+    return { submission, rubric, myEval, locations: locations ?? [] };
+  });
+
+/**
+ * List every submission across all teams for the phase-wise browsing view,
+ * plus this evaluator's own score (if any) on each submission.
+ *
+ * BLIND REVIEW: Do not select or expose `college` — team_name only.
+ */
+export const listAllReportsForEvaluator = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const { data: subs, error } = await supabase
+      .from("rp_submissions")
+      .select(`
+        id, team_id, phase_number, title, status, submitted_at,
+        rp_teams ( team_name )
+      `)
+      .order("phase_number", { ascending: true })
+      .order("submitted_at", { ascending: false, nullsFirst: false })
+      .limit(1000);
+    if (error) throw error;
+
+    const submissionIds = (subs ?? []).map((s) => s.id);
+    const { data: mine } = submissionIds.length
+      ? await supabase
+          .from("rp_evaluations")
+          .select("submission_id, status, total_score, weighted_score")
+          .eq("evaluator_id", userId)
+          .in("submission_id", submissionIds)
+      : { data: [] as any[] };
+
+    const evalBySub = new Map<string, any>();
+    (mine ?? []).forEach((e: any) => evalBySub.set(e.submission_id, e));
+
+    const { data: rubrics } = await supabase
+      .from("rp_rubrics")
+      .select("phase_number");
+    const rubricPhases = new Set<number>((rubrics ?? []).map((r: any) => r.phase_number));
+
+    const items = (subs ?? []).map((s: any) => ({
+      id: s.id,
+      team_id: s.team_id,
+      team_name: s.rp_teams?.team_name ?? "Team",
+      phase_number: s.phase_number,
+      title: s.title,
+      status: s.status,
+      submitted_at: s.submitted_at,
+      my_evaluation: evalBySub.get(s.id) ?? null,
+      has_rubric: rubricPhases.has(s.phase_number),
+    }));
+
+    return { items, rubricPhases: Array.from(rubricPhases).sort() };
   });
 
 /**
