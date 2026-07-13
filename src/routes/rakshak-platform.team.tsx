@@ -27,6 +27,9 @@ function TeamDashboard() {
   const { loading, userId, isTeam } = useRPAuth();
   const [team, setTeam] = useState<any>(null);
   const [progress, setProgress] = useState<any[]>([]);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const fetchTimeline = useServerFn(getTeamPhaseTimeline);
 
   useEffect(() => {
     if (loading) return;
@@ -46,9 +49,23 @@ function TeamDashboard() {
           .eq("team_id", t.id)
           .order("phase_number");
         setProgress(p ?? []);
+        try {
+          const res = await fetchTimeline({ data: { team_id: t.id } } as any) as any;
+          setTimeline(res?.phases ?? []);
+        } catch {
+          // ignore — timeline is enrichment, page still renders
+        }
       }
     })();
-  }, [loading, userId, isTeam, navigate]);
+  }, [loading, userId, isTeam, navigate, fetchTimeline]);
+
+  const togglePhase = (n: number) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n); else next.add(n);
+      return next;
+    });
+  };
 
   if (loading) {
     return (
