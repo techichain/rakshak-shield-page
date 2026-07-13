@@ -127,6 +127,35 @@ function LocationDetail() {
     void load();
   }
 
+  async function updateGpsFromDevice() {
+    if (!loc) return;
+    setGeoErr(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoErr("Geolocation not supported by this browser");
+      return;
+    }
+    setGeoBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        await supabase
+          .from("rp_locations")
+          .update({ latitude: pos.coords.latitude, longitude: pos.coords.longitude })
+          .eq("id", loc.id);
+        setGeoBusy(false);
+        void load();
+      },
+      (e) => {
+        setGeoBusy(false);
+        setGeoErr(
+          e.code === e.PERMISSION_DENIED
+            ? "Location access denied — click the map instead"
+            : e.message || "Could not get GPS location",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
   async function markSubmittedToAuthority() {
     if (!loc) return;
     const response = prompt("Optional: paste any acknowledgment / reference number from the authority", "") ?? "";
