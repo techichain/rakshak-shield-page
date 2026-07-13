@@ -165,6 +165,10 @@ function TeamDashboard() {
             <MentorResourcesList mode="viewer" teamId={team.id} />
           </div>
         </div>
+
+        <div className="mt-8">
+          <RecentMeetingNotesCard />
+        </div>
       </Section>
     </PlatformShell>
   );
