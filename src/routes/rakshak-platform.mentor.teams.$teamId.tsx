@@ -275,7 +275,7 @@ function MentorTeamDetail() {
                       <h2 className="font-heading text-lg font-semibold">{PHASE_TITLES[n]}</h2>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Deadline: {prog?.deadline_at ? fmtDate(prog.deadline_at) : "—"}
+                      Deadline: {prog?.deadline ? fmtDate(prog.deadline) : "—"}
                     </div>
                   </div>
 
