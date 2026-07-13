@@ -799,3 +799,59 @@ function Card({ label, value, sub }: { label: string; value: any; sub?: string |
     </div>
   );
 }
+
+function StakeholderReports({ reports }: { reports: any[] }) {
+  if (!reports || reports.length === 0) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <Send className="h-3.5 w-3.5" /> Stakeholder reports
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">No authority reports sent yet.</p>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+        <Send className="h-3.5 w-3.5" /> Stakeholder reports ({reports.length})
+      </div>
+      <ul className="mt-3 space-y-3">
+        {reports.map((r: any) => (
+          <li key={r.id} className="rounded-xl border border-border p-3 text-sm bg-muted/20">
+            <div className="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <div className="font-semibold">{r.subject}</div>
+                <div className="text-xs text-muted-foreground">
+                  {r.authority_name} · {r.authority_category}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                <span className="text-[11px] rounded-full border border-border px-2 py-0.5">
+                  {r.status}
+                </span>
+                {r.response_status && (
+                  <span className="text-[11px] rounded-full border border-emerald-300 bg-emerald-50 text-emerald-700 px-2 py-0.5">
+                    response: {r.response_status}
+                  </span>
+                )}
+              </div>
+            </div>
+            {r.message && (
+              <p className="mt-2 text-sm whitespace-pre-line">{r.message}</p>
+            )}
+            <div className="mt-2 text-[11px] text-muted-foreground">
+              {r.sent_at ? `Sent ${new Date(r.sent_at).toLocaleString()}` : "Not sent yet"}
+              {r.response_at ? ` · Response ${new Date(r.response_at).toLocaleString()}` : ""}
+            </div>
+            {r.response_text && (
+              <p className="mt-1 text-sm whitespace-pre-line border-l-2 border-brand pl-3">
+                {r.response_text}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
