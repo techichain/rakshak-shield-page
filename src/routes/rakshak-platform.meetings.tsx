@@ -102,6 +102,17 @@ function MeetingsPage() {
         const rs = (roles ?? []).map((r: any) => r.role);
         const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
+        const mentor = rs.includes("mentor");
+        setIsMentor(mentor);
+        if (mentor) {
+          const { data: mrow } = await supabase
+            .from("rp_mentors").select("id").eq("profile_id", uid).maybeSingle();
+          if (mrow?.id) {
+            const { data: mteams } = await supabase
+              .from("rp_teams").select("id, team_name").eq("assigned_mentor_id", mrow.id);
+            setMyTeamsAsMentor(mteams ?? []);
+          }
+        }
       }
     });
   }, []);
