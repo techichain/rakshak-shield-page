@@ -1304,6 +1304,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
       { to: "/rakshak-platform/admin/evaluators", label: "Evaluators", icon: Users, desc: "Roster, reports evaluated, comments & scores" },
       { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
+      { to: "/rakshak-platform/admin/doubts", label: "Doubts", icon: MessageSquare, desc: "Team questions across the programme" },
     ],
   },
   {
