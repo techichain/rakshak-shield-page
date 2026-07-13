@@ -16,110 +16,15 @@ const createSchema = z.object({
   memberEmails: emailList.optional(),
 })
 
-// Mentor creates a team-creation request. Admin must approve.
+// Mentor team-creation requests are no longer accepted. Team creation is admin-only.
+// The endpoint is kept as a stub for defense in depth so any lingering client can't create requests.
 export const requestMentorTeam = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => createSchema.parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context
-
-    const { data: isMentor } = await supabase.rpc('rp_has_role', {
-      _user_id: userId,
-      _role: 'mentor',
-    })
-    if (!isMentor) throw new Error('Only mentors can request team creation.')
-
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-
-    // Validate leader: must already be a verified team_leader
-    const { data: leaderProfile } = await supabaseAdmin
-      .from('rp_profiles')
-      .select('id, full_name, email')
-      .ilike('email', data.leaderEmail)
-      .maybeSingle()
-    if (!leaderProfile) {
-      throw new Error(`No account found for leader email "${data.leaderEmail}". Ask the leader to sign up first.`)
-    }
-    const { data: leaderHasRole } = await supabaseAdmin.rpc('rp_has_role', {
-      _user_id: leaderProfile.id,
-      _role: 'team_leader',
-    })
-    if (!leaderHasRole) {
-      throw new Error(`"${data.leaderEmail}" is not yet an approved team leader.`)
-    }
-
-    // Validate each member email: must be approved team_leader or team_member
-    const members = Array.from(
-      new Set((data.memberEmails ?? []).filter((e) => e && e !== data.leaderEmail)),
+  .handler(async () => {
+    throw new Error(
+      'Team creation requests from mentors are no longer accepted — please ask an admin to create the team.',
     )
-    for (const em of members) {
-      const { data: prof } = await supabaseAdmin
-        .from('rp_profiles')
-        .select('id')
-        .ilike('email', em)
-        .maybeSingle()
-      if (!prof) {
-        throw new Error(`No account found for member "${em}". Ask them to sign up first.`)
-      }
-      const [{ data: isLeader }, { data: isMember }] = await Promise.all([
-        supabaseAdmin.rpc('rp_has_role', { _user_id: prof.id, _role: 'team_leader' }),
-        supabaseAdmin.rpc('rp_has_role', { _user_id: prof.id, _role: 'team_member' }),
-      ])
-      if (!isLeader && !isMember) {
-        throw new Error(`"${em}" is not an approved team leader or team member.`)
-      }
-    }
-
-    const { data: dupe } = await supabaseAdmin
-      .from('rp_mentor_team_requests')
-      .select('id')
-      .eq('mentor_profile_id', userId)
-      .eq('status', 'pending')
-      .ilike('leader_email', data.leaderEmail)
-      .ilike('team_name', data.teamName)
-      .maybeSingle()
-    if (dupe) throw new Error('You already have a pending request for this team/leader.')
-
-    const { data: inserted, error: insertErr } = await supabaseAdmin
-      .from('rp_mentor_team_requests')
-      .insert({
-        mentor_profile_id: userId,
-        team_name: data.teamName,
-        leader_email: data.leaderEmail,
-        college: data.college ?? null,
-        city: data.city ?? null,
-        state: data.state ?? null,
-        member_emails: members,
-      })
-      .select('id')
-      .single()
-    if (insertErr) throw insertErr
-
-    const { data: mentorProfile } = await supabaseAdmin
-      .from('rp_profiles')
-      .select('full_name, email')
-      .eq('id', userId)
-      .maybeSingle()
-    const { data: admins } = await supabaseAdmin
-      .from('rp_user_roles')
-      .select('user_id')
-      .in('role', ['cfi_admin', 'super_admin'])
-    const adminIds = Array.from(new Set((admins ?? []).map((a) => a.user_id)))
-    if (adminIds.length) {
-      await supabaseAdmin.from('rp_notifications').insert(
-        adminIds.map((aid) => ({
-          recipient_id: aid,
-          title: `New team creation request from ${mentorProfile?.full_name ?? mentorProfile?.email ?? 'a mentor'}`,
-          message: `Team "${data.teamName}" — leader: ${data.leaderEmail}. Awaiting approval.`,
-          type: 'mentor_team_request',
-          related_entity_type: 'rp_mentor_team_requests',
-          related_entity_id: inserted.id,
-          action_link: '/rakshak-platform/admin/access-requests',
-        })),
-      )
-    }
-
-    return { id: inserted.id, status: 'pending' as const }
   })
 
 export const listMyMentorTeamRequests = createServerFn({ method: 'GET' })
