@@ -42,9 +42,9 @@ export const updateLocationHazardParams = createServerFn({ method: "POST" })
     const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", { _user_id: context.userId });
     if (!isAdmin) throw new Error("Admin only");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: { state?: string | null; severity?: string | null } = {};
+    const patch: { state?: string | null; severity?: "low" | "medium" | "high" | "critical" | null } = {};
     if (data.state !== undefined) patch.state = data.state;
-    if (data.severity !== undefined) patch.severity = data.severity;
+    if (data.severity !== undefined) patch.severity = data.severity as any;
     const { error } = await supabaseAdmin
       .from("rp_locations")
       .update(patch)
