@@ -242,13 +242,18 @@ function TeamLocationsIndex() {
 
           <div className="rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-lg font-semibold">{locs.length} location{locs.length === 1 ? "" : "s"}</h2>
+              <h2 className="font-heading text-lg font-semibold">
+                {filteredLocs.length} location{filteredLocs.length === 1 ? "" : "s"}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">· Phase {activePhase}</span>
+              </h2>
             </div>
             <div className="mt-4 space-y-2 max-h-[460px] overflow-y-auto pr-1">
-              {locs.length === 0 && (
-                <p className="text-sm text-muted-foreground">No locations yet. Drop a pin on the map and add one.</p>
+              {filteredLocs.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No locations in this phase yet. New pins default to your team's current phase (Phase {team.current_phase}).
+                </p>
               )}
-              {locs.map((l) => (
+              {filteredLocs.map((l) => (
                 <div key={l.id} className="rounded-xl border border-border p-3 hover:border-brand/40 transition">
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 mt-0.5 text-brand shrink-0" />
