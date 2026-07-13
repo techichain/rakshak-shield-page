@@ -269,6 +269,60 @@ function PhaseDetail() {
                 </ul>
               )}
             </div>
+
+            {teamQuestionnaires.length > 0 && (
+              <div className="rp-card p-5 space-y-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <ClipboardList className="size-4" /> Admin questionnaires
+                </h3>
+                {teamQuestionnaires.map((q: any) => {
+                  const mine = (q.responses ?? []).find((r: any) => r.respondent_id === userId);
+                  const answers = qAnswers[q.id] ?? (q.questions ?? []).map(() => "");
+                  return (
+                    <div key={q.id} className="rounded-lg border border-border p-3 space-y-2">
+                      <div className="font-semibold text-sm">{q.title}</div>
+                      {mine && (
+                        <div className="text-[11px] text-muted-foreground">
+                          Submitted {new Date(mine.submitted_at).toLocaleString()} — you can edit and resubmit.
+                        </div>
+                      )}
+                      <div className="space-y-3">
+                        {(q.questions ?? []).map((qq: string, i: number) => (
+                          <label key={i} className="block">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {i + 1}. {qq}
+                            </span>
+                            <textarea
+                              value={answers[i] ?? ""}
+                              maxLength={4000}
+                              rows={2}
+                              onChange={(e) => {
+                                const next = { ...qAnswers };
+                                const arr = (next[q.id] ?? (q.questions ?? []).map(() => "")).slice();
+                                arr[i] = e.target.value;
+                                next[q.id] = arr;
+                                setQAnswers(next);
+                              }}
+                              className="rp-input w-full mt-1"
+                              placeholder="Your answer"
+                            />
+                          </label>
+                        ))}
+                      </div>
+                      <button
+                        disabled={qBusy === q.id}
+                        onClick={() => submitAnswers(q.id)}
+                        className="rp-btn-primary text-xs inline-flex items-center gap-1"
+                      >
+                        <Send className="size-3" />
+                        {qBusy === q.id ? "Saving…" : mine ? "Update answers" : "Submit answers"}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {data.submission?.id && (
               <SubmissionTimeline submissionId={data.submission.id} />
             )}
