@@ -1,0 +1,22 @@
+[
+  {
+    "k": "nhai",
+    "l": "NHAI",
+    "d": "National Highway Authority"
+  },
+  {
+    "k": "state_pwd",
+    "l": "State PWD",
+    "d": "Public Works Dept"
+  },
+  {
+    "k": "municipal",
+    "l": "Municipal Corp",
+    "d": "Urban Local Body"
+  },
+  {
+    "k": "dev_auth",
+    "l": "Dev. Authority",
+    "d": "Special Authority"
+  }
+]
