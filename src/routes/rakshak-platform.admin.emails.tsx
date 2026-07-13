@@ -43,6 +43,14 @@ const TEMPLATE_OPTIONS = [
   { value: 'admin-deadline-evaluator', label: 'Evaluator — evaluation deadline', hint: 'Reminds evaluators to score assigned teams.' },
 ] as const
 
+const DUMMY_CAMPAIGNS = [
+  { id: 'd1', template_name: 'admin-deadline-team',      subject_override: null,             audience: { type: 'team_leaders' },  status: 'sent',   recipient_count: 42, success_count: 41, failed_count: 1, sent_at: new Date(Date.now() - 2 * 86400000).toISOString(), created_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+  { id: 'd2', template_name: 'admin-deadline-mentor',    subject_override: null,             audience: { type: 'all_mentors' },   status: 'sent',   recipient_count: 18, success_count: 18, failed_count: 0, sent_at: new Date(Date.now() - 5 * 86400000).toISOString(), created_at: new Date(Date.now() - 5 * 86400000).toISOString() },
+  { id: 'd3', template_name: 'admin-deadline-evaluator', subject_override: 'Scoring due Fri', audience: { type: 'all_evaluators' }, status: 'sent',  recipient_count: 12, success_count: 11, failed_count: 1, sent_at: new Date(Date.now() - 9 * 86400000).toISOString(), created_at: new Date(Date.now() - 9 * 86400000).toISOString() },
+  { id: 'd4', template_name: 'admin-deadline-team',      subject_override: null,             audience: { type: 'team_and_mentor' }, status: 'queued', recipient_count: 60, success_count: 0,  failed_count: 0, sent_at: null,                                              created_at: new Date(Date.now() - 12 * 86400000).toISOString() },
+]
+
+
 function MassEmailComposer() {
   const { isAdmin, loading } = useRPAuth()
   const navigate = useNavigate()
