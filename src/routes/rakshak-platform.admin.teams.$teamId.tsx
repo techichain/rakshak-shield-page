@@ -158,6 +158,18 @@ function AdminTeamDetail() {
     arr.push(e);
     evalsByPhase.set(e.phase_number, arr);
   }
+  const locationsByPhase = new Map<number, any[]>();
+  for (const l of (data.locations ?? []) as any[]) {
+    const arr = locationsByPhase.get(l.phase_number) ?? [];
+    arr.push(l);
+    locationsByPhase.set(l.phase_number, arr);
+  }
+  const photosByLocation = new Map<string, any[]>();
+  for (const p of (data.location_photos ?? []) as any[]) {
+    const arr = photosByLocation.get(p.location_id) ?? [];
+    arr.push(p);
+    photosByLocation.set(p.location_id, arr);
+  }
   const completion = Math.max(0, Math.min(100, Number(t.completion_percentage ?? 0)));
 
 
