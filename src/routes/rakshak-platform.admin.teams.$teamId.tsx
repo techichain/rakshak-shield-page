@@ -54,8 +54,13 @@ function AdminTeamDetail() {
   const fetchDetail = useServerFn(getAdminTeamDetail);
   const adminReview = useServerFn(adminReviewSubmission);
   const postRemark = useServerFn(addAdminRemark);
+  const fetchReports = useServerFn(listTeamReports);
+  const fetchQuestionnaires = useServerFn(listQuestionnairesForTeam);
+  const postQuestionnaire = useServerFn(createQuestionnaire);
   const [tab, setTab] = useState<Tab>("overview");
   const [data, setData] = useState<any>(null);
+  const [reports, setReports] = useState<any[]>([]);
+  const [questionnaires, setQuestionnaires] = useState<any[]>([]);
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -63,14 +68,26 @@ function AdminTeamDetail() {
   const [remarkOpen, setRemarkOpen] = useState<string | null>(null);
   const [remarkText, setRemarkText] = useState("");
   const [remarkBusy, setRemarkBusy] = useState(false);
+  const [qOpenPhase, setQOpenPhase] = useState<number | null>(null);
+  const [qTitle, setQTitle] = useState("");
+  const [qQuestions, setQQuestions] = useState<string[]>([""]);
+  const [qBusy, setQBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setBusy(true);
       try {
-        const res = (await fetchDetail({ data: { team_id: teamId } } as any)) as any;
-        if (!cancelled) setData(res);
+        const [res, rep, qs] = await Promise.all([
+          fetchDetail({ data: { team_id: teamId } } as any) as any,
+          fetchReports({ data: { teamId } } as any).catch(() => ({ reports: [] })) as any,
+          fetchQuestionnaires({ data: { team_id: teamId } } as any).catch(() => ({ questionnaires: [] })) as any,
+        ]);
+        if (!cancelled) {
+          setData(res);
+          setReports((rep as any).reports ?? []);
+          setQuestionnaires((qs as any).questionnaires ?? []);
+        }
       } catch (e) {
         if (!cancelled) setErr(e instanceof Error ? e.message : "Failed to load");
       } finally {
@@ -80,7 +97,7 @@ function AdminTeamDetail() {
     return () => {
       cancelled = true;
     };
-  }, [teamId, fetchDetail, reloadKey]);
+  }, [teamId, fetchDetail, fetchReports, fetchQuestionnaires, reloadKey]);
 
   async function decide(submissionId: string, decision: "approve" | "request_changes") {
     const comment = prompt(
