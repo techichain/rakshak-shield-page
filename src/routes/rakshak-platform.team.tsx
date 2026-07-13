@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
-import { Loader2, UsersRound, Video, CalendarDays, BookOpen } from "lucide-react";
+import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
