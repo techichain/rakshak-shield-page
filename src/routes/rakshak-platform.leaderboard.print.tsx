@@ -15,21 +15,35 @@ const search = z.object({
   to: fallback(z.string().optional(), undefined),
 });
 
+function toFilters(s: { cohortId?: string; phase?: string; from?: string; to?: string }) {
+  return {
+    cohortId: s.cohortId || undefined,
+    phase: s.phase ? Number(s.phase) : null,
+    submittedFrom: s.from ? new Date(s.from).toISOString() : null,
+    submittedTo: s.to ? new Date(s.to + "T23:59:59").toISOString() : null,
+  };
+}
+
 export const Route = createFileRoute("/rakshak-platform/leaderboard/print")({
   validateSearch: zodValidator(search),
+  loaderDeps: ({ search: s }) => ({ cohortId: s.cohortId, phase: s.phase, from: s.from, to: s.to }),
+  loader: ({ context, deps }) => {
+    const filters = toFilters(deps);
+    return context.queryClient.ensureQueryData({
+      queryKey: ["rp-leaderboard-print", filters],
+      queryFn: () => getLeaderboard({ data: filters as any }),
+    });
+  },
   component: PrintLeaderboard,
+  pendingComponent: () => <div className="p-10 text-sm">Loading leaderboard…</div>,
+  errorComponent: ({ error }) => <div className="p-10 text-sm text-red-600">Could not load leaderboard: {String(error)}</div>,
 });
 
 function PrintLeaderboard() {
   const { cohortId, phase, from, to } = Route.useSearch();
   const run = useServerFn(getLeaderboard);
 
-  const filters = useMemo(() => ({
-    cohortId: cohortId || undefined,
-    phase: phase ? Number(phase) : null,
-    submittedFrom: from ? new Date(from).toISOString() : null,
-    submittedTo: to ? new Date(to + "T23:59:59").toISOString() : null,
-  }), [cohortId, phase, from, to]);
+  const filters = useMemo(() => toFilters({ cohortId, phase, from, to }), [cohortId, phase, from, to]);
 
   const { data } = useSuspenseQuery({
     queryKey: ["rp-leaderboard-print", filters],
