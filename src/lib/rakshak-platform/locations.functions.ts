@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 
 /**
  * Public, sanitized hotspot list for the public map at /rakshak-platform/map.
