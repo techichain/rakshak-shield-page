@@ -791,6 +791,30 @@ export type Database = {
           },
         ]
       }
+      rp_analytics_settings: {
+        Row: {
+          hazard_severities: string[] | null
+          hazard_states: string[] | null
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          hazard_severities?: string[] | null
+          hazard_states?: string[] | null
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          hazard_severities?: string[] | null
+          hazard_states?: string[] | null
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       rp_audit_logs: {
         Row: {
           action: string

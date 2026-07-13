@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
@@ -7,7 +8,15 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend,
 } from "recharts";
-import { Loader2 } from "lucide-react";
+import { Loader2, SlidersHorizontal } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  getAnalyticsSettings, updateAnalyticsSettings,
+} from "@/lib/rakshak-platform/analytics-settings.functions";
+
 
 export const Route = createFileRoute("/rakshak-platform/admin/analytics")({
   component: AnalyticsPage,
@@ -113,6 +122,23 @@ function AnalyticsPage() {
   const [busy, setBusy] = useState(true);
   const [usingDummy, setUsingDummy] = useState(false);
 
+  const loadSettings = useServerFn(getAnalyticsSettings);
+  const saveSettings = useServerFn(updateAnalyticsSettings);
+  const [hazardStates, setHazardStates] = useState<string[] | null>(null);
+  const [hazardSeverities, setHazardSeverities] = useState<string[] | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  useEffect(() => {
+    if (loading || !isAdmin) return;
+    loadSettings({})
+      .then((s: any) => {
+        setHazardStates(s?.hazard_states ?? null);
+        setHazardSeverities(s?.hazard_severities ?? null);
+      })
+      .catch(() => { /* keep defaults (null = show all) */ });
+  }, [loading, isAdmin, loadSettings]);
+
+
   useEffect(() => {
     if (loading) return;
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
@@ -199,16 +225,56 @@ function AnalyticsPage() {
       .slice(0, 10);
   }, [mentors]);
 
+  const allStates = useMemo(() => {
+    const s = new Set<string>();
+    for (const l of locs) if (l.state) s.add(l.state);
+    return Array.from(s).sort();
+  }, [locs]);
+
   const hazardByState = useMemo(() => {
+    const stateFilter = hazardStates && hazardStates.length > 0 ? new Set(hazardStates) : null;
+    const sevFilter = hazardSeverities && hazardSeverities.length > 0 ? new Set(hazardSeverities) : null;
     const m: Record<string, { state: string; critical: number; high: number; medium: number; low: number }> = {};
     for (const l of locs) {
       const k = l.state ?? "Unknown";
-      if (!m[k]) m[k] = { state: k, critical: 0, high: 0, medium: 0, low: 0 };
+      if (stateFilter && !stateFilter.has(k)) continue;
       const sev = (l.severity ?? "low") as "critical" | "high" | "medium" | "low";
+      if (sevFilter && !sevFilter.has(sev)) continue;
+      if (!m[k]) m[k] = { state: k, critical: 0, high: 0, medium: 0, low: 0 };
       m[k][sev] = (m[k][sev] ?? 0) + 1;
     }
     return Object.values(m).sort((a, b) => (b.critical + b.high) - (a.critical + a.high)).slice(0, 10);
-  }, [locs]);
+  }, [locs, hazardStates, hazardSeverities]);
+
+  function toggleState(s: string) {
+    setHazardStates((prev) => {
+      const cur = prev ?? allStates;
+      return cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s];
+    });
+  }
+  function toggleSeverity(s: string) {
+    const all = ["low", "medium", "high", "critical"];
+    setHazardSeverities((prev) => {
+      const cur = prev ?? all;
+      return cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s];
+    });
+  }
+  async function persistSettings() {
+    setSavingSettings(true);
+    try {
+      await saveSettings({ data: { hazard_states: hazardStates, hazard_severities: hazardSeverities } });
+      toast.success("Analytics settings saved");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    } finally {
+      setSavingSettings(false);
+    }
+  }
+  function resetSettings() {
+    setHazardStates(null);
+    setHazardSeverities(null);
+  }
+
 
   // ---- Teams overview (per-team bar chart, click-through to detail) ----
   const teamsOverview = useMemo(() => {
@@ -376,7 +442,66 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </Card>
 
-          <Card title="Hazards by state (severity)" wide>
+          <Card
+            title="Hazards by state (severity)"
+            wide
+            action={
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8">
+                    <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" /> Configure
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 max-h-96 overflow-auto" align="end">
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-xs font-semibold mb-2">Severities</div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(["low", "medium", "high", "critical"] as const).map((s) => {
+                          const active = hazardSeverities === null || hazardSeverities.length === 0
+                            ? true
+                            : hazardSeverities.includes(s);
+                          return (
+                            <label key={s} className="flex items-center gap-2 text-xs capitalize">
+                              <Checkbox checked={active} onCheckedChange={() => toggleSeverity(s)} />
+                              {s}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold mb-2">States</div>
+                      {allStates.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">No state data available.</p>
+                      ) : (
+                        <div className="grid gap-1.5 max-h-48 overflow-auto">
+                          {allStates.map((st) => {
+                            const active = hazardStates === null || hazardStates.length === 0
+                              ? true
+                              : hazardStates.includes(st);
+                            return (
+                              <label key={st} className="flex items-center gap-2 text-xs">
+                                <Checkbox checked={active} onCheckedChange={() => toggleState(st)} />
+                                {st}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border">
+                      <Button variant="ghost" size="sm" onClick={resetSettings} className="h-8">Reset (all)</Button>
+                      <Button size="sm" onClick={persistSettings} disabled={savingSettings} className="h-8">
+                        {savingSettings && <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />}
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            }
+          >
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={hazardByState}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -391,6 +516,7 @@ function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           </Card>
+
         </div>
       </Section>
     </PlatformShell>
@@ -447,11 +573,15 @@ function PhaseLegend() {
   );
 }
 
-function Card({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
+function Card({ title, children, wide, action }: { title: string; children: React.ReactNode; wide?: boolean; action?: React.ReactNode }) {
   return (
     <div className={`rounded-2xl border border-border bg-card p-5 ${wide ? "lg:col-span-2" : ""}`}>
-      <h3 className="font-heading text-lg font-semibold mb-4">{title}</h3>
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <h3 className="font-heading text-lg font-semibold">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );
 }
+

@@ -1310,8 +1310,8 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     label: "Communications",
     tone: "from-amber-50 to-white border-amber-100",
     items: [
-      { to: "/rakshak-platform/admin/emails", label: "Compose mass email", icon: Mail, desc: "Deadline reminders for teams · mentors · evaluators" },
-      { to: "/rakshak-platform/admin/emails/log", label: "Email history", icon: MessageSquare, desc: "Recent mass-email campaigns" },
+      { to: "/rakshak-platform/admin/emails", label: "Compose mass email", icon: Mail, desc: "Deadline reminders — history now on same page" },
+
     ],
   },
   {

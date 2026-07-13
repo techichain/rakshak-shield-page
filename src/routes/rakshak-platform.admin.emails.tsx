@@ -16,7 +16,9 @@ import { toast } from 'sonner'
 import { Loader2, Mail, Send, Users, ArrowLeft, Eye } from 'lucide-react'
 import {
   listMassEmailScopes, previewMassEmailAudience, sendMassEmail, sendMassEmailTest,
+  listMassEmailCampaigns,
 } from '@/lib/rakshak-platform/mass-email.functions'
+
 
 export const Route = createFileRoute('/rakshak-platform/admin/emails')({
   component: MassEmailComposer,
@@ -41,6 +43,14 @@ const TEMPLATE_OPTIONS = [
   { value: 'admin-deadline-evaluator', label: 'Evaluator — evaluation deadline', hint: 'Reminds evaluators to score assigned teams.' },
 ] as const
 
+const DUMMY_CAMPAIGNS = [
+  { id: 'd1', template_name: 'admin-deadline-team',      subject_override: null,             audience: { type: 'team_leaders' },  status: 'sent',   recipient_count: 42, success_count: 41, failed_count: 1, sent_at: new Date(Date.now() - 2 * 86400000).toISOString(), created_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+  { id: 'd2', template_name: 'admin-deadline-mentor',    subject_override: null,             audience: { type: 'all_mentors' },   status: 'sent',   recipient_count: 18, success_count: 18, failed_count: 0, sent_at: new Date(Date.now() - 5 * 86400000).toISOString(), created_at: new Date(Date.now() - 5 * 86400000).toISOString() },
+  { id: 'd3', template_name: 'admin-deadline-evaluator', subject_override: 'Scoring due Fri', audience: { type: 'all_evaluators' }, status: 'sent',  recipient_count: 12, success_count: 11, failed_count: 1, sent_at: new Date(Date.now() - 9 * 86400000).toISOString(), created_at: new Date(Date.now() - 9 * 86400000).toISOString() },
+  { id: 'd4', template_name: 'admin-deadline-team',      subject_override: null,             audience: { type: 'team_and_mentor' }, status: 'queued', recipient_count: 60, success_count: 0,  failed_count: 0, sent_at: null,                                              created_at: new Date(Date.now() - 12 * 86400000).toISOString() },
+]
+
+
 function MassEmailComposer() {
   const { isAdmin, loading } = useRPAuth()
   const navigate = useNavigate()
@@ -54,6 +64,8 @@ function MassEmailComposer() {
   const doPreview = useServerFn(previewMassEmailAudience)
   const doSend = useServerFn(sendMassEmail)
   const doTest = useServerFn(sendMassEmailTest)
+  const loadCampaigns = useServerFn(listMassEmailCampaigns)
+
 
   const [scopes, setScopes] = useState<{ cohorts: any[]; teams: any[] }>({ cohorts: [], teams: [] })
   const [template, setTemplate] = useState<'admin-deadline-team' | 'admin-deadline-mentor' | 'admin-deadline-evaluator'>('admin-deadline-team')
@@ -73,13 +85,32 @@ function MassEmailComposer() {
   const [previewing, setPreviewing] = useState(false)
   const [sending, setSending] = useState(false)
   const [testing, setTesting] = useState(false)
+  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [campaignsDummy, setCampaignsDummy] = useState(false)
+
 
   useEffect(() => {
     if (!isAdmin) return
     loadScopes({}).then(setScopes).catch(() => toast.error('Failed to load cohorts/teams'))
-  }, [isAdmin, loadScopes])
+    loadCampaigns({})
+      .then((r: any) => {
+        const rows = r?.campaigns ?? []
+        if (rows.length === 0) {
+          setCampaigns(DUMMY_CAMPAIGNS)
+          setCampaignsDummy(true)
+        } else {
+          setCampaigns(rows)
+          setCampaignsDummy(false)
+        }
+      })
+      .catch(() => {
+        setCampaigns(DUMMY_CAMPAIGNS)
+        setCampaignsDummy(true)
+      })
+  }, [isAdmin, loadScopes, loadCampaigns])
 
   useEffect(() => { setPreview(null) }, [audienceType, cohortId, teamId, customEmails])
+
 
   const audience = useMemo(() => {
     const base: any = { type: audienceType }
@@ -334,12 +365,42 @@ function MassEmailComposer() {
               </CardContent>
             </Card>
             <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center justify-between gap-2">
+                  <span>Recent campaigns</span>
+                  {campaignsDummy && (
+                    <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800">sample</span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-2 max-h-72 overflow-auto">
+                {campaigns.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No campaigns yet.</p>
+                ) : campaigns.slice(0, 8).map((r) => (
+                  <div key={r.id} className="border-b last:border-b-0 pb-2 last:pb-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-medium truncate">{r.subject_override || r.template_name}</div>
+                      <Badge
+                        variant={r.status === 'sent' ? 'default' : r.status === 'failed' ? 'destructive' : 'secondary'}
+                        className="text-[10px] px-1.5 py-0"
+                      >
+                        {r.status}
+                      </Badge>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {r.audience?.type || 'unknown'} · {r.sent_at ? new Date(r.sent_at).toLocaleDateString() : 'queued'} · {r.success_count}/{r.recipient_count}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <Card>
               <CardContent className="pt-6 text-xs text-muted-foreground space-y-2">
                 <p><strong>Safety:</strong> Suppressed and unsubscribed addresses are skipped automatically.</p>
                 <p><strong>Delivery:</strong> Emails are queued and sent at ~120/min through the existing infra.</p>
-                <p><Link to="/rakshak-platform/admin/emails/log" className="text-brand hover:underline">View campaign history →</Link></p>
               </CardContent>
             </Card>
+
           </div>
         </div>
       </Section>
