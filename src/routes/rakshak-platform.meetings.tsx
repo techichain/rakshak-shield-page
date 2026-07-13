@@ -83,6 +83,8 @@ function MeetingsPage() {
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
+  const [isMentor, setIsMentor] = useState(false);
+  const [myTeamsAsMentor, setMyTeamsAsMentor] = useState<any[]>([]);
   const [pendingBusy, setPendingBusy] = useState<string | null>(null);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
