@@ -71,6 +71,7 @@ function TeamLocationsIndex() {
     setTeam(t);
     if (!t) return;
     setForm((f) => ({ ...f, city: t.city ?? "", state: t.state ?? "" }));
+    setActivePhase((prev) => (prev == null ? (t.current_phase ?? 0) : prev));
     const { data: l } = await supabase
       .from("rp_locations")
       .select("*")
@@ -78,6 +79,45 @@ function TeamLocationsIndex() {
       .order("priority_rank", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false });
     setLocs(l ?? []);
+  }
+
+  const phaseCounts = useMemo(() => {
+    const map = new Map<number, number>();
+    for (let n = 0; n <= 4; n++) map.set(n, 0);
+    for (const l of locs) {
+      const n = l.phase_number ?? 0;
+      map.set(n, (map.get(n) ?? 0) + 1);
+    }
+    return map;
+  }, [locs]);
+
+  const filteredLocs = useMemo(
+    () => (activePhase == null ? locs : locs.filter((l) => (l.phase_number ?? 0) === activePhase)),
+    [locs, activePhase],
+  );
+
+  function useMyGps() {
+    setGeoErr(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoErr("Geolocation not supported by this browser");
+      return;
+    }
+    setGeoBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setForm((f) => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
+        setGeoBusy(false);
+      },
+      (e) => {
+        setGeoBusy(false);
+        setGeoErr(
+          e.code === e.PERMISSION_DENIED
+            ? "Location access denied — click the map instead"
+            : e.message || "Could not get GPS location",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
   }
 
   const markers: MapMarker[] = useMemo(
