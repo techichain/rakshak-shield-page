@@ -74,6 +74,9 @@ function AdminTeamDetail() {
   const [qTitle, setQTitle] = useState("");
   const [qQuestions, setQQuestions] = useState<string[]>([""]);
   const [qBusy, setQBusy] = useState(false);
+  const [meetingNotesOpen, setMeetingNotesOpen] = useState<string | null>(null);
+  const [meetingNotesDraft, setMeetingNotesDraft] = useState("");
+  const [meetingNotesBusy, setMeetingNotesBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
