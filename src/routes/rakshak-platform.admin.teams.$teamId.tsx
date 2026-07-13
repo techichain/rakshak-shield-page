@@ -552,6 +552,15 @@ function AdminTeamDetail() {
                                 {loc.description && (
                                   <p className="mt-2 text-sm whitespace-pre-line">{loc.description}</p>
                                 )}
+                                <HazardEditor
+                                  location={loc}
+                                  onSave={async (state, severity) => {
+                                    await saveLocationHazard({
+                                      data: { location_id: loc.id, state, severity },
+                                    } as any);
+                                    setReloadKey((k) => k + 1);
+                                  }}
+                                />
                                 {loc.drive_link && (
                                   <a
                                     href={loc.drive_link}
