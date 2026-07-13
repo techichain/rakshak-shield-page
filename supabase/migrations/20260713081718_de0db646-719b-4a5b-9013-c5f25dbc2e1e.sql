@@ -1,0 +1,1 @@
+DELETE FROM public.rp_team_members WHERE id='28ab8b45-c9db-4cd0-a1bf-81765420f74a';
