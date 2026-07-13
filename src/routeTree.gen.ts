@@ -61,7 +61,7 @@ import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/raksh
 import { Route as RakshakPlatformMentorResourcesRouteImport } from './routes/rakshak-platform.mentor.resources'
 import { Route as RakshakPlatformMentorAvailabilityRouteImport } from './routes/rakshak-platform.mentor.availability'
 import { Route as RakshakPlatformMIdRouteImport } from './routes/rakshak-platform.m.$id'
-import { Route as RakshakPlatformLeaderboardPrintRouteImport } from './routes/rakshak-platform.leaderboard.print'
+import { Route as RakshakPlatformLeaderboardPrintRouteImport } from './routes/rakshak-platform.leaderboard_.print'
 import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
 import { Route as RakshakPlatformEvaluatorReportsRouteImport } from './routes/rakshak-platform.evaluator.reports'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
@@ -402,9 +402,9 @@ const RakshakPlatformMIdRoute = RakshakPlatformMIdRouteImport.update({
 } as any)
 const RakshakPlatformLeaderboardPrintRoute =
   RakshakPlatformLeaderboardPrintRouteImport.update({
-    id: '/print',
-    path: '/print',
-    getParentRoute: () => RakshakPlatformLeaderboardRoute,
+    id: '/leaderboard_/print',
+    path: '/leaderboard/print',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformKnowledgeSlugRoute =
   RakshakPlatformKnowledgeSlugRouteImport.update({
@@ -732,7 +732,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorRouteWithChildren
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeRouteWithChildren
-  '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRouteWithChildren
+  '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRoute
   '/rakshak-platform/mails': typeof RakshakPlatformMailsRoute
   '/rakshak-platform/map': typeof RakshakPlatformMapRoute
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRouteWithChildren
@@ -830,7 +830,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/authority': typeof RakshakPlatformAuthorityRoute
   '/rakshak-platform/dashboard': typeof RakshakPlatformDashboardRoute
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
-  '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRouteWithChildren
+  '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRoute
   '/rakshak-platform/mails': typeof RakshakPlatformMailsRoute
   '/rakshak-platform/map': typeof RakshakPlatformMapRoute
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRouteWithChildren
@@ -936,7 +936,7 @@ export interface FileRoutesById {
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorRouteWithChildren
   '/rakshak-platform/impact': typeof RakshakPlatformImpactRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeRouteWithChildren
-  '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRouteWithChildren
+  '/rakshak-platform/leaderboard': typeof RakshakPlatformLeaderboardRoute
   '/rakshak-platform/mails': typeof RakshakPlatformMailsRoute
   '/rakshak-platform/map': typeof RakshakPlatformMapRoute
   '/rakshak-platform/meetings': typeof RakshakPlatformMeetingsRouteWithChildren
@@ -983,7 +983,7 @@ export interface FileRoutesById {
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/reports': typeof RakshakPlatformEvaluatorReportsRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
-  '/rakshak-platform/leaderboard/print': typeof RakshakPlatformLeaderboardPrintRoute
+  '/rakshak-platform/leaderboard_/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
   '/rakshak-platform/mentor/availability': typeof RakshakPlatformMentorAvailabilityRoute
   '/rakshak-platform/mentor/resources': typeof RakshakPlatformMentorResourcesRoute
@@ -1295,7 +1295,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/reports'
     | '/rakshak-platform/knowledge/$slug'
-    | '/rakshak-platform/leaderboard/print'
+    | '/rakshak-platform/leaderboard_/print'
     | '/rakshak-platform/m/$id'
     | '/rakshak-platform/mentor/availability'
     | '/rakshak-platform/mentor/resources'
@@ -1727,12 +1727,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformMIdRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
-    '/rakshak-platform/leaderboard/print': {
-      id: '/rakshak-platform/leaderboard/print'
-      path: '/print'
+    '/rakshak-platform/leaderboard_/print': {
+      id: '/rakshak-platform/leaderboard_/print'
+      path: '/leaderboard/print'
       fullPath: '/rakshak-platform/leaderboard/print'
       preLoaderRoute: typeof RakshakPlatformLeaderboardPrintRouteImport
-      parentRoute: typeof RakshakPlatformLeaderboardRoute
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/knowledge/$slug': {
       id: '/rakshak-platform/knowledge/$slug'
@@ -2295,20 +2295,6 @@ const RakshakPlatformKnowledgeRouteWithChildren =
     RakshakPlatformKnowledgeRouteChildren,
   )
 
-interface RakshakPlatformLeaderboardRouteChildren {
-  RakshakPlatformLeaderboardPrintRoute: typeof RakshakPlatformLeaderboardPrintRoute
-}
-
-const RakshakPlatformLeaderboardRouteChildren: RakshakPlatformLeaderboardRouteChildren =
-  {
-    RakshakPlatformLeaderboardPrintRoute: RakshakPlatformLeaderboardPrintRoute,
-  }
-
-const RakshakPlatformLeaderboardRouteWithChildren =
-  RakshakPlatformLeaderboardRoute._addFileChildren(
-    RakshakPlatformLeaderboardRouteChildren,
-  )
-
 interface RakshakPlatformMeetingsRouteChildren {
   RakshakPlatformMeetingsIcsMeetingIdRoute: typeof RakshakPlatformMeetingsIcsMeetingIdRoute
 }
@@ -2395,7 +2381,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformEvaluatorRoute: typeof RakshakPlatformEvaluatorRouteWithChildren
   RakshakPlatformImpactRoute: typeof RakshakPlatformImpactRoute
   RakshakPlatformKnowledgeRoute: typeof RakshakPlatformKnowledgeRouteWithChildren
-  RakshakPlatformLeaderboardRoute: typeof RakshakPlatformLeaderboardRouteWithChildren
+  RakshakPlatformLeaderboardRoute: typeof RakshakPlatformLeaderboardRoute
   RakshakPlatformMailsRoute: typeof RakshakPlatformMailsRoute
   RakshakPlatformMapRoute: typeof RakshakPlatformMapRoute
   RakshakPlatformMeetingsRoute: typeof RakshakPlatformMeetingsRouteWithChildren
@@ -2409,6 +2395,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformUnauthorizedRoute: typeof RakshakPlatformUnauthorizedRoute
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
   RakshakPlatformBookMentorIdRoute: typeof RakshakPlatformBookMentorIdRoute
+  RakshakPlatformLeaderboardPrintRoute: typeof RakshakPlatformLeaderboardPrintRoute
   RakshakPlatformMIdRoute: typeof RakshakPlatformMIdRoute
   RakshakPlatformMentorAvailabilityRoute: typeof RakshakPlatformMentorAvailabilityRoute
   RakshakPlatformMentorResourcesRoute: typeof RakshakPlatformMentorResourcesRoute
@@ -2429,7 +2416,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformEvaluatorRoute: RakshakPlatformEvaluatorRouteWithChildren,
   RakshakPlatformImpactRoute: RakshakPlatformImpactRoute,
   RakshakPlatformKnowledgeRoute: RakshakPlatformKnowledgeRouteWithChildren,
-  RakshakPlatformLeaderboardRoute: RakshakPlatformLeaderboardRouteWithChildren,
+  RakshakPlatformLeaderboardRoute: RakshakPlatformLeaderboardRoute,
   RakshakPlatformMailsRoute: RakshakPlatformMailsRoute,
   RakshakPlatformMapRoute: RakshakPlatformMapRoute,
   RakshakPlatformMeetingsRoute: RakshakPlatformMeetingsRouteWithChildren,
@@ -2443,6 +2430,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformUnauthorizedRoute: RakshakPlatformUnauthorizedRoute,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
   RakshakPlatformBookMentorIdRoute: RakshakPlatformBookMentorIdRoute,
+  RakshakPlatformLeaderboardPrintRoute: RakshakPlatformLeaderboardPrintRoute,
   RakshakPlatformMIdRoute: RakshakPlatformMIdRoute,
   RakshakPlatformMentorAvailabilityRoute:
     RakshakPlatformMentorAvailabilityRoute,
@@ -2487,13 +2475,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
