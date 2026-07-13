@@ -14,6 +14,7 @@ import {
   Video,
   ExternalLink,
   BookOpen,
+  BarChart3,
 } from "lucide-react";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
