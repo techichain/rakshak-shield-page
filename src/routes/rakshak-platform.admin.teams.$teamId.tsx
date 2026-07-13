@@ -7,6 +7,7 @@ import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
 import { setMeetingNotes } from "@/lib/rakshak-platform/meetings.functions";
 import { listTeamReports } from "@/lib/rakshak-platform/authority.functions";
+import { updateLocationHazardParams } from "@/lib/rakshak-platform/locations.functions";
 import {
   createQuestionnaire,
   listQuestionnairesForTeam,
@@ -59,6 +60,7 @@ function AdminTeamDetail() {
   const fetchReports = useServerFn(listTeamReports);
   const fetchQuestionnaires = useServerFn(listQuestionnairesForTeam);
   const postQuestionnaire = useServerFn(createQuestionnaire);
+  const saveLocationHazard = useServerFn(updateLocationHazardParams);
   const [tab, setTab] = useState<Tab>("overview");
   const [data, setData] = useState<any>(null);
   const [reports, setReports] = useState<any[]>([]);
@@ -301,6 +303,56 @@ function AdminTeamDetail() {
                 <Card label="College" value={t.college ?? "—"} sub={[t.city, t.state].filter(Boolean).join(", ")} />
                 <Card label="Created" value={fmtDate(t.created_at)} />
               </div>
+
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Evaluator scores
+                </div>
+                {(data.evaluations ?? []).length === 0 ? (
+                  <p className="mt-2 text-sm text-muted-foreground">No evaluations recorded yet.</p>
+                ) : (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border">
+                          <th className="py-2 pr-3 font-semibold">Phase</th>
+                          <th className="py-2 pr-3 font-semibold">Evaluator</th>
+                          <th className="py-2 pr-3 font-semibold">Score</th>
+                          <th className="py-2 pr-3 font-semibold">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[...(data.evaluations ?? [])]
+                          .sort((a: any, b: any) => (a.phase_number ?? 0) - (b.phase_number ?? 0))
+                          .map((e: any) => (
+                            <tr key={e.id} className="border-b border-border/60 last:border-0">
+                              <td className="py-2 pr-3">
+                                Phase {e.phase_number}
+                                <div className="text-[11px] text-muted-foreground">
+                                  {PHASE_TITLES[e.phase_number] ?? ""}
+                                </div>
+                              </td>
+                              <td className="py-2 pr-3">
+                                {e.evaluator?.full_name ?? "—"}
+                                {e.evaluator?.email && (
+                                  <div className="text-[11px] text-muted-foreground">{e.evaluator.email}</div>
+                                )}
+                              </td>
+                              <td className="py-2 pr-3 font-semibold">
+                                {e.weighted_score ?? e.total_score ?? "—"}
+                              </td>
+                              <td className="py-2 pr-3">
+                                <span className="text-xs rounded-full border border-border px-2 py-0.5">
+                                  {e.status ?? "—"}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -500,6 +552,15 @@ function AdminTeamDetail() {
                                 {loc.description && (
                                   <p className="mt-2 text-sm whitespace-pre-line">{loc.description}</p>
                                 )}
+                                <HazardEditor
+                                  location={loc}
+                                  onSave={async (state, severity) => {
+                                    await saveLocationHazard({
+                                      data: { location_id: loc.id, state, severity },
+                                    } as any);
+                                    setReloadKey((k) => k + 1);
+                                  }}
+                                />
                                 {loc.drive_link && (
                                   <a
                                     href={loc.drive_link}
@@ -937,6 +998,89 @@ function StakeholderReports({ reports }: { reports: any[] }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function HazardEditor({
+  location,
+  onSave,
+}: {
+  location: any;
+  onSave: (state: string | null, severity: string | null) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState<string>(location.state ?? "");
+  const [severity, setSeverity] = useState<string>(location.severity ?? "");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function save() {
+    setBusy(true);
+    setErr(null);
+    try {
+      await onSave(state.trim() || null, severity || null);
+      setOpen(false);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-dashed border-border p-2">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="text-[11px] text-muted-foreground">
+          Hazard classification —{" "}
+          <span className="font-semibold text-foreground">state:</span>{" "}
+          {location.state ?? "—"}{" "}
+          · <span className="font-semibold text-foreground">severity:</span>{" "}
+          {location.severity ?? "—"}
+        </div>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="text-[11px] rounded-full border border-border px-2 py-0.5 hover:border-brand/40 hover:text-brand"
+        >
+          {open ? "Cancel" : "Edit"}
+        </button>
+      </div>
+      {open && (
+        <div className="mt-2 flex flex-wrap items-end gap-2">
+          <label className="flex flex-col text-[11px] text-muted-foreground">
+            State
+            <input
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              maxLength={120}
+              className="mt-0.5 rounded-md border border-border bg-background px-2 py-1 text-sm"
+              placeholder="e.g. Karnataka"
+            />
+          </label>
+          <label className="flex flex-col text-[11px] text-muted-foreground">
+            Severity
+            <select
+              value={severity}
+              onChange={(e) => setSeverity(e.target.value)}
+              className="mt-0.5 rounded-md border border-border bg-background px-2 py-1 text-sm"
+            >
+              <option value="">—</option>
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+              <option value="critical">critical</option>
+            </select>
+          </label>
+          <button
+            disabled={busy}
+            onClick={save}
+            className="text-xs rounded-full bg-brand text-brand-foreground px-3 py-1 disabled:opacity-50"
+          >
+            {busy ? "Saving…" : "Save"}
+          </button>
+          {err && <span className="text-xs text-red-600">{err}</span>}
+        </div>
+      )}
     </div>
   );
 }

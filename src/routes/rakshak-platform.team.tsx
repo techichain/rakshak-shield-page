@@ -9,6 +9,7 @@ import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
+import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
 
 export const Route = createFileRoute("/rakshak-platform/team")({
   ssr: false,
@@ -163,6 +164,10 @@ function TeamDashboard() {
             </div>
             <MentorResourcesList mode="viewer" teamId={team.id} />
           </div>
+        </div>
+
+        <div className="mt-8">
+          <RecentMeetingNotesCard />
         </div>
       </Section>
     </PlatformShell>

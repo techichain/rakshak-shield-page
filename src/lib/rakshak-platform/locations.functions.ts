@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 
 /**
  * Public, sanitized hotspot list for the public map at /rakshak-platform/map.
@@ -16,3 +18,39 @@ export const getPublicHotspots = createServerFn({ method: "GET" }).handler(async
   if (error) throw error;
   return { hotspots: data ?? [] };
 });
+
+const ALLOWED_SEVERITY = new Set(["low", "medium", "high", "critical"]);
+
+/**
+ * Admin-only: correct hazard classification (state, severity) on a location
+ * after reviewing the team's evidence (GPS + photos/videos).
+ */
+export const updateLocationHazardParams = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { location_id: string; state?: string | null; severity?: string | null }) => {
+    if (!data?.location_id || typeof data.location_id !== "string") {
+      throw new Error("location_id required");
+    }
+    const state = data.state == null ? null : String(data.state).trim().slice(0, 120) || null;
+    const severity = data.severity == null || data.severity === "" ? null : String(data.severity).toLowerCase();
+    if (severity && !ALLOWED_SEVERITY.has(severity)) {
+      throw new Error("severity must be one of low, medium, high, critical");
+    }
+    return { location_id: data.location_id, state, severity };
+  })
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", { _user_id: context.userId });
+    if (!isAdmin) throw new Error("Admin only");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch: { state?: string | null; severity?: "low" | "medium" | "high" | "critical" | null } = {};
+    if (data.state !== undefined) patch.state = data.state;
+    if (data.severity !== undefined) patch.severity = data.severity as any;
+    const { error } = await supabaseAdmin
+      .from("rp_locations")
+      .update(patch)
+      .eq("id", data.location_id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+
