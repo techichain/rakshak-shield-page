@@ -212,13 +212,13 @@ function LocationDetail() {
         <div className="mt-12">
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <h2 className="font-heading text-2xl font-bold">
-              Photo evidence<br /><span className="text-brand">{photos.length} uploaded</span>
+              Photo &amp; video evidence<br /><span className="text-brand">{photos.length} uploaded</span>
             </h2>
             {canEdit && (
               <label className="h-12 rounded-full bg-brand px-7 text-sm text-brand-foreground inline-flex items-center gap-2 hover:bg-brand/90 cursor-pointer">
                 <Upload className="h-4 w-4" />
-                {uploading ? "Uploading…" : "Add photo"}
-                <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={upload} disabled={uploading} />
+                {uploading ? "Uploading…" : "Add photo / video"}
+                <input ref={fileRef} type="file" accept="image/*,video/*" capture="environment" className="hidden" onChange={upload} disabled={uploading} />
               </label>
             )}
           </div>
@@ -227,7 +227,7 @@ function LocationDetail() {
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               maxLength={200}
-              placeholder="Optional caption applied to the next photo you upload"
+              placeholder="Optional caption applied to the next file you upload"
               className="rp-input mt-4 max-w-2xl"
             />
           )}
@@ -237,31 +237,38 @@ function LocationDetail() {
             {photos.length === 0 && (
               <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground sm:col-span-2 lg:col-span-3">
                 <Camera className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                No photos yet. Upload geo-tagged evidence of the unsafe condition.
+                No media yet. Upload geo-tagged photos or short videos of the unsafe condition.
               </div>
             )}
-            {photos.map((ph) => (
-              <div key={ph.id} className="rounded-2xl border border-border bg-card overflow-hidden">
-                {signed[ph.id] ? (
-                  <img src={signed[ph.id]} alt={ph.caption ?? ph.file_name}
-                    className="w-full h-48 object-cover" loading="lazy" />
-                ) : (
-                  <div className="w-full h-48 bg-muted animate-pulse" />
-                )}
-                <div className="p-3">
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(ph.created_at).toLocaleString()}
-                  </div>
-                  {ph.caption && <div className="text-sm mt-1">{ph.caption}</div>}
-                  {canEdit && (
-                    <button onClick={() => removePhoto(ph)}
-                      className="mt-2 text-xs text-red-600 inline-flex items-center gap-1 hover:underline">
-                      <Trash2 className="h-3 w-3" /> Delete
-                    </button>
+            {photos.map((ph) => {
+              const isVideo = typeof ph.mime_type === "string" && ph.mime_type.startsWith("video/");
+              return (
+                <div key={ph.id} className="rounded-2xl border border-border bg-card overflow-hidden">
+                  {signed[ph.id] ? (
+                    isVideo ? (
+                      <video src={signed[ph.id]} controls className="w-full h-48 object-cover bg-black" />
+                    ) : (
+                      <img src={signed[ph.id]} alt={ph.caption ?? ph.file_name}
+                        className="w-full h-48 object-cover" loading="lazy" />
+                    )
+                  ) : (
+                    <div className="w-full h-48 bg-muted animate-pulse" />
                   )}
+                  <div className="p-3">
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(ph.created_at).toLocaleString()}
+                    </div>
+                    {ph.caption && <div className="text-sm mt-1">{ph.caption}</div>}
+                    {canEdit && (
+                      <button onClick={() => removePhoto(ph)}
+                        className="mt-2 text-xs text-red-600 inline-flex items-center gap-1 hover:underline">
+                        <Trash2 className="h-3 w-3" /> Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </Section>
