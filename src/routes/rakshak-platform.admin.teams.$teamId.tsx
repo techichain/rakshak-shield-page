@@ -5,6 +5,11 @@ import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin-teams.functions";
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
+import { listTeamReports } from "@/lib/rakshak-platform/authority.functions";
+import {
+  createQuestionnaire,
+  listQuestionnairesForTeam,
+} from "@/lib/rakshak-platform/questionnaires.functions";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
@@ -20,6 +25,9 @@ import {
   Plus,
   MapPin,
   ExternalLink,
+  ClipboardList,
+  Send,
+  Trash2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/teams/$teamId")({
