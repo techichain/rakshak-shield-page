@@ -251,7 +251,7 @@ function MentorTeamDetail() {
                         Status: <span className="font-medium">{p?.status ?? "not started"}</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Deadline: {p?.deadline_at ? fmtDate(p.deadline_at) : "—"}
+                        Deadline: {p?.deadline ? fmtDate(p.deadline) : "—"}
                       </div>
                     </div>
                   );
