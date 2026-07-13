@@ -442,7 +442,66 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </Card>
 
-          <Card title="Hazards by state (severity)" wide>
+          <Card
+            title="Hazards by state (severity)"
+            wide
+            action={
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8">
+                    <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" /> Configure
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 max-h-96 overflow-auto" align="end">
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-xs font-semibold mb-2">Severities</div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(["low", "medium", "high", "critical"] as const).map((s) => {
+                          const active = hazardSeverities === null || hazardSeverities.length === 0
+                            ? true
+                            : hazardSeverities.includes(s);
+                          return (
+                            <label key={s} className="flex items-center gap-2 text-xs capitalize">
+                              <Checkbox checked={active} onCheckedChange={() => toggleSeverity(s)} />
+                              {s}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold mb-2">States</div>
+                      {allStates.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">No state data available.</p>
+                      ) : (
+                        <div className="grid gap-1.5 max-h-48 overflow-auto">
+                          {allStates.map((st) => {
+                            const active = hazardStates === null || hazardStates.length === 0
+                              ? true
+                              : hazardStates.includes(st);
+                            return (
+                              <label key={st} className="flex items-center gap-2 text-xs">
+                                <Checkbox checked={active} onCheckedChange={() => toggleState(st)} />
+                                {st}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-border">
+                      <Button variant="ghost" size="sm" onClick={resetSettings} className="h-8">Reset (all)</Button>
+                      <Button size="sm" onClick={persistSettings} disabled={savingSettings} className="h-8">
+                        {savingSettings && <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />}
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            }
+          >
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={hazardByState}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -457,6 +516,7 @@ function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           </Card>
+
         </div>
       </Section>
     </PlatformShell>
