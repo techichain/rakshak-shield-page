@@ -9,8 +9,6 @@ const TITLES: Record<string, string> = {
   teams: "Teams report",
   submissions: "Submissions report",
   locations: "Locations report",
-  finance: "Finance ledger",
-  sponsorships: "Sponsorships ledger",
 };
 
 export const Route = createFileRoute("/rakshak-platform/admin/print/$dataset")({
