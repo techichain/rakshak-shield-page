@@ -100,6 +100,10 @@ function TeamLocationsIndex() {
       setErr("Click on the map to pick a location.");
       return;
     }
+    const driveLink = form.drive_link.trim();
+    if (driveLink) {
+      try { new URL(driveLink); } catch { setErr("Drive link must be a valid URL."); return; }
+    }
     setSaving(true);
     setErr(null);
     const { error } = await supabase.from("rp_locations").insert({
@@ -114,6 +118,7 @@ function TeamLocationsIndex() {
       issue_type: form.issue_type,
       severity: form.severity,
       description: form.description.trim() || null,
+      drive_link: driveLink || null,
       is_final_selected: false,
     });
     setSaving(false);
@@ -123,7 +128,7 @@ function TeamLocationsIndex() {
       location_name: "", address: "",
       city: team.city ?? "", state: team.state ?? "",
       issue_type: ISSUE_TYPES[0], severity: "medium",
-      description: "", latitude: null, longitude: null,
+      description: "", drive_link: "", latitude: null, longitude: null,
     });
     void load();
   }
