@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { getAdminTeamDetail } from "@/lib/rakshak-platform/admin-teams.functions";
+import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin-teams.functions";
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
