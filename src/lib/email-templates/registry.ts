@@ -17,6 +17,8 @@ import { template as adminDeadlineTeamTemplate } from './admin-deadline-team'
 import { template as adminDeadlineMentorTemplate } from './admin-deadline-mentor'
 import { template as adminDeadlineEvaluatorTemplate } from './admin-deadline-evaluator'
 import { template as rpMailNotificationTemplate } from './rp-mail-notification'
+import { template as gigriderResetOtpTemplate } from './gigrider-reset-otp'
+import { template as mentorFileRequestTemplate } from './mentor-file-request'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'registration-otp': registrationOtpTemplate,
@@ -27,5 +29,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'admin-deadline-mentor': adminDeadlineMentorTemplate,
   'admin-deadline-evaluator': adminDeadlineEvaluatorTemplate,
   'rp-mail-notification': rpMailNotificationTemplate,
+  'gigrider-reset-otp': gigriderResetOtpTemplate,
+  'mentor-file-request': mentorFileRequestTemplate,
 }
 
