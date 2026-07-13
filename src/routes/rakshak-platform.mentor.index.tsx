@@ -103,7 +103,12 @@ function MentorDashboard() {
           {teams.map((t) => {
             const meta = TEAM_STATUS_META[t.status as keyof typeof TEAM_STATUS_META];
             return (
-              <div key={t.id} className="rounded-2xl border border-border bg-card p-6 hover:border-brand/40 transition">
+              <Link
+                key={t.id}
+                to="/rakshak-platform/mentor/teams/$teamId"
+                params={{ teamId: t.id }}
+                className="rounded-2xl border border-border bg-card p-6 hover:border-brand/40 transition block"
+              >
                 <div className="font-heading text-lg font-semibold">{t.team_name}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{t.college} · {t.city}</div>
                 <div className="mt-4 text-sm">Phase {t.current_phase} — {PHASE_TITLES[t.current_phase]}</div>
@@ -114,7 +119,7 @@ function MentorDashboard() {
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${meta?.tone ?? ""}`}>{meta?.label}</span>
                   <span className={`text-xs ${t.risk_status === "at_risk" ? "text-red-600" : "text-muted-foreground"}`}>{t.risk_status.replace("_"," ")}</span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
