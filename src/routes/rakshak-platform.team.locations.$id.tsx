@@ -59,6 +59,12 @@ function LocationDetail() {
   async function upload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !loc) return;
+    const MAX = 100 * 1024 * 1024;
+    if (file.size > MAX) {
+      setErr(`File too large — max 100 MB (got ${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
     setUploading(true);
     setErr(null);
     try {
@@ -91,6 +97,19 @@ function LocationDetail() {
     } finally {
       setUploading(false);
     }
+  }
+
+  async function saveDriveLink() {
+    if (!loc) return;
+    const current = loc.drive_link ?? "";
+    const next = prompt("Google Drive link (leave blank to remove):", current);
+    if (next === null) return;
+    const trimmed = next.trim();
+    if (trimmed) {
+      try { new URL(trimmed); } catch { alert("Must be a valid URL."); return; }
+    }
+    await supabase.from("rp_locations").update({ drive_link: trimmed || null }).eq("id", loc.id);
+    void load();
   }
 
   async function removePhoto(ph: any) {
