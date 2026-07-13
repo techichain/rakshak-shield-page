@@ -108,6 +108,7 @@ import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
+import { Route as ApiPublicHooksDeadlineWhatsappRemindersRouteImport } from './routes/api/public/hooks/deadline-whatsapp-reminders'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -671,6 +672,12 @@ const ApiPublicHooksHealthPingRoute =
     path: '/api/public/hooks/health-ping',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDeadlineWhatsappRemindersRoute =
+  ApiPublicHooksDeadlineWhatsappRemindersRouteImport.update({
+    id: '/api/public/hooks/deadline-whatsapp-reminders',
+    path: '/api/public/hooks/deadline-whatsapp-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAdminDigestRoute =
   ApiPublicHooksAdminDigestRouteImport.update({
     id: '/api/public/hooks/admin-digest',
@@ -762,6 +769,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/rakshak-platform/mentor/': typeof RakshakPlatformMentorIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
+  '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
@@ -853,6 +861,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeIndexRoute
   '/rakshak-platform/mentor': typeof RakshakPlatformMentorIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
+  '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
@@ -956,6 +965,7 @@ export interface FileRoutesById {
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/rakshak-platform/mentor/': typeof RakshakPlatformMentorIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
+  '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
@@ -1060,6 +1070,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/knowledge/'
     | '/rakshak-platform/mentor/'
     | '/api/public/hooks/admin-digest'
+    | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
@@ -1151,6 +1162,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/knowledge'
     | '/rakshak-platform/mentor'
     | '/api/public/hooks/admin-digest'
+    | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
@@ -1253,6 +1265,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/knowledge/'
     | '/rakshak-platform/mentor/'
     | '/api/public/hooks/admin-digest'
+    | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
@@ -1284,6 +1297,7 @@ export interface RootRouteChildren {
   ApiMeetingIcsMeetingIdRoute: typeof ApiMeetingIcsMeetingIdRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
+  ApiPublicHooksDeadlineWhatsappRemindersRoute: typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
   ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
@@ -1989,6 +2003,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksHealthPingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/deadline-whatsapp-reminders': {
+      id: '/api/public/hooks/deadline-whatsapp-reminders'
+      path: '/api/public/hooks/deadline-whatsapp-reminders'
+      fullPath: '/api/public/hooks/deadline-whatsapp-reminders'
+      preLoaderRoute: typeof ApiPublicHooksDeadlineWhatsappRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/admin-digest': {
       id: '/api/public/hooks/admin-digest'
       path: '/api/public/hooks/admin-digest'
@@ -2376,6 +2397,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMeetingIcsMeetingIdRoute: ApiMeetingIcsMeetingIdRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
+  ApiPublicHooksDeadlineWhatsappRemindersRoute:
+    ApiPublicHooksDeadlineWhatsappRemindersRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
   ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,

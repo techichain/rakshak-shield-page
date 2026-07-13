@@ -221,9 +221,24 @@ export const addAdminRemark = createServerFn({ method: "POST" })
         related_entity_id: data.submission_id,
       }));
       if (rows.length) await context.supabase.from("rp_notifications").insert(rows);
+
+      // Best-effort WhatsApp notify (inert until credentials configured)
+      try {
+        const { notifyTeamWhatsApp } = await import("./whatsapp.server");
+        const teamName = team?.team_name ?? "your team";
+        const snippet = data.remark.length > 200 ? `${data.remark.slice(0, 200)}…` : data.remark;
+        await notifyTeamWhatsApp({
+          team_id: data.team_id,
+          body: `Admin feedback on Phase ${data.phase_number} for ${teamName}: ${snippet}`,
+        });
+      } catch (e) {
+        console.error("[addAdminRemark] whatsapp notify failed", e);
+      }
     } catch {
       // ignore
     }
+
+
 
     return { ok: true };
   });
