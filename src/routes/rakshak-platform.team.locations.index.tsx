@@ -122,7 +122,7 @@ function TeamLocationsIndex() {
 
   const markers: MapMarker[] = useMemo(
     () =>
-      locs
+      filteredLocs
         .filter((l) => l.latitude != null && l.longitude != null)
         .map((l) => ({
           id: l.id,
@@ -133,7 +133,7 @@ function TeamLocationsIndex() {
           severity: l.severity,
           isFinal: l.is_final_selected,
         })),
-    [locs],
+    [filteredLocs],
   );
 
   async function submit(e: React.FormEvent) {
