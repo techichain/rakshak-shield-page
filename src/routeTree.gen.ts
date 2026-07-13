@@ -98,6 +98,7 @@ import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/
 import { Route as RakshakPlatformAdminTeamsIndexRouteImport } from './routes/rakshak-platform.admin.teams.index'
 import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rakshak-platform.team.phases.$phase'
 import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
+import { Route as RakshakPlatformMentorTeamsTeamIdRouteImport } from './routes/rakshak-platform.mentor.teams.$teamId'
 import { Route as RakshakPlatformMeetingsIcsMeetingIdRouteImport } from './routes/rakshak-platform.meetings.ics.$meetingId'
 import { Route as RakshakPlatformAdminTeamsTeamIdRouteImport } from './routes/rakshak-platform.admin.teams.$teamId'
 import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
@@ -613,6 +614,12 @@ const RakshakPlatformTeamLocationsIdRoute =
     path: '/$id',
     getParentRoute: () => RakshakPlatformTeamLocationsRoute,
   } as any)
+const RakshakPlatformMentorTeamsTeamIdRoute =
+  RakshakPlatformMentorTeamsTeamIdRouteImport.update({
+    id: '/mentor/teams/$teamId',
+    path: '/mentor/teams/$teamId',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
 const RakshakPlatformMeetingsIcsMeetingIdRoute =
   RakshakPlatformMeetingsIcsMeetingIdRouteImport.update({
     id: '/ics/$meetingId',
@@ -790,6 +797,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
+  '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
   '/rakshak-platform/admin/teams/': typeof RakshakPlatformAdminTeamsIndexRoute
@@ -883,6 +891,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
+  '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
   '/rakshak-platform/admin/teams': typeof RakshakPlatformAdminTeamsIndexRoute
@@ -988,6 +997,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
+  '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
   '/rakshak-platform/admin/teams/': typeof RakshakPlatformAdminTeamsIndexRoute
@@ -1094,6 +1104,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
     | '/rakshak-platform/meetings/ics/$meetingId'
+    | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/phases/$phase'
     | '/rakshak-platform/admin/teams/'
@@ -1187,6 +1198,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
     | '/rakshak-platform/meetings/ics/$meetingId'
+    | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/phases/$phase'
     | '/rakshak-platform/admin/teams'
@@ -1291,6 +1303,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
     | '/rakshak-platform/meetings/ics/$meetingId'
+    | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
     | '/rakshak-platform/team/phases/$phase'
     | '/rakshak-platform/admin/teams/'
@@ -1946,6 +1959,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformTeamLocationsIdRouteImport
       parentRoute: typeof RakshakPlatformTeamLocationsRoute
     }
+    '/rakshak-platform/mentor/teams/$teamId': {
+      id: '/rakshak-platform/mentor/teams/$teamId'
+      path: '/mentor/teams/$teamId'
+      fullPath: '/rakshak-platform/mentor/teams/$teamId'
+      preLoaderRoute: typeof RakshakPlatformMentorTeamsTeamIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
     '/rakshak-platform/meetings/ics/$meetingId': {
       id: '/rakshak-platform/meetings/ics/$meetingId'
       path: '/ics/$meetingId'
@@ -2355,6 +2375,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
   RakshakPlatformMentorIndexRoute: typeof RakshakPlatformMentorIndexRoute
+  RakshakPlatformMentorTeamsTeamIdRoute: typeof RakshakPlatformMentorTeamsTeamIdRoute
 }
 
 const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
@@ -2389,6 +2410,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
   RakshakPlatformVerifySlugRoute: RakshakPlatformVerifySlugRoute,
   RakshakPlatformMentorIndexRoute: RakshakPlatformMentorIndexRoute,
+  RakshakPlatformMentorTeamsTeamIdRoute: RakshakPlatformMentorTeamsTeamIdRoute,
 }
 
 const RakshakPlatformRouteWithChildren = RakshakPlatformRoute._addFileChildren(
