@@ -1,0 +1,1 @@
+ALTER TABLE public.rp_locations ADD COLUMN IF NOT EXISTS drive_link text;

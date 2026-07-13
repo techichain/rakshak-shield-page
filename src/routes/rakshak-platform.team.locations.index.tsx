@@ -45,6 +45,7 @@ function TeamLocationsIndex() {
     issue_type: ISSUE_TYPES[0],
     severity: "medium" as (typeof SEV)[number],
     description: "",
+    drive_link: "",
     latitude: null as number | null,
     longitude: null as number | null,
   });
@@ -99,6 +100,10 @@ function TeamLocationsIndex() {
       setErr("Click on the map to pick a location.");
       return;
     }
+    const driveLink = form.drive_link.trim();
+    if (driveLink) {
+      try { new URL(driveLink); } catch { setErr("Drive link must be a valid URL."); return; }
+    }
     setSaving(true);
     setErr(null);
     const { error } = await supabase.from("rp_locations").insert({
@@ -113,6 +118,7 @@ function TeamLocationsIndex() {
       issue_type: form.issue_type,
       severity: form.severity,
       description: form.description.trim() || null,
+      drive_link: driveLink || null,
       is_final_selected: false,
     });
     setSaving(false);
@@ -122,7 +128,7 @@ function TeamLocationsIndex() {
       location_name: "", address: "",
       city: team.city ?? "", state: team.state ?? "",
       issue_type: ISSUE_TYPES[0], severity: "medium",
-      description: "", latitude: null, longitude: null,
+      description: "", drive_link: "", latitude: null, longitude: null,
     });
     void load();
   }
@@ -250,6 +256,11 @@ function TeamLocationsIndex() {
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 className="rp-input" placeholder="Why is this location unsafe? Observed patterns, time of day, near which institutions…" />
+            </Field>
+            <Field label="Google Drive link (optional)" className="md:col-span-2">
+              <input type="url" maxLength={500} value={form.drive_link}
+                onChange={(e) => setForm((f) => ({ ...f, drive_link: e.target.value }))}
+                className="rp-input" placeholder="https://drive.google.com/…" />
             </Field>
             <div className="md:col-span-2 text-xs text-muted-foreground">
               Coordinates: {form.latitude != null && form.longitude != null
