@@ -331,10 +331,21 @@ function TeamLocationsIndex() {
                 onChange={(e) => setForm((f) => ({ ...f, drive_link: e.target.value }))}
                 className="rp-input" placeholder="https://drive.google.com/…" />
             </Field>
-            <div className="md:col-span-2 text-xs text-muted-foreground">
-              Coordinates: {form.latitude != null && form.longitude != null
-                ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)}`
-                : "— click the map to set —"}
+            <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+              <div className="text-xs text-muted-foreground">
+                Coordinates: {form.latitude != null && form.longitude != null
+                  ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)}`
+                  : "— click the map or use my GPS —"}
+              </div>
+              <button
+                type="button"
+                onClick={useMyGps}
+                disabled={geoBusy}
+                className="h-9 rounded-full border border-border px-4 text-xs inline-flex items-center gap-1.5 hover:border-brand/40 disabled:opacity-60"
+              >
+                <Crosshair className="h-3.5 w-3.5" /> {geoBusy ? "Locating…" : "Use my current GPS location"}
+              </button>
+              {geoErr && <span className="text-xs text-red-600">{geoErr}</span>}
             </div>
             {err && <div className="md:col-span-2 text-sm text-red-600">{err}</div>}
             <div className="md:col-span-2 flex gap-3">
