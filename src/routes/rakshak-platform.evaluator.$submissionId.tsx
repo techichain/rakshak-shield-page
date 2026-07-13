@@ -158,6 +158,10 @@ function ScoringPage() {
               </div>
             )}
 
+            <SiteEvidencePanel locations={(data as any).locations ?? []} />
+            <AnnexurePanel />
+
+
             <div className="mt-8">
               <MessageThread submissionId={submissionId} currentUserId={userId} />
             </div>
@@ -249,3 +253,88 @@ function ScoringPage() {
     </PlatformShell>
   );
 }
+
+const SEV_TONE: Record<string, string> = {
+  critical: "bg-red-50 text-red-700 border-red-200",
+  high: "bg-orange-50 text-orange-700 border-orange-200",
+  medium: "bg-amber-50 text-amber-800 border-amber-200",
+  low: "bg-emerald-50 text-emerald-700 border-emerald-200",
+};
+
+function SiteEvidencePanel({ locations }: { locations: any[] }) {
+  if (!locations || locations.length === 0) return null;
+  return (
+    <div className="mt-6">
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+        Site evidence ({locations.length})
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        GPS-verified sites for this phase. Severity is set by admins after review and is read-only here.
+      </p>
+      <ul className="mt-3 grid gap-2">
+        {locations.map((l) => {
+          const sevKey = (l.severity ?? "").toString().toLowerCase();
+          const tone = SEV_TONE[sevKey] ?? "bg-muted text-muted-foreground border-border";
+          const lat = l.latitude != null ? Number(l.latitude).toFixed(5) : "—";
+          const lng = l.longitude != null ? Number(l.longitude).toFixed(5) : "—";
+          return (
+            <li key={l.id} className="rounded-xl border border-border bg-card p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="font-heading text-sm font-semibold">{l.location_name ?? "Site"}</div>
+                {l.severity && (
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize ${tone}`}>
+                    {l.severity}
+                  </span>
+                )}
+                {l.issue_type && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border bg-muted text-muted-foreground border-border capitalize">
+                    {String(l.issue_type).replace(/_/g, " ")}
+                  </span>
+                )}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                GPS: <span className="font-mono">{lat}, {lng}</span>
+                {(l.city || l.state) && (
+                  <> · {[l.city, l.state].filter(Boolean).join(", ")}</>
+                )}
+              </div>
+              {l.description && (
+                <div className="mt-1 text-xs text-muted-foreground line-clamp-3">{l.description}</div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function AnnexurePanel() {
+  const entries = [
+    { key: "A", title: "Annexure A — Site survey raw data" },
+    { key: "B", title: "Annexure B — Stakeholder correspondence" },
+    { key: "C", title: "Annexure C — Authority engagement log" },
+  ];
+  return (
+    <div className="mt-6">
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">Annexure</div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Admins will be able to attach annexure documents here for evaluators to reference.
+      </p>
+      <ul className="mt-3 grid gap-2">
+        {entries.map((e) => (
+          <li
+            key={e.key}
+            className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-muted/30 p-3 text-sm opacity-70"
+          >
+            <span className="font-medium text-muted-foreground">{e.title}</span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-background text-muted-foreground border-border">
+              Not yet available
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
