@@ -60,6 +60,7 @@ function AdminTeamDetail() {
   const fetchReports = useServerFn(listTeamReports);
   const fetchQuestionnaires = useServerFn(listQuestionnairesForTeam);
   const postQuestionnaire = useServerFn(createQuestionnaire);
+  const saveLocationHazard = useServerFn(updateLocationHazardParams);
   const [tab, setTab] = useState<Tab>("overview");
   const [data, setData] = useState<any>(null);
   const [reports, setReports] = useState<any[]>([]);
