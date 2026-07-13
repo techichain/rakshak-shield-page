@@ -5,7 +5,7 @@ import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap, type MapMarker } from "@/components/rakshak-platform/LocationMap";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
-import { MapPin, Plus, Star, ChevronRight } from "lucide-react";
+import { MapPin, Plus, Star, ChevronRight, Crosshair } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/")({
   ssr: false,
@@ -35,6 +35,9 @@ function TeamLocationsIndex() {
   const [team, setTeam] = useState<any>(null);
   const [locs, setLocs] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [activePhase, setActivePhase] = useState<number | null>(null);
+  const [geoBusy, setGeoBusy] = useState(false);
+  const [geoErr, setGeoErr] = useState<string | null>(null);
 
   // form state
   const [form, setForm] = useState({
@@ -68,6 +71,7 @@ function TeamLocationsIndex() {
     setTeam(t);
     if (!t) return;
     setForm((f) => ({ ...f, city: t.city ?? "", state: t.state ?? "" }));
+    setActivePhase((prev) => (prev == null ? (t.current_phase ?? 0) : prev));
     const { data: l } = await supabase
       .from("rp_locations")
       .select("*")
@@ -77,9 +81,48 @@ function TeamLocationsIndex() {
     setLocs(l ?? []);
   }
 
+  const phaseCounts = useMemo(() => {
+    const map = new Map<number, number>();
+    for (let n = 0; n <= 4; n++) map.set(n, 0);
+    for (const l of locs) {
+      const n = l.phase_number ?? 0;
+      map.set(n, (map.get(n) ?? 0) + 1);
+    }
+    return map;
+  }, [locs]);
+
+  const filteredLocs = useMemo(
+    () => (activePhase == null ? locs : locs.filter((l) => (l.phase_number ?? 0) === activePhase)),
+    [locs, activePhase],
+  );
+
+  function useMyGps() {
+    setGeoErr(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoErr("Geolocation not supported by this browser");
+      return;
+    }
+    setGeoBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setForm((f) => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
+        setGeoBusy(false);
+      },
+      (e) => {
+        setGeoBusy(false);
+        setGeoErr(
+          e.code === e.PERMISSION_DENIED
+            ? "Location access denied — click the map instead"
+            : e.message || "Could not get GPS location",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
   const markers: MapMarker[] = useMemo(
     () =>
-      locs
+      filteredLocs
         .filter((l) => l.latitude != null && l.longitude != null)
         .map((l) => ({
           id: l.id,
@@ -90,7 +133,7 @@ function TeamLocationsIndex() {
           severity: l.severity,
           isFinal: l.is_final_selected,
         })),
-    [locs],
+    [filteredLocs],
   );
 
   async function submit(e: React.FormEvent) {
@@ -160,6 +203,27 @@ function TeamLocationsIndex() {
           </button>
         </div>
 
+        <div className="mt-8 flex flex-wrap gap-2 border-b border-border">
+          {[0, 1, 2, 3, 4].map((n) => {
+            const active = activePhase === n;
+            const count = phaseCounts.get(n) ?? 0;
+            return (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setActivePhase(n)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition inline-flex items-center gap-2 ${
+                  active ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>Phase {n}</span>
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground hidden sm:inline">{PHASE_TITLES[n]}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${active ? "border-brand/40 bg-brand/10 text-brand" : "border-border text-muted-foreground"}`}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-3 overflow-hidden">
             <LocationMap
@@ -178,13 +242,18 @@ function TeamLocationsIndex() {
 
           <div className="rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-lg font-semibold">{locs.length} location{locs.length === 1 ? "" : "s"}</h2>
+              <h2 className="font-heading text-lg font-semibold">
+                {filteredLocs.length} location{filteredLocs.length === 1 ? "" : "s"}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">· Phase {activePhase}</span>
+              </h2>
             </div>
             <div className="mt-4 space-y-2 max-h-[460px] overflow-y-auto pr-1">
-              {locs.length === 0 && (
-                <p className="text-sm text-muted-foreground">No locations yet. Drop a pin on the map and add one.</p>
+              {filteredLocs.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No locations in this phase yet. New pins default to your team's current phase (Phase {team.current_phase}).
+                </p>
               )}
-              {locs.map((l) => (
+              {filteredLocs.map((l) => (
                 <div key={l.id} className="rounded-xl border border-border p-3 hover:border-brand/40 transition">
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 mt-0.5 text-brand shrink-0" />
@@ -262,10 +331,21 @@ function TeamLocationsIndex() {
                 onChange={(e) => setForm((f) => ({ ...f, drive_link: e.target.value }))}
                 className="rp-input" placeholder="https://drive.google.com/…" />
             </Field>
-            <div className="md:col-span-2 text-xs text-muted-foreground">
-              Coordinates: {form.latitude != null && form.longitude != null
-                ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)}`
-                : "— click the map to set —"}
+            <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+              <div className="text-xs text-muted-foreground">
+                Coordinates: {form.latitude != null && form.longitude != null
+                  ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)}`
+                  : "— click the map or use my GPS —"}
+              </div>
+              <button
+                type="button"
+                onClick={useMyGps}
+                disabled={geoBusy}
+                className="h-9 rounded-full border border-border px-4 text-xs inline-flex items-center gap-1.5 hover:border-brand/40 disabled:opacity-60"
+              >
+                <Crosshair className="h-3.5 w-3.5" /> {geoBusy ? "Locating…" : "Use my current GPS location"}
+              </button>
+              {geoErr && <span className="text-xs text-red-600">{geoErr}</span>}
             </div>
             {err && <div className="md:col-span-2 text-sm text-red-600">{err}</div>}
             <div className="md:col-span-2 flex gap-3">

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap } from "@/components/rakshak-platform/LocationMap";
-import { ArrowLeft, Camera, Star, Trash2, Upload, Send } from "lucide-react";
+import { ArrowLeft, Camera, Star, Trash2, Upload, Send, Crosshair } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/$id")({
   ssr: false,
@@ -25,6 +25,8 @@ function LocationDetail() {
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
+  const [geoBusy, setGeoBusy] = useState(false);
+  const [geoErr, setGeoErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -125,6 +127,35 @@ function LocationDetail() {
     void load();
   }
 
+  async function updateGpsFromDevice() {
+    if (!loc) return;
+    setGeoErr(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoErr("Geolocation not supported by this browser");
+      return;
+    }
+    setGeoBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        await supabase
+          .from("rp_locations")
+          .update({ latitude: pos.coords.latitude, longitude: pos.coords.longitude })
+          .eq("id", loc.id);
+        setGeoBusy(false);
+        void load();
+      },
+      (e) => {
+        setGeoBusy(false);
+        setGeoErr(
+          e.code === e.PERMISSION_DENIED
+            ? "Location access denied — click the map instead"
+            : e.message || "Could not get GPS location",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
+
   async function markSubmittedToAuthority() {
     if (!loc) return;
     const response = prompt("Optional: paste any acknowledgment / reference number from the authority", "") ?? "";
@@ -204,6 +235,11 @@ function LocationDetail() {
                   className="h-10 rounded-full border border-border px-4 text-xs hover:border-brand/40 inline-flex items-center gap-1">
                   {loc.drive_link ? "Edit Drive link" : "Add Drive link"}
                 </button>
+                <button onClick={updateGpsFromDevice} disabled={geoBusy}
+                  className="h-10 rounded-full border border-border px-4 text-xs hover:border-brand/40 inline-flex items-center gap-1 disabled:opacity-60">
+                  <Crosshair className="h-3.5 w-3.5" /> {geoBusy ? "Locating…" : "Update GPS from my location"}
+                </button>
+                {geoErr && <div className="w-full text-xs text-red-600">{geoErr}</div>}
               </div>
             )}
           </div>
