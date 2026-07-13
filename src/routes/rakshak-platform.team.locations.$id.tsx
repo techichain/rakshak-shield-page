@@ -235,6 +235,11 @@ function LocationDetail() {
                   className="h-10 rounded-full border border-border px-4 text-xs hover:border-brand/40 inline-flex items-center gap-1">
                   {loc.drive_link ? "Edit Drive link" : "Add Drive link"}
                 </button>
+                <button onClick={updateGpsFromDevice} disabled={geoBusy}
+                  className="h-10 rounded-full border border-border px-4 text-xs hover:border-brand/40 inline-flex items-center gap-1 disabled:opacity-60">
+                  <Crosshair className="h-3.5 w-3.5" /> {geoBusy ? "Locating…" : "Update GPS from my location"}
+                </button>
+                {geoErr && <div className="w-full text-xs text-red-600">{geoErr}</div>}
               </div>
             )}
           </div>
