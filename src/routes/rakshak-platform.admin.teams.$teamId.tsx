@@ -135,6 +135,32 @@ function AdminTeamDetail() {
     }
   }
 
+  function openQuestionnaire(phase: number) {
+    setQOpenPhase(qOpenPhase === phase ? null : phase);
+    setQTitle("");
+    setQQuestions([""]);
+  }
+
+  async function submitQuestionnaire(phase: number) {
+    const cleaned = qQuestions.map((s) => s.trim()).filter(Boolean);
+    if (!qTitle.trim() || cleaned.length === 0) return;
+    setQBusy(true);
+    try {
+      await postQuestionnaire({
+        data: { team_id: teamId, phase_number: phase, title: qTitle.trim(), questions: cleaned },
+      } as any);
+      setQOpenPhase(null);
+      setQTitle("");
+      setQQuestions([""]);
+      setReloadKey((k) => k + 1);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to post questionnaire");
+    } finally {
+      setQBusy(false);
+    }
+  }
+
+
   if (busy) {
     return (
       <PlatformShell>
