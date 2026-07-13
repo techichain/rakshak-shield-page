@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
@@ -7,7 +8,15 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend,
 } from "recharts";
-import { Loader2 } from "lucide-react";
+import { Loader2, SlidersHorizontal } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  getAnalyticsSettings, updateAnalyticsSettings,
+} from "@/lib/rakshak-platform/analytics-settings.functions";
+
 
 export const Route = createFileRoute("/rakshak-platform/admin/analytics")({
   component: AnalyticsPage,
