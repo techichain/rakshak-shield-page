@@ -573,11 +573,15 @@ function PhaseLegend() {
   );
 }
 
-function Card({ title, children, wide }: { title: string; children: React.ReactNode; wide?: boolean }) {
+function Card({ title, children, wide, action }: { title: string; children: React.ReactNode; wide?: boolean; action?: React.ReactNode }) {
   return (
     <div className={`rounded-2xl border border-border bg-card p-5 ${wide ? "lg:col-span-2" : ""}`}>
-      <h3 className="font-heading text-lg font-semibold mb-4">{title}</h3>
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <h3 className="font-heading text-lg font-semibold">{title}</h3>
+        {action}
+      </div>
       {children}
     </div>
   );
 }
+
