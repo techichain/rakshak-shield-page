@@ -51,11 +51,20 @@ function PhaseDetail() {
   const submitFn = useServerFn(submitForReview);
   const attachFn = useServerFn(attachSubmissionFile);
   const removeFn = useServerFn(removeSubmissionFile);
+  const qListFn = useServerFn(listQuestionnairesForTeam);
+  const qSubmitFn = useServerFn(submitQuestionnaireResponse);
+  const { userId } = useRPAuth();
 
   const { data } = useSuspenseQuery({
     queryKey: ["rp-submission", team, phaseNum],
     queryFn: () => detailFn({ data: { team_id: team, phase_number: phaseNum } }),
   });
+
+  const qQuery = useQuery({
+    queryKey: ["rp-questionnaires", team, phaseNum],
+    queryFn: () => qListFn({ data: { team_id: team, phase_number: phaseNum } }),
+  });
+  const teamQuestionnaires = (qQuery.data as any)?.questionnaires ?? [];
 
   const [title, setTitle] = useState(data.submission?.title ?? "");
   const [summary, setSummary] = useState(data.submission?.summary ?? "");
@@ -64,6 +73,45 @@ function PhaseDetail() {
   const [msg, setMsg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [caption, setCaption] = useState("");
+  const [qAnswers, setQAnswers] = useState<Record<string, string[]>>({});
+  const [qBusy, setQBusy] = useState<string | null>(null);
+
+  // Hydrate answers when questionnaires load / user's response arrives.
+  useEffect(() => {
+    if (!teamQuestionnaires.length) return;
+    setQAnswers((prev) => {
+      const next = { ...prev };
+      for (const q of teamQuestionnaires) {
+        if (next[q.id]) continue;
+        const mine = (q.responses ?? []).find((r: any) => r.respondent_id === userId);
+        const answers: string[] = Array.isArray(mine?.answers)
+          ? mine.answers.map((a: any) => (a == null ? "" : String(a)))
+          : [];
+        const filled = (q.questions ?? []).map((_: string, i: number) => answers[i] ?? "");
+        next[q.id] = filled;
+      }
+      return next;
+    });
+  }, [teamQuestionnaires, userId]);
+
+  async function submitAnswers(qId: string) {
+    setQBusy(qId);
+    try {
+      await qSubmitFn({
+        data: {
+          questionnaire_id: qId,
+          team_id: team,
+          answers: qAnswers[qId] ?? [],
+        },
+      });
+      qc.invalidateQueries({ queryKey: ["rp-questionnaires", team, phaseNum] });
+      setMsg("Answers saved");
+    } catch (e: any) {
+      setErr(e?.message ?? "Could not save answers");
+    } finally {
+      setQBusy(null);
+    }
+  }
 
   const status = (data.submission?.status ?? data.progress?.status ?? "not_started") as PhaseStatus;
   const meta = STATUS_META[status];
