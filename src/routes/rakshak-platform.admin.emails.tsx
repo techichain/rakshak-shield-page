@@ -365,12 +365,42 @@ function MassEmailComposer() {
               </CardContent>
             </Card>
             <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center justify-between gap-2">
+                  <span>Recent campaigns</span>
+                  {campaignsDummy && (
+                    <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800">sample</span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-2 max-h-72 overflow-auto">
+                {campaigns.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No campaigns yet.</p>
+                ) : campaigns.slice(0, 8).map((r) => (
+                  <div key={r.id} className="border-b last:border-b-0 pb-2 last:pb-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-medium truncate">{r.subject_override || r.template_name}</div>
+                      <Badge
+                        variant={r.status === 'sent' ? 'default' : r.status === 'failed' ? 'destructive' : 'secondary'}
+                        className="text-[10px] px-1.5 py-0"
+                      >
+                        {r.status}
+                      </Badge>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {r.audience?.type || 'unknown'} · {r.sent_at ? new Date(r.sent_at).toLocaleDateString() : 'queued'} · {r.success_count}/{r.recipient_count}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <Card>
               <CardContent className="pt-6 text-xs text-muted-foreground space-y-2">
                 <p><strong>Safety:</strong> Suppressed and unsubscribed addresses are skipped automatically.</p>
                 <p><strong>Delivery:</strong> Emails are queued and sent at ~120/min through the existing infra.</p>
-                <p><Link to="/rakshak-platform/admin/emails/log" className="text-brand hover:underline">View campaign history →</Link></p>
               </CardContent>
             </Card>
+
           </div>
         </div>
       </Section>
