@@ -77,6 +77,9 @@ function MassEmailComposer() {
   const [previewing, setPreviewing] = useState(false)
   const [sending, setSending] = useState(false)
   const [testing, setTesting] = useState(false)
+  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [campaignsDummy, setCampaignsDummy] = useState(false)
+
 
   useEffect(() => {
     if (!isAdmin) return
