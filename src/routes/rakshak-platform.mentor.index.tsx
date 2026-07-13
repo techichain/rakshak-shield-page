@@ -59,7 +59,7 @@ function MentorDashboard() {
           <br /><span className="text-brand">teams.</span>
         </h1>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link to="/rakshak-platform/mentor/availability" className="rounded-2xl border border-brand/30 bg-brand-lite p-5 hover:border-brand transition">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-brand text-brand-foreground flex items-center justify-center"><Clock className="h-5 w-5" /></div>
@@ -75,6 +75,15 @@ function MentorDashboard() {
               <div>
                 <div className="font-heading text-lg">Meetings</div>
                 <div className="text-xs text-muted-foreground">Upcoming sessions & RSVPs</div>
+              </div>
+            </div>
+          </Link>
+          <Link to="/rakshak-platform/impact" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><BarChart3 className="h-5 w-5 text-brand" /></div>
+              <div>
+                <div className="font-heading text-lg">Programme impact</div>
+                <div className="text-xs text-muted-foreground">Teams, hazards, pitches — in numbers</div>
               </div>
             </div>
           </Link>
