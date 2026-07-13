@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
-import { Loader2, UsersRound, Video, CalendarDays, BookOpen } from "lucide-react";
+import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
@@ -116,6 +116,20 @@ function TeamDashboard() {
               <div>
                 <div className="font-heading text-lg">All meetings</div>
                 <div className="text-xs text-muted-foreground">Upcoming & past sessions, RSVPs</div>
+              </div>
+            </div>
+          </Link>
+          <Link
+            to="/rakshak-platform/impact"
+            className="group rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-brand" />
+              </div>
+              <div>
+                <div className="font-heading text-lg">Programme impact</div>
+                <div className="text-xs text-muted-foreground">Teams, hazards, authority pitches — in numbers</div>
               </div>
             </div>
           </Link>
