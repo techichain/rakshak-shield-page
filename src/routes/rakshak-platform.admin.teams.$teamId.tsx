@@ -254,6 +254,8 @@ function AdminTeamDetail() {
               {[0, 1, 2, 3, 4].map((p) => {
                 const sub = data.submissions.find((s: any) => s.phase_number === p);
                 const phaseEvals = evalsByPhase.get(p) ?? [];
+                const phaseLocs = locationsByPhase.get(p) ?? [];
+                const phaseFeedback = sub ? (feedbackBySubmission.get(sub.id) ?? []) : [];
                 return (
                   <div key={p} className="rounded-2xl border border-border bg-card p-5">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -268,7 +270,6 @@ function AdminTeamDetail() {
                       </span>
                     </div>
                     {sub ? (
-
                       <>
                         {sub.summary && (
                           <p className="mt-3 text-sm whitespace-pre-line">{sub.summary}</p>
@@ -295,13 +296,52 @@ function AdminTeamDetail() {
                             </ul>
                           </div>
                         )}
-                        {(feedbackBySubmission.get(sub.id) ?? []).length > 0 && (
-                          <div className="mt-4 border-t border-border pt-3">
+                        <div className="mt-4 border-t border-border pt-3">
+                          <div className="flex items-center justify-between gap-2">
                             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                               Feedback thread
                             </div>
+                            <button
+                              onClick={() => {
+                                setRemarkOpen(remarkOpen === sub.id ? null : sub.id);
+                                setRemarkText("");
+                              }}
+                              title="Add admin remark"
+                              className="h-6 w-6 rounded-full border border-border inline-flex items-center justify-center hover:border-brand/40 hover:text-brand"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          {remarkOpen === sub.id && (
+                            <div className="mt-2 space-y-2">
+                              <textarea
+                                value={remarkText}
+                                onChange={(e) => setRemarkText(e.target.value)}
+                                maxLength={2000}
+                                rows={3}
+                                placeholder="Leave a remark for this team (does not change submission status)…"
+                                className="w-full rounded-lg border border-border bg-background p-2 text-sm"
+                              />
+                              <div className="flex gap-2">
+                                <button
+                                  disabled={remarkBusy || !remarkText.trim()}
+                                  onClick={() => submitRemark(sub.id, t.id, p)}
+                                  className="text-xs rounded-full bg-brand text-brand-foreground px-3 py-1 disabled:opacity-50"
+                                >
+                                  {remarkBusy ? "Posting…" : "Post remark"}
+                                </button>
+                                <button
+                                  onClick={() => { setRemarkOpen(null); setRemarkText(""); }}
+                                  className="text-xs rounded-full border border-border px-3 py-1"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          {phaseFeedback.length > 0 ? (
                             <ul className="mt-2 space-y-2">
-                              {(feedbackBySubmission.get(sub.id) ?? []).map((fb: any) => (
+                              {phaseFeedback.map((fb: any) => (
                                 <li key={fb.id} className="rounded-lg border border-border p-2 text-sm">
                                   <div className="text-[11px] text-muted-foreground">
                                     <span className="font-semibold text-foreground">
@@ -313,8 +353,10 @@ function AdminTeamDetail() {
                                 </li>
                               ))}
                             </ul>
-                          </div>
-                        )}
+                          ) : (
+                            <p className="mt-2 text-xs text-muted-foreground">No feedback yet.</p>
+                          )}
+                        </div>
                         {phaseEvals.length > 0 && (
                           <div className="mt-4 border-t border-border pt-3">
                             <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -361,6 +403,85 @@ function AdminTeamDetail() {
                       </>
                     ) : (
                       <p className="mt-3 text-sm text-muted-foreground">Not submitted yet.</p>
+                    )}
+                    {phaseLocs.length > 0 && (
+                      <div className="mt-5 border-t border-border pt-4">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" /> Site location{phaseLocs.length > 1 ? "s" : ""}
+                        </div>
+                        <div className="mt-3 space-y-5">
+                          {phaseLocs.map((loc: any) => {
+                            const media = photosByLocation.get(loc.id) ?? [];
+                            const lat = loc.latitude != null ? Number(loc.latitude).toFixed(5) : "—";
+                            const lng = loc.longitude != null ? Number(loc.longitude).toFixed(5) : "—";
+                            return (
+                              <div key={loc.id} className="rounded-xl border border-border p-3 bg-muted/20">
+                                <div className="flex items-start justify-between gap-2 flex-wrap">
+                                  <div>
+                                    <div className="font-semibold text-sm">{loc.location_name}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {[loc.issue_type, loc.severity].filter(Boolean).join(" · ")}
+                                    </div>
+                                  </div>
+                                  <div className="text-[11px] text-muted-foreground text-right">
+                                    <div>GPS: {lat}, {lng}</div>
+                                    <div>{[loc.city, loc.state].filter(Boolean).join(", ")}</div>
+                                  </div>
+                                </div>
+                                {loc.address && (
+                                  <div className="text-xs text-muted-foreground mt-1">{loc.address}</div>
+                                )}
+                                {loc.description && (
+                                  <p className="mt-2 text-sm whitespace-pre-line">{loc.description}</p>
+                                )}
+                                {loc.drive_link && (
+                                  <a
+                                    href={loc.drive_link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-2 inline-flex items-center gap-1 text-xs text-brand hover:underline break-all"
+                                  >
+                                    <ExternalLink className="h-3 w-3" /> Open Drive folder
+                                  </a>
+                                )}
+                                <div className="mt-3">
+                                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                    {loc.location_name} — {media.length} file{media.length === 1 ? "" : "s"}
+                                  </div>
+                                  {media.length === 0 ? (
+                                    <p className="mt-1 text-xs text-muted-foreground">No media uploaded.</p>
+                                  ) : (
+                                    <div className="mt-2 grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                                      {media.map((m: any) => {
+                                        const isVideo = typeof m.mime_type === "string" && m.mime_type.startsWith("video/");
+                                        return (
+                                          <div key={m.id} className="rounded-lg border border-border bg-card overflow-hidden">
+                                            {m.signed_url ? (
+                                              isVideo ? (
+                                                <video src={m.signed_url} controls className="w-full h-24 object-cover bg-black" />
+                                              ) : (
+                                                <a href={m.signed_url} target="_blank" rel="noopener noreferrer">
+                                                  <img src={m.signed_url} alt={m.caption ?? m.file_name}
+                                                    className="w-full h-24 object-cover" loading="lazy" />
+                                                </a>
+                                              )
+                                            ) : (
+                                              <div className="w-full h-24 bg-muted animate-pulse" />
+                                            )}
+                                            <div className="p-1.5 text-[10px] text-muted-foreground truncate" title={m.file_name}>
+                                              {m.caption || m.file_name}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
                   </div>
                 );
