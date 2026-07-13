@@ -45,6 +45,7 @@ function TeamLocationsIndex() {
     issue_type: ISSUE_TYPES[0],
     severity: "medium" as (typeof SEV)[number],
     description: "",
+    drive_link: "",
     latitude: null as number | null,
     longitude: null as number | null,
   });
