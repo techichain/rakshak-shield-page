@@ -1,15 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
-import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3 } from "lucide-react";
+import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3, ChevronDown, ChevronRight, FileText, MessageSquare, Star, FolderOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
+import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
 export const Route = createFileRoute("/rakshak-platform/team")({
   ssr: false,
@@ -25,6 +27,9 @@ function TeamDashboard() {
   const { loading, userId, isTeam } = useRPAuth();
   const [team, setTeam] = useState<any>(null);
   const [progress, setProgress] = useState<any[]>([]);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const fetchTimeline = useServerFn(getTeamPhaseTimeline);
 
   useEffect(() => {
     if (loading) return;
@@ -44,9 +49,23 @@ function TeamDashboard() {
           .eq("team_id", t.id)
           .order("phase_number");
         setProgress(p ?? []);
+        try {
+          const res = await fetchTimeline({ data: { team_id: t.id } } as any) as any;
+          setTimeline(res?.phases ?? []);
+        } catch {
+          // ignore — timeline is enrichment, page still renders
+        }
       }
     })();
-  }, [loading, userId, isTeam, navigate]);
+  }, [loading, userId, isTeam, navigate, fetchTimeline]);
+
+  const togglePhase = (n: number) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n); else next.add(n);
+      return next;
+    });
+  };
 
   if (loading) {
     return (
@@ -139,20 +158,108 @@ function TeamDashboard() {
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-7">
             <h2 className="font-heading text-xl font-semibold">Phase timeline</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Click any phase to expand submission, feedback and evaluator scores.</p>
             <div className="mt-6 space-y-3">
               {[0,1,2,3,4].map((p) => {
                 const row = progress.find((x) => x.phase_number === p);
                 const meta = row ? STATUS_META[row.status as keyof typeof STATUS_META] : STATUS_META.not_started;
+                const tl = timeline.find((x) => x.phase_number === p);
+                const isOpen = expanded.has(p);
                 return (
-                  <div key={p} className={`flex items-center gap-4 p-4 rounded-xl border ${p === team.current_phase ? "border-brand bg-brand-lite" : "border-border"}`}>
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center font-heading font-bold ${p < team.current_phase ? "bg-brand text-brand-foreground" : p === team.current_phase ? "bg-brand text-brand-foreground" : "bg-muted text-muted-foreground"}`}>
-                      {p}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold">{PHASE_TITLES[p]}</div>
-                      <div className="text-xs text-muted-foreground">{row?.completion_percentage ?? 0}% complete</div>
-                    </div>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${meta.tone}`}>{meta.label}</span>
+                  <div key={p} className={`rounded-xl border ${p === team.current_phase ? "border-brand bg-brand-lite" : "border-border"}`}>
+                    <button
+                      type="button"
+                      onClick={() => togglePhase(p)}
+                      className="w-full flex items-center gap-4 p-4 text-left hover:bg-muted/40 rounded-xl transition"
+                      aria-expanded={isOpen}
+                    >
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center font-heading font-bold ${p < team.current_phase ? "bg-brand text-brand-foreground" : p === team.current_phase ? "bg-brand text-brand-foreground" : "bg-muted text-muted-foreground"}`}>
+                        {p}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold">{PHASE_TITLES[p]}</div>
+                        <div className="text-xs text-muted-foreground">{row?.completion_percentage ?? 0}% complete</div>
+                      </div>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${meta.tone}`}>{meta.label}</span>
+                      {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                    </button>
+                    {isOpen && (
+                      <div className="border-t border-border/70 p-4 space-y-4 text-sm">
+                        {/* Submission */}
+                        <div>
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                            <FileText className="h-3.5 w-3.5" /> Submission
+                          </div>
+                          {tl?.submission ? (
+                            <div className="mt-1">
+                              <div className="font-medium">{tl.submission.title ?? "Untitled submission"}</div>
+                              <div className="text-xs text-muted-foreground">
+                                Status: {tl.submission.status} · Submitted: {tl.submission.submitted_at ? new Date(tl.submission.submitted_at).toLocaleString() : "not yet submitted"}
+                              </div>
+                              {tl.submission.summary && (
+                                <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap line-clamp-4">{tl.submission.summary}</p>
+                              )}
+                              <Link
+                                to="/rakshak-platform/team/phases/$phase"
+                                params={{ phase: String(p) }}
+                                className="text-xs text-brand hover:underline mt-1 inline-block"
+                              >
+                                Open full phase →
+                              </Link>
+                            </div>
+                          ) : (
+                            <p className="mt-1 text-xs text-muted-foreground">Nothing here yet.</p>
+                          )}
+                        </div>
+
+                        {/* Evaluator scores */}
+                        <div>
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5" /> Evaluator scores
+                          </div>
+                          {tl?.evaluations?.length ? (
+                            <ul className="mt-1 space-y-1">
+                              {tl.evaluations.map((ev: any) => (
+                                <li key={ev.id} className="flex items-center justify-between gap-2">
+                                  <span>
+                                    {ev.evaluator?.full_name ?? "Evaluator"}
+                                    <span className="text-muted-foreground"> · {ev.status}</span>
+                                  </span>
+                                  <span className="font-medium">
+                                    {ev.weighted_score ?? ev.total_score ?? "—"}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="mt-1 text-xs text-muted-foreground">Nothing here yet.</p>
+                          )}
+                        </div>
+
+                        {/* Feedback (mentor + evaluator + admin) */}
+                        <div>
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+                            <MessageSquare className="h-3.5 w-3.5" /> Comments & remarks
+                          </div>
+                          {tl?.feedback?.length ? (
+                            <ul className="mt-1 space-y-2">
+                              {tl.feedback.map((f: any) => (
+                                <li key={f.id} className="border-l-2 border-border pl-3">
+                                  <div className="text-xs text-muted-foreground">
+                                    <span className="font-medium text-foreground">{f.rp_profiles?.full_name ?? "Reviewer"}</span>
+                                    {" · "}<span className="uppercase">{f.reviewer_role}</span>
+                                    {" · "}{new Date(f.created_at).toLocaleString()}
+                                  </div>
+                                  <div className="whitespace-pre-wrap">{f.feedback_text}</div>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="mt-1 text-xs text-muted-foreground">Nothing here yet.</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -180,8 +287,30 @@ function TeamDashboard() {
           </div>
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <RecentMeetingNotesCard />
+          <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-6">
+            <div className="flex items-center gap-2">
+              <FolderOpen className="h-5 w-5 text-muted-foreground" />
+              <h2 className="font-heading text-lg font-semibold">Resources from admin</h2>
+              <span className="ml-auto text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border border-border text-muted-foreground">Preview</span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Not yet available — admins will be able to share phase resources (briefs, rubrics, templates, case studies) here.
+            </p>
+            <ul className="mt-3 space-y-2">
+              {[
+                { title: "Programme handbook (PDF)", note: "Placeholder" },
+                { title: "Phase rubric & scoring guide", note: "Placeholder" },
+                { title: "Sample authority-facing report", note: "Placeholder" },
+              ].map((r) => (
+                <li key={r.title} className="rounded-lg border border-border/70 bg-card p-3 flex items-center justify-between opacity-70">
+                  <span className="text-sm">{r.title}</span>
+                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{r.note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </Section>
     </PlatformShell>
