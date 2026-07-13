@@ -13,6 +13,7 @@ import {
   notifyMeetingConfirmed,
   listMentorPendingBookings,
   respondToMentorBooking,
+  createMentorAllTeamsMeeting,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ function MeetingsPage() {
   const qc = useQueryClient();
   const list = useServerFn(listMyMeetings);
   const create = useServerFn(createMeeting);
+  const createAllTeams = useServerFn(createMentorAllTeamsMeeting);
   const cancel = useServerFn(cancelMeeting);
   const rsvp = useServerFn(rsvpMeeting);
   const reschedule = useServerFn(rescheduleMeeting);
@@ -81,6 +83,8 @@ function MeetingsPage() {
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
+  const [isMentor, setIsMentor] = useState(false);
+  const [myTeamsAsMentor, setMyTeamsAsMentor] = useState<any[]>([]);
   const [pendingBusy, setPendingBusy] = useState<string | null>(null);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
@@ -98,6 +102,17 @@ function MeetingsPage() {
         const rs = (roles ?? []).map((r: any) => r.role);
         const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
+        const mentor = rs.includes("mentor");
+        setIsMentor(mentor);
+        if (mentor) {
+          const { data: mrow } = await supabase
+            .from("rp_mentors").select("id").eq("profile_id", uid).maybeSingle();
+          if (mrow?.id) {
+            const { data: mteams } = await supabase
+              .from("rp_teams").select("id, team_name").eq("assigned_mentor_id", mrow.id);
+            setMyTeamsAsMentor(mteams ?? []);
+          }
+        }
       }
     });
   }, []);
@@ -128,6 +143,28 @@ function MeetingsPage() {
     const form = e.currentTarget;
     const fd = new FormData(form);
     try {
+      const teamIdRaw = needsTeam ? String(fd.get("team_id") || "") : "";
+      const isAllTeamsMentor =
+        isMentor && type === "team_mentor" && teamIdRaw === "__all__";
+
+      if (isAllTeamsMentor) {
+        const res = await createAllTeams({
+          data: {
+            title: String(fd.get("title")),
+            agenda: String(fd.get("agenda") || ""),
+            scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
+            scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
+          },
+        });
+        form.reset();
+        setExtraEmailsText("");
+        qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+        toast.success(
+          `Meeting scheduled — invites sent to ${res.attendees_count} people across ${res.teams_count} teams`,
+        );
+        return;
+      }
+
       const extraEmails = extraEmailsText
         .split(/[,\n;]+/)
         .map((s) => s.trim())
@@ -139,7 +176,7 @@ function MeetingsPage() {
       }
       await create({
         data: {
-          team_id: needsTeam ? String(fd.get("team_id")) : null,
+          team_id: needsTeam ? teamIdRaw : null,
           meeting_type: type as any,
           title: String(fd.get("title")),
           agenda: String(fd.get("agenda") || ""),
@@ -366,6 +403,11 @@ function MeetingsPage() {
               {needsTeam ? (
                 <select name="team_id" required className="rp-input">
                   <option value="">Team…</option>
+                  {isMentor && type === "team_mentor" && myTeamsAsMentor.length > 0 && (
+                    <option value="__all__">
+                      All my teams ({myTeamsAsMentor.length})
+                    </option>
+                  )}
                   {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
                 </select>
               ) : (
