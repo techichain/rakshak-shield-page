@@ -5,7 +5,7 @@ import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap, type MapMarker } from "@/components/rakshak-platform/LocationMap";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
-import { MapPin, Plus, Star, ChevronRight } from "lucide-react";
+import { MapPin, Plus, Star, ChevronRight, Crosshair } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/")({
   ssr: false,
