@@ -403,6 +403,11 @@ function MeetingsPage() {
               {needsTeam ? (
                 <select name="team_id" required className="rp-input">
                   <option value="">Team…</option>
+                  {isMentor && type === "team_mentor" && myTeamsAsMentor.length > 0 && (
+                    <option value="__all__">
+                      All my teams ({myTeamsAsMentor.length})
+                    </option>
+                  )}
                   {teams.map((t) => <option key={t.id} value={t.id}>{t.team_name}</option>)}
                 </select>
               ) : (
