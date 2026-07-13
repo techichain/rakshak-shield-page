@@ -7,6 +7,7 @@ import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
 import { setMeetingNotes } from "@/lib/rakshak-platform/meetings.functions";
 import { listTeamReports } from "@/lib/rakshak-platform/authority.functions";
+import { updateLocationHazardParams } from "@/lib/rakshak-platform/locations.functions";
 import {
   createQuestionnaire,
   listQuestionnairesForTeam,
