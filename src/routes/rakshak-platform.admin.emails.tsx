@@ -84,9 +84,25 @@ function MassEmailComposer() {
   useEffect(() => {
     if (!isAdmin) return
     loadScopes({}).then(setScopes).catch(() => toast.error('Failed to load cohorts/teams'))
-  }, [isAdmin, loadScopes])
+    loadCampaigns({})
+      .then((r: any) => {
+        const rows = r?.campaigns ?? []
+        if (rows.length === 0) {
+          setCampaigns(DUMMY_CAMPAIGNS)
+          setCampaignsDummy(true)
+        } else {
+          setCampaigns(rows)
+          setCampaignsDummy(false)
+        }
+      })
+      .catch(() => {
+        setCampaigns(DUMMY_CAMPAIGNS)
+        setCampaignsDummy(true)
+      })
+  }, [isAdmin, loadScopes, loadCampaigns])
 
   useEffect(() => { setPreview(null) }, [audienceType, cohortId, teamId, customEmails])
+
 
   const audience = useMemo(() => {
     const base: any = { type: audienceType }
