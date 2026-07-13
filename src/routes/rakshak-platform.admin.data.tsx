@@ -24,9 +24,8 @@ const DATASETS = [
   { id: "teams",        label: "Teams",        desc: "All teams with phase, score, status." },
   { id: "submissions",  label: "Submissions",  desc: "Phase submissions with review state." },
   { id: "locations",    label: "Locations",    desc: "Audited locations with coordinates." },
-  { id: "finance",      label: "Finance",      desc: "Ledger of inflows and expenses." },
-  { id: "sponsorships", label: "Sponsorships", desc: "Pledges with status and tier." },
 ] as const;
+
 
 type Row = { team_name: string; college?: string; city?: string; state?: string };
 

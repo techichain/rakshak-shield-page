@@ -99,7 +99,6 @@ import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rak
 import { Route as RakshakPlatformMeetingsIcsMeetingIdRouteImport } from './routes/rakshak-platform.meetings.ics.$meetingId'
 import { Route as RakshakPlatformAdminTeamsTeamIdRouteImport } from './routes/rakshak-platform.admin.teams.$teamId'
 import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
-import { Route as RakshakPlatformAdminEmailsLogRouteImport } from './routes/rakshak-platform.admin.emails.log'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -618,12 +617,6 @@ const RakshakPlatformAdminPrintDatasetRoute =
     path: '/print/$dataset',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminEmailsLogRoute =
-  RakshakPlatformAdminEmailsLogRouteImport.update({
-    id: '/log',
-    path: '/log',
-    getParentRoute: () => RakshakPlatformAdminEmailsRoute,
-  } as any)
 const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
@@ -735,7 +728,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
-  '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRouteWithChildren
+  '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
@@ -778,7 +771,6 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
-  '/rakshak-platform/admin/emails/log': typeof RakshakPlatformAdminEmailsLogRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
@@ -829,7 +821,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
-  '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRouteWithChildren
+  '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
@@ -870,7 +862,6 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
-  '/rakshak-platform/admin/emails/log': typeof RakshakPlatformAdminEmailsLogRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
@@ -931,7 +922,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
-  '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRouteWithChildren
+  '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
@@ -974,7 +965,6 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
-  '/rakshak-platform/admin/emails/log': typeof RakshakPlatformAdminEmailsLogRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
@@ -1079,7 +1069,6 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
-    | '/rakshak-platform/admin/emails/log'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
     | '/rakshak-platform/meetings/ics/$meetingId'
@@ -1171,7 +1160,6 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
-    | '/rakshak-platform/admin/emails/log'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
     | '/rakshak-platform/meetings/ics/$meetingId'
@@ -1274,7 +1262,6 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
-    | '/rakshak-platform/admin/emails/log'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
     | '/rakshak-platform/meetings/ics/$meetingId'
@@ -1940,13 +1927,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminPrintDatasetRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/emails/log': {
-      id: '/rakshak-platform/admin/emails/log'
-      path: '/log'
-      fullPath: '/rakshak-platform/admin/emails/log'
-      preLoaderRoute: typeof RakshakPlatformAdminEmailsLogRouteImport
-      parentRoute: typeof RakshakPlatformAdminEmailsRoute
-    }
     '/lovable/email/transactional/send': {
       id: '/lovable/email/transactional/send'
       path: '/lovable/email/transactional/send'
@@ -2117,26 +2097,12 @@ const RakshakMentorRouteWithChildren = RakshakMentorRoute._addFileChildren(
   RakshakMentorRouteChildren,
 )
 
-interface RakshakPlatformAdminEmailsRouteChildren {
-  RakshakPlatformAdminEmailsLogRoute: typeof RakshakPlatformAdminEmailsLogRoute
-}
-
-const RakshakPlatformAdminEmailsRouteChildren: RakshakPlatformAdminEmailsRouteChildren =
-  {
-    RakshakPlatformAdminEmailsLogRoute: RakshakPlatformAdminEmailsLogRoute,
-  }
-
-const RakshakPlatformAdminEmailsRouteWithChildren =
-  RakshakPlatformAdminEmailsRoute._addFileChildren(
-    RakshakPlatformAdminEmailsRouteChildren,
-  )
-
 interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminAccessRequestsRoute: typeof RakshakPlatformAdminAccessRequestsRoute
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
   RakshakPlatformAdminDataRoute: typeof RakshakPlatformAdminDataRoute
-  RakshakPlatformAdminEmailsRoute: typeof RakshakPlatformAdminEmailsRouteWithChildren
+  RakshakPlatformAdminEmailsRoute: typeof RakshakPlatformAdminEmailsRoute
   RakshakPlatformAdminEvaluatorLeaderboardRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   RakshakPlatformAdminIntegrationsRoute: typeof RakshakPlatformAdminIntegrationsRoute
   RakshakPlatformAdminMeetingsRoute: typeof RakshakPlatformAdminMeetingsRoute
@@ -2156,7 +2122,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
   RakshakPlatformAdminDataRoute: RakshakPlatformAdminDataRoute,
-  RakshakPlatformAdminEmailsRoute: RakshakPlatformAdminEmailsRouteWithChildren,
+  RakshakPlatformAdminEmailsRoute: RakshakPlatformAdminEmailsRoute,
   RakshakPlatformAdminEvaluatorLeaderboardRoute:
     RakshakPlatformAdminEvaluatorLeaderboardRoute,
   RakshakPlatformAdminIntegrationsRoute: RakshakPlatformAdminIntegrationsRoute,
