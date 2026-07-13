@@ -158,6 +158,10 @@ function ScoringPage() {
               </div>
             )}
 
+            <SiteEvidencePanel locations={(data as any).locations ?? []} />
+            <AnnexurePanel />
+
+
             <div className="mt-8">
               <MessageThread submissionId={submissionId} currentUserId={userId} />
             </div>
