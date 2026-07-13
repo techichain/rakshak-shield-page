@@ -80,10 +80,19 @@ function EvaluatorQueue() {
   return (
     <PlatformShell>
       <Section className="!py-10 lg:!py-12">
-        <Eyebrow>Evaluator workspace</Eyebrow>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <Eyebrow>Evaluator workspace</Eyebrow>
+          <Link
+            to="/rakshak-platform/evaluator/reports"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
+          >
+            Browse all reports <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
         <h1 className="mt-4 font-heading text-3xl sm:text-4xl font-bold leading-[1.1]">
           Submissions awaiting <span className="text-brand">your score.</span>
         </h1>
+
 
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <Stat label="To review" value={pending.length} icon={<FileEdit className="h-4 w-4" />} tone="amber" />
