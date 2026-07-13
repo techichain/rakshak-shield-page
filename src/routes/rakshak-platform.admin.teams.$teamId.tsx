@@ -544,6 +544,128 @@ function AdminTeamDetail() {
                         </div>
                       </div>
                     )}
+
+                    <div className="mt-5 border-t border-border pt-4">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+                          <ClipboardList className="h-3.5 w-3.5" /> Questionnaires
+                        </div>
+                        <button
+                          onClick={() => openQuestionnaire(p)}
+                          className="text-xs rounded-full border border-border px-3 py-1 inline-flex items-center gap-1 hover:border-brand/40 hover:text-brand"
+                        >
+                          <Plus className="h-3 w-3" /> Post questionnaire
+                        </button>
+                      </div>
+
+                      {qOpenPhase === p && (
+                        <div className="mt-3 space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+                          <input
+                            value={qTitle}
+                            onChange={(e) => setQTitle(e.target.value)}
+                            maxLength={240}
+                            placeholder="Questionnaire title (e.g. Site visit debrief)"
+                            className="w-full rounded-lg border border-border bg-background p-2 text-sm"
+                          />
+                          <div className="space-y-2">
+                            {qQuestions.map((q, i) => (
+                              <div key={i} className="flex gap-2">
+                                <input
+                                  value={q}
+                                  onChange={(e) => {
+                                    const next = qQuestions.slice();
+                                    next[i] = e.target.value;
+                                    setQQuestions(next);
+                                  }}
+                                  maxLength={1000}
+                                  placeholder={`Question ${i + 1}`}
+                                  className="flex-1 rounded-lg border border-border bg-background p-2 text-sm"
+                                />
+                                {qQuestions.length > 1 && (
+                                  <button
+                                    onClick={() =>
+                                      setQQuestions(qQuestions.filter((_, j) => j !== i))
+                                    }
+                                    className="h-8 w-8 rounded-full border border-border inline-flex items-center justify-center text-muted-foreground hover:text-red-600"
+                                    title="Remove question"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                            <button
+                              onClick={() => setQQuestions([...qQuestions, ""])}
+                              className="text-xs rounded-full border border-border px-3 py-1 inline-flex items-center gap-1 hover:border-brand/40 hover:text-brand"
+                            >
+                              <Plus className="h-3 w-3" /> Add question
+                            </button>
+                          </div>
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              disabled={qBusy || !qTitle.trim() || qQuestions.every((s) => !s.trim())}
+                              onClick={() => submitQuestionnaire(p)}
+                              className="text-xs rounded-full bg-brand text-brand-foreground px-3 py-1 inline-flex items-center gap-1 disabled:opacity-50"
+                            >
+                              <Send className="h-3 w-3" /> {qBusy ? "Posting…" : "Post to team"}
+                            </button>
+                            <button
+                              onClick={() => setQOpenPhase(null)}
+                              className="text-xs rounded-full border border-border px-3 py-1"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {phaseQs.length === 0 ? (
+                        <p className="mt-2 text-xs text-muted-foreground">No questionnaires yet.</p>
+                      ) : (
+                        <ul className="mt-3 space-y-3">
+                          {phaseQs.map((q: any) => (
+                            <li key={q.id} className="rounded-lg border border-border p-3 text-sm">
+                              <div className="font-semibold">{q.title}</div>
+                              <ol className="mt-1 list-decimal list-inside text-xs text-muted-foreground space-y-0.5">
+                                {(q.questions ?? []).map((qq: string, i: number) => (
+                                  <li key={i}>{qq}</li>
+                                ))}
+                              </ol>
+                              <div className="mt-2 text-[11px] text-muted-foreground">
+                                {q.responses.length === 0
+                                  ? "No responses yet."
+                                  : `${q.responses.length} response${q.responses.length === 1 ? "" : "s"}`}
+                              </div>
+                              {q.responses.length > 0 && (
+                                <ul className="mt-2 space-y-2">
+                                  {q.responses.map((r: any) => (
+                                    <li key={r.id} className="rounded-md border border-border p-2 bg-muted/20">
+                                      <div className="text-[11px] text-muted-foreground">
+                                        <span className="font-semibold text-foreground">
+                                          {r.rp_profiles?.full_name ?? "Team member"}
+                                        </span>
+                                        {" · "}
+                                        {new Date(r.submitted_at).toLocaleString()}
+                                      </div>
+                                      <ol className="mt-1 space-y-1 text-xs">
+                                        {(q.questions ?? []).map((qq: string, i: number) => (
+                                          <li key={i}>
+                                            <span className="text-muted-foreground">{qq}</span>
+                                            <div className="whitespace-pre-line">
+                                              {(r.answers?.[i] ?? "").toString().trim() || "—"}
+                                            </div>
+                                          </li>
+                                        ))}
+                                      </ol>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 );
               })}
