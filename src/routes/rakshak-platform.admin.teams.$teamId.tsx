@@ -17,6 +17,9 @@ import {
   BookOpen,
   Check,
   X,
+  Plus,
+  MapPin,
+  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/teams/$teamId")({
