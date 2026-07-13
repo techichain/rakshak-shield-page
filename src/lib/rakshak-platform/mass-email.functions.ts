@@ -94,7 +94,7 @@ async function resolve(
     if ((audience.type === 'team_members') && teamRows.length) {
       const { data } = await admin
         .from('rp_team_members')
-        .select('team_id, email, name, profile_id')
+        .select('team_id, email, full_name, profile_id')
         .in('team_id', teamRows.map((t) => t.id))
       members = data ?? []
     }
@@ -125,7 +125,7 @@ async function resolve(
       }
       if (audience.type === 'team_members') {
         for (const m of members.filter((x) => x.team_id === t.id)) {
-          if (m.email) push({ email: m.email, name: m.name || 'Team member', team_name: t.team_name, cohort_name })
+          if (m.email) push({ email: m.email, name: m.full_name || 'Team member', team_name: t.team_name, cohort_name })
         }
       }
     }
@@ -136,7 +136,7 @@ async function resolve(
       if (mentorIds.length) {
         const { data: mentors } = await admin
           .from('rp_mentors')
-          .select('id, profile_id, name')
+          .select('id, profile_id, rp_profiles:profile_id(full_name)')
           .in('id', mentorIds)
         for (const m of mentors ?? []) if (m.profile_id) mentorProfileIds.add(m.profile_id)
         const mentorByTeamId = new Map<string, any>()
@@ -149,7 +149,8 @@ async function resolve(
           if (m?.profile_id) {
             try {
               const { data } = await admin.auth.admin.getUserById(m.profile_id)
-              if (data?.user?.email) push({ email: data.user.email, name: m.name || 'Mentor', team_name: t.team_name, cohort_name: t.rp_cohorts?.name })
+              const mentorName = (m as any).rp_profiles?.full_name || 'Mentor'
+              if (data?.user?.email) push({ email: data.user.email, name: mentorName, team_name: t.team_name, cohort_name: t.rp_cohorts?.name })
             } catch { /* ignore */ }
           }
         }
@@ -159,12 +160,15 @@ async function resolve(
   }
 
   if (audience.type === 'all_mentors') {
-    const { data: mentors } = await admin.from('rp_mentors').select('profile_id, name')
+    const { data: mentors } = await admin
+      .from('rp_mentors')
+      .select('profile_id, rp_profiles:profile_id(full_name)')
     for (const m of mentors ?? []) {
       if (!m.profile_id) continue
       try {
         const { data } = await admin.auth.admin.getUserById(m.profile_id)
-        if (data?.user?.email) push({ email: data.user.email, name: m.name || 'Mentor' })
+        const mentorName = (m as any).rp_profiles?.full_name || 'Mentor'
+        if (data?.user?.email) push({ email: data.user.email, name: mentorName })
       } catch { /* ignore */ }
     }
     return out.slice(0, MAX_RECIPIENTS)
