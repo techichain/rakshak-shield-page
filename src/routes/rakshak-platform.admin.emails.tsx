@@ -56,6 +56,8 @@ function MassEmailComposer() {
   const doPreview = useServerFn(previewMassEmailAudience)
   const doSend = useServerFn(sendMassEmail)
   const doTest = useServerFn(sendMassEmailTest)
+  const loadCampaigns = useServerFn(listMassEmailCampaigns)
+
 
   const [scopes, setScopes] = useState<{ cohorts: any[]; teams: any[] }>({ cohorts: [], teams: [] })
   const [template, setTemplate] = useState<'admin-deadline-team' | 'admin-deadline-mentor' | 'admin-deadline-evaluator'>('admin-deadline-team')
