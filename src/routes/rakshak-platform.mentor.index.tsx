@@ -122,9 +122,6 @@ function MentorDashboard() {
 
 
 
-        <div className="mt-12">
-          <MentorCreateTeamPanel />
-        </div>
 
         <div className="mt-16 border-t border-border pt-12">
           <ReviewPanel role="mentor" />
