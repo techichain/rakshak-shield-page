@@ -5,6 +5,7 @@ import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin-teams.functions";
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
+import { setMeetingNotes } from "@/lib/rakshak-platform/meetings.functions";
 import { listTeamReports } from "@/lib/rakshak-platform/authority.functions";
 import {
   createQuestionnaire,
