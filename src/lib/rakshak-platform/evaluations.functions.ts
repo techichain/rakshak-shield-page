@@ -110,6 +110,9 @@ export const getLeaderboard = createServerFn({ method: "GET" })
  * Evaluator queue: submissions that need scoring.
  * - If the signed-in user is assigned as the team's evaluator → those teams' submissions
  * - Plus any submission that has reached mentor_approved or under_admin_review and is not yet evaluated by this user
+ *
+ * BLIND REVIEW: Do not select or expose `college` here — evaluators must not see it,
+ * to reduce institutional bias. Only team_name / phase / city / state may surface.
  */
 export const getEvaluatorQueue = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
