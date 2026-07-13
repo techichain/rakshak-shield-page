@@ -122,6 +122,23 @@ function AnalyticsPage() {
   const [busy, setBusy] = useState(true);
   const [usingDummy, setUsingDummy] = useState(false);
 
+  const loadSettings = useServerFn(getAnalyticsSettings);
+  const saveSettings = useServerFn(updateAnalyticsSettings);
+  const [hazardStates, setHazardStates] = useState<string[] | null>(null);
+  const [hazardSeverities, setHazardSeverities] = useState<string[] | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  useEffect(() => {
+    if (loading || !isAdmin) return;
+    loadSettings({})
+      .then((s: any) => {
+        setHazardStates(s?.hazard_states ?? null);
+        setHazardSeverities(s?.hazard_severities ?? null);
+      })
+      .catch(() => { /* keep defaults (null = show all) */ });
+  }, [loading, isAdmin, loadSettings]);
+
+
   useEffect(() => {
     if (loading) return;
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
