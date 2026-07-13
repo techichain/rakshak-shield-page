@@ -24,7 +24,7 @@ function toFilters(s: { cohortId?: string; phase?: string; from?: string; to?: s
   };
 }
 
-export const Route = createFileRoute("/rakshak-platform/leaderboard/print")({
+export const Route = createFileRoute("/rakshak-platform/leaderboard_/print")({
   validateSearch: zodValidator(search),
   loaderDeps: ({ search: s }) => ({ cohortId: s.cohortId, phase: s.phase, from: s.from, to: s.to }),
   loader: ({ context, deps }) => {
