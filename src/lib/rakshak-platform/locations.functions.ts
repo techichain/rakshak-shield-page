@@ -26,6 +26,7 @@ const ALLOWED_SEVERITY = new Set(["low", "medium", "high", "critical"]);
  * after reviewing the team's evidence (GPS + photos/videos).
  */
 export const updateLocationHazardParams = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { location_id: string; state?: string | null; severity?: string | null }) => {
     if (!data?.location_id || typeof data.location_id !== "string") {
       throw new Error("location_id required");
@@ -37,19 +38,11 @@ export const updateLocationHazardParams = createServerFn({ method: "POST" })
     }
     return { location_id: data.location_id, state, severity };
   })
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", { _user_id: context.userId });
+    if (!isAdmin) throw new Error("Admin only");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { getRequestHeader } = await import("@tanstack/react-start/server");
-    const authHeader = getRequestHeader("authorization") ?? getRequestHeader("Authorization");
-    const token = authHeader?.replace(/^Bearer\s+/i, "");
-    if (!token) throw new Error("Unauthorized");
-    const { data: userRes, error: userErr } = await supabaseAdmin.auth.getUser(token);
-    if (userErr || !userRes.user) throw new Error("Unauthorized");
-    const { data: isAdmin, error: roleErr } = await supabaseAdmin.rpc("rp_is_admin", { _user: userRes.user.id });
-    if (roleErr) throw roleErr;
-    if (!isAdmin) throw new Error("Forbidden");
-
-    const patch: Record<string, any> = {};
+    const patch: { state?: string | null; severity?: string | null } = {};
     if (data.state !== undefined) patch.state = data.state;
     if (data.severity !== undefined) patch.severity = data.severity;
     const { error } = await supabaseAdmin
@@ -59,4 +52,5 @@ export const updateLocationHazardParams = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
 
