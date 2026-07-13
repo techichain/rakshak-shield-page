@@ -35,6 +35,9 @@ function TeamLocationsIndex() {
   const [team, setTeam] = useState<any>(null);
   const [locs, setLocs] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [activePhase, setActivePhase] = useState<number | null>(null);
+  const [geoBusy, setGeoBusy] = useState(false);
+  const [geoErr, setGeoErr] = useState<string | null>(null);
 
   // form state
   const [form, setForm] = useState({
