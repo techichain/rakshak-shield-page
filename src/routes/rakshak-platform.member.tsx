@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
+import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 
 export const Route = createFileRoute("/rakshak-platform/member")({
