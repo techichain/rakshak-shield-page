@@ -59,7 +59,7 @@ export const getMentorTeamDetail = createServerFn({ method: "GET" })
     const [members, progress, submissions, feedback, files, meetings, evaluations, locations] = await Promise.all([
       supabaseAdmin
         .from("rp_team_members")
-        .select("id, full_name, email, role_in_team, phone, profile_id, joined_at")
+        .select("id, full_name, email, role_in_team, phone, profile_id, created_at")
         .eq("team_id", data.team_id)
         .order("full_name"),
       supabaseAdmin
