@@ -1578,6 +1578,7 @@ export type Database = {
           city: string | null
           created_at: string
           description: string | null
+          drive_link: string | null
           id: string
           is_final_selected: boolean
           issue_type: string | null
@@ -1599,6 +1600,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           description?: string | null
+          drive_link?: string | null
           id?: string
           is_final_selected?: boolean
           issue_type?: string | null
@@ -1620,6 +1622,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           description?: string | null
+          drive_link?: string | null
           id?: string
           is_final_selected?: boolean
           issue_type?: string | null
