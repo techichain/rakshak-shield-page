@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
@@ -12,10 +12,15 @@ import {
   attachSubmissionFile,
   removeSubmissionFile,
 } from "@/lib/rakshak-platform/submissions.functions";
+import {
+  listQuestionnairesForTeam,
+  submitQuestionnaireResponse,
+} from "@/lib/rakshak-platform/questionnaires.functions";
 import { PHASE_TITLES, STATUS_META, type PhaseStatus } from "@/lib/rakshak-platform/constants";
-import { ArrowLeft, Upload, Save, Send, X, FileText, MessageSquare } from "lucide-react";
+import { ArrowLeft, Upload, Save, Send, X, FileText, MessageSquare, ClipboardList } from "lucide-react";
 import { SubmissionTimeline } from "@/components/rakshak-platform/SubmissionTimeline";
 import { rpRequireRole } from "@/lib/rakshak-platform/auth";
+import { useRPAuth } from "@/lib/rakshak-platform/auth";
 
 const SearchSchema = z.object({ team: z.string().uuid() });
 
