@@ -552,8 +552,22 @@ export const adminReviewSubmission = createServerFn({ method: "POST" })
     }));
     if (rows.length) await context.supabase.from("rp_notifications").insert(rows);
 
+    // Best-effort WhatsApp notify (inert until credentials configured)
+    try {
+      const { notifyTeamWhatsApp } = await import("./whatsapp.server");
+      const body = approve
+        ? sub.phase_number < 4
+          ? `Congrats! Phase ${sub.phase_number} approved for ${teamName}. Phase ${sub.phase_number + 1} is now unlocked.`
+          : `Congrats! Phase 4 approved for ${teamName}. Project complete.`
+        : `Admin requested changes on Phase ${sub.phase_number} for ${teamName}.${data.comment ? ` ${data.comment.slice(0, 200)}` : ""}`;
+      await notifyTeamWhatsApp({ team_id: sub.team_id, body });
+    } catch (e) {
+      console.error("[adminReviewSubmission] whatsapp notify failed", e);
+    }
+
     return { ok: true, status: newStatus };
   });
+
 
 // List pending submissions for the current mentor (status submitted/resubmitted/under_mentor_review)
 export const listMentorPendingReviews = createServerFn({ method: "GET" })
