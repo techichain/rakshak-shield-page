@@ -92,6 +92,24 @@ function AdminTeamDetail() {
     }
   }
 
+  async function submitRemark(submissionId: string, teamIdArg: string, phase: number) {
+    const text = remarkText.trim();
+    if (!text) return;
+    setRemarkBusy(true);
+    try {
+      await postRemark({
+        data: { submission_id: submissionId, team_id: teamIdArg, phase_number: phase, remark: text },
+      } as any);
+      setRemarkOpen(null);
+      setRemarkText("");
+      setReloadKey((k) => k + 1);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setRemarkBusy(false);
+    }
+  }
+
   if (busy) {
     return (
       <PlatformShell>
