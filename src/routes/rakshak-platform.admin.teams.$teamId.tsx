@@ -55,6 +55,7 @@ function AdminTeamDetail() {
   const fetchDetail = useServerFn(getAdminTeamDetail);
   const adminReview = useServerFn(adminReviewSubmission);
   const postRemark = useServerFn(addAdminRemark);
+  const saveMeetingNotes = useServerFn(setMeetingNotes);
   const fetchReports = useServerFn(listTeamReports);
   const fetchQuestionnaires = useServerFn(listQuestionnairesForTeam);
   const postQuestionnaire = useServerFn(createQuestionnaire);
