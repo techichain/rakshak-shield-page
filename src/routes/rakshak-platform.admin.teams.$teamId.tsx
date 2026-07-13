@@ -1001,3 +1001,86 @@ function StakeholderReports({ reports }: { reports: any[] }) {
     </div>
   );
 }
+
+function HazardEditor({
+  location,
+  onSave,
+}: {
+  location: any;
+  onSave: (state: string | null, severity: string | null) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState<string>(location.state ?? "");
+  const [severity, setSeverity] = useState<string>(location.severity ?? "");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function save() {
+    setBusy(true);
+    setErr(null);
+    try {
+      await onSave(state.trim() || null, severity || null);
+      setOpen(false);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 rounded-lg border border-dashed border-border p-2">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="text-[11px] text-muted-foreground">
+          Hazard classification —{" "}
+          <span className="font-semibold text-foreground">state:</span>{" "}
+          {location.state ?? "—"}{" "}
+          · <span className="font-semibold text-foreground">severity:</span>{" "}
+          {location.severity ?? "—"}
+        </div>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="text-[11px] rounded-full border border-border px-2 py-0.5 hover:border-brand/40 hover:text-brand"
+        >
+          {open ? "Cancel" : "Edit"}
+        </button>
+      </div>
+      {open && (
+        <div className="mt-2 flex flex-wrap items-end gap-2">
+          <label className="flex flex-col text-[11px] text-muted-foreground">
+            State
+            <input
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              maxLength={120}
+              className="mt-0.5 rounded-md border border-border bg-background px-2 py-1 text-sm"
+              placeholder="e.g. Karnataka"
+            />
+          </label>
+          <label className="flex flex-col text-[11px] text-muted-foreground">
+            Severity
+            <select
+              value={severity}
+              onChange={(e) => setSeverity(e.target.value)}
+              className="mt-0.5 rounded-md border border-border bg-background px-2 py-1 text-sm"
+            >
+              <option value="">—</option>
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">high</option>
+              <option value="critical">critical</option>
+            </select>
+          </label>
+          <button
+            disabled={busy}
+            onClick={save}
+            className="text-xs rounded-full bg-brand text-brand-foreground px-3 py-1 disabled:opacity-50"
+          >
+            {busy ? "Saving…" : "Save"}
+          </button>
+          {err && <span className="text-xs text-red-600">{err}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
