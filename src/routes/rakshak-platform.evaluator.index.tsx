@@ -82,12 +82,20 @@ function EvaluatorQueue() {
       <Section className="!py-10 lg:!py-12">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <Eyebrow>Evaluator workspace</Eyebrow>
-          <Link
-            to="/rakshak-platform/evaluator/reports"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
-          >
-            Browse all reports <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="inline-flex items-center gap-4">
+            <Link
+              to="/rakshak-platform/evaluator/reports"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
+            >
+              Browse all reports <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              to="/rakshak-platform/impact"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
+            >
+              Programme impact <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
         <h1 className="mt-4 font-heading text-3xl sm:text-4xl font-bold leading-[1.1]">
           Submissions awaiting <span className="text-brand">your score.</span>
