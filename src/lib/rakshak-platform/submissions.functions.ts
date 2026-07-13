@@ -701,3 +701,63 @@ export const getSubmissionTimeline = createServerFn({ method: "GET" })
 
     return { events };
   });
+
+// ---------- getTeamPhaseTimeline ----------
+// Per-phase summary for the team dashboard's expandable timeline:
+// submission (title/summary/submitted_at), feedback (mentor+evaluator+admin),
+// and evaluator scores. Team members only.
+export const getTeamPhaseTimeline = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ team_id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await ensureTeamMembership(context.supabase, context.userId, data.team_id);
+    const { data: subs } = await context.supabase
+      .from("rp_submissions")
+      .select("id, phase_number, title, summary, status, submitted_at, updated_at, created_at")
+      .eq("team_id", data.team_id)
+      .order("phase_number");
+    const submissionIds = (subs ?? []).map((s: any) => s.id);
+
+    let feedback: any[] = [];
+    let evaluations: any[] = [];
+    if (submissionIds.length) {
+      const [fb, ev] = await Promise.all([
+        context.supabase
+          .from("rp_feedback")
+          .select("id, submission_id, reviewer_role, reviewer_id, feedback_text, phase_number, created_at, rp_profiles:reviewer_id(full_name)")
+          .in("submission_id", submissionIds)
+          .order("created_at", { ascending: false }),
+        context.supabase
+          .from("rp_evaluations")
+          .select("id, submission_id, evaluator_id, status, total_score, weighted_score, comments, updated_at, evaluator:evaluator_id(full_name)")
+          .in("submission_id", submissionIds),
+      ]);
+      feedback = fb.data ?? [];
+      evaluations = ev.data ?? [];
+    }
+
+    const byPhase = new Map<number, any>();
+    for (let n = 0; n <= 4; n++) {
+      byPhase.set(n, { phase_number: n, submission: null, feedback: [], evaluations: [] });
+    }
+    for (const s of subs ?? []) {
+      const row = byPhase.get(s.phase_number);
+      if (row) row.submission = s;
+    }
+    for (const f of feedback) {
+      const s = (subs ?? []).find((x: any) => x.id === f.submission_id);
+      if (!s) continue;
+      const row = byPhase.get(s.phase_number);
+      if (row) row.feedback.push(f);
+    }
+    for (const e of evaluations) {
+      const s = (subs ?? []).find((x: any) => x.id === e.submission_id);
+      if (!s) continue;
+      const row = byPhase.get(s.phase_number);
+      if (row) row.evaluations.push(e);
+    }
+
+    return { phases: Array.from(byPhase.values()) };
+  });
