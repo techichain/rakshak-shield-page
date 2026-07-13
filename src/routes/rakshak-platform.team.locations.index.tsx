@@ -257,6 +257,11 @@ function TeamLocationsIndex() {
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 className="rp-input" placeholder="Why is this location unsafe? Observed patterns, time of day, near which institutions…" />
             </Field>
+            <Field label="Google Drive link (optional)" className="md:col-span-2">
+              <input type="url" maxLength={500} value={form.drive_link}
+                onChange={(e) => setForm((f) => ({ ...f, drive_link: e.target.value }))}
+                className="rp-input" placeholder="https://drive.google.com/…" />
+            </Field>
             <div className="md:col-span-2 text-xs text-muted-foreground">
               Coordinates: {form.latitude != null && form.longitude != null
                 ? `${form.latitude.toFixed(5)}, ${form.longitude.toFixed(5)}`
