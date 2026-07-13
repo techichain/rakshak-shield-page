@@ -360,6 +360,12 @@ function MemberDashboard() {
           </div>
         </div>
 
+        <div className="mt-8">
+          <RecentMeetingNotesCard />
+        </div>
+
+
+
         {/* Additional teams (rare) */}
         {teams.length > 1 && (
           <div className="mt-12 space-y-6">
