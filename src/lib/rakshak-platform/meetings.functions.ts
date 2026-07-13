@@ -756,3 +756,25 @@ export const respondToMentorBooking = createServerFn({ method: "POST" })
 
     return { ok: true, decision: "approved" as const, meet_link: gcal.meetLink };
   });
+
+export const setMeetingNotes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      meeting_id: z.string().uuid(),
+      notes: z.string().max(20000).default(""),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", {
+      _user_id: context.userId,
+    });
+    if (!isAdmin) throw new Error("Admin only");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("rp_meetings")
+      .update({ notes: data.notes })
+      .eq("id", data.meeting_id);
+    if (error) throw error;
+    return { ok: true };
+  });

@@ -469,6 +469,14 @@ function MeetingsPage() {
                     <span className="text-xs uppercase tracking-wide text-muted-foreground">{m.status}</span>
                   </div>
                   {m.agenda && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{m.agenda}</p>}
+                  {m.notes && (
+                    <div className="mt-3 rounded-md border border-amber-200 bg-amber-50/60 p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+                        Meeting notes
+                      </div>
+                      <p className="mt-1 text-sm whitespace-pre-line text-amber-900">{m.notes}</p>
+                    </div>
+                  )}
                   <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
                     {m.meeting_link && <a href={m.meeting_link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-brand hover:underline"><Video className="h-3.5 w-3.5" /> Join</a>}
                     {m.location && <span className="inline-flex items-center gap-1 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {m.location}</span>}

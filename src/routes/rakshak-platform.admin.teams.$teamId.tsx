@@ -5,6 +5,7 @@ import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin-teams.functions";
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
+import { setMeetingNotes } from "@/lib/rakshak-platform/meetings.functions";
 import { listTeamReports } from "@/lib/rakshak-platform/authority.functions";
 import {
   createQuestionnaire,
@@ -54,6 +55,7 @@ function AdminTeamDetail() {
   const fetchDetail = useServerFn(getAdminTeamDetail);
   const adminReview = useServerFn(adminReviewSubmission);
   const postRemark = useServerFn(addAdminRemark);
+  const saveMeetingNotes = useServerFn(setMeetingNotes);
   const fetchReports = useServerFn(listTeamReports);
   const fetchQuestionnaires = useServerFn(listQuestionnairesForTeam);
   const postQuestionnaire = useServerFn(createQuestionnaire);
@@ -72,6 +74,9 @@ function AdminTeamDetail() {
   const [qTitle, setQTitle] = useState("");
   const [qQuestions, setQQuestions] = useState<string[]>([""]);
   const [qBusy, setQBusy] = useState(false);
+  const [meetingNotesOpen, setMeetingNotesOpen] = useState<string | null>(null);
+  const [meetingNotesDraft, setMeetingNotesDraft] = useState("");
+  const [meetingNotesBusy, setMeetingNotesBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -737,6 +742,86 @@ function AdminTeamDetail() {
                         .join(", ")}
                     </div>
                   )}
+
+                  <div className="mt-3 border-t border-border pt-3">
+                    {meetingNotesOpen === m.id ? (
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Meeting notes / transcript (visible to team)
+                        </label>
+                        <textarea
+                          value={meetingNotesDraft}
+                          onChange={(e) => setMeetingNotesDraft(e.target.value)}
+                          rows={5}
+                          maxLength={20000}
+                          className="rp-input w-full"
+                          placeholder="Write notes or a short transcript for this meeting…"
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={meetingNotesBusy}
+                            onClick={async () => {
+                              setMeetingNotesBusy(true);
+                              try {
+                                await saveMeetingNotes({
+                                  data: { meeting_id: m.id, notes: meetingNotesDraft },
+                                } as any);
+                                setMeetingNotesOpen(null);
+                                setMeetingNotesDraft("");
+                                setReloadKey((k) => k + 1);
+                              } catch (e) {
+                                alert(e instanceof Error ? e.message : "Failed to save notes");
+                              } finally {
+                                setMeetingNotesBusy(false);
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 rounded-md bg-brand px-3 py-1 text-xs font-semibold text-white hover:bg-brand/90 disabled:opacity-60"
+                          >
+                            <Send className="h-3 w-3" />
+                            {meetingNotesBusy ? "Saving…" : "Save notes"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={meetingNotesBusy}
+                            onClick={() => {
+                              setMeetingNotesOpen(null);
+                              setMeetingNotesDraft("");
+                            }}
+                            className="rounded-md border border-border px-3 py-1 text-xs hover:bg-muted"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {m.notes ? (
+                          <div className="rounded-md border border-amber-200 bg-amber-50/60 p-2">
+                            <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+                              Meeting notes
+                            </div>
+                            <p className="mt-1 text-xs whitespace-pre-line text-amber-900">
+                              {m.notes}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">No meeting notes yet.</p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMeetingNotesOpen(m.id);
+                            setMeetingNotesDraft(m.notes ?? "");
+                          }}
+                          className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:bg-muted"
+                        >
+                          <Plus className="h-3 w-3" />
+                          {m.notes ? "Edit meeting notes" : "Add meeting notes"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
