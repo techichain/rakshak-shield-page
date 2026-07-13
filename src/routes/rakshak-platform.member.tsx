@@ -19,6 +19,7 @@ import {
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
+import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 
 export const Route = createFileRoute("/rakshak-platform/member")({
@@ -379,6 +380,10 @@ function MemberDashboard() {
 
         <div className="mt-8">
           <RecentMeetingNotesCard />
+        </div>
+
+        <div className="mt-8">
+          <DoubtsCard teamId={primary.id} phaseNumber={primary.current_phase} />
         </div>
 
 

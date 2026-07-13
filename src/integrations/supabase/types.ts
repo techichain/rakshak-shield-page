@@ -1180,6 +1180,69 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_doubts: {
+        Row: {
+          created_at: string
+          id: string
+          last_reminder_sent_at: string | null
+          phase_number: number | null
+          posted_by: string
+          posted_by_role: string
+          question: string
+          resolution_text: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_reminder_sent_at?: string | null
+          phase_number?: number | null
+          posted_by: string
+          posted_by_role: string
+          question: string
+          resolution_text?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_reminder_sent_at?: string | null
+          phase_number?: number | null
+          posted_by?: string
+          posted_by_role?: string
+          question?: string
+          resolution_text?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_doubts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_doubts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_email_campaigns: {
         Row: {
           audience: Json

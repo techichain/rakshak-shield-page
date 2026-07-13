@@ -77,6 +77,7 @@ import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/r
 import { Route as RakshakPlatformAdminEvaluatorsRouteImport } from './routes/rakshak-platform.admin.evaluators'
 import { Route as RakshakPlatformAdminEvaluatorLeaderboardRouteImport } from './routes/rakshak-platform.admin.evaluator-leaderboard'
 import { Route as RakshakPlatformAdminEmailsRouteImport } from './routes/rakshak-platform.admin.emails'
+import { Route as RakshakPlatformAdminDoubtsRouteImport } from './routes/rakshak-platform.admin.doubts'
 import { Route as RakshakPlatformAdminDataRouteImport } from './routes/rakshak-platform.admin.data'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
@@ -110,6 +111,7 @@ import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
+import { Route as ApiPublicHooksDoubtRemindersRouteImport } from './routes/api/public/hooks/doubt-reminders'
 import { Route as ApiPublicHooksDeadlineWhatsappRemindersRouteImport } from './routes/api/public/hooks/deadline-whatsapp-reminders'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
 
@@ -494,6 +496,12 @@ const RakshakPlatformAdminEmailsRoute =
     path: '/emails',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminDoubtsRoute =
+  RakshakPlatformAdminDoubtsRouteImport.update({
+    id: '/doubts',
+    path: '/doubts',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminDataRoute =
   RakshakPlatformAdminDataRouteImport.update({
     id: '/data',
@@ -686,6 +694,12 @@ const ApiPublicHooksHealthPingRoute =
     path: '/api/public/hooks/health-ping',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksDoubtRemindersRoute =
+  ApiPublicHooksDoubtRemindersRouteImport.update({
+    id: '/api/public/hooks/doubt-reminders',
+    path: '/api/public/hooks/doubt-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDeadlineWhatsappRemindersRoute =
   ApiPublicHooksDeadlineWhatsappRemindersRouteImport.update({
     id: '/api/public/hooks/deadline-whatsapp-reminders',
@@ -749,6 +763,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
+  '/rakshak-platform/admin/doubts': typeof RakshakPlatformAdminDoubtsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/evaluators': typeof RakshakPlatformAdminEvaluatorsRoute
@@ -786,6 +801,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/mentor/': typeof RakshakPlatformMentorIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
+  '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
@@ -845,6 +861,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
+  '/rakshak-platform/admin/doubts': typeof RakshakPlatformAdminDoubtsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/evaluators': typeof RakshakPlatformAdminEvaluatorsRoute
@@ -880,6 +897,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/mentor': typeof RakshakPlatformMentorIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
+  '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
@@ -949,6 +967,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
+  '/rakshak-platform/admin/doubts': typeof RakshakPlatformAdminDoubtsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
   '/rakshak-platform/admin/evaluator-leaderboard': typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   '/rakshak-platform/admin/evaluators': typeof RakshakPlatformAdminEvaluatorsRoute
@@ -986,6 +1005,7 @@ export interface FileRoutesById {
   '/rakshak-platform/mentor/': typeof RakshakPlatformMentorIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
+  '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
@@ -1056,6 +1076,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/data'
+    | '/rakshak-platform/admin/doubts'
     | '/rakshak-platform/admin/emails'
     | '/rakshak-platform/admin/evaluator-leaderboard'
     | '/rakshak-platform/admin/evaluators'
@@ -1093,6 +1114,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor/'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/deadline-whatsapp-reminders'
+    | '/api/public/hooks/doubt-reminders'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
@@ -1152,6 +1174,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/data'
+    | '/rakshak-platform/admin/doubts'
     | '/rakshak-platform/admin/emails'
     | '/rakshak-platform/admin/evaluator-leaderboard'
     | '/rakshak-platform/admin/evaluators'
@@ -1187,6 +1210,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/deadline-whatsapp-reminders'
+    | '/api/public/hooks/doubt-reminders'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
@@ -1255,6 +1279,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/data'
+    | '/rakshak-platform/admin/doubts'
     | '/rakshak-platform/admin/emails'
     | '/rakshak-platform/admin/evaluator-leaderboard'
     | '/rakshak-platform/admin/evaluators'
@@ -1292,6 +1317,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/mentor/'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/deadline-whatsapp-reminders'
+    | '/api/public/hooks/doubt-reminders'
     | '/api/public/hooks/health-ping'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
@@ -1324,6 +1350,7 @@ export interface RootRouteChildren {
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAdminDigestRoute: typeof ApiPublicHooksAdminDigestRoute
   ApiPublicHooksDeadlineWhatsappRemindersRoute: typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
+  ApiPublicHooksDoubtRemindersRoute: typeof ApiPublicHooksDoubtRemindersRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
   ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
@@ -1812,6 +1839,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminEmailsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/doubts': {
+      id: '/rakshak-platform/admin/doubts'
+      path: '/doubts'
+      fullPath: '/rakshak-platform/admin/doubts'
+      preLoaderRoute: typeof RakshakPlatformAdminDoubtsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/data': {
       id: '/rakshak-platform/admin/data'
       path: '/data'
@@ -2043,6 +2077,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksHealthPingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/doubt-reminders': {
+      id: '/api/public/hooks/doubt-reminders'
+      path: '/api/public/hooks/doubt-reminders'
+      fullPath: '/api/public/hooks/doubt-reminders'
+      preLoaderRoute: typeof ApiPublicHooksDoubtRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/deadline-whatsapp-reminders': {
       id: '/api/public/hooks/deadline-whatsapp-reminders'
       path: '/api/public/hooks/deadline-whatsapp-reminders'
@@ -2162,6 +2203,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
   RakshakPlatformAdminDataRoute: typeof RakshakPlatformAdminDataRoute
+  RakshakPlatformAdminDoubtsRoute: typeof RakshakPlatformAdminDoubtsRoute
   RakshakPlatformAdminEmailsRoute: typeof RakshakPlatformAdminEmailsRoute
   RakshakPlatformAdminEvaluatorLeaderboardRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRoute
   RakshakPlatformAdminEvaluatorsRoute: typeof RakshakPlatformAdminEvaluatorsRoute
@@ -2183,6 +2225,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
   RakshakPlatformAdminDataRoute: RakshakPlatformAdminDataRoute,
+  RakshakPlatformAdminDoubtsRoute: RakshakPlatformAdminDoubtsRoute,
   RakshakPlatformAdminEmailsRoute: RakshakPlatformAdminEmailsRoute,
   RakshakPlatformAdminEvaluatorLeaderboardRoute:
     RakshakPlatformAdminEvaluatorLeaderboardRoute,
@@ -2431,6 +2474,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAdminDigestRoute: ApiPublicHooksAdminDigestRoute,
   ApiPublicHooksDeadlineWhatsappRemindersRoute:
     ApiPublicHooksDeadlineWhatsappRemindersRoute,
+  ApiPublicHooksDoubtRemindersRoute: ApiPublicHooksDoubtRemindersRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
   ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,

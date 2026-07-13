@@ -11,6 +11,7 @@ import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
+import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
 import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
 export const Route = createFileRoute("/rakshak-platform/team")({
@@ -311,6 +312,10 @@ function TeamDashboard() {
               ))}
             </ul>
           </div>
+        </div>
+
+        <div className="mt-8">
+          <DoubtsCard teamId={team.id} phaseNumber={team.current_phase} />
         </div>
       </Section>
     </PlatformShell>

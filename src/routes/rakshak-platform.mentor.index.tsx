@@ -5,6 +5,7 @@ import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
+import { ResolveDoubtsPanel } from "@/components/rakshak-platform/ResolveDoubtsPanel";
 
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { Loader2, UsersRound, CalendarDays, Clock, BarChart3 } from "lucide-react";
@@ -128,7 +129,8 @@ function MentorDashboard() {
 
 
 
-        <div className="mt-16 border-t border-border pt-12">
+        <div className="mt-16 border-t border-border pt-12 space-y-10">
+          <ResolveDoubtsPanel />
           <ReviewPanel role="mentor" />
         </div>
       </Section>
