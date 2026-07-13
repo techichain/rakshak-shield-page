@@ -45,12 +45,16 @@ function AdminTeamDetail() {
   const { teamId } = Route.useParams();
   const fetchDetail = useServerFn(getAdminTeamDetail);
   const adminReview = useServerFn(adminReviewSubmission);
+  const postRemark = useServerFn(addAdminRemark);
   const [tab, setTab] = useState<Tab>("overview");
   const [data, setData] = useState<any>(null);
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [reviewing, setReviewing] = useState<string | null>(null);
+  const [remarkOpen, setRemarkOpen] = useState<string | null>(null);
+  const [remarkText, setRemarkText] = useState("");
+  const [remarkBusy, setRemarkBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
