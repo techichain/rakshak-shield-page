@@ -60,6 +60,7 @@ function MeetingsPage() {
   const qc = useQueryClient();
   const list = useServerFn(listMyMeetings);
   const create = useServerFn(createMeeting);
+  const createAllTeams = useServerFn(createMentorAllTeamsMeeting);
   const cancel = useServerFn(cancelMeeting);
   const rsvp = useServerFn(rsvpMeeting);
   const reschedule = useServerFn(rescheduleMeeting);
