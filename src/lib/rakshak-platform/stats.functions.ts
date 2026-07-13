@@ -47,7 +47,7 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
       .slice(0, 6)
       .map(([city, count]) => ({ city, count }));
 
-    return {
+    const real = {
       teams: teamsQ.count ?? 0,
       locations: locationsQ.count ?? 0,
       finalLocations: finalLocationsQ.count ?? 0,
@@ -59,4 +59,42 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
       stakeholderSurveys: surveysQ.count ?? 0,
       topCities,
     };
+
+    const isAllEmpty =
+      real.teams === 0 &&
+      real.locations === 0 &&
+      real.finalLocations === 0 &&
+      real.authorityReports === 0 &&
+      real.certificates === 0 &&
+      real.institutions === 0 &&
+      real.cities === 0 &&
+      real.states === 0 &&
+      real.stakeholderSurveys === 0 &&
+      real.topCities.length === 0;
+
+    if (isAllEmpty) {
+      return {
+        teams: 45,
+        locations: 320,
+        finalLocations: 180,
+        authorityReports: 90,
+        certificates: 60,
+        institutions: 38,
+        cities: 22,
+        states: 14,
+        stakeholderSurveys: 52,
+        topCities: [
+          { city: "Bengaluru", count: 42 },
+          { city: "Mumbai", count: 36 },
+          { city: "Delhi", count: 31 },
+          { city: "Pune", count: 24 },
+          { city: "Hyderabad", count: 19 },
+          { city: "Chennai", count: 16 },
+        ],
+        using_dummy: true as const,
+      };
+    }
+
+    return { ...real, using_dummy: false as const };
   });
+
