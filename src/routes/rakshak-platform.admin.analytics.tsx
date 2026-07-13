@@ -225,16 +225,56 @@ function AnalyticsPage() {
       .slice(0, 10);
   }, [mentors]);
 
+  const allStates = useMemo(() => {
+    const s = new Set<string>();
+    for (const l of locs) if (l.state) s.add(l.state);
+    return Array.from(s).sort();
+  }, [locs]);
+
   const hazardByState = useMemo(() => {
+    const stateFilter = hazardStates && hazardStates.length > 0 ? new Set(hazardStates) : null;
+    const sevFilter = hazardSeverities && hazardSeverities.length > 0 ? new Set(hazardSeverities) : null;
     const m: Record<string, { state: string; critical: number; high: number; medium: number; low: number }> = {};
     for (const l of locs) {
       const k = l.state ?? "Unknown";
-      if (!m[k]) m[k] = { state: k, critical: 0, high: 0, medium: 0, low: 0 };
+      if (stateFilter && !stateFilter.has(k)) continue;
       const sev = (l.severity ?? "low") as "critical" | "high" | "medium" | "low";
+      if (sevFilter && !sevFilter.has(sev)) continue;
+      if (!m[k]) m[k] = { state: k, critical: 0, high: 0, medium: 0, low: 0 };
       m[k][sev] = (m[k][sev] ?? 0) + 1;
     }
     return Object.values(m).sort((a, b) => (b.critical + b.high) - (a.critical + a.high)).slice(0, 10);
-  }, [locs]);
+  }, [locs, hazardStates, hazardSeverities]);
+
+  function toggleState(s: string) {
+    setHazardStates((prev) => {
+      const cur = prev ?? allStates;
+      return cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s];
+    });
+  }
+  function toggleSeverity(s: string) {
+    const all = ["low", "medium", "high", "critical"];
+    setHazardSeverities((prev) => {
+      const cur = prev ?? all;
+      return cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s];
+    });
+  }
+  async function persistSettings() {
+    setSavingSettings(true);
+    try {
+      await saveSettings({ data: { hazard_states: hazardStates, hazard_severities: hazardSeverities } });
+      toast.success("Analytics settings saved");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    } finally {
+      setSavingSettings(false);
+    }
+  }
+  function resetSettings() {
+    setHazardStates(null);
+    setHazardSeverities(null);
+  }
+
 
   // ---- Teams overview (per-team bar chart, click-through to detail) ----
   const teamsOverview = useMemo(() => {
