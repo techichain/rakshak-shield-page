@@ -25,6 +25,8 @@ function LocationDetail() {
   const [uploading, setUploading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
+  const [geoBusy, setGeoBusy] = useState(false);
+  const [geoErr, setGeoErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
