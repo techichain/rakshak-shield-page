@@ -5,8 +5,7 @@ import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend, RadarChart, Radar,
-  PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  PieChart, Pie, Cell, LineChart, Line, Legend,
 } from "recharts";
 import { Loader2 } from "lucide-react";
 
@@ -15,22 +14,39 @@ export const Route = createFileRoute("/rakshak-platform/admin/analytics")({
 });
 
 const BRAND = ["#1f4ed8", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"];
+const PHASE_COLORS: Record<number, string> = {
+  0: "#94a3b8",
+  1: "#1f4ed8",
+  2: "#10b981",
+  3: "#f59e0b",
+  4: "#8b5cf6",
+};
 
 // ---- Dummy fallback data (used when DB has nothing yet) ----
-const DUMMY_TEAMS = [
-  ...Array.from({ length: 8 }, () => ({ current_phase: 0, status: "active", final_score: 0 })),
-  ...Array.from({ length: 14 }, () => ({ current_phase: 1, status: "active", final_score: 42 + Math.random() * 15 })),
-  ...Array.from({ length: 18 }, () => ({ current_phase: 2, status: "active", final_score: 55 + Math.random() * 18 })),
-  ...Array.from({ length: 11 }, () => ({ current_phase: 3, status: "active", final_score: 68 + Math.random() * 15 })),
-  ...Array.from({ length: 6 }, () => ({ current_phase: 4, status: "completed", final_score: 78 + Math.random() * 15 })),
-  ...Array.from({ length: 4 }, () => ({ current_phase: 2, status: "at_risk", final_score: 35 + Math.random() * 10 })),
-  ...Array.from({ length: 3 }, () => ({ current_phase: 1, status: "dropped", final_score: 20 })),
-];
+const DUMMY_TEAMS = (() => {
+  const specs = [
+    ...Array.from({ length: 8 }, () => ({ current_phase: 0, status: "active", final_score: 0 })),
+    ...Array.from({ length: 14 }, () => ({ current_phase: 1, status: "active", final_score: 42 + Math.random() * 15 })),
+    ...Array.from({ length: 18 }, () => ({ current_phase: 2, status: "active", final_score: 55 + Math.random() * 18 })),
+    ...Array.from({ length: 11 }, () => ({ current_phase: 3, status: "active", final_score: 68 + Math.random() * 15 })),
+    ...Array.from({ length: 6 }, () => ({ current_phase: 4, status: "completed", final_score: 78 + Math.random() * 15 })),
+    ...Array.from({ length: 4 }, () => ({ current_phase: 2, status: "at_risk", final_score: 35 + Math.random() * 10 })),
+    ...Array.from({ length: 3 }, () => ({ current_phase: 1, status: "dropped", final_score: 20 })),
+  ];
+  const colleges = ["IIT Bombay", "NIT Trichy", "BITS Pilani", "VIT Vellore", "IIIT Hyderabad", "DTU", "Anna Univ.", "Manipal"];
+  return specs.map((s, i) => ({
+    ...s,
+    id: null, // null = dummy row, disables click-through
+    team_name: `Team ${String(i + 1).padStart(2, "0")}`,
+    college: colleges[i % colleges.length],
+    completion_percentage: Math.min(100, Math.round((s.current_phase / 4) * 100 + Math.random() * 10)),
+  }));
+})();
 
 const DUMMY_SUBS = (() => {
   const arr: any[] = [];
   const now = Date.now();
-  const phases = [1, 1, 2, 2, 2, 3, 3, 4];
+  const phases = [0, 1, 1, 2, 2, 2, 3, 3, 4];
   const statuses = ["submitted", "mentor_approved", "admin_approved", "completed", "revision_requested"];
   for (let w = 11; w >= 0; w--) {
     const count = 6 + Math.floor(Math.random() * 10);
@@ -145,28 +161,32 @@ function AnalyticsPage() {
     })();
   }, [loading, userId, isAdmin, navigate]);
 
-  const phaseDist = useMemo(() => {
-    const m: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
-    for (const t of teams) m[t.current_phase] = (m[t.current_phase] ?? 0) + 1;
-    return Object.entries(m).map(([k, v]) => ({ name: `Phase ${k}`, value: v }));
-  }, [teams]);
-
   const statusDist = useMemo(() => {
-    const m: Record<string, number> = {};
-    for (const t of teams) m[t.status] = (m[t.status] ?? 0) + 1;
-    return Object.entries(m).map(([name, value]) => ({ name, value }));
+    const m: Record<string, { value: number; teamNames: string[] }> = {};
+    for (const t of teams) {
+      const k = t.status ?? "unknown";
+      if (!m[k]) m[k] = { value: 0, teamNames: [] };
+      m[k].value += 1;
+      if (t.team_name) m[k].teamNames.push(t.team_name);
+    }
+    return Object.entries(m).map(([name, { value, teamNames }]) => ({ name, value, teamNames }));
   }, [teams]);
 
+  // ---- Submissions per week, broken down by phase ----
   const subsByWeek = useMemo(() => {
-    const m = new Map<string, number>();
+    const weekMap = new Map<string, Record<string, number | string>>();
     for (const s of subs) {
       const d = new Date(s.submitted_at ?? s.created_at);
       const year = d.getFullYear();
       const week = Math.ceil(((d.getTime() - new Date(year, 0, 1).getTime()) / 86400000 + new Date(year, 0, 1).getDay() + 1) / 7);
       const key = `${year}-W${String(week).padStart(2, "0")}`;
-      m.set(key, (m.get(key) ?? 0) + 1);
+      if (!weekMap.has(key)) weekMap.set(key, { name: key, phase0: 0, phase1: 0, phase2: 0, phase3: 0, phase4: 0 });
+      const row = weekMap.get(key)!;
+      const p = Number(s.phase_number ?? 0);
+      const bucket = `phase${p >= 0 && p <= 4 ? p : 0}`;
+      row[bucket] = (Number(row[bucket]) || 0) + 1;
     }
-    return [...m.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12).map(([name, value]) => ({ name, submissions: value }));
+    return [...weekMap.entries()].sort(([a], [b]) => a.localeCompare(b)).slice(-12).map(([, v]) => v);
   }, [subs]);
 
   const mentorLoad = useMemo(() => {
@@ -190,24 +210,27 @@ function AnalyticsPage() {
     return Object.values(m).sort((a, b) => (b.critical + b.high) - (a.critical + a.high)).slice(0, 10);
   }, [locs]);
 
-  // ---- Evaluation analytics ----
-  const evalScoreByPhase = useMemo(() => {
-    const grouped: Record<number, number[]> = {};
-    for (const e of evals) {
-      if (e.status && e.status !== "submitted") continue;
-      const p = e.phase_number ?? 0;
-      (grouped[p] ??= []).push(Number(e.weighted_score ?? 0));
-    }
-    return [1, 2, 3, 4].map((p) => {
-      const scores = grouped[p] ?? [];
-      const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-      return {
-        phase: `Phase ${p}`,
-        avgScore: Math.round(avg * 10) / 10,
-        evaluations: scores.length,
-      };
-    });
-  }, [evals]);
+  // ---- Teams overview (per-team bar chart, click-through to detail) ----
+  const teamsOverview = useMemo(() => {
+    return teams
+      .map((t) => {
+        const score = Number(t.final_score ?? 0);
+        const completion = Number(t.completion_percentage ?? 0);
+        const value = completion > 0 ? completion : score;
+        return {
+          id: t.id ?? null,
+          team_name: t.team_name ?? "Unnamed team",
+          college: t.college ?? "—",
+          current_phase: t.current_phase ?? 0,
+          status: t.status ?? "unknown",
+          score: Math.round(score * 10) / 10,
+          completion,
+          value: Math.round(value * 10) / 10,
+        };
+      })
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 40);
+  }, [teams]);
 
   const scoreDistribution = useMemo(() => {
     const buckets = [
@@ -231,24 +254,10 @@ function AnalyticsPage() {
     return Object.entries(m).map(([name, value]) => ({ name, value }));
   }, [evals]);
 
-  const rubricRadar = useMemo(() => {
-    // Synthetic rubric breakdown per phase (dummy composition based on avg score)
-    return [
-      { criterion: "Research depth", ...phaseScoreObj() },
-      { criterion: "Field mapping", ...phaseScoreObj() },
-      { criterion: "Community impact", ...phaseScoreObj() },
-      { criterion: "Authority follow-up", ...phaseScoreObj() },
-      { criterion: "Presentation", ...phaseScoreObj() },
-      { criterion: "Team consistency", ...phaseScoreObj() },
-    ];
-    function phaseScoreObj() {
-      const out: Record<string, number> = {};
-      for (const p of evalScoreByPhase) {
-        out[p.phase] = Math.max(30, Math.min(100, Math.round(p.avgScore + (Math.random() * 20 - 10))));
-      }
-      return out;
-    }
-  }, [evalScoreByPhase]);
+  const goToTeam = (id: string | null | undefined) => {
+    if (!id) return;
+    navigate({ to: "/rakshak-platform/admin/teams/$teamId", params: { teamId: id } });
+  };
 
   if (busy) {
     return <PlatformShell><Section><Loader2 className="h-5 w-5 animate-spin text-brand" /></Section></PlatformShell>;
@@ -269,18 +278,37 @@ function AnalyticsPage() {
         )}
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card title="Average evaluation score by phase" wide>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={evalScoreByPhase}>
+          <Card title="Teams overview (click a bar for details)" wide>
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={teamsOverview} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="phase" fontSize={12} />
+                <XAxis
+                  dataKey="team_name"
+                  fontSize={10}
+                  angle={-35}
+                  textAnchor="end"
+                  interval={0}
+                  height={70}
+                />
                 <YAxis fontSize={12} domain={[0, 100]} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="avgScore" name="Avg score" fill="#1f4ed8" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="evaluations" name="# Evaluations" fill="#10b981" radius={[6, 6, 0, 0]} />
+                <Tooltip content={<TeamTooltip />} />
+                <Bar
+                  dataKey="value"
+                  radius={[6, 6, 0, 0]}
+                  onClick={(payload: any) => goToTeam(payload?.id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {teamsOverview.map((t, i) => (
+                    <Cell
+                      key={i}
+                      fill={PHASE_COLORS[t.current_phase] ?? "#94a3b8"}
+                      cursor={t.id ? "pointer" : "default"}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
+            <PhaseLegend />
           </Card>
 
           <Card title="Score distribution">
@@ -307,54 +335,32 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </Card>
 
-          <Card title="Rubric breakdown by phase" wide>
-            <ResponsiveContainer width="100%" height={320}>
-              <RadarChart data={rubricRadar}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="criterion" fontSize={11} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} fontSize={10} />
-                {evalScoreByPhase.map((p, i) => (
-                  <Radar key={p.phase} name={p.phase} dataKey={p.phase} stroke={BRAND[i]} fill={BRAND[i]} fillOpacity={0.15} />
-                ))}
-                <Legend />
-                <Tooltip />
-              </RadarChart>
-            </ResponsiveContainer>
-          </Card>
-
-          <Card title="Teams by phase">
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={phaseDist}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" fontSize={12} />
-                <YAxis fontSize={12} allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="value" fill="#1f4ed8" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-
           <Card title="Team status mix">
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie data={statusDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
                   {statusDist.map((_, i) => <Cell key={i} fill={BRAND[i % BRAND.length]} />)}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<StatusTooltip />} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
           </Card>
 
-          <Card title="Submissions per week (last 12)" wide>
-            <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={subsByWeek}>
+          <Card title="Submissions per week by phase (last 12)" wide>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={subsByWeek}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="name" fontSize={11} />
                 <YAxis fontSize={12} allowDecimals={false} />
                 <Tooltip />
-                <Line type="monotone" dataKey="submissions" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
+                <Legend />
+                <Bar dataKey="phase0" name="Phase 0" stackId="w" fill={PHASE_COLORS[0]} />
+                <Bar dataKey="phase1" name="Phase 1" stackId="w" fill={PHASE_COLORS[1]} />
+                <Bar dataKey="phase2" name="Phase 2" stackId="w" fill={PHASE_COLORS[2]} />
+                <Bar dataKey="phase3" name="Phase 3" stackId="w" fill={PHASE_COLORS[3]} />
+                <Bar dataKey="phase4" name="Phase 4" stackId="w" fill={PHASE_COLORS[4]} />
+              </BarChart>
             </ResponsiveContainer>
           </Card>
 
@@ -370,7 +376,7 @@ function AnalyticsPage() {
             </ResponsiveContainer>
           </Card>
 
-          <Card title="Hazards by state (severity)">
+          <Card title="Hazards by state (severity)" wide>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={hazardByState}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -388,6 +394,56 @@ function AnalyticsPage() {
         </div>
       </Section>
     </PlatformShell>
+  );
+}
+
+function TeamTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const t = payload[0].payload;
+  return (
+    <div className="rounded-lg border border-border bg-card p-3 text-xs shadow-lg">
+      <div className="font-semibold text-sm">{t.team_name}</div>
+      <div className="text-muted-foreground">{t.college}</div>
+      <div className="mt-1">Phase: <span className="font-medium">{t.current_phase}</span></div>
+      <div>Status: <span className="font-medium">{t.status}</span></div>
+      <div>Completion: <span className="font-medium">{t.completion}%</span></div>
+      <div>Score: <span className="font-medium">{t.score}</span></div>
+      {t.id ? (
+        <div className="mt-1 text-brand">Click to open team →</div>
+      ) : (
+        <div className="mt-1 text-muted-foreground italic">Sample data</div>
+      )}
+    </div>
+  );
+}
+
+function StatusTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  const names: string[] = d.teamNames ?? [];
+  const shown = names.slice(0, 8).join(", ");
+  const extra = names.length > 8 ? ` +${names.length - 8} more` : "";
+  return (
+    <div className="rounded-lg border border-border bg-card p-3 text-xs shadow-lg max-w-xs">
+      <div className="font-semibold text-sm capitalize">{d.name}</div>
+      <div>Teams: <span className="font-medium">{d.value}</span></div>
+      {names.length > 0 && (
+        <div className="mt-1 text-muted-foreground break-words">{shown}{extra}</div>
+      )}
+    </div>
+  );
+}
+
+function PhaseLegend() {
+  return (
+    <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+      {[0, 1, 2, 3, 4].map((p) => (
+        <div key={p} className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: PHASE_COLORS[p] }} />
+          Phase {p}
+        </div>
+      ))}
+    </div>
   );
 }
 
