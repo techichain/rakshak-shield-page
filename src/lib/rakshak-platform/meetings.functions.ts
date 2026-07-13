@@ -778,3 +778,129 @@ export const setMeetingNotes = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+// ---------------------------------------------------------------------------
+// Mentor "all my teams" meeting — one meeting spanning every team a mentor mentors
+// ---------------------------------------------------------------------------
+
+export const createMentorAllTeamsMeeting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      title: z.string().min(1).max(200),
+      agenda: z.string().max(4000).default(""),
+      scheduled_start: z.string(),
+      scheduled_end: z.string(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Resolve caller as a mentor.
+    const { data: mentorRow } = await supabaseAdmin
+      .from("rp_mentors")
+      .select("id, profile_id")
+      .eq("profile_id", context.userId)
+      .maybeSingle();
+    if (!mentorRow?.id) throw new Error("You are not registered as a mentor.");
+
+    // All teams assigned to this mentor.
+    const { data: teams, error: tErr } = await supabaseAdmin
+      .from("rp_teams")
+      .select("id, team_name, team_leader_id")
+      .eq("assigned_mentor_id", mentorRow.id);
+    if (tErr) throw tErr;
+    if (!teams || teams.length === 0) {
+      throw new Error("You have no teams assigned yet — nothing to schedule.");
+    }
+    const teamIds = teams.map((t: any) => t.id);
+
+    // Collect attendee ids: leaders + members + mentor themself.
+    const attendeeIds = new Set<string>([context.userId]);
+    for (const t of teams) if (t.team_leader_id) attendeeIds.add(t.team_leader_id);
+
+    const { data: members } = await supabaseAdmin
+      .from("rp_team_members")
+      .select("profile_id, phone, team_id")
+      .in("team_id", teamIds);
+    for (const m of members ?? []) if (m.profile_id) attendeeIds.add(m.profile_id);
+
+    // Build agenda with team roster prefix so it's clear which teams this covers.
+    const teamNames = teams.map((t: any) => t.team_name).filter(Boolean);
+    const composedAgenda =
+      `Teams: ${teamNames.join(", ")}\n\n${data.agenda ?? ""}`.trim();
+
+    // Insert meeting.
+    const { data: meeting, error: mErr } = await supabaseAdmin
+      .from("rp_meetings")
+      .insert({
+        team_id: null,
+        meeting_type: "team_mentor",
+        title: data.title,
+        agenda: composedAgenda,
+        scheduled_start: data.scheduled_start,
+        scheduled_end: data.scheduled_end,
+        status: "confirmed",
+        created_by: context.userId,
+      })
+      .select("id")
+      .single();
+    if (mErr) throw mErr;
+
+    // Insert attendees.
+    const attArr = Array.from(attendeeIds);
+    await supabaseAdmin.from("rp_meeting_attendees").insert(
+      attArr.map((pid) => ({
+        meeting_id: meeting.id,
+        profile_id: pid,
+        rsvp: pid === context.userId ? "going" : "pending",
+        responded_at: pid === context.userId ? new Date().toISOString() : null,
+      })),
+    );
+
+    // Best-effort email — reuses attendees already inserted.
+    try {
+      const { sendMeetingScheduledEmails } = await import("./meeting-notify.server");
+      await sendMeetingScheduledEmails(meeting.id, { includeCreator: false });
+    } catch (err) {
+      console.error("[createMentorAllTeamsMeeting] email notify failed", err);
+    }
+
+    // Best-effort WhatsApp — phone from rp_profiles, fallback to rp_team_members.phone.
+    try {
+      const { sendWhatsAppMessage } = await import("./whatsapp.server");
+      const { data: profileRows } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("id, phone")
+        .in("id", attArr);
+      const phoneByProfile = new Map<string, string | null>(
+        (profileRows ?? []).map((p: any) => [p.id, p.phone ?? null]),
+      );
+      const memberPhoneByProfile = new Map<string, string | null>();
+      for (const m of members ?? []) {
+        if (m.profile_id && m.phone && !memberPhoneByProfile.has(m.profile_id)) {
+          memberPhoneByProfile.set(m.profile_id, m.phone);
+        }
+      }
+      const when = new Date(data.scheduled_start).toLocaleString();
+      const body = `New meeting scheduled: ${data.title} on ${when}. Check your Rakshak dashboard for the join link.`;
+      for (const pid of attArr) {
+        const phone = phoneByProfile.get(pid) || memberPhoneByProfile.get(pid);
+        if (!phone) continue;
+        try {
+          await sendWhatsAppMessage({ to: phone, body });
+        } catch (err) {
+          console.error("[createMentorAllTeamsMeeting] whatsapp send failed", pid, err);
+        }
+      }
+    } catch (err) {
+      console.error("[createMentorAllTeamsMeeting] whatsapp notify failed", err);
+    }
+
+    return {
+      meeting_id: meeting.id,
+      attendees_count: attArr.length,
+      teams_count: teams.length,
+    };
+  });
+
