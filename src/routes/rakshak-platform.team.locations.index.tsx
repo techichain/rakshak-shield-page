@@ -203,6 +203,27 @@ function TeamLocationsIndex() {
           </button>
         </div>
 
+        <div className="mt-8 flex flex-wrap gap-2 border-b border-border">
+          {[0, 1, 2, 3, 4].map((n) => {
+            const active = activePhase === n;
+            const count = phaseCounts.get(n) ?? 0;
+            return (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setActivePhase(n)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition inline-flex items-center gap-2 ${
+                  active ? "border-brand text-brand" : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <span>Phase {n}</span>
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground hidden sm:inline">{PHASE_TITLES[n]}</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${active ? "border-brand/40 bg-brand/10 text-brand" : "border-border text-muted-foreground"}`}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-3 overflow-hidden">
             <LocationMap
