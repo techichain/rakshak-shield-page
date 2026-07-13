@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap } from "@/components/rakshak-platform/LocationMap";
-import { ArrowLeft, Camera, Star, Trash2, Upload, Send } from "lucide-react";
+import { ArrowLeft, Camera, Star, Trash2, Upload, Send, Crosshair } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/$id")({
   ssr: false,
