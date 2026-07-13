@@ -303,6 +303,56 @@ function AdminTeamDetail() {
                 <Card label="College" value={t.college ?? "—"} sub={[t.city, t.state].filter(Boolean).join(", ")} />
                 <Card label="Created" value={fmtDate(t.created_at)} />
               </div>
+
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Evaluator scores
+                </div>
+                {(data.evaluations ?? []).length === 0 ? (
+                  <p className="mt-2 text-sm text-muted-foreground">No evaluations recorded yet.</p>
+                ) : (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border">
+                          <th className="py-2 pr-3 font-semibold">Phase</th>
+                          <th className="py-2 pr-3 font-semibold">Evaluator</th>
+                          <th className="py-2 pr-3 font-semibold">Score</th>
+                          <th className="py-2 pr-3 font-semibold">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[...(data.evaluations ?? [])]
+                          .sort((a: any, b: any) => (a.phase_number ?? 0) - (b.phase_number ?? 0))
+                          .map((e: any) => (
+                            <tr key={e.id} className="border-b border-border/60 last:border-0">
+                              <td className="py-2 pr-3">
+                                Phase {e.phase_number}
+                                <div className="text-[11px] text-muted-foreground">
+                                  {PHASE_TITLES[e.phase_number] ?? ""}
+                                </div>
+                              </td>
+                              <td className="py-2 pr-3">
+                                {e.evaluator?.full_name ?? "—"}
+                                {e.evaluator?.email && (
+                                  <div className="text-[11px] text-muted-foreground">{e.evaluator.email}</div>
+                                )}
+                              </td>
+                              <td className="py-2 pr-3 font-semibold">
+                                {e.weighted_score ?? e.total_score ?? "—"}
+                              </td>
+                              <td className="py-2 pr-3">
+                                <span className="text-xs rounded-full border border-border px-2 py-0.5">
+                                  {e.status ?? "—"}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
