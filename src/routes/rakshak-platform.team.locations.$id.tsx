@@ -180,6 +180,14 @@ function LocationDetail() {
             </Meta>
             {loc.authority_response && <Meta label="Authority response">{loc.authority_response}</Meta>}
             {loc.description && <Meta label="Description"><span className="font-normal text-foreground">{loc.description}</span></Meta>}
+            {loc.drive_link && (
+              <Meta label="Drive link">
+                <a href={loc.drive_link} target="_blank" rel="noopener noreferrer"
+                  className="font-normal text-brand hover:underline break-all">
+                  {loc.drive_link}
+                </a>
+              </Meta>
+            )}
             {canEdit && (
               <div className="pt-2 flex flex-wrap gap-2">
                 <button onClick={toggleFinal}
@@ -192,6 +200,10 @@ function LocationDetail() {
                     <Send className="h-3.5 w-3.5" /> Log authority submission
                   </button>
                 )}
+                <button onClick={saveDriveLink}
+                  className="h-10 rounded-full border border-border px-4 text-xs hover:border-brand/40 inline-flex items-center gap-1">
+                  {loc.drive_link ? "Edit Drive link" : "Add Drive link"}
+                </button>
               </div>
             )}
           </div>
