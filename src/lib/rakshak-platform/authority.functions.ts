@@ -96,6 +96,25 @@ export const listTeamReports = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { teamId: string }) => z.object({ teamId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    // Restrict to admins OR members/leader/mentor of the team.
+    const { data: isAdminData } = await context.supabase.rpc("rp_is_admin", { _user_id: context.userId });
+    let allowed = !!isAdminData;
+    if (!allowed) {
+      const { data: onTeam } = await context.supabase.rpc("rp_is_team_member", {
+        _team: data.teamId,
+        _user: context.userId,
+      });
+      allowed = !!onTeam;
+    }
+    if (!allowed) {
+      const { data: onMentor } = await context.supabase.rpc("rp_is_team_mentor", {
+        _team: data.teamId,
+        _user: context.userId,
+      });
+      allowed = !!onMentor;
+    }
+    if (!allowed) throw new Error("Forbidden");
+
     const { data: rows, error } = await context.supabase
       .from("rp_authority_reports")
       .select("*")

@@ -743,6 +743,54 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_admin_questionnaires: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          phase_number: number | null
+          questions: Json
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          phase_number?: number | null
+          questions?: Json
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          phase_number?: number | null
+          questions?: Json
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_admin_questionnaires_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_admin_questionnaires_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_audit_logs: {
         Row: {
           action: string
@@ -2395,6 +2443,58 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      rp_questionnaire_responses: {
+        Row: {
+          answers: Json
+          id: string
+          questionnaire_id: string
+          respondent_id: string
+          submitted_at: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          answers?: Json
+          id?: string
+          questionnaire_id: string
+          respondent_id: string
+          submitted_at?: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          id?: string
+          questionnaire_id?: string
+          respondent_id?: string
+          submitted_at?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_questionnaire_responses_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "rp_admin_questionnaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_questionnaire_responses_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_questionnaire_responses_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rp_role_approvals: {
         Row: {
