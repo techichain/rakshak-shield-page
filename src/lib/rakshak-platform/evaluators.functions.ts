@@ -62,16 +62,19 @@ export const listEvaluatorsOverview = createServerFn({ method: "GET" })
 
     const evalsBy = new Map<string, any[]>();
     for (const e of evalsRes.data ?? []) {
+      if (!e.evaluator_id) continue;
       const arr = evalsBy.get(e.evaluator_id) ?? [];
-      arr.push({ ...e, team_name: teamsById.get(e.team_id) ?? null });
+      arr.push({ ...e, team_name: e.team_id ? (teamsById.get(e.team_id) ?? null) : null });
       evalsBy.set(e.evaluator_id, arr);
     }
     const fbBy = new Map<string, any[]>();
     for (const f of feedbackRes.data ?? []) {
+      if (!f.reviewer_id) continue;
       const arr = fbBy.get(f.reviewer_id) ?? [];
-      arr.push({ ...f, team_name: teamsById.get(f.team_id) ?? null });
+      arr.push({ ...f, team_name: f.team_id ? (teamsById.get(f.team_id) ?? null) : null });
       fbBy.set(f.reviewer_id, arr);
     }
+
 
     const evaluators = (profilesRes.data ?? []).map((p) => {
       const evals = (evalsBy.get(p.id) ?? []).sort(
