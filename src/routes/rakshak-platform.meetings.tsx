@@ -143,6 +143,28 @@ function MeetingsPage() {
     const form = e.currentTarget;
     const fd = new FormData(form);
     try {
+      const teamIdRaw = needsTeam ? String(fd.get("team_id") || "") : "";
+      const isAllTeamsMentor =
+        isMentor && type === "team_mentor" && teamIdRaw === "__all__";
+
+      if (isAllTeamsMentor) {
+        const res = await createAllTeams({
+          data: {
+            title: String(fd.get("title")),
+            agenda: String(fd.get("agenda") || ""),
+            scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
+            scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
+          },
+        });
+        form.reset();
+        setExtraEmailsText("");
+        qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+        toast.success(
+          `Meeting scheduled — invites sent to ${res.attendees_count} people across ${res.teams_count} teams`,
+        );
+        return;
+      }
+
       const extraEmails = extraEmailsText
         .split(/[,\n;]+/)
         .map((s) => s.trim())
@@ -154,7 +176,7 @@ function MeetingsPage() {
       }
       await create({
         data: {
-          team_id: needsTeam ? String(fd.get("team_id")) : null,
+          team_id: needsTeam ? teamIdRaw : null,
           meeting_type: type as any,
           title: String(fd.get("title")),
           agenda: String(fd.get("agenda") || ""),
