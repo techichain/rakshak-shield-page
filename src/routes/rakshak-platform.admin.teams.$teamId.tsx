@@ -367,7 +367,7 @@ function AdminTeamDetail() {
                                 setRemarkOpen(remarkOpen === sub.id ? null : sub.id);
                                 setRemarkText("");
                               }}
-                              title="Add admin remark"
+                              title="Add admin feedback"
                               className="h-6 w-6 rounded-full border border-border inline-flex items-center justify-center hover:border-brand/40 hover:text-brand"
                             >
                               <Plus className="h-3.5 w-3.5" />
@@ -380,7 +380,7 @@ function AdminTeamDetail() {
                                 onChange={(e) => setRemarkText(e.target.value)}
                                 maxLength={2000}
                                 rows={3}
-                                placeholder="Leave a remark for this team (does not change submission status)…"
+                                placeholder="Leave admin feedback for this team (does not change submission status)…"
                                 className="w-full rounded-lg border border-border bg-background p-2 text-sm"
                               />
                               <div className="flex gap-2">
@@ -389,7 +389,7 @@ function AdminTeamDetail() {
                                   onClick={() => submitRemark(sub.id, t.id, p)}
                                   className="text-xs rounded-full bg-brand text-brand-foreground px-3 py-1 disabled:opacity-50"
                                 >
-                                  {remarkBusy ? "Posting…" : "Post remark"}
+                                  {remarkBusy ? "Posting…" : "Post feedback"}
                                 </button>
                                 <button
                                   onClick={() => { setRemarkOpen(null); setRemarkText(""); }}
