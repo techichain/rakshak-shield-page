@@ -119,6 +119,20 @@ function TeamDashboard() {
               </div>
             </div>
           </Link>
+          <Link
+            to="/rakshak-platform/impact"
+            className="group rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-brand" />
+              </div>
+              <div>
+                <div className="font-heading text-lg">Programme impact</div>
+                <div className="text-xs text-muted-foreground">Teams, hazards, authority pitches — in numbers</div>
+              </div>
+            </div>
+          </Link>
         </div>
 
 
