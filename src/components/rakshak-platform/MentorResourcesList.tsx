@@ -19,10 +19,12 @@ type Resource = {
   storage_path: string | null;
   team_id: string | null;
   mentor_id: string;
+  source?: "mentor" | "admin";
   created_at: string;
   rp_profiles?: { full_name: string | null } | null;
   rp_teams?: { id: string; team_name: string } | null;
 };
+
 
 function fmtSize(n: number | null) {
   if (!n) return "";
