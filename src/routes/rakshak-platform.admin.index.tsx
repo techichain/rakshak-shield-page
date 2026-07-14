@@ -817,7 +817,7 @@ function TrackerPanel({
                 {TASK_COLUMNS.map((c) => (
                   <th key={c.key} className="text-left px-3 py-3 whitespace-nowrap">{c.label}</th>
                 ))}
-                <th className="text-left px-3 py-3">Exam</th>
+                <th className="text-left px-3 py-3">Next deadline</th>
                 <th className="text-left px-3 py-3">Tasks %</th>
                 <th className="text-left px-3 py-3">Overall</th>
                 <th className="text-left px-3 py-3">P1</th>
