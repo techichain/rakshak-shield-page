@@ -35,8 +35,8 @@ export const getMentorResourceUploadUrl = createServerFn({ method: "POST" })
     z.object({ file_name: z.string().min(1).max(200) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    if (!(await isMentor(context.supabase, context.userId))) {
-      throw new Error("Forbidden: mentor role required");
+    if (!(await isMentorOrAdmin(context.supabase, context.userId))) {
+      throw new Error("Forbidden: mentor or admin role required");
     }
     const safe = data.file_name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 180);
     const resourceKey = crypto.randomUUID();
