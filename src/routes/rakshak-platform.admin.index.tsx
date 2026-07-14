@@ -63,12 +63,12 @@ type Enriched = TeamRow & {
   phases: Phase[];
   tScore: number;
   p1: number; p2: number; p3: number; p4: number;
-  examDate: string;
-  importantDate: string;
-  commentsCount: number;
+  /** Earliest future phase deadline from rp_team_phase_progress. null when none. */
+  nextDeadline: string | null;
   tasksCompleted: number;
   tasksTotal: number;
 };
+
 
 /* ──────────────────────────────────────────────────────────────────── */
 /* Constants                                                             */
