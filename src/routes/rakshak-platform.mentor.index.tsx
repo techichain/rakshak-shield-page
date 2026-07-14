@@ -1,15 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
 import { ResolveDoubtsPanel } from "@/components/rakshak-platform/ResolveDoubtsPanel";
+import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { listAdminResourcesForMentor } from "@/lib/rakshak-platform/mentor-resources.functions";
 
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
-import { Loader2, UsersRound, CalendarDays, Clock, BarChart3 } from "lucide-react";
+import { Loader2, UsersRound, CalendarDays, Clock, BarChart3, BookOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+
 
 export const Route = createFileRoute("/rakshak-platform/mentor/")({
   ssr: false,
