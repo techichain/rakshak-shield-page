@@ -79,6 +79,7 @@ import { Route as RakshakPlatformAdminEvaluatorLeaderboardRouteImport } from './
 import { Route as RakshakPlatformAdminEmailsRouteImport } from './routes/rakshak-platform.admin.emails'
 import { Route as RakshakPlatformAdminDoubtsRouteImport } from './routes/rakshak-platform.admin.doubts'
 import { Route as RakshakPlatformAdminDataRouteImport } from './routes/rakshak-platform.admin.data'
+import { Route as RakshakPlatformAdminCredentialsRouteImport } from './routes/rakshak-platform.admin.credentials'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
 import { Route as RakshakPlatformAdminAccessRequestsRouteImport } from './routes/rakshak-platform.admin.access-requests'
@@ -508,6 +509,12 @@ const RakshakPlatformAdminDataRoute =
     path: '/data',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminCredentialsRoute =
+  RakshakPlatformAdminCredentialsRouteImport.update({
+    id: '/credentials',
+    path: '/credentials',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminCertificatesRoute =
   RakshakPlatformAdminCertificatesRouteImport.update({
     id: '/certificates',
@@ -762,6 +769,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
+  '/rakshak-platform/admin/credentials': typeof RakshakPlatformAdminCredentialsRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
   '/rakshak-platform/admin/doubts': typeof RakshakPlatformAdminDoubtsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
@@ -860,6 +868,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
+  '/rakshak-platform/admin/credentials': typeof RakshakPlatformAdminCredentialsRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
   '/rakshak-platform/admin/doubts': typeof RakshakPlatformAdminDoubtsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
@@ -966,6 +975,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
+  '/rakshak-platform/admin/credentials': typeof RakshakPlatformAdminCredentialsRoute
   '/rakshak-platform/admin/data': typeof RakshakPlatformAdminDataRoute
   '/rakshak-platform/admin/doubts': typeof RakshakPlatformAdminDoubtsRoute
   '/rakshak-platform/admin/emails': typeof RakshakPlatformAdminEmailsRoute
@@ -1075,6 +1085,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
+    | '/rakshak-platform/admin/credentials'
     | '/rakshak-platform/admin/data'
     | '/rakshak-platform/admin/doubts'
     | '/rakshak-platform/admin/emails'
@@ -1173,6 +1184,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
+    | '/rakshak-platform/admin/credentials'
     | '/rakshak-platform/admin/data'
     | '/rakshak-platform/admin/doubts'
     | '/rakshak-platform/admin/emails'
@@ -1278,6 +1290,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
+    | '/rakshak-platform/admin/credentials'
     | '/rakshak-platform/admin/data'
     | '/rakshak-platform/admin/doubts'
     | '/rakshak-platform/admin/emails'
@@ -1853,6 +1866,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminDataRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/credentials': {
+      id: '/rakshak-platform/admin/credentials'
+      path: '/credentials'
+      fullPath: '/rakshak-platform/admin/credentials'
+      preLoaderRoute: typeof RakshakPlatformAdminCredentialsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/certificates': {
       id: '/rakshak-platform/admin/certificates'
       path: '/certificates'
@@ -2202,6 +2222,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminAccessRequestsRoute: typeof RakshakPlatformAdminAccessRequestsRoute
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
+  RakshakPlatformAdminCredentialsRoute: typeof RakshakPlatformAdminCredentialsRoute
   RakshakPlatformAdminDataRoute: typeof RakshakPlatformAdminDataRoute
   RakshakPlatformAdminDoubtsRoute: typeof RakshakPlatformAdminDoubtsRoute
   RakshakPlatformAdminEmailsRoute: typeof RakshakPlatformAdminEmailsRoute
@@ -2224,6 +2245,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
     RakshakPlatformAdminAccessRequestsRoute,
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
+  RakshakPlatformAdminCredentialsRoute: RakshakPlatformAdminCredentialsRoute,
   RakshakPlatformAdminDataRoute: RakshakPlatformAdminDataRoute,
   RakshakPlatformAdminDoubtsRoute: RakshakPlatformAdminDoubtsRoute,
   RakshakPlatformAdminEmailsRoute: RakshakPlatformAdminEmailsRoute,
