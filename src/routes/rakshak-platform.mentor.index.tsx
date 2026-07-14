@@ -140,10 +140,27 @@ function MentorDashboard() {
 
 
 
+        <div className="mt-12 rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-brand" />
+            <h2 className="font-heading text-lg font-semibold">Resources from admin</h2>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Programme handbooks, rubrics and templates shared by admins — global, and scoped to your teams.
+          </p>
+          <MentorResourcesList
+            mode="viewer"
+            sourceFilter="admin"
+            fetcher={adminResourceFetcher}
+            emptyText="No admin resources yet."
+          />
+        </div>
+
         <div className="mt-16 border-t border-border pt-12 space-y-10">
           <ResolveDoubtsPanel />
           <ReviewPanel role="mentor" />
         </div>
+
       </Section>
     </PlatformShell>
   );
