@@ -38,12 +38,17 @@ export function MentorResourcesList({
   teamId,
   canDelete = false,
   onChanged,
+  sourceFilter,
+  emptyText,
 }: {
   mode: "viewer" | "admin";
   teamId?: string;
   canDelete?: boolean;
   onChanged?: () => void;
+  sourceFilter?: "mentor" | "admin";
+  emptyText?: string;
 }) {
+
   const fetchViewer = useServerFn(listTeamResourcesForViewer);
   const fetchAdmin = useServerFn(listTeamResourcesAdmin);
   const fetchDownload = useServerFn(getResourceDownloadUrl);
