@@ -830,7 +830,7 @@ function TrackerPanel({
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((r) => {
-                const overdue = new Date(r.importantDate).getTime() < Date.now();
+                const overdue = r.nextDeadline ? new Date(r.nextDeadline).getTime() < Date.now() : false;
                 const lowProgress = r.completion_percentage < 30;
                 return (
                   <tr key={r.id} className={`hover:bg-brand-lite/30 ${overdue || lowProgress ? "bg-red-50/40" : ""}`}>
