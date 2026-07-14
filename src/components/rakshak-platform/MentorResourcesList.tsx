@@ -124,10 +124,11 @@ export function MentorResourcesList({
   if (items.length === 0) {
     return (
       <p className="text-sm text-muted-foreground py-4">
-        No resources shared yet. Your mentor will share reading material, templates or reference links here.
+        {emptyText ?? "No resources shared yet."}
       </p>
     );
   }
+
 
   return (
     <ul className="mt-2 divide-y divide-border">
