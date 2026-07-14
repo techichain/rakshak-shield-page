@@ -69,7 +69,12 @@ export function MentorResourcesList({
           mode === "admin" && teamId
             ? await fetchAdmin({ data: { team_id: teamId } } as any)
             : await fetchViewer({ data: teamId ? { team_id: teamId } : {} } as any);
-        if (!cancelled) setItems((res as any)?.resources ?? []);
+        const all = ((res as any)?.resources ?? []) as Resource[];
+        const filtered = sourceFilter
+          ? all.filter((r) => (r.source ?? "mentor") === sourceFilter)
+          : all;
+        if (!cancelled) setItems(filtered);
+
       } catch (e) {
         if (!cancelled) setErr(e instanceof Error ? e.message : "Failed to load");
       } finally {
