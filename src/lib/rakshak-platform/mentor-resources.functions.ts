@@ -393,7 +393,12 @@ export const listAdminResourcesForMentor = createServerFn({ method: "GET" })
     if (teamIds.length) {
       orClauses.push(`and(source.eq.admin,team_id.in.(${teamIds.join(",")}))`);
     }
-    const { data: rows, error } = await context.supabase
+    // Use admin client: the RLS SELECT policy on rp_mentor_resources allows
+    // team members/leader/admins for team-scoped resources, but not the
+    // assigned mentor directly. We've already scoped teamIds to teams this
+    // mentor is assigned to, so bypassing RLS here is safe.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
       .from("rp_mentor_resources")
       .select("*, rp_profiles:mentor_id(full_name), rp_teams:team_id(id, team_name)")
       .or(orClauses.join(","))
