@@ -16,6 +16,16 @@ export const Route = createFileRoute("/rakshak-platform/auth/")({
   component: AuthPage,
 });
 
+// Only allow same-origin relative paths. Reject protocol-relative "//host"
+// and Windows-style "/\host" which browsers may treat as external.
+function safeRedirect(r: string | undefined): string {
+  if (!r) return "/rakshak-platform/dashboard";
+  if (!r.startsWith("/")) return "/rakshak-platform/dashboard";
+  if (r.startsWith("//") || r.startsWith("/\\")) return "/rakshak-platform/dashboard";
+  return r;
+}
+
+
 function AuthPage() {
   const { redirect } = Route.useSearch();
   const navigate = useNavigate();
