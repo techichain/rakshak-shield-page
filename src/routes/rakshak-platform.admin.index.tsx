@@ -570,7 +570,7 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
         <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Avg progress" value={`${totals.avg}%`} />
         <StatCard icon={<Trophy className="h-4 w-4" />} label="Top team" value={totals.top} sub={`${totals.topScore} pts`} />
         <StatCard icon={<MessageSquare className="h-4 w-4" />} label="Pending reviews" value={totals.pending} />
-        <StatCard icon={<Calendar className="h-4 w-4" />} label="Upcoming exams" value={totals.upcoming} />
+        <StatCard icon={<Calendar className="h-4 w-4" />} label="Upcoming deadlines" value={totals.upcoming} sub="Next 21 days" />
       </div>
 
       {/* Filters */}
