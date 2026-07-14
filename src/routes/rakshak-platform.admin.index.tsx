@@ -722,14 +722,15 @@ function TrackerPanel({
   function toCsv() {
     const headers = [
       "Team","Leader","Mentor", ...TASK_COLUMNS.map((c) => c.label),
-      "Exam Date","Tasks %","Overall %","P1","P2","P3","P4","T Score",
+      "Next Deadline","Tasks %","Overall %","P1","P2","P3","P4","T Score",
     ];
     const lines = [headers.join(",")];
     for (const r of filtered) {
       const cells = [
         r.team_name, r.leaderName, r.mentorName,
         ...TASK_COLUMNS.map((c) => statusLabel(statusForTask(r, c.phase, c.key))),
-        fmtDate(r.examDate),
+        fmtDate(r.nextDeadline),
+
         Math.round((r.tasksCompleted / r.tasksTotal) * 100) + "%",
         r.completion_percentage + "%",
         r.p1, r.p2, r.p3, r.p4, r.tScore,
