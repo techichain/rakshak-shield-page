@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export const Route = createFileRoute(
   "/rakshak-platform/meetings/ics/$meetingId",
@@ -8,7 +7,9 @@ export const Route = createFileRoute(
     handlers: {
       GET: async ({ params }) => {
         const { meetingId } = params;
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: meeting } = await supabaseAdmin
+
           .from("rp_meetings")
           .select(
             "id, title, agenda, scheduled_start, scheduled_end, meeting_link, location, created_by",
