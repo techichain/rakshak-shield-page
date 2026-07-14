@@ -11,10 +11,20 @@ const searchSchema = z.object({
   redirect: z.string().optional().catch(undefined),
 });
 
-export const Route = createFileRoute("/rakshak-platform/auth")({
+export const Route = createFileRoute("/rakshak-platform/auth/")({
   validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
   component: AuthPage,
 });
+
+// Only allow same-origin relative paths. Reject protocol-relative "//host"
+// and Windows-style "/\host" which browsers may treat as external.
+function safeRedirect(r: string | undefined): string {
+  if (!r) return "/rakshak-platform/dashboard";
+  if (!r.startsWith("/")) return "/rakshak-platform/dashboard";
+  if (r.startsWith("//") || r.startsWith("/\\")) return "/rakshak-platform/dashboard";
+  return r;
+}
+
 
 function AuthPage() {
   const { redirect } = Route.useSearch();
@@ -31,7 +41,7 @@ function AuthPage() {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled || !data.user) return;
-      const target = (redirect && redirect.startsWith("/")) ? redirect : "/rakshak-platform/dashboard";
+      const target = safeRedirect(redirect);
       navigate({ to: target, replace: true });
     });
     return () => {
@@ -60,7 +70,7 @@ function AuthPage() {
       }
       const { error: signErr } = await supabase.auth.signInWithPassword({ email, password });
       if (signErr) throw signErr;
-      const target = (redirect && redirect.startsWith("/")) ? redirect : "/rakshak-platform/dashboard";
+      const target = safeRedirect(redirect);
       navigate({ to: target });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not sign in.");
