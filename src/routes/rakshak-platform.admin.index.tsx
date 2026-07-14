@@ -614,14 +614,14 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
                 <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("tScore")}>
                   <span className="inline-flex items-center gap-1">T Score <SortIcon k="tScore" /></span>
                 </th>
-                <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("examDate")}>
-                  <span className="inline-flex items-center gap-1">Exam date <SortIcon k="examDate" /></span>
+                <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("nextDeadline")}>
+                  <span className="inline-flex items-center gap-1">Next deadline <SortIcon k="nextDeadline" /></span>
                 </th>
                 <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("tasksCompleted")}>
                   <span className="inline-flex items-center gap-1">Tasks <SortIcon k="tasksCompleted" /></span>
                 </th>
-                <th className="text-left px-4 py-3">Important</th>
                 <th className="text-left px-4 py-3">Comments</th>
+
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
