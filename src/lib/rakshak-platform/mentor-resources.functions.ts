@@ -22,6 +22,12 @@ async function isMentor(supabase: any, userId: string) {
   return !!data;
 }
 
+async function isMentorOrAdmin(supabase: any, userId: string) {
+  const [m, a] = await Promise.all([isMentor(supabase, userId), isAdmin(supabase, userId)]);
+  return m || a;
+}
+
+
 // Mentor: get a signed upload URL. Path: {userId}/{uuid}/{safeFilename}
 export const getMentorResourceUploadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
