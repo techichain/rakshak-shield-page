@@ -18,7 +18,6 @@ import { Route as RakshakPlatformIndexRouteImport } from './routes/rakshak-platf
 import { Route as RakshakMentorIndexRouteImport } from './routes/rakshak-mentor.index'
 import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
 import { Route as RakshakPlatformUnauthorizedRouteImport } from './routes/rakshak-platform.unauthorized'
-import { Route as RakshakPlatformTeamRouteImport } from './routes/rakshak-platform.team'
 import { Route as RakshakPlatformSponsorRouteImport } from './routes/rakshak-platform.sponsor'
 import { Route as RakshakPlatformProfileRouteImport } from './routes/rakshak-platform.profile'
 import { Route as RakshakPlatformNotificationsRouteImport } from './routes/rakshak-platform.notifications'
@@ -42,6 +41,7 @@ import { Route as GigriderChecklistObserverRouteImport } from './routes/gigrider
 import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
 import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as RakshakPlatformTeamIndexRouteImport } from './routes/rakshak-platform.team.index'
 import { Route as RakshakPlatformMentorIndexRouteImport } from './routes/rakshak-platform.mentor.index'
 import { Route as RakshakPlatformKnowledgeIndexRouteImport } from './routes/rakshak-platform.knowledge.index'
 import { Route as RakshakPlatformEvaluatorIndexRouteImport } from './routes/rakshak-platform.evaluator.index'
@@ -51,7 +51,6 @@ import { Route as GigriderChecklistObserverIndexRouteImport } from './routes/gig
 import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrider-checklist.admin.index'
 import { Route as RakshakPlatformVerifySlugRouteImport } from './routes/rakshak-platform.verify.$slug'
 import { Route as RakshakPlatformTeamReportsRouteImport } from './routes/rakshak-platform.team.reports'
-import { Route as RakshakPlatformTeamPhasesRouteImport } from './routes/rakshak-platform.team.phases'
 import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
 import { Route as RakshakPlatformTeamBookMentorRouteImport } from './routes/rakshak-platform.team.book-mentor'
 import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
@@ -96,6 +95,7 @@ import { Route as ApiMeetingIcsMeetingIdRouteImport } from './routes/api/meeting
 import { Route as ApiGigriderPhotoUploadRouteImport } from './routes/api/gigrider.photo-upload'
 import { Route as ApiDocsFileRouteImport } from './routes/api/docs.$file'
 import { Route as RakshakPlatformTeamReportsIndexRouteImport } from './routes/rakshak-platform.team.reports.index'
+import { Route as RakshakPlatformTeamPhasesIndexRouteImport } from './routes/rakshak-platform.team.phases.index'
 import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/rakshak-platform.team.locations.index'
 import { Route as RakshakPlatformAdminTeamsIndexRouteImport } from './routes/rakshak-platform.admin.teams.index'
 import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rakshak-platform.team.phases.$phase'
@@ -162,11 +162,6 @@ const RakshakPlatformUnauthorizedRoute =
     path: '/unauthorized',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformTeamRoute = RakshakPlatformTeamRouteImport.update({
-  id: '/team',
-  path: '/team',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
 const RakshakPlatformSponsorRoute = RakshakPlatformSponsorRouteImport.update({
   id: '/sponsor',
   path: '/sponsor',
@@ -290,6 +285,12 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RakshakPlatformTeamIndexRoute =
+  RakshakPlatformTeamIndexRouteImport.update({
+    id: '/team/',
+    path: '/team/',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
 const RakshakPlatformMentorIndexRoute =
   RakshakPlatformMentorIndexRouteImport.update({
     id: '/mentor/',
@@ -339,27 +340,21 @@ const RakshakPlatformVerifySlugRoute =
   } as any)
 const RakshakPlatformTeamReportsRoute =
   RakshakPlatformTeamReportsRouteImport.update({
-    id: '/reports',
-    path: '/reports',
-    getParentRoute: () => RakshakPlatformTeamRoute,
-  } as any)
-const RakshakPlatformTeamPhasesRoute =
-  RakshakPlatformTeamPhasesRouteImport.update({
-    id: '/phases',
-    path: '/phases',
-    getParentRoute: () => RakshakPlatformTeamRoute,
+    id: '/team/reports',
+    path: '/team/reports',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformTeamLocationsRoute =
   RakshakPlatformTeamLocationsRouteImport.update({
-    id: '/locations',
-    path: '/locations',
-    getParentRoute: () => RakshakPlatformTeamRoute,
+    id: '/team/locations',
+    path: '/team/locations',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformTeamBookMentorRoute =
   RakshakPlatformTeamBookMentorRouteImport.update({
-    id: '/book-mentor',
-    path: '/book-mentor',
-    getParentRoute: () => RakshakPlatformTeamRoute,
+    id: '/team/book-mentor',
+    path: '/team/book-mentor',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformTSlugRoute = RakshakPlatformTSlugRouteImport.update({
   id: '/t/$slug',
@@ -605,6 +600,12 @@ const RakshakPlatformTeamReportsIndexRoute =
     path: '/',
     getParentRoute: () => RakshakPlatformTeamReportsRoute,
   } as any)
+const RakshakPlatformTeamPhasesIndexRoute =
+  RakshakPlatformTeamPhasesIndexRouteImport.update({
+    id: '/team/phases/',
+    path: '/team/phases/',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
 const RakshakPlatformTeamLocationsIndexRoute =
   RakshakPlatformTeamLocationsIndexRouteImport.update({
     id: '/',
@@ -619,9 +620,9 @@ const RakshakPlatformAdminTeamsIndexRoute =
   } as any)
 const RakshakPlatformTeamPhasesPhaseRoute =
   RakshakPlatformTeamPhasesPhaseRouteImport.update({
-    id: '/$phase',
-    path: '/$phase',
-    getParentRoute: () => RakshakPlatformTeamPhasesRoute,
+    id: '/team/phases/$phase',
+    path: '/team/phases/$phase',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformTeamLocationsIdRoute =
   RakshakPlatformTeamLocationsIdRouteImport.update({
@@ -749,7 +750,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
   '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
-  '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
   '/rakshak-platform/unauthorized': typeof RakshakPlatformUnauthorizedRoute
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
@@ -797,7 +797,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/book-mentor': typeof RakshakPlatformTeamBookMentorRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
-  '/rakshak-platform/team/phases': typeof RakshakPlatformTeamPhasesRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
   '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
@@ -807,6 +806,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/evaluator/': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/rakshak-platform/mentor/': typeof RakshakPlatformMentorIndexRoute
+  '/rakshak-platform/team/': typeof RakshakPlatformTeamIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
@@ -826,6 +826,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
   '/rakshak-platform/admin/teams/': typeof RakshakPlatformAdminTeamsIndexRoute
   '/rakshak-platform/team/locations/': typeof RakshakPlatformTeamLocationsIndexRoute
+  '/rakshak-platform/team/phases/': typeof RakshakPlatformTeamPhasesIndexRoute
   '/rakshak-platform/team/reports/': typeof RakshakPlatformTeamReportsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -848,7 +849,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
   '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
-  '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
   '/rakshak-platform/unauthorized': typeof RakshakPlatformUnauthorizedRoute
   '/gigrider-checklist': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor': typeof RakshakMentorIndexRoute
@@ -895,7 +895,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/book-mentor': typeof RakshakPlatformTeamBookMentorRoute
-  '/rakshak-platform/team/phases': typeof RakshakPlatformTeamPhasesRouteWithChildren
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverIndexRoute
@@ -904,6 +903,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/evaluator': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge': typeof RakshakPlatformKnowledgeIndexRoute
   '/rakshak-platform/mentor': typeof RakshakPlatformMentorIndexRoute
+  '/rakshak-platform/team': typeof RakshakPlatformTeamIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
@@ -923,6 +923,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
   '/rakshak-platform/admin/teams': typeof RakshakPlatformAdminTeamsIndexRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsIndexRoute
+  '/rakshak-platform/team/phases': typeof RakshakPlatformTeamPhasesIndexRoute
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsIndexRoute
 }
 export interface FileRoutesById {
@@ -955,7 +956,6 @@ export interface FileRoutesById {
   '/rakshak-platform/notifications': typeof RakshakPlatformNotificationsRoute
   '/rakshak-platform/profile': typeof RakshakPlatformProfileRoute
   '/rakshak-platform/sponsor': typeof RakshakPlatformSponsorRoute
-  '/rakshak-platform/team': typeof RakshakPlatformTeamRouteWithChildren
   '/rakshak-platform/unauthorized': typeof RakshakPlatformUnauthorizedRoute
   '/gigrider-checklist/': typeof GigriderChecklistIndexRoute
   '/rakshak-mentor/': typeof RakshakMentorIndexRoute
@@ -1003,7 +1003,6 @@ export interface FileRoutesById {
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/book-mentor': typeof RakshakPlatformTeamBookMentorRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
-  '/rakshak-platform/team/phases': typeof RakshakPlatformTeamPhasesRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
   '/gigrider-checklist/admin/': typeof GigriderChecklistAdminIndexRoute
@@ -1013,6 +1012,7 @@ export interface FileRoutesById {
   '/rakshak-platform/evaluator/': typeof RakshakPlatformEvaluatorIndexRoute
   '/rakshak-platform/knowledge/': typeof RakshakPlatformKnowledgeIndexRoute
   '/rakshak-platform/mentor/': typeof RakshakPlatformMentorIndexRoute
+  '/rakshak-platform/team/': typeof RakshakPlatformTeamIndexRoute
   '/api/public/hooks/admin-digest': typeof ApiPublicHooksAdminDigestRoute
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
@@ -1032,6 +1032,7 @@ export interface FileRoutesById {
   '/rakshak-platform/team/phases/$phase': typeof RakshakPlatformTeamPhasesPhaseRoute
   '/rakshak-platform/admin/teams/': typeof RakshakPlatformAdminTeamsIndexRoute
   '/rakshak-platform/team/locations/': typeof RakshakPlatformTeamLocationsIndexRoute
+  '/rakshak-platform/team/phases/': typeof RakshakPlatformTeamPhasesIndexRoute
   '/rakshak-platform/team/reports/': typeof RakshakPlatformTeamReportsIndexRoute
 }
 export interface FileRouteTypes {
@@ -1065,7 +1066,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/notifications'
     | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
-    | '/rakshak-platform/team'
     | '/rakshak-platform/unauthorized'
     | '/gigrider-checklist/'
     | '/rakshak-mentor/'
@@ -1113,7 +1113,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/book-mentor'
     | '/rakshak-platform/team/locations'
-    | '/rakshak-platform/team/phases'
     | '/rakshak-platform/team/reports'
     | '/rakshak-platform/verify/$slug'
     | '/gigrider-checklist/admin/'
@@ -1123,6 +1122,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/'
     | '/rakshak-platform/knowledge/'
     | '/rakshak-platform/mentor/'
+    | '/rakshak-platform/team/'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/doubt-reminders'
@@ -1142,6 +1142,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/team/phases/$phase'
     | '/rakshak-platform/admin/teams/'
     | '/rakshak-platform/team/locations/'
+    | '/rakshak-platform/team/phases/'
     | '/rakshak-platform/team/reports/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1164,7 +1165,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/notifications'
     | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
-    | '/rakshak-platform/team'
     | '/rakshak-platform/unauthorized'
     | '/gigrider-checklist'
     | '/rakshak-mentor'
@@ -1211,7 +1211,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/book-mentor'
-    | '/rakshak-platform/team/phases'
     | '/rakshak-platform/verify/$slug'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/observer'
@@ -1220,6 +1219,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator'
     | '/rakshak-platform/knowledge'
     | '/rakshak-platform/mentor'
+    | '/rakshak-platform/team'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/doubt-reminders'
@@ -1239,6 +1239,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/team/phases/$phase'
     | '/rakshak-platform/admin/teams'
     | '/rakshak-platform/team/locations'
+    | '/rakshak-platform/team/phases'
     | '/rakshak-platform/team/reports'
   id:
     | '__root__'
@@ -1270,7 +1271,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/notifications'
     | '/rakshak-platform/profile'
     | '/rakshak-platform/sponsor'
-    | '/rakshak-platform/team'
     | '/rakshak-platform/unauthorized'
     | '/gigrider-checklist/'
     | '/rakshak-mentor/'
@@ -1318,7 +1318,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/book-mentor'
     | '/rakshak-platform/team/locations'
-    | '/rakshak-platform/team/phases'
     | '/rakshak-platform/team/reports'
     | '/rakshak-platform/verify/$slug'
     | '/gigrider-checklist/admin/'
@@ -1328,6 +1327,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/evaluator/'
     | '/rakshak-platform/knowledge/'
     | '/rakshak-platform/mentor/'
+    | '/rakshak-platform/team/'
     | '/api/public/hooks/admin-digest'
     | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/doubt-reminders'
@@ -1347,6 +1347,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/team/phases/$phase'
     | '/rakshak-platform/admin/teams/'
     | '/rakshak-platform/team/locations/'
+    | '/rakshak-platform/team/phases/'
     | '/rakshak-platform/team/reports/'
   fileRoutesById: FileRoutesById
 }
@@ -1437,13 +1438,6 @@ declare module '@tanstack/react-router' {
       path: '/unauthorized'
       fullPath: '/rakshak-platform/unauthorized'
       preLoaderRoute: typeof RakshakPlatformUnauthorizedRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team': {
-      id: '/rakshak-platform/team'
-      path: '/team'
-      fullPath: '/rakshak-platform/team'
-      preLoaderRoute: typeof RakshakPlatformTeamRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/sponsor': {
@@ -1607,6 +1601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rakshak-platform/team/': {
+      id: '/rakshak-platform/team/'
+      path: '/team'
+      fullPath: '/rakshak-platform/team/'
+      preLoaderRoute: typeof RakshakPlatformTeamIndexRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
     '/rakshak-platform/mentor/': {
       id: '/rakshak-platform/mentor/'
       path: '/mentor'
@@ -1665,31 +1666,24 @@ declare module '@tanstack/react-router' {
     }
     '/rakshak-platform/team/reports': {
       id: '/rakshak-platform/team/reports'
-      path: '/reports'
+      path: '/team/reports'
       fullPath: '/rakshak-platform/team/reports'
       preLoaderRoute: typeof RakshakPlatformTeamReportsRouteImport
-      parentRoute: typeof RakshakPlatformTeamRoute
-    }
-    '/rakshak-platform/team/phases': {
-      id: '/rakshak-platform/team/phases'
-      path: '/phases'
-      fullPath: '/rakshak-platform/team/phases'
-      preLoaderRoute: typeof RakshakPlatformTeamPhasesRouteImport
-      parentRoute: typeof RakshakPlatformTeamRoute
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/team/locations': {
       id: '/rakshak-platform/team/locations'
-      path: '/locations'
+      path: '/team/locations'
       fullPath: '/rakshak-platform/team/locations'
       preLoaderRoute: typeof RakshakPlatformTeamLocationsRouteImport
-      parentRoute: typeof RakshakPlatformTeamRoute
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/team/book-mentor': {
       id: '/rakshak-platform/team/book-mentor'
-      path: '/book-mentor'
+      path: '/team/book-mentor'
       fullPath: '/rakshak-platform/team/book-mentor'
       preLoaderRoute: typeof RakshakPlatformTeamBookMentorRouteImport
-      parentRoute: typeof RakshakPlatformTeamRoute
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/t/$slug': {
       id: '/rakshak-platform/t/$slug'
@@ -1985,6 +1979,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformTeamReportsIndexRouteImport
       parentRoute: typeof RakshakPlatformTeamReportsRoute
     }
+    '/rakshak-platform/team/phases/': {
+      id: '/rakshak-platform/team/phases/'
+      path: '/team/phases'
+      fullPath: '/rakshak-platform/team/phases/'
+      preLoaderRoute: typeof RakshakPlatformTeamPhasesIndexRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
     '/rakshak-platform/team/locations/': {
       id: '/rakshak-platform/team/locations/'
       path: '/'
@@ -2001,10 +2002,10 @@ declare module '@tanstack/react-router' {
     }
     '/rakshak-platform/team/phases/$phase': {
       id: '/rakshak-platform/team/phases/$phase'
-      path: '/$phase'
+      path: '/team/phases/$phase'
       fullPath: '/rakshak-platform/team/phases/$phase'
       preLoaderRoute: typeof RakshakPlatformTeamPhasesPhaseRouteImport
-      parentRoute: typeof RakshakPlatformTeamPhasesRoute
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/team/locations/$id': {
       id: '/rakshak-platform/team/locations/$id'
@@ -2349,20 +2350,6 @@ const RakshakPlatformTeamLocationsRouteWithChildren =
     RakshakPlatformTeamLocationsRouteChildren,
   )
 
-interface RakshakPlatformTeamPhasesRouteChildren {
-  RakshakPlatformTeamPhasesPhaseRoute: typeof RakshakPlatformTeamPhasesPhaseRoute
-}
-
-const RakshakPlatformTeamPhasesRouteChildren: RakshakPlatformTeamPhasesRouteChildren =
-  {
-    RakshakPlatformTeamPhasesPhaseRoute: RakshakPlatformTeamPhasesPhaseRoute,
-  }
-
-const RakshakPlatformTeamPhasesRouteWithChildren =
-  RakshakPlatformTeamPhasesRoute._addFileChildren(
-    RakshakPlatformTeamPhasesRouteChildren,
-  )
-
 interface RakshakPlatformTeamReportsRouteChildren {
   RakshakPlatformTeamReportsIndexRoute: typeof RakshakPlatformTeamReportsIndexRoute
 }
@@ -2376,24 +2363,6 @@ const RakshakPlatformTeamReportsRouteWithChildren =
   RakshakPlatformTeamReportsRoute._addFileChildren(
     RakshakPlatformTeamReportsRouteChildren,
   )
-
-interface RakshakPlatformTeamRouteChildren {
-  RakshakPlatformTeamBookMentorRoute: typeof RakshakPlatformTeamBookMentorRoute
-  RakshakPlatformTeamLocationsRoute: typeof RakshakPlatformTeamLocationsRouteWithChildren
-  RakshakPlatformTeamPhasesRoute: typeof RakshakPlatformTeamPhasesRouteWithChildren
-  RakshakPlatformTeamReportsRoute: typeof RakshakPlatformTeamReportsRouteWithChildren
-}
-
-const RakshakPlatformTeamRouteChildren: RakshakPlatformTeamRouteChildren = {
-  RakshakPlatformTeamBookMentorRoute: RakshakPlatformTeamBookMentorRoute,
-  RakshakPlatformTeamLocationsRoute:
-    RakshakPlatformTeamLocationsRouteWithChildren,
-  RakshakPlatformTeamPhasesRoute: RakshakPlatformTeamPhasesRouteWithChildren,
-  RakshakPlatformTeamReportsRoute: RakshakPlatformTeamReportsRouteWithChildren,
-}
-
-const RakshakPlatformTeamRouteWithChildren =
-  RakshakPlatformTeamRoute._addFileChildren(RakshakPlatformTeamRouteChildren)
 
 interface RakshakPlatformRouteChildren {
   RakshakPlatformAdminRoute: typeof RakshakPlatformAdminRouteWithChildren
@@ -2413,7 +2382,6 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformNotificationsRoute: typeof RakshakPlatformNotificationsRoute
   RakshakPlatformProfileRoute: typeof RakshakPlatformProfileRoute
   RakshakPlatformSponsorRoute: typeof RakshakPlatformSponsorRoute
-  RakshakPlatformTeamRoute: typeof RakshakPlatformTeamRouteWithChildren
   RakshakPlatformUnauthorizedRoute: typeof RakshakPlatformUnauthorizedRoute
   RakshakPlatformIndexRoute: typeof RakshakPlatformIndexRoute
   RakshakPlatformBookMentorIdRoute: typeof RakshakPlatformBookMentorIdRoute
@@ -2425,9 +2393,15 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformSessionIdRoute: typeof RakshakPlatformSessionIdRoute
   RakshakPlatformShareTeamIdRoute: typeof RakshakPlatformShareTeamIdRoute
   RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
+  RakshakPlatformTeamBookMentorRoute: typeof RakshakPlatformTeamBookMentorRoute
+  RakshakPlatformTeamLocationsRoute: typeof RakshakPlatformTeamLocationsRouteWithChildren
+  RakshakPlatformTeamReportsRoute: typeof RakshakPlatformTeamReportsRouteWithChildren
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
   RakshakPlatformMentorIndexRoute: typeof RakshakPlatformMentorIndexRoute
+  RakshakPlatformTeamIndexRoute: typeof RakshakPlatformTeamIndexRoute
   RakshakPlatformMentorTeamsTeamIdRoute: typeof RakshakPlatformMentorTeamsTeamIdRoute
+  RakshakPlatformTeamPhasesPhaseRoute: typeof RakshakPlatformTeamPhasesPhaseRoute
+  RakshakPlatformTeamPhasesIndexRoute: typeof RakshakPlatformTeamPhasesIndexRoute
 }
 
 const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
@@ -2448,7 +2422,6 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformNotificationsRoute: RakshakPlatformNotificationsRoute,
   RakshakPlatformProfileRoute: RakshakPlatformProfileRoute,
   RakshakPlatformSponsorRoute: RakshakPlatformSponsorRoute,
-  RakshakPlatformTeamRoute: RakshakPlatformTeamRouteWithChildren,
   RakshakPlatformUnauthorizedRoute: RakshakPlatformUnauthorizedRoute,
   RakshakPlatformIndexRoute: RakshakPlatformIndexRoute,
   RakshakPlatformBookMentorIdRoute: RakshakPlatformBookMentorIdRoute,
@@ -2461,9 +2434,16 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformSessionIdRoute: RakshakPlatformSessionIdRoute,
   RakshakPlatformShareTeamIdRoute: RakshakPlatformShareTeamIdRoute,
   RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
+  RakshakPlatformTeamBookMentorRoute: RakshakPlatformTeamBookMentorRoute,
+  RakshakPlatformTeamLocationsRoute:
+    RakshakPlatformTeamLocationsRouteWithChildren,
+  RakshakPlatformTeamReportsRoute: RakshakPlatformTeamReportsRouteWithChildren,
   RakshakPlatformVerifySlugRoute: RakshakPlatformVerifySlugRoute,
   RakshakPlatformMentorIndexRoute: RakshakPlatformMentorIndexRoute,
+  RakshakPlatformTeamIndexRoute: RakshakPlatformTeamIndexRoute,
   RakshakPlatformMentorTeamsTeamIdRoute: RakshakPlatformMentorTeamsTeamIdRoute,
+  RakshakPlatformTeamPhasesPhaseRoute: RakshakPlatformTeamPhasesPhaseRoute,
+  RakshakPlatformTeamPhasesIndexRoute: RakshakPlatformTeamPhasesIndexRoute,
 }
 
 const RakshakPlatformRouteWithChildren = RakshakPlatformRoute._addFileChildren(
@@ -2497,3 +2477,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
