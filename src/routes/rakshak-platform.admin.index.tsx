@@ -626,7 +626,7 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.length === 0 && (
-                <tr><td colSpan={9} className="text-center py-12 text-muted-foreground">No teams match.</td></tr>
+                <tr><td colSpan={8} className="text-center py-12 text-muted-foreground">No teams match.</td></tr>
               )}
               {filtered.map((r) => (
                 <tr key={r.id} className="hover:bg-brand-lite/40">
@@ -648,19 +648,19 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
                     </div>
                   </td>
                   <td className="px-4 py-3 font-mono font-semibold text-brand">{r.tScore.toFixed(1)}</td>
-                  <td className={`px-4 py-3 text-xs ${urgencyTone(r.examDate)}`}>{fmtDate(r.examDate)}</td>
+                  <td className={`px-4 py-3 text-xs ${urgencyTone(r.nextDeadline)}`}>{fmtDate(r.nextDeadline)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Ring value={(r.tasksCompleted / r.tasksTotal) * 100} size={28} stroke={3} />
                       <span className="text-xs text-muted-foreground">{r.tasksCompleted}/{r.tasksTotal}</span>
                     </div>
                   </td>
-                  <td className={`px-4 py-3 text-xs ${urgencyTone(r.importantDate)}`}>{fmtDate(r.importantDate)}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     <span className="inline-flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" />{r.commentsCount}</span>
                   </td>
                 </tr>
               ))}
+
             </tbody>
           </table>
         </div>
