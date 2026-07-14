@@ -156,13 +156,15 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function urgencyTone(iso: string) {
+function urgencyTone(iso: string | null) {
+  if (!iso) return "text-muted-foreground";
   const diff = (new Date(iso).getTime() - Date.now()) / 86400000;
   if (diff < 0) return "text-red-700 font-semibold";
   if (diff < 7) return "text-orange-600 font-semibold";
   if (diff < 14) return "text-amber-600";
   return "text-muted-foreground";
 }
+
 
 /* ──────────────────────────────────────────────────────────────────── */
 /* Page                                                                  */
