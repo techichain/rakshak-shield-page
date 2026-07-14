@@ -1295,7 +1295,9 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     tone: "from-sky-50 to-white border-sky-100",
     items: [
       { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
+      { to: "/rakshak-platform/admin/resources", label: "Resources", icon: BookOpen, desc: "Handbooks, rubrics & templates — global or per-team" },
     ],
+
   },
   {
     id: "review",
