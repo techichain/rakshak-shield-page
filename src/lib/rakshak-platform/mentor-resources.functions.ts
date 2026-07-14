@@ -238,16 +238,49 @@ export const listTeamResourcesAdmin = createServerFn({ method: "GET" })
     return { resources: rows ?? [] };
   });
 
-// Signed download URL — RLS on storage.objects also enforces visibility.
+// Signed download URL — RLS gate on rp_mentor_resources with a mentor-only
+// fallback for team-scoped admin resources (the SELECT policy doesn't include
+// the assigned mentor of the team).
 export const getResourceDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: row } = await context.supabase
+    let row: { storage_path: string | null; file_name: string | null; team_id: string | null; source: string } | null = null;
+
+    // Primary path: RLS-scoped read.
+    const { data: viaRls } = await context.supabase
       .from("rp_mentor_resources")
-      .select("id, storage_path, file_name")
+      .select("storage_path, file_name, team_id, source")
       .eq("id", data.id)
       .maybeSingle();
+    row = viaRls as any;
+
+    // Fallback for mentors on team-scoped admin resources.
+    if (!row && (await isMentor(context.supabase, context.userId))) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: viaAdmin } = await supabaseAdmin
+        .from("rp_mentor_resources")
+        .select("storage_path, file_name, team_id, source")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (viaAdmin?.source === "admin" && viaAdmin.team_id) {
+        const { data: mentorRow } = await context.supabase
+          .from("rp_mentors")
+          .select("id")
+          .eq("profile_id", context.userId)
+          .maybeSingle();
+        if (mentorRow?.id) {
+          const { data: mine } = await context.supabase
+            .from("rp_teams")
+            .select("id")
+            .eq("id", viaAdmin.team_id)
+            .eq("assigned_mentor_id", mentorRow.id)
+            .maybeSingle();
+          if (mine) row = viaAdmin as any;
+        }
+      }
+    }
+
     if (!row?.storage_path) throw new Error("Not found");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error } = await supabaseAdmin.storage
@@ -258,6 +291,7 @@ export const getResourceDownloadUrl = createServerFn({ method: "POST" })
     if (error) throw error;
     return { url: signed.signedUrl };
   });
+
 
 // Team leader/member: recent mentor feedback across all my teams (top N)
 export const listMyRecentFeedback = createServerFn({ method: "GET" })
