@@ -84,7 +84,7 @@ export function MentorResourcesList({
     return () => {
       cancelled = true;
     };
-  }, [mode, teamId, fetchAdmin, fetchViewer, reloadKey]);
+  }, [mode, teamId, fetchAdmin, fetchViewer, reloadKey, sourceFilter]);
 
   async function handleDownload(r: Resource) {
     setDownloadingId(r.id);
