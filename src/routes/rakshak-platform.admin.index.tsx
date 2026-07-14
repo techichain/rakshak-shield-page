@@ -498,7 +498,7 @@ function MentorBadge({ id, name }: { id: string | null; name: string }) {
 /* PANEL 1 — Leaderboard                                                 */
 /* ──────────────────────────────────────────────────────────────────── */
 
-type SortKey = "tScore" | "completion_percentage" | "tasksCompleted" | "examDate";
+type SortKey = "tScore" | "completion_percentage" | "tasksCompleted" | "nextDeadline";
 
 function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: MentorRow[] }) {
   const [q, setQ] = useState("");
@@ -521,8 +521,18 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
       );
     });
     out = [...out].sort((a, b) => {
-      const av = sort.key === "examDate" ? new Date(a.examDate).getTime() : (a as any)[sort.key] ?? 0;
-      const bv = sort.key === "examDate" ? new Date(b.examDate).getTime() : (b as any)[sort.key] ?? 0;
+      const av =
+        sort.key === "nextDeadline"
+          ? a.nextDeadline
+            ? new Date(a.nextDeadline).getTime()
+            : Number.POSITIVE_INFINITY
+          : (a as any)[sort.key] ?? 0;
+      const bv =
+        sort.key === "nextDeadline"
+          ? b.nextDeadline
+            ? new Date(b.nextDeadline).getTime()
+            : Number.POSITIVE_INFINITY
+          : (b as any)[sort.key] ?? 0;
       return sort.dir === "asc" ? av - bv : bv - av;
     });
     return out;
@@ -536,11 +546,13 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
       r.phases.some((p) => ["submitted", "under_mentor_review", "under_admin_review"].includes(p.status)),
     ).length;
     const upcoming = rows.filter((r) => {
-      const t = new Date(r.examDate).getTime() - Date.now();
+      if (!r.nextDeadline) return false;
+      const t = new Date(r.nextDeadline).getTime() - Date.now();
       return t > 0 && t < 21 * 86400000;
     }).length;
     return { count: rows.length, avg, top: top?.team_name ?? "—", topScore: top?.tScore ?? 0, pending, upcoming };
   }, [rows]);
+
 
   function toggleSort(key: SortKey) {
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "desc" }));
