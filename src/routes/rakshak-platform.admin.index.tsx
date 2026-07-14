@@ -876,7 +876,7 @@ function TrackerPanel({
                         </td>
                       );
                     })}
-                    <td className={`px-3 py-2 whitespace-nowrap text-[11px] ${urgencyTone(r.examDate)}`}>{fmtDate(r.examDate)}</td>
+                    <td className={`px-3 py-2 whitespace-nowrap text-[11px] ${urgencyTone(r.nextDeadline)}`}>{fmtDate(r.nextDeadline)}</td>
                     <td className="px-3 py-2 w-[110px]">
                       <ProgressBar value={(r.tasksCompleted / r.tasksTotal) * 100} />
                     </td>
