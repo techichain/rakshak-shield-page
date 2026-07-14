@@ -2492,6 +2492,7 @@ export type Database = {
           full_name: string
           id: string
           jurisdiction_states: string[]
+          login_id: string | null
           organization: string | null
           phone: string | null
           state: string | null
@@ -2507,6 +2508,7 @@ export type Database = {
           full_name: string
           id: string
           jurisdiction_states?: string[]
+          login_id?: string | null
           organization?: string | null
           phone?: string | null
           state?: string | null
@@ -2522,6 +2524,7 @@ export type Database = {
           full_name?: string
           id?: string
           jurisdiction_states?: string[]
+          login_id?: string | null
           organization?: string | null
           phone?: string | null
           state?: string | null
