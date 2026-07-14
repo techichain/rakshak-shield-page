@@ -27,6 +27,13 @@ function MentorDashboard() {
   const navigate = useNavigate();
   const { loading, userId, isMentor } = useRPAuth();
   const [teams, setTeams] = useState<any[]>([]);
+  const fetchAdminForMentor = useServerFn(listAdminResourcesForMentor);
+  const adminResourceFetcher = useCallback(
+    () => fetchAdminForMentor({} as any) as unknown as Promise<{ resources: any[] }>,
+    [fetchAdminForMentor],
+  );
+
+
 
   useEffect(() => {
     if (loading) return;
