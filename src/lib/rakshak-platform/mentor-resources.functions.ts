@@ -189,13 +189,18 @@ export const listTeamResourcesForViewer = createServerFn({ method: "GET" })
       ),
     );
 
-    // Query resources: team_id in teamIds  OR (team_id null AND mentor_id in mentorProfileIds)
+    // Query resources visible to this viewer:
+    //   • team_id in their teams (any source — includes team-scoped admin resources)
+    //   • global (team_id null) AND authored by one of their teams' mentors
+    //   • global (team_id null) AND source='admin' — visible to every team
     const orClauses: string[] = [];
     if (teamIds.length) orClauses.push(`team_id.in.(${teamIds.join(",")})`);
     if (mentorProfileIds.length) {
       orClauses.push(`and(team_id.is.null,mentor_id.in.(${mentorProfileIds.join(",")}))`);
     }
+    orClauses.push(`and(team_id.is.null,source.eq.admin)`);
     if (orClauses.length === 0) return { resources: [] };
+
 
     const { data: rows, error } = await context.supabase
       .from("rp_mentor_resources")
