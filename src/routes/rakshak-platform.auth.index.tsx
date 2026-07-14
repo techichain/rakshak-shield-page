@@ -11,7 +11,7 @@ const searchSchema = z.object({
   redirect: z.string().optional().catch(undefined),
 });
 
-export const Route = createFileRoute("/rakshak-platform/auth")({
+export const Route = createFileRoute("/rakshak-platform/auth/")({
   validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
   component: AuthPage,
 });
