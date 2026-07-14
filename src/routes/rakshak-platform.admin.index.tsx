@@ -65,9 +65,11 @@ type Enriched = TeamRow & {
   p1: number; p2: number; p3: number; p4: number;
   /** Earliest future phase deadline from rp_team_phase_progress. null when none. */
   nextDeadline: string | null;
+  commentsCount: number;
   tasksCompleted: number;
   tasksTotal: number;
 };
+
 
 
 /* ──────────────────────────────────────────────────────────────────── */
