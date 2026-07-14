@@ -70,7 +70,7 @@ function AuthPage() {
       }
       const { error: signErr } = await supabase.auth.signInWithPassword({ email, password });
       if (signErr) throw signErr;
-      const target = (redirect && redirect.startsWith("/")) ? redirect : "/rakshak-platform/dashboard";
+      const target = safeRedirect(redirect);
       navigate({ to: target });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not sign in.");
