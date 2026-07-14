@@ -258,6 +258,13 @@ function AdminDashboard() {
       const computedT = Math.round((p1 + p2 + p3 + p4) * 10) / 10;
       const tScore = t.final_score != null ? Number(t.final_score) : computedT;
       const tasksCompleted = phases.filter((p) => ["completed", "admin_approved", "mentor_approved"].includes(p.status)).length;
+      // Real next deadline: earliest future phase deadline for this team.
+      const now = Date.now();
+      const upcoming = phases
+        .map((p) => p.deadline)
+        .filter((d): d is string => !!d && new Date(d).getTime() > now)
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+      const nextDeadline = upcoming[0] ?? null;
       return {
         ...t,
         mentorId: mentor?.id ?? null,
@@ -265,13 +272,13 @@ function AdminDashboard() {
         leaderName: t.team_leader_id ? (profiles[t.team_leader_id] ?? "—") : "—",
         phases,
         tScore, p1, p2, p3, p4,
-        examDate: mockDateFromId(t.id, 7, 90),
-        importantDate: mockDateFromId(t.id, 13, 30),
+        nextDeadline,
         commentsCount: seedInt(t.id, 3, 24),
         tasksCompleted,
         tasksTotal: TASK_COLUMNS.length,
       };
     });
+
   }, [teams, mentors, progress, evals, profiles]);
 
   /* Mutators */
