@@ -147,7 +147,7 @@ function PhaseDetail() {
 
   async function uploadFile(file: File) {
     if (!data.submission) { setErr("Save a draft first to upload files."); return; }
-    if (file.size > 25 * 1024 * 1024) { setErr("Max 25 MB."); return; }
+    if (file.size > 30 * 1024 * 1024) { setErr("Max 30 MB."); return; }
     setUploading(true); setErr(null);
     try {
       const path = `${team}/${data.submission.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;

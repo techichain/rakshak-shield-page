@@ -8,7 +8,7 @@ import { PHASE_TITLES, STATUS_META, type PhaseStatus } from "@/lib/rakshak-platf
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { ArrowRight, AlertTriangle, Clock, CheckCircle2 } from "lucide-react";
 
-export const Route = createFileRoute("/rakshak-platform/team/phases")({
+export const Route = createFileRoute("/rakshak-platform/team/phases/")({
   ssr: false,
   beforeLoad: async () => {
     await rpRequireRole(["team_leader", "team_member"]);
