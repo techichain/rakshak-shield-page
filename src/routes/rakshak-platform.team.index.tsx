@@ -284,35 +284,31 @@ function TeamDashboard() {
               <BookOpen className="h-5 w-5 text-brand" />
               <h2 className="font-heading text-lg font-semibold">Resources from your mentor</h2>
             </div>
-            <MentorResourcesList mode="viewer" teamId={team.id} />
+            <MentorResourcesList
+              mode="viewer"
+              teamId={team.id}
+              sourceFilter="mentor"
+              emptyText="Your mentor hasn't shared anything yet."
+            />
           </div>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <RecentMeetingNotesCard />
-          <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-6">
+          <div className="rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5 text-muted-foreground" />
+              <FolderOpen className="h-5 w-5 text-brand" />
               <h2 className="font-heading text-lg font-semibold">Resources from admin</h2>
-              <span className="ml-auto text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border border-border text-muted-foreground">Preview</span>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Not yet available — admins will be able to share phase resources (briefs, rubrics, templates, case studies) here.
-            </p>
-            <ul className="mt-3 space-y-2">
-              {[
-                { title: "Programme handbook (PDF)", note: "Placeholder" },
-                { title: "Phase rubric & scoring guide", note: "Placeholder" },
-                { title: "Sample authority-facing report", note: "Placeholder" },
-              ].map((r) => (
-                <li key={r.title} className="rounded-lg border border-border/70 bg-card p-3 flex items-center justify-between opacity-70">
-                  <span className="text-sm">{r.title}</span>
-                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{r.note}</span>
-                </li>
-              ))}
-            </ul>
+            <MentorResourcesList
+              mode="viewer"
+              teamId={team.id}
+              sourceFilter="admin"
+              emptyText="No programme resources shared by admin yet."
+            />
           </div>
         </div>
+
 
         <div className="mt-8">
           <DoubtsCard teamId={team.id} phaseNumber={team.current_phase} />
