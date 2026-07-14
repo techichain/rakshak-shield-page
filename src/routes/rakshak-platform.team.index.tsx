@@ -14,7 +14,7 @@ import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeet
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
 import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
-export const Route = createFileRoute("/rakshak-platform/team")({
+export const Route = createFileRoute("/rakshak-platform/team/")({
   ssr: false,
   beforeLoad: async () => {
     await rpRequireRole(["team_leader"]);
