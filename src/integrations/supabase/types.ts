@@ -2167,6 +2167,7 @@ export type Database = {
           id: string
           kind: string
           mentor_id: string
+          source: string
           storage_path: string | null
           team_id: string | null
           title: string
@@ -2183,6 +2184,7 @@ export type Database = {
           id?: string
           kind: string
           mentor_id: string
+          source?: string
           storage_path?: string | null
           team_id?: string | null
           title: string
@@ -2199,6 +2201,7 @@ export type Database = {
           id?: string
           kind?: string
           mentor_id?: string
+          source?: string
           storage_path?: string | null
           team_id?: string | null
           title?: string

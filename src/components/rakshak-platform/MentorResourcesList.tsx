@@ -19,10 +19,12 @@ type Resource = {
   storage_path: string | null;
   team_id: string | null;
   mentor_id: string;
+  source?: "mentor" | "admin";
   created_at: string;
   rp_profiles?: { full_name: string | null } | null;
   rp_teams?: { id: string; team_name: string } | null;
 };
+
 
 function fmtSize(n: number | null) {
   if (!n) return "";
@@ -36,12 +38,20 @@ export function MentorResourcesList({
   teamId,
   canDelete = false,
   onChanged,
+  sourceFilter,
+  emptyText,
+  fetcher,
 }: {
   mode: "viewer" | "admin";
   teamId?: string;
   canDelete?: boolean;
   onChanged?: () => void;
+  sourceFilter?: "mentor" | "admin";
+  emptyText?: string;
+  /** Optional override — return the raw { resources } payload. */
+  fetcher?: () => Promise<{ resources: Resource[] } | any>;
 }) {
+
   const fetchViewer = useServerFn(listTeamResourcesForViewer);
   const fetchAdmin = useServerFn(listTeamResourcesAdmin);
   const fetchDownload = useServerFn(getResourceDownloadUrl);
@@ -58,11 +68,17 @@ export function MentorResourcesList({
       setBusy(true);
       setErr(null);
       try {
-        const res =
-          mode === "admin" && teamId
+        const res = fetcher
+          ? await fetcher()
+          : mode === "admin" && teamId
             ? await fetchAdmin({ data: { team_id: teamId } } as any)
             : await fetchViewer({ data: teamId ? { team_id: teamId } : {} } as any);
-        if (!cancelled) setItems((res as any)?.resources ?? []);
+        const all = ((res as any)?.resources ?? []) as Resource[];
+        const filtered = sourceFilter
+          ? all.filter((r) => (r.source ?? "mentor") === sourceFilter)
+          : all;
+        if (!cancelled) setItems(filtered);
+
       } catch (e) {
         if (!cancelled) setErr(e instanceof Error ? e.message : "Failed to load");
       } finally {
@@ -72,7 +88,8 @@ export function MentorResourcesList({
     return () => {
       cancelled = true;
     };
-  }, [mode, teamId, fetchAdmin, fetchViewer, reloadKey]);
+  }, [mode, teamId, fetchAdmin, fetchViewer, reloadKey, sourceFilter, fetcher]);
+
 
   async function handleDownload(r: Resource) {
     setDownloadingId(r.id);
@@ -112,10 +129,11 @@ export function MentorResourcesList({
   if (items.length === 0) {
     return (
       <p className="text-sm text-muted-foreground py-4">
-        No resources shared yet. Your mentor will share reading material, templates or reference links here.
+        {emptyText ?? "No resources shared yet."}
       </p>
     );
   }
+
 
   return (
     <ul className="mt-2 divide-y divide-border">

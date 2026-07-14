@@ -1,15 +1,19 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
 import { ResolveDoubtsPanel } from "@/components/rakshak-platform/ResolveDoubtsPanel";
+import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { listAdminResourcesForMentor } from "@/lib/rakshak-platform/mentor-resources.functions";
 
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
-import { Loader2, UsersRound, CalendarDays, Clock, BarChart3 } from "lucide-react";
+import { Loader2, UsersRound, CalendarDays, Clock, BarChart3, BookOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+
 
 export const Route = createFileRoute("/rakshak-platform/mentor/")({
   ssr: false,
@@ -23,6 +27,13 @@ function MentorDashboard() {
   const navigate = useNavigate();
   const { loading, userId, isMentor } = useRPAuth();
   const [teams, setTeams] = useState<any[]>([]);
+  const fetchAdminForMentor = useServerFn(listAdminResourcesForMentor);
+  const adminResourceFetcher = useCallback(
+    () => fetchAdminForMentor({} as any) as unknown as Promise<{ resources: any[] }>,
+    [fetchAdminForMentor],
+  );
+
+
 
   useEffect(() => {
     if (loading) return;
@@ -129,10 +140,27 @@ function MentorDashboard() {
 
 
 
+        <div className="mt-12 rounded-2xl border border-border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-brand" />
+            <h2 className="font-heading text-lg font-semibold">Resources from admin</h2>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Programme handbooks, rubrics and templates shared by admins — global, and scoped to your teams.
+          </p>
+          <MentorResourcesList
+            mode="viewer"
+            sourceFilter="admin"
+            fetcher={adminResourceFetcher}
+            emptyText="No admin resources yet."
+          />
+        </div>
+
         <div className="mt-16 border-t border-border pt-12 space-y-10">
           <ResolveDoubtsPanel />
           <ReviewPanel role="mentor" />
         </div>
+
       </Section>
     </PlatformShell>
   );

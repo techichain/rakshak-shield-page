@@ -22,6 +22,12 @@ async function isMentor(supabase: any, userId: string) {
   return !!data;
 }
 
+async function isMentorOrAdmin(supabase: any, userId: string) {
+  const [m, a] = await Promise.all([isMentor(supabase, userId), isAdmin(supabase, userId)]);
+  return m || a;
+}
+
+
 // Mentor: get a signed upload URL. Path: {userId}/{uuid}/{safeFilename}
 export const getMentorResourceUploadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -29,8 +35,8 @@ export const getMentorResourceUploadUrl = createServerFn({ method: "POST" })
     z.object({ file_name: z.string().min(1).max(200) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    if (!(await isMentor(context.supabase, context.userId))) {
-      throw new Error("Forbidden: mentor role required");
+    if (!(await isMentorOrAdmin(context.supabase, context.userId))) {
+      throw new Error("Forbidden: mentor or admin role required");
     }
     const safe = data.file_name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 180);
     const resourceKey = crypto.randomUUID();
@@ -183,13 +189,18 @@ export const listTeamResourcesForViewer = createServerFn({ method: "GET" })
       ),
     );
 
-    // Query resources: team_id in teamIds  OR (team_id null AND mentor_id in mentorProfileIds)
+    // Query resources visible to this viewer:
+    //   • team_id in their teams (any source — includes team-scoped admin resources)
+    //   • global (team_id null) AND authored by one of their teams' mentors
+    //   • global (team_id null) AND source='admin' — visible to every team
     const orClauses: string[] = [];
     if (teamIds.length) orClauses.push(`team_id.in.(${teamIds.join(",")})`);
     if (mentorProfileIds.length) {
       orClauses.push(`and(team_id.is.null,mentor_id.in.(${mentorProfileIds.join(",")}))`);
     }
+    orClauses.push(`and(team_id.is.null,source.eq.admin)`);
     if (orClauses.length === 0) return { resources: [] };
+
 
     const { data: rows, error } = await context.supabase
       .from("rp_mentor_resources")
@@ -227,16 +238,49 @@ export const listTeamResourcesAdmin = createServerFn({ method: "GET" })
     return { resources: rows ?? [] };
   });
 
-// Signed download URL — RLS on storage.objects also enforces visibility.
+// Signed download URL — RLS gate on rp_mentor_resources with a mentor-only
+// fallback for team-scoped admin resources (the SELECT policy doesn't include
+// the assigned mentor of the team).
 export const getResourceDownloadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: row } = await context.supabase
+    let row: { storage_path: string | null; file_name: string | null; team_id: string | null; source: string } | null = null;
+
+    // Primary path: RLS-scoped read.
+    const { data: viaRls } = await context.supabase
       .from("rp_mentor_resources")
-      .select("id, storage_path, file_name")
+      .select("storage_path, file_name, team_id, source")
       .eq("id", data.id)
       .maybeSingle();
+    row = viaRls as any;
+
+    // Fallback for mentors on team-scoped admin resources.
+    if (!row && (await isMentor(context.supabase, context.userId))) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: viaAdmin } = await supabaseAdmin
+        .from("rp_mentor_resources")
+        .select("storage_path, file_name, team_id, source")
+        .eq("id", data.id)
+        .maybeSingle();
+      if (viaAdmin?.source === "admin" && viaAdmin.team_id) {
+        const { data: mentorRow } = await context.supabase
+          .from("rp_mentors")
+          .select("id")
+          .eq("profile_id", context.userId)
+          .maybeSingle();
+        if (mentorRow?.id) {
+          const { data: mine } = await context.supabase
+            .from("rp_teams")
+            .select("id")
+            .eq("id", viaAdmin.team_id)
+            .eq("assigned_mentor_id", mentorRow.id)
+            .maybeSingle();
+          if (mine) row = viaAdmin as any;
+        }
+      }
+    }
+
     if (!row?.storage_path) throw new Error("Not found");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error } = await supabaseAdmin.storage
@@ -247,6 +291,7 @@ export const getResourceDownloadUrl = createServerFn({ method: "POST" })
     if (error) throw error;
     return { url: signed.signedUrl };
   });
+
 
 // Team leader/member: recent mentor feedback across all my teams (top N)
 export const listMyRecentFeedback = createServerFn({ method: "GET" })
@@ -281,4 +326,117 @@ export const listMyRecentFeedback = createServerFn({ method: "GET" })
       team_name: teams.get(r.team_id) ?? null,
     }));
     return { feedback: out };
+  });
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* Admin-authored resources                                            */
+/* ─────────────────────────────────────────────────────────────────── */
+
+// Admin: create a resource. team_id=null → visible to every team & mentor.
+// team_id=<uuid> → scoped to that one team (and its mentor + admins).
+export const createAdminResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        title: z.string().min(1).max(200),
+        description: z.string().max(2000).optional(),
+        team_id: z.string().uuid().nullable().optional(),
+        kind: z.enum(["file", "link"]),
+        external_url: z.string().url().max(2000).optional(),
+        file_name: z.string().max(200).optional(),
+        file_type: z.string().max(200).optional(),
+        file_size: z.number().int().nonnegative().max(100 * 1024 * 1024).optional(),
+        storage_path: z.string().max(500).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    if (!(await isAdmin(context.supabase, context.userId))) {
+      throw new Error("Forbidden: admin role required");
+    }
+    if (data.kind === "link" && !data.external_url) {
+      throw new Error("Link URL required");
+    }
+    if (data.kind === "file" && (!data.storage_path || !data.file_name)) {
+      throw new Error("File info required");
+    }
+    // The INSERT RLS policy on rp_mentor_resources requires the caller to
+    // hold the 'mentor' role; admins don't, so go through supabaseAdmin.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("rp_mentor_resources")
+      .insert({
+        mentor_id: context.userId,   // attribution: which admin created it
+        team_id: data.team_id ?? null,
+        title: data.title,
+        description: data.description ?? null,
+        kind: data.kind,
+        external_url: data.external_url ?? null,
+        file_name: data.file_name ?? null,
+        file_type: data.file_type ?? null,
+        file_size: data.file_size ?? null,
+        storage_path: data.storage_path ?? null,
+        source: "admin",
+      })
+      .select("*")
+      .single();
+    if (error) throw error;
+    return { resource: row };
+  });
+
+// Admin: list every admin-authored resource for management.
+export const listAllAdminResources = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    if (!(await isAdmin(context.supabase, context.userId))) {
+      throw new Error("Forbidden: admin role required");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("rp_mentor_resources")
+      .select("*, rp_profiles:mentor_id(full_name), rp_teams:team_id(id, team_name)")
+      .eq("source", "admin")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return { resources: data ?? [] };
+  });
+
+// Mentor: list admin-authored resources visible to me — either global
+// (team_id null) or scoped to one of the teams I'm assigned to.
+export const listAdminResourcesForMentor = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    if (!(await isMentor(context.supabase, context.userId))) {
+      throw new Error("Forbidden: mentor role required");
+    }
+    const { data: mentorRow } = await context.supabase
+      .from("rp_mentors")
+      .select("id")
+      .eq("profile_id", context.userId)
+      .maybeSingle();
+    let teamIds: string[] = [];
+    if (mentorRow?.id) {
+      const { data: myTeams } = await context.supabase
+        .from("rp_teams")
+        .select("id")
+        .eq("assigned_mentor_id", mentorRow.id);
+      teamIds = (myTeams ?? []).map((t: any) => t.id);
+    }
+    const orClauses: string[] = [`and(source.eq.admin,team_id.is.null)`];
+    if (teamIds.length) {
+      orClauses.push(`and(source.eq.admin,team_id.in.(${teamIds.join(",")}))`);
+    }
+    // Use admin client: the RLS SELECT policy on rp_mentor_resources allows
+    // team members/leader/admins for team-scoped resources, but not the
+    // assigned mentor directly. We've already scoped teamIds to teams this
+    // mentor is assigned to, so bypassing RLS here is safe.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("rp_mentor_resources")
+      .select("*, rp_profiles:mentor_id(full_name), rp_teams:team_id(id, team_name)")
+      .or(orClauses.join(","))
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return { resources: rows ?? [] };
   });

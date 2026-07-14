@@ -63,12 +63,14 @@ type Enriched = TeamRow & {
   phases: Phase[];
   tScore: number;
   p1: number; p2: number; p3: number; p4: number;
-  examDate: string;
-  importantDate: string;
+  /** Earliest future phase deadline from rp_team_phase_progress. null when none. */
+  nextDeadline: string | null;
   commentsCount: number;
   tasksCompleted: number;
   tasksTotal: number;
 };
+
+
 
 /* ──────────────────────────────────────────────────────────────────── */
 /* Constants                                                             */
@@ -154,13 +156,15 @@ function fmtDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function urgencyTone(iso: string) {
+function urgencyTone(iso: string | null) {
+  if (!iso) return "text-muted-foreground";
   const diff = (new Date(iso).getTime() - Date.now()) / 86400000;
   if (diff < 0) return "text-red-700 font-semibold";
   if (diff < 7) return "text-orange-600 font-semibold";
   if (diff < 14) return "text-amber-600";
   return "text-muted-foreground";
 }
+
 
 /* ──────────────────────────────────────────────────────────────────── */
 /* Page                                                                  */
@@ -256,6 +260,13 @@ function AdminDashboard() {
       const computedT = Math.round((p1 + p2 + p3 + p4) * 10) / 10;
       const tScore = t.final_score != null ? Number(t.final_score) : computedT;
       const tasksCompleted = phases.filter((p) => ["completed", "admin_approved", "mentor_approved"].includes(p.status)).length;
+      // Real next deadline: earliest future phase deadline for this team.
+      const now = Date.now();
+      const upcoming = phases
+        .map((p) => p.deadline)
+        .filter((d): d is string => !!d && new Date(d).getTime() > now)
+        .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+      const nextDeadline = upcoming[0] ?? null;
       return {
         ...t,
         mentorId: mentor?.id ?? null,
@@ -263,13 +274,13 @@ function AdminDashboard() {
         leaderName: t.team_leader_id ? (profiles[t.team_leader_id] ?? "—") : "—",
         phases,
         tScore, p1, p2, p3, p4,
-        examDate: mockDateFromId(t.id, 7, 90),
-        importantDate: mockDateFromId(t.id, 13, 30),
+        nextDeadline,
         commentsCount: seedInt(t.id, 3, 24),
         tasksCompleted,
         tasksTotal: TASK_COLUMNS.length,
       };
     });
+
   }, [teams, mentors, progress, evals, profiles]);
 
   /* Mutators */
@@ -489,7 +500,7 @@ function MentorBadge({ id, name }: { id: string | null; name: string }) {
 /* PANEL 1 — Leaderboard                                                 */
 /* ──────────────────────────────────────────────────────────────────── */
 
-type SortKey = "tScore" | "completion_percentage" | "tasksCompleted" | "examDate";
+type SortKey = "tScore" | "completion_percentage" | "tasksCompleted" | "nextDeadline";
 
 function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: MentorRow[] }) {
   const [q, setQ] = useState("");
@@ -512,8 +523,18 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
       );
     });
     out = [...out].sort((a, b) => {
-      const av = sort.key === "examDate" ? new Date(a.examDate).getTime() : (a as any)[sort.key] ?? 0;
-      const bv = sort.key === "examDate" ? new Date(b.examDate).getTime() : (b as any)[sort.key] ?? 0;
+      const av =
+        sort.key === "nextDeadline"
+          ? a.nextDeadline
+            ? new Date(a.nextDeadline).getTime()
+            : Number.POSITIVE_INFINITY
+          : (a as any)[sort.key] ?? 0;
+      const bv =
+        sort.key === "nextDeadline"
+          ? b.nextDeadline
+            ? new Date(b.nextDeadline).getTime()
+            : Number.POSITIVE_INFINITY
+          : (b as any)[sort.key] ?? 0;
       return sort.dir === "asc" ? av - bv : bv - av;
     });
     return out;
@@ -527,11 +548,13 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
       r.phases.some((p) => ["submitted", "under_mentor_review", "under_admin_review"].includes(p.status)),
     ).length;
     const upcoming = rows.filter((r) => {
-      const t = new Date(r.examDate).getTime() - Date.now();
+      if (!r.nextDeadline) return false;
+      const t = new Date(r.nextDeadline).getTime() - Date.now();
       return t > 0 && t < 21 * 86400000;
     }).length;
     return { count: rows.length, avg, top: top?.team_name ?? "—", topScore: top?.tScore ?? 0, pending, upcoming };
   }, [rows]);
+
 
   function toggleSort(key: SortKey) {
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "desc" }));
@@ -549,7 +572,7 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
         <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Avg progress" value={`${totals.avg}%`} />
         <StatCard icon={<Trophy className="h-4 w-4" />} label="Top team" value={totals.top} sub={`${totals.topScore} pts`} />
         <StatCard icon={<MessageSquare className="h-4 w-4" />} label="Pending reviews" value={totals.pending} />
-        <StatCard icon={<Calendar className="h-4 w-4" />} label="Upcoming exams" value={totals.upcoming} />
+        <StatCard icon={<Calendar className="h-4 w-4" />} label="Upcoming deadlines" value={totals.upcoming} sub="Next 21 days" />
       </div>
 
       {/* Filters */}
@@ -591,19 +614,19 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
                 <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("tScore")}>
                   <span className="inline-flex items-center gap-1">T Score <SortIcon k="tScore" /></span>
                 </th>
-                <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("examDate")}>
-                  <span className="inline-flex items-center gap-1">Exam date <SortIcon k="examDate" /></span>
+                <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("nextDeadline")}>
+                  <span className="inline-flex items-center gap-1">Next deadline <SortIcon k="nextDeadline" /></span>
                 </th>
                 <th className="text-left px-4 py-3 cursor-pointer" onClick={() => toggleSort("tasksCompleted")}>
                   <span className="inline-flex items-center gap-1">Tasks <SortIcon k="tasksCompleted" /></span>
                 </th>
-                <th className="text-left px-4 py-3">Important</th>
                 <th className="text-left px-4 py-3">Comments</th>
+
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.length === 0 && (
-                <tr><td colSpan={9} className="text-center py-12 text-muted-foreground">No teams match.</td></tr>
+                <tr><td colSpan={8} className="text-center py-12 text-muted-foreground">No teams match.</td></tr>
               )}
               {filtered.map((r) => (
                 <tr key={r.id} className="hover:bg-brand-lite/40">
@@ -625,19 +648,19 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
                     </div>
                   </td>
                   <td className="px-4 py-3 font-mono font-semibold text-brand">{r.tScore.toFixed(1)}</td>
-                  <td className={`px-4 py-3 text-xs ${urgencyTone(r.examDate)}`}>{fmtDate(r.examDate)}</td>
+                  <td className={`px-4 py-3 text-xs ${urgencyTone(r.nextDeadline)}`}>{fmtDate(r.nextDeadline)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Ring value={(r.tasksCompleted / r.tasksTotal) * 100} size={28} stroke={3} />
                       <span className="text-xs text-muted-foreground">{r.tasksCompleted}/{r.tasksTotal}</span>
                     </div>
                   </td>
-                  <td className={`px-4 py-3 text-xs ${urgencyTone(r.importantDate)}`}>{fmtDate(r.importantDate)}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     <span className="inline-flex items-center gap-1"><MessageSquare className="h-3.5 w-3.5" />{r.commentsCount}</span>
                   </td>
                 </tr>
               ))}
+
             </tbody>
           </table>
         </div>
@@ -699,14 +722,15 @@ function TrackerPanel({
   function toCsv() {
     const headers = [
       "Team","Leader","Mentor", ...TASK_COLUMNS.map((c) => c.label),
-      "Exam Date","Tasks %","Overall %","P1","P2","P3","P4","T Score",
+      "Next Deadline","Tasks %","Overall %","P1","P2","P3","P4","T Score",
     ];
     const lines = [headers.join(",")];
     for (const r of filtered) {
       const cells = [
         r.team_name, r.leaderName, r.mentorName,
         ...TASK_COLUMNS.map((c) => statusLabel(statusForTask(r, c.phase, c.key))),
-        fmtDate(r.examDate),
+        fmtDate(r.nextDeadline),
+
         Math.round((r.tasksCompleted / r.tasksTotal) * 100) + "%",
         r.completion_percentage + "%",
         r.p1, r.p2, r.p3, r.p4, r.tScore,
@@ -793,7 +817,7 @@ function TrackerPanel({
                 {TASK_COLUMNS.map((c) => (
                   <th key={c.key} className="text-left px-3 py-3 whitespace-nowrap">{c.label}</th>
                 ))}
-                <th className="text-left px-3 py-3">Exam</th>
+                <th className="text-left px-3 py-3">Next deadline</th>
                 <th className="text-left px-3 py-3">Tasks %</th>
                 <th className="text-left px-3 py-3">Overall</th>
                 <th className="text-left px-3 py-3">P1</th>
@@ -806,7 +830,7 @@ function TrackerPanel({
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((r) => {
-                const overdue = new Date(r.importantDate).getTime() < Date.now();
+                const overdue = r.nextDeadline ? new Date(r.nextDeadline).getTime() < Date.now() : false;
                 const lowProgress = r.completion_percentage < 30;
                 return (
                   <tr key={r.id} className={`hover:bg-brand-lite/30 ${overdue || lowProgress ? "bg-red-50/40" : ""}`}>
@@ -852,7 +876,7 @@ function TrackerPanel({
                         </td>
                       );
                     })}
-                    <td className={`px-3 py-2 whitespace-nowrap text-[11px] ${urgencyTone(r.examDate)}`}>{fmtDate(r.examDate)}</td>
+                    <td className={`px-3 py-2 whitespace-nowrap text-[11px] ${urgencyTone(r.nextDeadline)}`}>{fmtDate(r.nextDeadline)}</td>
                     <td className="px-3 py-2 w-[110px]">
                       <ProgressBar value={(r.tasksCompleted / r.tasksTotal) * 100} />
                     </td>
@@ -1295,7 +1319,9 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     tone: "from-sky-50 to-white border-sky-100",
     items: [
       { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
+      { to: "/rakshak-platform/admin/resources", label: "Resources", icon: BookOpen, desc: "Handbooks, rubrics & templates — global or per-team" },
     ],
+
   },
   {
     id: "review",
