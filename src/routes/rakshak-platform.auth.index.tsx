@@ -41,7 +41,7 @@ function AuthPage() {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled || !data.user) return;
-      const target = (redirect && redirect.startsWith("/")) ? redirect : "/rakshak-platform/dashboard";
+      const target = safeRedirect(redirect);
       navigate({ to: target, replace: true });
     });
     return () => {
