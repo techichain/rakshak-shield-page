@@ -40,6 +40,7 @@ export function MentorResourcesList({
   onChanged,
   sourceFilter,
   emptyText,
+  fetcher,
 }: {
   mode: "viewer" | "admin";
   teamId?: string;
@@ -47,6 +48,8 @@ export function MentorResourcesList({
   onChanged?: () => void;
   sourceFilter?: "mentor" | "admin";
   emptyText?: string;
+  /** Optional override — return the raw { resources } payload. */
+  fetcher?: () => Promise<{ resources: Resource[] } | any>;
 }) {
 
   const fetchViewer = useServerFn(listTeamResourcesForViewer);
@@ -65,8 +68,9 @@ export function MentorResourcesList({
       setBusy(true);
       setErr(null);
       try {
-        const res =
-          mode === "admin" && teamId
+        const res = fetcher
+          ? await fetcher()
+          : mode === "admin" && teamId
             ? await fetchAdmin({ data: { team_id: teamId } } as any)
             : await fetchViewer({ data: teamId ? { team_id: teamId } : {} } as any);
         const all = ((res as any)?.resources ?? []) as Resource[];
@@ -84,7 +88,8 @@ export function MentorResourcesList({
     return () => {
       cancelled = true;
     };
-  }, [mode, teamId, fetchAdmin, fetchViewer, reloadKey, sourceFilter]);
+  }, [mode, teamId, fetchAdmin, fetchViewer, reloadKey, sourceFilter, fetcher]);
+
 
   async function handleDownload(r: Resource) {
     setDownloadingId(r.id);
