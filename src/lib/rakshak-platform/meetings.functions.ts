@@ -495,6 +495,7 @@ export const bookMentorMeeting = createServerFn({ method: "POST" })
       scheduled_end: z.string(),
       title: z.string().min(1).max(200),
       agenda: z.string().max(4000).default(""),
+      custom_meeting_link: z.string().url().max(500).optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -521,6 +522,10 @@ export const bookMentorMeeting = createServerFn({ method: "POST" })
         agenda: data.agenda,
         scheduled_start: data.scheduled_start,
         scheduled_end: data.scheduled_end,
+        // Leader may propose a custom meeting link (Meet or Teams). Stored
+        // on the pending row so the mentor can approve as-is (RLS limits
+        // visibility to attendees).
+        meeting_link: data.custom_meeting_link ?? null,
         location: null,
         status: "pending_mentor_approval",
         mentor_decision: "pending",
