@@ -611,7 +611,7 @@ export const listMentorPendingBookings = createServerFn({ method: "GET" })
     if (!teamIds.length) return { pending: [] };
     const { data: meetings } = await context.supabase
       .from("rp_meetings")
-      .select("id, title, agenda, team_id, scheduled_start, scheduled_end, created_by, mentor_decision, status")
+      .select("id, title, agenda, team_id, scheduled_start, scheduled_end, created_by, mentor_decision, status, meeting_link")
       .in("team_id", teamIds)
       .eq("mentor_decision", "pending")
       .order("scheduled_start", { ascending: true });
