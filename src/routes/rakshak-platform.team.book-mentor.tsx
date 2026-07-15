@@ -120,12 +120,14 @@ function BookMentorPage() {
     try {
       const start = new Date(selected);
       const end = new Date(start.getTime() + SLOT_MINUTES * 60_000);
+      const trimmedLink = customLink.trim();
       const res: any = await bookFn({
         data: {
           scheduled_start: start.toISOString(),
           scheduled_end: end.toISOString(),
           title: title.trim() || "Mentor sync",
           agenda: agenda.trim(),
+          ...(trimmedLink ? { custom_meeting_link: trimmedLink } : {}),
         },
       });
       setDone({ email: res.mentor_email, mentor_connected: !!res.mentor_connected });
