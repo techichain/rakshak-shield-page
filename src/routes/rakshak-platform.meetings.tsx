@@ -482,7 +482,13 @@ function MeetingsPage() {
                 {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
               {needsTeam ? (
-                <select name="team_id" required className="rp-input">
+                <select
+                  name="team_id"
+                  required
+                  className="rp-input"
+                  value={teamIdSelected}
+                  onChange={(e) => setTeamIdSelected(e.target.value)}
+                >
                   <option value="">Team…</option>
                   {isMentor && type === "team_mentor" && myTeamsAsMentor.length > 0 && (
                     <option value="__all__">
@@ -500,6 +506,46 @@ function MeetingsPage() {
               <input name="scheduled_end" type="datetime-local" required className="rp-input" />
               <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
               <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
+              {teamIdSelected === "__all__" && isMentor && type === "team_mentor" && (
+                <div className="md:col-span-2 rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Meeting link for all-teams call</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(
+                      [
+                        ["google_meet", "Generate Google Meet link"],
+                        ["custom", "Paste custom link (Meet / Teams)"],
+                        ["none", "Decide later"],
+                      ] as const
+                    ).map(([v, label]) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setLinkMode(v)}
+                        className={`rounded-full border px-3 py-1.5 text-xs ${
+                          linkMode === v
+                            ? "border-brand bg-brand text-brand-foreground"
+                            : "border-border hover:border-brand/40"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  {linkMode === "custom" && (
+                    <input
+                      type="url"
+                      value={allTeamsCustomLink}
+                      onChange={(e) => setAllTeamsCustomLink(e.target.value)}
+                      placeholder="https://meet.google.com/... or https://teams.microsoft.com/..."
+                      maxLength={500}
+                      className="rp-input w-full mt-3"
+                    />
+                  )}
+                  {linkMode === "google_meet" && (
+                    <p className="mt-2 text-xs text-muted-foreground">Requires your Google Calendar connection (Profile → Google Calendar).</p>
+                  )}
+                </div>
+              )}
               <div className="md:col-span-2">
                 <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite people (comma-separated emails)</label>
                 <textarea
