@@ -693,73 +693,92 @@ export const respondToMentorBooking = createServerFn({ method: "POST" })
     }
 
     // decision === "approved"
-    const mentorCred = await getValidAccessToken(context.userId);
-    if (!mentorCred) {
-      throw new Error(
-        "Connect your Google Calendar (Profile → Google Calendar) before approving. We need it to create the Google Meet link.",
+    // Resolve the final meeting link:
+    //  1. Mentor pasted a custom link on approval → use it (skip Google flow).
+    //  2. Leader proposed a custom link on booking (stored on the pending row)
+    //     → use it (skip Google flow).
+    //  3. Otherwise → require mentor's Google Calendar + generate a Meet link.
+    const proposedLink =
+      data.custom_meeting_link ?? ((meeting as any).meeting_link as string | null) ?? null;
+
+    let finalMeetingLink: string | null = null;
+    let googleEventId: string | null = null;
+    let googleOrganizerUserId: string | null = null;
+
+    if (proposedLink) {
+      finalMeetingLink = proposedLink;
+    } else {
+      const mentorCred = await getValidAccessToken(context.userId);
+      if (!mentorCred) {
+        throw new Error(
+          "Connect your Google Calendar (Profile → Google Calendar) before approving, or paste a custom Meet/Teams link to approve without it.",
+        );
+      }
+
+      // Verify the mentor is still free for this slot.
+      const fb = await getFreeBusy(context.userId, {
+        timeMin: new Date(meeting.scheduled_start as string).toISOString(),
+        timeMax: new Date(meeting.scheduled_end as string).toISOString(),
+      });
+      if (fb && (fb.busy?.length ?? 0) > 0) {
+        throw new Error(
+          "You are no longer free at this time on Google Calendar. Ask the team to pick a different slot.",
+        );
+      }
+
+      // Collect attendee emails: leader + members + mentor.
+      const { data: attRows } = await supabaseAdmin
+        .from("rp_meeting_attendees")
+        .select("profile_id")
+        .eq("meeting_id", data.meeting_id);
+      const attendeeIds = Array.from(
+        new Set(
+          ((attRows ?? []).map((r: any) => r.profile_id) as string[])
+            .filter((id): id is string => Boolean(id)),
+        ),
       );
-    }
+      const { data: profiles } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("id, full_name, email")
+        .in("id", attendeeIds);
+      const attendeeEmails = Array.from(
+        new Set((profiles ?? []).map((p: any) => p.email).filter(Boolean)),
+      ) as string[];
 
-    // Verify the mentor is still free for this slot.
-    const fb = await getFreeBusy(context.userId, {
-      timeMin: new Date(meeting.scheduled_start as string).toISOString(),
-      timeMax: new Date(meeting.scheduled_end as string).toISOString(),
-    });
-    if (fb && (fb.busy?.length ?? 0) > 0) {
-      throw new Error(
-        "You are no longer free at this time on Google Calendar. Ask the team to pick a different slot.",
-      );
-    }
+      const description = [
+        meeting.agenda ?? "",
+        "",
+        `Team: ${team.team_name}`,
+        `Approved by mentor via Rakshak Platform.`,
+      ]
+        .filter(Boolean)
+        .join("\n");
 
-    // Collect attendee emails: leader + members + mentor.
-    const { data: attRows } = await supabaseAdmin
-      .from("rp_meeting_attendees")
-      .select("profile_id")
-      .eq("meeting_id", data.meeting_id);
-    const attendeeIds = Array.from(
-      new Set(
-        ((attRows ?? []).map((r: any) => r.profile_id) as string[])
-          .filter((id): id is string => Boolean(id)),
-      ),
-    );
-    const { data: profiles } = await supabaseAdmin
-      .from("rp_profiles")
-      .select("id, full_name, email")
-      .in("id", attendeeIds);
-    const attendeeEmails = Array.from(
-      new Set((profiles ?? []).map((p: any) => p.email).filter(Boolean)),
-    ) as string[];
-
-    const description = [
-      meeting.agenda ?? "",
-      "",
-      `Team: ${team.team_name}`,
-      `Approved by mentor via Rakshak Platform.`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const gcal = await createEventWithMeet({
-      organizerUserId: context.userId,
-      title: meeting.title,
-      description,
-      startISO: new Date(meeting.scheduled_start as string).toISOString(),
-      endISO: new Date(meeting.scheduled_end as string).toISOString(),
-      attendeeEmails,
-      meetingId: data.meeting_id,
-    });
-    if (!gcal) {
-      throw new Error(
-        "Failed to create Google Calendar event. Reconnect Google Calendar and try again.",
-      );
+      const gcal = await createEventWithMeet({
+        organizerUserId: context.userId,
+        title: meeting.title,
+        description,
+        startISO: new Date(meeting.scheduled_start as string).toISOString(),
+        endISO: new Date(meeting.scheduled_end as string).toISOString(),
+        attendeeEmails,
+        meetingId: data.meeting_id,
+      });
+      if (!gcal) {
+        throw new Error(
+          "Failed to create Google Calendar event. Reconnect Google Calendar and try again.",
+        );
+      }
+      finalMeetingLink = gcal.meetLink;
+      googleEventId = gcal.eventId;
+      googleOrganizerUserId = context.userId;
     }
 
     await supabaseAdmin
       .from("rp_meetings")
       .update({
-        meeting_link: gcal.meetLink,
-        google_event_id: gcal.eventId,
-        google_organizer_user_id: context.userId,
+        meeting_link: finalMeetingLink,
+        google_event_id: googleEventId,
+        google_organizer_user_id: googleOrganizerUserId,
         status: "confirmed",
         mentor_decision: "approved",
         mentor_decision_at: new Date().toISOString(),
@@ -774,7 +793,7 @@ export const respondToMentorBooking = createServerFn({ method: "POST" })
       .eq("meeting_id", data.meeting_id)
       .eq("profile_id", context.userId);
 
-    // Email the Meet link to every attendee (including the team leader).
+    // Email the link to every attendee (including the team leader).
     try {
       const { sendMeetingScheduledEmails } = await import("./meeting-notify.server");
       await sendMeetingScheduledEmails(data.meeting_id, { includeCreator: true });
@@ -782,7 +801,7 @@ export const respondToMentorBooking = createServerFn({ method: "POST" })
       console.error("[respondToMentorBooking] notify failed", err);
     }
 
-    return { ok: true, decision: "approved" as const, meet_link: gcal.meetLink };
+    return { ok: true, decision: "approved" as const, meet_link: finalMeetingLink };
   });
 
 export const setMeetingNotes = createServerFn({ method: "POST" })
