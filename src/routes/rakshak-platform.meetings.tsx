@@ -191,6 +191,7 @@ function MeetingsPage() {
         form.reset();
         setExtraEmailsText("");
         setAllTeamsCustomLink("");
+        setTeamIdSelected("");
         setLinkMode("none");
         qc.invalidateQueries({ queryKey: ["rp-meetings"] });
         toast.success(
