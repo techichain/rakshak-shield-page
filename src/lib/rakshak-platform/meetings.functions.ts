@@ -31,6 +31,28 @@ export const createMeeting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => CreateInput.parse(d))
   .handler(async ({ data, context }) => {
+    // Role guard: team members may join meetings but cannot schedule them.
+    // Anyone with team_leader / mentor / evaluator / authority / admin
+    // capability (via rp_user_roles OR by ownership of rp_teams/rp_mentors)
+    // is allowed.
+    {
+      const { data: rolesRows } = await context.supabase
+        .from("rp_user_roles").select("role").eq("user_id", context.userId);
+      const roles = (rolesRows ?? []).map((r: any) => r.role as string);
+      const privileged = roles.some((r) =>
+        ["cfi_admin", "super_admin", "mentor", "evaluator", "authority", "team_leader", "finance"].includes(r),
+      );
+      if (!privileged) {
+        const [leaderRes, mentorRes, adminRes] = await Promise.all([
+          context.supabase.from("rp_teams").select("id").eq("team_leader_id", context.userId).limit(1).maybeSingle(),
+          context.supabase.from("rp_mentors").select("id").eq("profile_id", context.userId).limit(1).maybeSingle(),
+          context.supabase.rpc("rp_is_admin", { _user_id: context.userId }),
+        ]);
+        if (!leaderRes.data && !mentorRes.data && !adminRes.data) {
+          throw new Error("Team members can join meetings but cannot schedule them.");
+        }
+      }
+    }
     if ((data.meeting_type === "team_mentor" ||
          data.meeting_type === "evaluator_team" ||
          data.meeting_type === "team_internal") && !data.team_id) {
