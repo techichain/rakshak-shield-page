@@ -67,6 +67,7 @@ function BookMentorPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [title, setTitle] = useState("Mentor sync");
   const [agenda, setAgenda] = useState("");
+  const [customLink, setCustomLink] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ email: string; mentor_connected: boolean } | null>(null);
 
@@ -119,12 +120,14 @@ function BookMentorPage() {
     try {
       const start = new Date(selected);
       const end = new Date(start.getTime() + SLOT_MINUTES * 60_000);
+      const trimmedLink = customLink.trim();
       const res: any = await bookFn({
         data: {
           scheduled_start: start.toISOString(),
           scheduled_end: end.toISOString(),
           title: title.trim() || "Mentor sync",
           agenda: agenda.trim(),
+          ...(trimmedLink ? { custom_meeting_link: trimmedLink } : {}),
         },
       });
       setDone({ email: res.mentor_email, mentor_connected: !!res.mentor_connected });
@@ -328,6 +331,20 @@ function BookMentorPage() {
                   className="rp-input w-full mt-1"
                   placeholder="What do you want to discuss?"
                 />
+              </label>
+              <label className="block text-sm">
+                <span className="text-muted-foreground">Custom meeting link (Google Meet / Teams) — optional</span>
+                <input
+                  type="url"
+                  value={customLink}
+                  onChange={(e) => setCustomLink(e.target.value)}
+                  maxLength={500}
+                  placeholder="https://meet.google.com/... or https://teams.microsoft.com/..."
+                  className="rp-input w-full mt-1"
+                />
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  Leave blank to let your mentor auto-generate a Google Meet link on approval.
+                </span>
               </label>
               <div className="text-xs text-muted-foreground">
                 {selected ? (

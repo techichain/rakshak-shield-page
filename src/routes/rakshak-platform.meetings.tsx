@@ -83,9 +83,14 @@ function MeetingsPage() {
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
+  const [isTeamMemberOnly, setIsTeamMemberOnly] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
   const [myTeamsAsMentor, setMyTeamsAsMentor] = useState<any[]>([]);
   const [pendingBusy, setPendingBusy] = useState<string | null>(null);
+  const [approveLinks, setApproveLinks] = useState<Record<string, string>>({});
+  const [linkMode, setLinkMode] = useState<"google_meet" | "custom" | "none">("none");
+  const [allTeamsCustomLink, setAllTeamsCustomLink] = useState("");
+  const [teamIdSelected, setTeamIdSelected] = useState<string>("");
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
@@ -100,8 +105,9 @@ function MeetingsPage() {
       if (uid) {
         const { data: roles } = await supabase.from("rp_user_roles").select("role").eq("user_id", uid);
         const rs = (roles ?? []).map((r: any) => r.role);
-        const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
+        const privileged = rs.some((r: string) => ["cfi_admin", "super_admin", "admin", "mentor", "evaluator", "authority", "finance"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
+        setIsTeamMemberOnly(rs.includes("team_member") && !rs.includes("team_leader") && !privileged);
         const mentor = rs.includes("mentor");
         setIsMentor(mentor);
         if (mentor) {
@@ -117,15 +123,33 @@ function MeetingsPage() {
     });
   }, []);
 
-  async function respondPending(meeting_id: string, decision: "approved" | "declined") {
+  async function respondPending(
+    meeting_id: string,
+    decision: "approved" | "declined",
+    opts: { custom_meeting_link?: string } = {},
+  ) {
     const reason =
       decision === "declined"
         ? (prompt("Optional: tell the team why you're declining") ?? undefined)
         : undefined;
     setPendingBusy(meeting_id);
     try {
-      await respondBooking({ data: { meeting_id, decision, reason } });
-      toast.success(decision === "approved" ? "Approved — Meet link sent to the team" : "Request declined");
+      const custom = opts.custom_meeting_link?.trim();
+      await respondBooking({
+        data: {
+          meeting_id,
+          decision,
+          reason,
+          ...(custom ? { custom_meeting_link: custom } : {}),
+        },
+      });
+      toast.success(
+        decision === "approved"
+          ? custom
+            ? "Approved — link sent to the team"
+            : "Approved — Meet link sent to the team"
+          : "Request declined",
+      );
       qc.invalidateQueries({ queryKey: ["rp-mentor-pending"] });
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
     } catch (e) {
@@ -148,16 +172,27 @@ function MeetingsPage() {
         isMentor && type === "team_mentor" && teamIdRaw === "__all__";
 
       if (isAllTeamsMentor) {
+        const trimmedCustom = allTeamsCustomLink.trim();
+        if (linkMode === "custom" && !trimmedCustom) {
+          throw new Error("Paste a meeting link, or pick a different link option.");
+        }
         const res = await createAllTeams({
           data: {
             title: String(fd.get("title")),
             agenda: String(fd.get("agenda") || ""),
             scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
             scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
+            link_mode: linkMode,
+            ...(linkMode === "custom" && trimmedCustom
+              ? { custom_meeting_link: trimmedCustom }
+              : {}),
           },
         });
         form.reset();
         setExtraEmailsText("");
+        setAllTeamsCustomLink("");
+        setTeamIdSelected("");
+        setLinkMode("none");
         qc.invalidateQueries({ queryKey: ["rp-meetings"] });
         toast.success(
           `Meeting scheduled — invites sent to ${res.attendees_count} people across ${res.teams_count} teams`,
@@ -191,6 +226,7 @@ function MeetingsPage() {
       });
       form.reset();
       setExtraEmailsText("");
+      setTeamIdSelected("");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
       if (extraEmails.length) {
         toast.success(`Meeting created — invites sent to ${extraEmails.length} email(s). Check their inbox (and spam folder) for the calendar invite with Accept/Decline buttons.`);
@@ -343,51 +379,98 @@ function MeetingsPage() {
               <span className="text-xs rounded-full bg-amber-200/70 px-2 py-0.5">{pendingData.pending.length}</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Approving creates a Google Meet event on your calendar and emails the link to the team.
+              Approving generates a Google Meet link on your calendar (or uses a link you paste / the leader proposed) and emails it to the team.
             </p>
             <div className="mt-4 space-y-3">
-              {pendingData.pending.map((m: any) => (
-                <div key={m.id} className="rounded-xl border border-border bg-background p-4">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div>
-                      <div className="font-semibold">{m.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {m.team_name} · {new Date(m.scheduled_start).toLocaleString()}
-                        {" — "}
-                        {new Date(m.scheduled_end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              {pendingData.pending.map((m: any) => {
+                const proposed = m.meeting_link as string | null;
+                const draftLink = approveLinks[m.id] ?? "";
+                return (
+                  <div key={m.id} className="rounded-xl border border-border bg-background p-4">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div>
+                        <div className="font-semibold">{m.title}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {m.team_name} · {new Date(m.scheduled_start).toLocaleString()}
+                          {" — "}
+                          {new Date(m.scheduled_end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                        {m.agenda && (
+                          <p className="mt-2 text-sm whitespace-pre-line">{m.agenda}</p>
+                        )}
+                        {proposed && (
+                          <p className="mt-2 text-xs">
+                            <span className="text-muted-foreground">Team leader proposed link: </span>
+                            <a href={proposed} target="_blank" rel="noreferrer" className="text-brand break-all hover:underline">{proposed}</a>
+                          </p>
+                        )}
                       </div>
-                      {m.agenda && (
-                        <p className="mt-2 text-sm whitespace-pre-line">{m.agenda}</p>
-                      )}
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          disabled={pendingBusy === m.id}
+                          onClick={() => respondPending(m.id, "declined")}
+                          className="inline-flex items-center gap-1 h-9 px-3 rounded-full border border-border text-xs hover:bg-muted disabled:opacity-50"
+                        >
+                          <X className="h-3.5 w-3.5" /> Decline
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex gap-2 shrink-0">
-                      <button
-                        disabled={pendingBusy === m.id}
-                        onClick={() => respondPending(m.id, "declined")}
-                        className="inline-flex items-center gap-1 h-9 px-3 rounded-full border border-border text-xs hover:bg-muted disabled:opacity-50"
-                      >
-                        <X className="h-3.5 w-3.5" /> Decline
-                      </button>
-                      <button
-                        disabled={pendingBusy === m.id}
-                        onClick={() => respondPending(m.id, "approved")}
-                        className="inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand text-brand-foreground text-xs disabled:opacity-50"
-                      >
-                        <Check className="h-3.5 w-3.5" /> {pendingBusy === m.id ? "Working…" : "Approve"}
-                      </button>
+                    <div className="mt-3 space-y-2">
+                      <label className="block text-xs">
+                        <span className="text-muted-foreground">Or paste your own meeting link (Meet / Teams) — optional</span>
+                        <input
+                          type="url"
+                          value={draftLink}
+                          onChange={(e) => setApproveLinks((s) => ({ ...s, [m.id]: e.target.value }))}
+                          placeholder="https://meet.google.com/... or https://teams.microsoft.com/..."
+                          className="rp-input w-full mt-1"
+                          maxLength={500}
+                        />
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {proposed && (
+                          <button
+                            disabled={pendingBusy === m.id}
+                            onClick={() => respondPending(m.id, "approved", { custom_meeting_link: proposed })}
+                            className="inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand text-brand-foreground text-xs disabled:opacity-50"
+                          >
+                            <Check className="h-3.5 w-3.5" /> Approve with proposed link
+                          </button>
+                        )}
+                        {draftLink.trim() && (
+                          <button
+                            disabled={pendingBusy === m.id}
+                            onClick={() => respondPending(m.id, "approved", { custom_meeting_link: draftLink })}
+                            className="inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand text-brand-foreground text-xs disabled:opacity-50"
+                          >
+                            <Check className="h-3.5 w-3.5" /> Approve with my link
+                          </button>
+                        )}
+                        <button
+                          disabled={pendingBusy === m.id}
+                          onClick={() => respondPending(m.id, "approved")}
+                          className="inline-flex items-center gap-1 h-9 px-3 rounded-full border border-brand text-brand text-xs disabled:opacity-50 hover:bg-brand/10"
+                        >
+                          <Check className="h-3.5 w-3.5" /> {pendingBusy === m.id ? "Working…" : "Approve & generate Google Meet"}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : null}
 
-        {isTeamLeaderOnly ? (
+        {isTeamMemberOnly ? (
+          <div className="mt-10 rounded-2xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
+            Only team leaders and mentors can schedule meetings — you'll receive invites here.
+          </div>
+        ) : isTeamLeaderOnly ? (
           <div className="mt-10 rounded-2xl border border-brand/30 bg-brand-lite p-6 flex items-center justify-between gap-4">
             <div>
               <h2 className="font-heading text-xl">Book with your assigned mentor</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Live availability from Google Calendar. Auto-creates a Google Meet link and emails the invite.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Live availability from Google Calendar. Auto-creates a Google Meet link (or use your own Meet/Teams link) and emails the invite.</p>
             </div>
             <a href="/rakshak-platform/team/book-mentor" className="inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground shrink-0">
               <Calendar className="h-4 w-4" /> Book mentor session
@@ -401,7 +484,13 @@ function MeetingsPage() {
                 {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
               {needsTeam ? (
-                <select name="team_id" required className="rp-input">
+                <select
+                  name="team_id"
+                  required
+                  className="rp-input"
+                  value={teamIdSelected}
+                  onChange={(e) => setTeamIdSelected(e.target.value)}
+                >
                   <option value="">Team…</option>
                   {isMentor && type === "team_mentor" && myTeamsAsMentor.length > 0 && (
                     <option value="__all__">
@@ -419,6 +508,46 @@ function MeetingsPage() {
               <input name="scheduled_end" type="datetime-local" required className="rp-input" />
               <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
               <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
+              {teamIdSelected === "__all__" && isMentor && type === "team_mentor" && (
+                <div className="md:col-span-2 rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">Meeting link for all-teams call</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {(
+                      [
+                        ["google_meet", "Generate Google Meet link"],
+                        ["custom", "Paste custom link (Meet / Teams)"],
+                        ["none", "Decide later"],
+                      ] as const
+                    ).map(([v, label]) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setLinkMode(v)}
+                        className={`rounded-full border px-3 py-1.5 text-xs ${
+                          linkMode === v
+                            ? "border-brand bg-brand text-brand-foreground"
+                            : "border-border hover:border-brand/40"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  {linkMode === "custom" && (
+                    <input
+                      type="url"
+                      value={allTeamsCustomLink}
+                      onChange={(e) => setAllTeamsCustomLink(e.target.value)}
+                      placeholder="https://meet.google.com/... or https://teams.microsoft.com/..."
+                      maxLength={500}
+                      className="rp-input w-full mt-3"
+                    />
+                  )}
+                  {linkMode === "google_meet" && (
+                    <p className="mt-2 text-xs text-muted-foreground">Requires your Google Calendar connection (Profile → Google Calendar).</p>
+                  )}
+                </div>
+              )}
               <div className="md:col-span-2">
                 <label className="text-xs uppercase tracking-wide text-muted-foreground">Invite people (comma-separated emails)</label>
                 <textarea
