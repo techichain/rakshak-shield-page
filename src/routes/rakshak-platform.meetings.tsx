@@ -225,6 +225,7 @@ function MeetingsPage() {
       });
       form.reset();
       setExtraEmailsText("");
+      setTeamIdSelected("");
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
       if (extraEmails.length) {
         toast.success(`Meeting created — invites sent to ${extraEmails.length} email(s). Check their inbox (and spam folder) for the calendar invite with Accept/Decline buttons.`);
