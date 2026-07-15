@@ -104,8 +104,9 @@ function MeetingsPage() {
       if (uid) {
         const { data: roles } = await supabase.from("rp_user_roles").select("role").eq("user_id", uid);
         const rs = (roles ?? []).map((r: any) => r.role);
-        const privileged = rs.some((r: string) => ["admin", "super_admin", "mentor", "evaluator"].includes(r));
+        const privileged = rs.some((r: string) => ["cfi_admin", "super_admin", "admin", "mentor", "evaluator", "authority", "finance"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
+        setIsTeamMemberOnly(rs.includes("team_member") && !rs.includes("team_leader") && !privileged);
         const mentor = rs.includes("mentor");
         setIsMentor(mentor);
         if (mentor) {
