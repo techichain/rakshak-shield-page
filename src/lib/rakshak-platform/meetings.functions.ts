@@ -560,7 +560,7 @@ export const bookMentorMeeting = createServerFn({ method: "POST" })
       recipient_id: mentorProfileId,
       type: "meeting_pending_approval",
       title: `Meeting request from ${team.team_name}`,
-      message: `${leaderProfile.full_name ?? leaderProfile.email} requested "${data.title}" on ${new Date(data.scheduled_start).toLocaleString()}. Approve or decline from your meetings page.`,
+      message: `${leaderProfile.full_name ?? leaderProfile.email} requested "${data.title}" on ${new Date(data.scheduled_start).toLocaleString()}.${data.custom_meeting_link ? " Leader proposed a custom meeting link." : ""} Approve or decline from your meetings page.`,
       action_link: `/rakshak-platform/meetings`,
       related_entity_type: "meeting",
       related_entity_id: row.id,
