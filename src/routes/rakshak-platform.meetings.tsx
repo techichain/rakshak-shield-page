@@ -459,11 +459,15 @@ function MeetingsPage() {
           </div>
         ) : null}
 
-        {isTeamLeaderOnly ? (
+        {isTeamMemberOnly ? (
+          <div className="mt-10 rounded-2xl border border-border bg-muted/40 p-5 text-sm text-muted-foreground">
+            Only team leaders and mentors can schedule meetings — you'll receive invites here.
+          </div>
+        ) : isTeamLeaderOnly ? (
           <div className="mt-10 rounded-2xl border border-brand/30 bg-brand-lite p-6 flex items-center justify-between gap-4">
             <div>
               <h2 className="font-heading text-xl">Book with your assigned mentor</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Live availability from Google Calendar. Auto-creates a Google Meet link and emails the invite.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Live availability from Google Calendar. Auto-creates a Google Meet link (or use your own Meet/Teams link) and emails the invite.</p>
             </div>
             <a href="/rakshak-platform/team/book-mentor" className="inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground shrink-0">
               <Calendar className="h-4 w-4" /> Book mentor session
