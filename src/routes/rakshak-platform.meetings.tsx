@@ -171,16 +171,26 @@ function MeetingsPage() {
         isMentor && type === "team_mentor" && teamIdRaw === "__all__";
 
       if (isAllTeamsMentor) {
+        const trimmedCustom = allTeamsCustomLink.trim();
+        if (linkMode === "custom" && !trimmedCustom) {
+          throw new Error("Paste a meeting link, or pick a different link option.");
+        }
         const res = await createAllTeams({
           data: {
             title: String(fd.get("title")),
             agenda: String(fd.get("agenda") || ""),
             scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
             scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
+            link_mode: linkMode,
+            ...(linkMode === "custom" && trimmedCustom
+              ? { custom_meeting_link: trimmedCustom }
+              : {}),
           },
         });
         form.reset();
         setExtraEmailsText("");
+        setAllTeamsCustomLink("");
+        setLinkMode("none");
         qc.invalidateQueries({ queryKey: ["rp-meetings"] });
         toast.success(
           `Meeting scheduled — invites sent to ${res.attendees_count} people across ${res.teams_count} teams`,
