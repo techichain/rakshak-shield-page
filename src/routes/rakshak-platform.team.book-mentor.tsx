@@ -332,6 +332,19 @@ function BookMentorPage() {
                   placeholder="What do you want to discuss?"
                 />
               </label>
+              <label className="block text-sm">
+                <span className="text-muted-foreground">Custom meeting link (Google Meet / Teams) — optional</span>
+                <input
+                  type="url"
+                  value={customLink}
+                  onChange={(e) => setCustomLink(e.target.value)}
+                  maxLength={500}
+                  placeholder="https://meet.google.com/... or https://teams.microsoft.com/..."
+                  className="rp-input w-full mt-1"
+                />
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  Leave blank to let your mentor auto-generate a Google Meet link on approval.
+                </span>
               <div className="text-xs text-muted-foreground">
                 {selected ? (
                   <>Selected: <span className="text-foreground font-medium">{new Date(selected).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</span> · 30 min</>
