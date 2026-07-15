@@ -112,6 +112,7 @@ import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/ap
 import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
 import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
+import { Route as ApiPublicHooksKeepaliveRouteImport } from './routes/api/public/hooks/keepalive'
 import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
 import { Route as ApiPublicHooksDoubtRemindersRouteImport } from './routes/api/public/hooks/doubt-reminders'
 import { Route as ApiPublicHooksDeadlineWhatsappRemindersRouteImport } from './routes/api/public/hooks/deadline-whatsapp-reminders'
@@ -704,6 +705,11 @@ const ApiPublicHooksMeetingRemindersRoute =
     path: '/api/public/hooks/meeting-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksKeepaliveRoute = ApiPublicHooksKeepaliveRouteImport.update({
+  id: '/api/public/hooks/keepalive',
+  path: '/api/public/hooks/keepalive',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksHealthPingRoute =
   ApiPublicHooksHealthPingRouteImport.update({
     id: '/api/public/hooks/health-ping',
@@ -820,6 +826,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
+  '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
@@ -918,6 +925,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
+  '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
@@ -1028,6 +1036,7 @@ export interface FileRoutesById {
   '/api/public/hooks/deadline-whatsapp-reminders': typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   '/api/public/hooks/doubt-reminders': typeof ApiPublicHooksDoubtRemindersRoute
   '/api/public/hooks/health-ping': typeof ApiPublicHooksHealthPingRoute
+  '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
@@ -1139,6 +1148,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/doubt-reminders'
     | '/api/public/hooks/health-ping'
+    | '/api/public/hooks/keepalive'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
@@ -1237,6 +1247,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/doubt-reminders'
     | '/api/public/hooks/health-ping'
+    | '/api/public/hooks/keepalive'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
@@ -1346,6 +1357,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/deadline-whatsapp-reminders'
     | '/api/public/hooks/doubt-reminders'
     | '/api/public/hooks/health-ping'
+    | '/api/public/hooks/keepalive'
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
@@ -1380,6 +1392,7 @@ export interface RootRouteChildren {
   ApiPublicHooksDeadlineWhatsappRemindersRoute: typeof ApiPublicHooksDeadlineWhatsappRemindersRoute
   ApiPublicHooksDoubtRemindersRoute: typeof ApiPublicHooksDoubtRemindersRoute
   ApiPublicHooksHealthPingRoute: typeof ApiPublicHooksHealthPingRoute
+  ApiPublicHooksKeepaliveRoute: typeof ApiPublicHooksKeepaliveRoute
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
   ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
   ApiPublicHooksResendWebhookRoute: typeof ApiPublicHooksResendWebhookRoute
@@ -2112,6 +2125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksMeetingRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/keepalive': {
+      id: '/api/public/hooks/keepalive'
+      path: '/api/public/hooks/keepalive'
+      fullPath: '/api/public/hooks/keepalive'
+      preLoaderRoute: typeof ApiPublicHooksKeepaliveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/health-ping': {
       id: '/api/public/hooks/health-ping'
       path: '/api/public/hooks/health-ping'
@@ -2480,6 +2500,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicHooksDeadlineWhatsappRemindersRoute,
   ApiPublicHooksDoubtRemindersRoute: ApiPublicHooksDoubtRemindersRoute,
   ApiPublicHooksHealthPingRoute: ApiPublicHooksHealthPingRoute,
+  ApiPublicHooksKeepaliveRoute: ApiPublicHooksKeepaliveRoute,
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
   ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,
   ApiPublicHooksResendWebhookRoute: ApiPublicHooksResendWebhookRoute,
