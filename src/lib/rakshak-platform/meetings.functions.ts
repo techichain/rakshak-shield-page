@@ -632,6 +632,7 @@ export const respondToMentorBooking = createServerFn({ method: "POST" })
       meeting_id: z.string().uuid(),
       decision: z.enum(["approved", "declined"]),
       reason: z.string().max(1000).optional(),
+      custom_meeting_link: z.string().url().max(500).optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -645,7 +646,7 @@ export const respondToMentorBooking = createServerFn({ method: "POST" })
     // Load meeting + assigned mentor for the team.
     const { data: meeting } = await supabaseAdmin
       .from("rp_meetings")
-      .select("id, team_id, title, agenda, scheduled_start, scheduled_end, mentor_decision, created_by")
+      .select("id, team_id, title, agenda, scheduled_start, scheduled_end, mentor_decision, created_by, meeting_link")
       .eq("id", data.meeting_id)
       .maybeSingle();
     if (!meeting) throw new Error("Meeting not found");
