@@ -67,6 +67,7 @@ function BookMentorPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [title, setTitle] = useState("Mentor sync");
   const [agenda, setAgenda] = useState("");
+  const [customLink, setCustomLink] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ email: string; mentor_connected: boolean } | null>(null);
 
