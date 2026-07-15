@@ -345,6 +345,7 @@ function BookMentorPage() {
                 <span className="mt-1 block text-xs text-muted-foreground">
                   Leave blank to let your mentor auto-generate a Google Meet link on approval.
                 </span>
+              </label>
               <div className="text-xs text-muted-foreground">
                 {selected ? (
                   <>Selected: <span className="text-foreground font-medium">{new Date(selected).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</span> · 30 min</>
