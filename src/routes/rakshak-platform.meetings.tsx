@@ -83,9 +83,13 @@ function MeetingsPage() {
   const [rsvpState, setRsvpState] = useState<Record<string, string>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [isTeamLeaderOnly, setIsTeamLeaderOnly] = useState(false);
+  const [isTeamMemberOnly, setIsTeamMemberOnly] = useState(false);
   const [isMentor, setIsMentor] = useState(false);
   const [myTeamsAsMentor, setMyTeamsAsMentor] = useState<any[]>([]);
   const [pendingBusy, setPendingBusy] = useState<string | null>(null);
+  const [approveLinks, setApproveLinks] = useState<Record<string, string>>({});
+  const [linkMode, setLinkMode] = useState<"google_meet" | "custom" | "none">("none");
+  const [allTeamsCustomLink, setAllTeamsCustomLink] = useState("");
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
