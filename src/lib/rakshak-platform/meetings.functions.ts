@@ -838,6 +838,8 @@ export const createMentorAllTeamsMeeting = createServerFn({ method: "POST" })
       agenda: z.string().max(4000).default(""),
       scheduled_start: z.string(),
       scheduled_end: z.string(),
+      link_mode: z.enum(["google_meet", "custom", "none"]).default("none"),
+      custom_meeting_link: z.string().url().max(500).optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -877,7 +879,45 @@ export const createMentorAllTeamsMeeting = createServerFn({ method: "POST" })
     const composedAgenda =
       `Teams: ${teamNames.join(", ")}\n\n${data.agenda ?? ""}`.trim();
 
-    // Insert meeting.
+    // Resolve the meeting link based on link_mode. For google_meet we need
+    // the mentor's Google Calendar credential; for custom we need a URL.
+    let finalMeetingLink: string | null = null;
+    let googleEventId: string | null = null;
+    let googleOrganizerUserId: string | null = null;
+
+    if (data.link_mode === "custom") {
+      if (!data.custom_meeting_link) {
+        throw new Error("Paste a meeting link (Google Meet or Teams) or choose a different link option.");
+      }
+      finalMeetingLink = data.custom_meeting_link;
+    } else if (data.link_mode === "google_meet") {
+      const { getValidAccessToken, createEventWithMeet } = await import("./google-calendar.server");
+      const mentorCred = await getValidAccessToken(context.userId);
+      if (!mentorCred) {
+        throw new Error(
+          "Connect your Google Calendar (Profile → Google Calendar) to auto-generate a Meet link, or paste a custom link instead.",
+        );
+      }
+      const { data: profileRows } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("id, email")
+        .in("id", Array.from(attendeeIds));
+      const attendeeEmails = Array.from(
+        new Set((profileRows ?? []).map((p: any) => p.email).filter(Boolean)),
+      ) as string[];
+      const description = [
+        composedAgenda,
+        "",
+        `Teams: ${teamNames.join(", ")}`,
+        `Scheduled by mentor via Rakshak Platform.`,
+      ].filter(Boolean).join("\n");
+
+      // We create the event AFTER inserting the meeting row so we can pass
+      // its id to createEventWithMeet; do a placeholder value and update
+      // later. To avoid two updates, insert first and then create the event.
+    }
+
+    // Insert meeting (link_mode==="google_meet" will get its link set below).
     const { data: meeting, error: mErr } = await supabaseAdmin
       .from("rp_meetings")
       .insert({
@@ -887,12 +927,55 @@ export const createMentorAllTeamsMeeting = createServerFn({ method: "POST" })
         agenda: composedAgenda,
         scheduled_start: data.scheduled_start,
         scheduled_end: data.scheduled_end,
+        meeting_link: finalMeetingLink,
         status: "confirmed",
         created_by: context.userId,
       })
       .select("id")
       .single();
     if (mErr) throw mErr;
+
+    if (data.link_mode === "google_meet") {
+      const { createEventWithMeet } = await import("./google-calendar.server");
+      const { data: profileRows } = await supabaseAdmin
+        .from("rp_profiles")
+        .select("id, email")
+        .in("id", Array.from(attendeeIds));
+      const attendeeEmails = Array.from(
+        new Set((profileRows ?? []).map((p: any) => p.email).filter(Boolean)),
+      ) as string[];
+      const description = [
+        composedAgenda,
+        "",
+        `Teams: ${teamNames.join(", ")}`,
+        `Scheduled by mentor via Rakshak Platform.`,
+      ].filter(Boolean).join("\n");
+      const gcal = await createEventWithMeet({
+        organizerUserId: context.userId,
+        title: data.title,
+        description,
+        startISO: new Date(data.scheduled_start).toISOString(),
+        endISO: new Date(data.scheduled_end).toISOString(),
+        attendeeEmails,
+        meetingId: meeting.id,
+      });
+      if (!gcal) {
+        throw new Error(
+          "Failed to create Google Calendar event. Reconnect Google Calendar and try again, or paste a custom link.",
+        );
+      }
+      finalMeetingLink = gcal.meetLink;
+      googleEventId = gcal.eventId;
+      googleOrganizerUserId = context.userId;
+      await supabaseAdmin
+        .from("rp_meetings")
+        .update({
+          meeting_link: finalMeetingLink,
+          google_event_id: googleEventId,
+          google_organizer_user_id: googleOrganizerUserId,
+        })
+        .eq("id", meeting.id);
+    }
 
     // Insert attendees.
     const attArr = Array.from(attendeeIds);
