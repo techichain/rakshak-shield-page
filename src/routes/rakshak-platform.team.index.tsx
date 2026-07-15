@@ -203,6 +203,7 @@ function TeamDashboard() {
                               <Link
                                 to="/rakshak-platform/team/phases/$phase"
                                 params={{ phase: String(p) }}
+                                search={{ team: team.id }}
                                 className="text-xs text-brand hover:underline mt-1 inline-block"
                               >
                                 Open full phase →

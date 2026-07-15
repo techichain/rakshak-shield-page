@@ -300,6 +300,7 @@ function MemberDashboard() {
             <Link
               to="/rakshak-platform/team/phases/$phase"
               params={{ phase: String(primary.current_phase) }}
+              search={{ team: primary.id }}
               className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"
             >
               Open current phase <ExternalLink className="h-3.5 w-3.5" />
