@@ -122,15 +122,33 @@ function MeetingsPage() {
     });
   }, []);
 
-  async function respondPending(meeting_id: string, decision: "approved" | "declined") {
+  async function respondPending(
+    meeting_id: string,
+    decision: "approved" | "declined",
+    opts: { custom_meeting_link?: string } = {},
+  ) {
     const reason =
       decision === "declined"
         ? (prompt("Optional: tell the team why you're declining") ?? undefined)
         : undefined;
     setPendingBusy(meeting_id);
     try {
-      await respondBooking({ data: { meeting_id, decision, reason } });
-      toast.success(decision === "approved" ? "Approved — Meet link sent to the team" : "Request declined");
+      const custom = opts.custom_meeting_link?.trim();
+      await respondBooking({
+        data: {
+          meeting_id,
+          decision,
+          reason,
+          ...(custom ? { custom_meeting_link: custom } : {}),
+        },
+      });
+      toast.success(
+        decision === "approved"
+          ? custom
+            ? "Approved — link sent to the team"
+            : "Approved — Meet link sent to the team"
+          : "Request declined",
+      );
       qc.invalidateQueries({ queryKey: ["rp-mentor-pending"] });
       qc.invalidateQueries({ queryKey: ["rp-meetings"] });
     } catch (e) {
