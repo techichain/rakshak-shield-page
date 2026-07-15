@@ -72,15 +72,8 @@ function AuthCallbackPage() {
         }
 
         if (cancelled) return;
-        if (mode === "register") {
-          if (provider === "google") {
-            navigate({ to: "/rakshak-platform/dashboard", replace: true });
-          } else {
-            navigate({ to: "/rakshak-platform/auth", search: { mode, role, verified: "1" }, replace: true });
-          }
-        } else {
-          navigate({ to: "/rakshak-platform/dashboard", replace: true });
-        }
+        // Self-registration was removed; always land on the dashboard after callback.
+        navigate({ to: "/rakshak-platform/dashboard", replace: true });
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not complete sign-in.");
       }
@@ -102,7 +95,7 @@ function AuthCallbackPage() {
               <p className="text-sm text-red-600">{error}</p>
               <button
                 type="button"
-                onClick={() => navigate({ to: "/rakshak-platform/auth", search: { mode, role }, replace: true })}
+                onClick={() => navigate({ to: "/rakshak-platform/auth", replace: true })}
                 className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90"
               >
                 Request a new link

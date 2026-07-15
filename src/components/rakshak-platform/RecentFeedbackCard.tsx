@@ -55,6 +55,7 @@ export function RecentFeedbackCard({ limit = 5 }: { limit?: number }) {
               <Link
                 to="/rakshak-platform/team/phases/$phase"
                 params={{ phase: String(f.phase_number) }}
+                search={{ team: f.team_id }}
                 className="text-xs text-brand hover:underline mt-1 inline-block"
               >
                 Open phase →
