@@ -153,7 +153,8 @@ function PhaseDetail() {
       const path = `${team}/${data.submission.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("rp-submissions").upload(path, file, { upsert: false });
       if (upErr) throw upErr;
-      const { data: signed } = await supabase.storage.from("rp-submissions").createSignedUrl(path, 60 * 60 * 24 * 7);
+      // 1h signed URL; readers should re-sign from storage_path for longer-lived access.
+      const { data: signed } = await supabase.storage.from("rp-submissions").createSignedUrl(path, 60 * 60);
       await attachFn({
         data: {
           submission_id: data.submission.id,
