@@ -90,6 +90,7 @@ function MeetingsPage() {
   const [approveLinks, setApproveLinks] = useState<Record<string, string>>({});
   const [linkMode, setLinkMode] = useState<"google_meet" | "custom" | "none">("none");
   const [allTeamsCustomLink, setAllTeamsCustomLink] = useState("");
+  const [teamIdSelected, setTeamIdSelected] = useState<string>("");
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
