@@ -37,7 +37,7 @@ export const listTeamPhases = createServerFn({ method: "GET" })
         .order("phase_number"),
       context.supabase
         .from("rp_submissions")
-        .select("id, phase_number, title, status, submitted_at, revision_number, updated_at")
+        .select("id, phase_number, title, status, submitted_at, revision_number, updated_at, document_type, is_final")
         .eq("team_id", data.team_id)
         .order("phase_number"),
     ]);
@@ -304,12 +304,14 @@ export const upsertSubmission = createServerFn({ method: "POST" })
 export const submitForReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ submission_id: z.string().uuid() }).parse(d),
+    z
+      .object({ submission_id: z.string().uuid(), is_final: z.boolean().optional() })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { data: sub } = await context.supabase
       .from("rp_submissions")
-      .select("id, team_id, phase_number, status, revision_number")
+      .select("id, team_id, phase_number, status, revision_number, is_final")
       .eq("id", data.submission_id)
       .maybeSingle();
     if (!sub) throw new Error("Submission not found");
@@ -327,6 +329,7 @@ export const submitForReview = createServerFn({ method: "POST" })
         submitted_by: context.userId,
         revision_number: nextRev,
         mentor_review_status: "pending",
+        ...(data.is_final ? { is_final: true } : {}),
       })
       .eq("id", sub.id);
     if (error) throw error;
@@ -696,7 +699,7 @@ export const listMentorPendingReviews = createServerFn({ method: "GET" })
     if (teamIds.length === 0) return { items: [] };
     const { data: subs } = await context.supabase
       .from("rp_submissions")
-      .select("id, team_id, phase_number, title, summary, status, submitted_at, revision_number")
+      .select("id, team_id, phase_number, title, summary, status, submitted_at, revision_number, document_type, is_final")
       .in("team_id", teamIds)
       .in("status", ["submitted", "resubmitted", "under_mentor_review"])
       .order("submitted_at", { ascending: false });
@@ -714,7 +717,7 @@ export const listAdminPendingReviews = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Forbidden");
     const { data: subs } = await context.supabase
       .from("rp_submissions")
-      .select("id, team_id, phase_number, title, summary, status, submitted_at, revision_number, rp_teams:team_id(team_name, college, city)")
+      .select("id, team_id, phase_number, title, summary, status, submitted_at, revision_number, document_type, is_final, rp_teams:team_id(team_name, college, city)")
       .eq("status", "mentor_approved")
       .order("submitted_at", { ascending: false });
     return { items: subs ?? [] };
@@ -829,7 +832,7 @@ export const getTeamPhaseTimeline = createServerFn({ method: "GET" })
     await ensureTeamMembership(context.supabase, context.userId, data.team_id);
     const { data: subs } = await context.supabase
       .from("rp_submissions")
-      .select("id, phase_number, title, summary, status, submitted_at, updated_at, created_at")
+      .select("id, phase_number, title, summary, status, submitted_at, updated_at, created_at, document_type, is_final")
       .eq("team_id", data.team_id)
       .order("phase_number");
     const submissionIds = (subs ?? []).map((s: any) => s.id);
