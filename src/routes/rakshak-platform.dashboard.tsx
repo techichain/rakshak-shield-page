@@ -1,25 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
-import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 
 export const Route = createFileRoute("/rakshak-platform/dashboard")({
   component: DashboardRedirect,
 });
 
-type RoleChoice = "team" | "mentor" | "evaluator";
-
 function DashboardRedirect() {
   const navigate = useNavigate();
-  const onboardWorkspace = useServerFn(onboardRPWorkspace);
   const {
     loading,
     userId,
     email,
-    fullName,
     roles,
     isAdmin,
     isMentor,
@@ -30,32 +23,6 @@ function DashboardRedirect() {
     isAuthority,
     isFinance,
   } = useRPAuth();
-
-
-  const [picking, setPicking] = useState<RoleChoice>("team");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pendingRole, setPendingRole] = useState<string | null>(null);
-  const [pendingChecked, setPendingChecked] = useState(false);
-
-  useEffect(() => {
-    if (loading || !userId) { setPendingChecked(true); return; }
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase
-        .from("rp_role_approvals")
-        .select("requested_role,status")
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .order("requested_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (cancelled) return;
-      setPendingRole((data?.requested_role as string) ?? null);
-      setPendingChecked(true);
-    })();
-    return () => { cancelled = true; };
-  }, [loading, userId]);
 
   useEffect(() => {
     if (loading) return;
@@ -70,33 +37,8 @@ function DashboardRedirect() {
     if (isFinance) { navigate({ to: "/rakshak-platform/admin" }); return; }
   }, [loading, userId, isAdmin, isMentor, isTeam, isTeamLeader, isTeamMember, isEvaluator, isAuthority, isFinance, navigate]);
 
+  const noRoleYet = !loading && !!userId && roles.length === 0;
 
-  async function chooseRole() {
-    if (!userId) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      const accessToken = sessionData.session?.access_token;
-      if (!accessToken) throw new Error("Your sign-in session expired. Please sign in again.");
-      const result = await onboardWorkspace({
-        data: { role: picking, accessToken, fullName, email },
-      });
-      if (result.status === "pending_approval") {
-        setError("Evaluator access requested. A CFI admin will review it shortly.");
-      } else {
-        navigate({ to: result.redirectTo });
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not assign role.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const noRoleYet = !loading && pendingChecked && !!userId && roles.length === 0 && !pendingRole;
-  const awaitingApproval = !loading && pendingChecked && !!userId && roles.length === 0 && !!pendingRole;
 
   return (
     <PlatformShell>
