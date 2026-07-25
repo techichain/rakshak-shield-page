@@ -382,7 +382,7 @@ export function EvidenceRepository({
                             type="button"
                             onClick={() => removeRecord(r.id)}
                             aria-label={`Delete record ${r.title}`}
-                            className="rp-btn-ghost inline-flex items-center gap-1 text-red-600"
+                            className="inline-flex items-center gap-1 text-red-600"
                           >
                             <Trash2 className="size-4" />
                           </button>
@@ -410,7 +410,7 @@ export function EvidenceRepository({
                               <button
                                 type="button"
                                 onClick={() => openFile(f.storage_path)}
-                                className="rp-btn-ghost inline-flex items-center gap-1 text-xs"
+                                className="inline-flex items-center gap-1 text-xs"
                               >
                                 <Download className="size-3" /> Open
                               </button>
@@ -419,7 +419,7 @@ export function EvidenceRepository({
                                   type="button"
                                   onClick={() => removeFile(f.id)}
                                   aria-label={`Remove ${f.file_name}`}
-                                  className="rp-btn-ghost inline-flex items-center gap-1 text-xs text-red-600"
+                                  className="inline-flex items-center gap-1 text-xs text-red-600"
                                 >
                                   <X className="size-3" /> Remove
                                 </button>
