@@ -22,6 +22,7 @@ import { getTeamPhaseRankings } from "@/lib/rakshak-platform/admin-teams.functio
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { EvidenceRepository } from "@/components/rakshak-platform/EvidenceRepository";
 import { MediaGallery } from "@/components/rakshak-platform/MediaGallery";
+import { TeamUpdates } from "@/components/rakshak-platform/TeamUpdates";
 import { AuthorityEngagement } from "@/components/rakshak-platform/AuthorityEngagement";
 
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
@@ -377,6 +378,7 @@ function AdminTeamDetail() {
               <EvidenceRepository teamId={teamId} readOnly heading="Evidence & records filed by this team" />
               <MediaGallery teamId={teamId} readOnly heading="Site media from this team" />
               <AuthorityEngagement teamId={teamId} readOnly heading="Authority engagement by this team" />
+            <TeamUpdates teamId={teamId} readOnly heading="Shared by this team (exam schedules, availability)" />
 
               <StakeholderReports reports={reports} />
 

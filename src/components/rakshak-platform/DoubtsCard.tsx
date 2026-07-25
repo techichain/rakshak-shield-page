@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { HelpCircle, Loader2, CheckCircle2, Clock } from "lucide-react";
-import { createDoubt, listTeamDoubts } from "@/lib/rakshak-platform/doubts.functions";
+import { createDoubt, listTeamDoubts, followUpDoubt } from "@/lib/rakshak-platform/doubts.functions";
 
 const SAMPLE_DOUBTS = [
   {
@@ -52,6 +52,8 @@ function fmt(iso: string) {
 export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumber?: number }) {
   const post = useServerFn(createDoubt);
   const list = useServerFn(listTeamDoubts);
+  const followUp = useServerFn(followUpDoubt);
+  const [followingUp, setFollowingUp] = useState<string | null>(null);
   const [doubts, setDoubts] = useState<any[]>([]);
   const [busy, setBusy] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -86,6 +88,18 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
       setErr(e?.message ?? "Failed to post");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function sendFollowUp(id: string) {
+    setFollowingUp(id); setErr(null);
+    try {
+      await followUp({ data: { doubt_id: id } } as any);
+      void refresh();
+    } catch (e: any) {
+      setErr(e?.message ?? "Could not send follow-up");
+    } finally {
+      setFollowingUp(null);
     }
   }
 
@@ -161,6 +175,22 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
                       {d.sample && <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-amber-300 text-amber-700">Sample</span>}
                     </div>
                     <div className="mt-1 text-sm whitespace-pre-wrap">{d.question}</div>
+                    {d.escalated_at && (
+                      <div className="mt-2 text-[11px] text-orange-700">
+                        Follow-up sent · escalated to the programme team
+                        {d.follow_up_count > 1 ? ` · ${d.follow_up_count} follow-ups` : ""}
+                      </div>
+                    )}
+                    {!d.sample && d.status !== "resolved" && (
+                      <button
+                        type="button"
+                        disabled={followingUp === d.id}
+                        onClick={() => void sendFollowUp(d.id)}
+                        className="mt-2 h-8 rounded-full border border-border px-4 text-xs hover:border-brand/40 disabled:opacity-60"
+                      >
+                        {followingUp === d.id ? "Sending…" : "Follow up / still unresolved"}
+                      </button>
+                    )}
                     {d.status === "resolved" && d.resolution_text && (
                       <div className="mt-2 rounded-lg border-l-2 border-emerald-400 bg-emerald-50/50 pl-3 py-1 text-sm">
                         <div className="text-[11px] text-muted-foreground">
@@ -170,8 +200,8 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
                       </div>
                     )}
                   </div>
-                  <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border ${d.status === "resolved" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
-                    {d.status}
+                  <span className={`text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border ${d.status === "resolved" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : d.escalated_at ? "border-orange-300 bg-orange-50 text-orange-700" : "border-amber-200 bg-amber-50 text-amber-700"}`}>
+                    {d.status === "resolved" ? d.status : d.escalated_at ? "escalated" : d.status}
                   </span>
                 </div>
               </li>

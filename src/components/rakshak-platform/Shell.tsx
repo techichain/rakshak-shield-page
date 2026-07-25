@@ -237,6 +237,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                 { to: "/rakshak-platform/team/evidence", label: "Evidence & records", icon: FolderOpen },
                 { to: "/rakshak-platform/team/media", label: "Site media", icon: Images },
+                { to: "/rakshak-platform/team/updates", label: "Share with us", icon: CalendarDays },
 
               ]} />
             )}
@@ -362,6 +363,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                   { to: "/rakshak-platform/team/evidence", label: "Evidence & records", icon: FolderOpen },
                   { to: "/rakshak-platform/team/media", label: "Site media", icon: Images },
+                  { to: "/rakshak-platform/team/updates", label: "Share with us", icon: CalendarDays },
 
                 ]} onPick={() => setMenuOpen(false)} />
               )}
