@@ -22,25 +22,55 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
     ]);
 
     const norm = (s: any) => (s == null ? "" : String(s).trim().toLowerCase());
-    const institutions = new Set<string>();
-    const cities = new Set<string>();
-    const states = new Set<string>();
-    (teamsMetaQ.data ?? []).forEach((r: any) => {
-      const c = norm(r.college); if (c) institutions.add(c);
-      const ci = norm(r.city); if (ci) cities.add(ci);
-      const st = norm(r.state); if (st) states.add(st);
-    });
 
-    // Top cities by # of mapped locations (light query)
-    const { data: cityRows } = await supabaseAdmin
+    // Distinct colleges / cities / states from active teams, with team counts.
+    type Tally = Map<string, { label: string; count: number }>;
+    const institutionsTally: Tally = new Map();
+    const citiesTally: Tally = new Map();
+    const statesTally: Tally = new Map();
+    const bump = (t: Tally, raw: any) => {
+      const key = norm(raw);
+      if (!key) return;
+      const label = String(raw).trim();
+      const prev = t.get(key);
+      if (prev) prev.count += 1;
+      else t.set(key, { label, count: 1 });
+    };
+    (teamsMetaQ.data ?? []).forEach((r: any) => {
+      bump(institutionsTally, r.college);
+      bump(citiesTally, r.city);
+      bump(statesTally, r.state);
+    });
+    const toList = (t: Tally) =>
+      [...t.values()]
+        .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+        .map((v) => ({ name: v.label, count: v.count }));
+
+    const institutionsList = toList(institutionsTally);
+    const citiesList = toList(citiesTally);
+    const statesList = toList(statesTally);
+
+    // Location rows for the coordinates table (live).
+    const { data: locationRows } = await supabaseAdmin
       .from("rp_locations")
-      .select("city")
-      .not("city", "is", null)
+      .select("id, location_name, city, state, latitude, longitude, authority_jurisdiction, severity")
       .limit(2000);
+
+    const locations = (locationRows ?? []).map((r: any) => ({
+      id: String(r.id),
+      name: r.location_name ?? "",
+      city: (r.city ?? "").trim(),
+      state: (r.state ?? "").trim(),
+      latitude: r.latitude == null ? null : Number(r.latitude),
+      longitude: r.longitude == null ? null : Number(r.longitude),
+      authority: r.authority_jurisdiction ?? null,
+      risk: r.severity ?? null,
+    }));
+
+    // Top cities by # of mapped locations
     const cityCounts: Record<string, number> = {};
-    (cityRows ?? []).forEach((r: any) => {
-      const c = (r.city || "").trim();
-      if (c) cityCounts[c] = (cityCounts[c] || 0) + 1;
+    locations.forEach((r) => {
+      if (r.city) cityCounts[r.city] = (cityCounts[r.city] || 0) + 1;
     });
     const topCities = Object.entries(cityCounts)
       .sort((a, b) => b[1] - a[1])
@@ -53,11 +83,15 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
       finalLocations: finalLocationsQ.count ?? 0,
       authorityReports: authorityQ.count ?? 0,
       certificates: certsQ.count ?? 0,
-      institutions: institutions.size,
-      cities: cities.size,
-      states: states.size,
+      institutions: institutionsList.length,
+      cities: citiesList.length,
+      states: statesList.length,
       stakeholderSurveys: surveysQ.count ?? 0,
       topCities,
+      institutionsList,
+      citiesList,
+      statesList,
+      locationRows: locations,
     };
 
     const isAllEmpty =
@@ -79,9 +113,9 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
         finalLocations: 180,
         authorityReports: 90,
         certificates: 60,
-        institutions: 38,
-        cities: 22,
-        states: 14,
+        institutions: 4,
+        cities: 6,
+        states: 5,
         stakeholderSurveys: 52,
         topCities: [
           { city: "Bengaluru", count: 42 },
@@ -91,10 +125,35 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
           { city: "Hyderabad", count: 19 },
           { city: "Chennai", count: 16 },
         ],
+        institutionsList: [
+          { name: "IIT Delhi", count: 6 },
+          { name: "IIT Bombay", count: 5 },
+          { name: "DTU", count: 4 },
+          { name: "NIT Calicut", count: 3 },
+        ],
+        citiesList: [
+          { name: "Bengaluru", count: 8 },
+          { name: "Mumbai", count: 7 },
+          { name: "Delhi", count: 6 },
+          { name: "Pune", count: 4 },
+          { name: "Hyderabad", count: 3 },
+          { name: "Chennai", count: 2 },
+        ],
+        statesList: [
+          { name: "Karnataka", count: 8 },
+          { name: "Maharashtra", count: 7 },
+          { name: "Delhi", count: 6 },
+          { name: "Telangana", count: 3 },
+          { name: "Tamil Nadu", count: 2 },
+        ],
+        locationRows: [
+          { id: "s1", name: "Silk Board Junction", city: "Bengaluru", state: "Karnataka", latitude: 12.9172, longitude: 77.6229, authority: "BBMP", risk: "critical" },
+          { id: "s2", name: "Sion Circle", city: "Mumbai", state: "Maharashtra", latitude: 19.0403, longitude: 72.8624, authority: "MCGM", risk: "high" },
+          { id: "s3", name: "ITO Crossing", city: "Delhi", state: "Delhi", latitude: 28.6289, longitude: 77.2410, authority: "PWD Delhi", risk: "high" },
+        ],
         using_dummy: true as const,
       };
     }
 
     return { ...real, using_dummy: false as const };
   });
-
