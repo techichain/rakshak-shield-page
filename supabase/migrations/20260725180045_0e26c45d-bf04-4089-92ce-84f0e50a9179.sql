@@ -1,0 +1,1 @@
+ALTER TABLE public.rp_teams ALTER COLUMN current_phase SET DEFAULT 1;
