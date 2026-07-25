@@ -43,24 +43,20 @@ function PhaseDetail() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const detailFn = useServerFn(getSubmissionDetail);
-  const saveFn = useServerFn(upsertSubmission);
-  const submitFn = useServerFn(submitForReview);
-  const attachFn = useServerFn(attachSubmissionFile);
-  const removeFn = useServerFn(removeSubmissionFile);
+  const slotsFn = useServerFn(getPhaseSubmissionSlots);
   const qListFn = useServerFn(listQuestionnairesForTeam);
   const qSubmitFn = useServerFn(submitQuestionnaireResponse);
   const { userId } = useRPAuth();
 
+  const slotsQueryKey = ["rp-phase-slots", team, phaseNum];
   const { data } = useSuspenseQuery({
-    queryKey: ["rp-submission", team, phaseNum],
-    queryFn: () => detailFn({ data: { team_id: team, phase_number: phaseNum } }),
+    queryKey: slotsQueryKey,
+    queryFn: () => slotsFn({ data: { team_id: team, phase_number: phaseNum } }),
   });
+  const slots = ((data as any)?.slots ?? []) as SubmissionSlot[];
+  const allFeedback = slots.flatMap((s) => s.feedback ?? []);
+  const finalSlot = slots.find((s) => s.key === "final");
 
-  const qQuery = useQuery({
-    queryKey: ["rp-questionnaires", team, phaseNum],
-    queryFn: () => qListFn({ data: { team_id: team, phase_number: phaseNum } }),
-  });
   const teamQuestionnaires = (qQuery.data as any)?.questionnaires ?? [];
 
   const [title, setTitle] = useState(data.submission?.title ?? "");
