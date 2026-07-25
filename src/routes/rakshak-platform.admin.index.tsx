@@ -489,6 +489,22 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
   const [mentorFilter, setMentorFilter] = useState<string>("all");
   const [progressRange, setProgressRange] = useState<string>("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "tScore", dir: "desc" });
+  const [view, setView] = useState<"clusters" | "table">("clusters");
+
+  // Health clusters — shared formula (see admin-team-health.ts).
+  const healthByTeam = useMemo(
+    () =>
+      computeTeamHealth(
+        rows.map((r) => ({
+          id: r.id,
+          completion_percentage: r.completion_percentage,
+          score: r.tScore,
+          phases: r.phases,
+        })),
+      ),
+    [rows],
+  );
+
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
