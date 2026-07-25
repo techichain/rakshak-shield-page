@@ -91,7 +91,7 @@ function AdminMeetings() {
                 <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-2">Attendees</th>
                 <th className="px-3 py-2">Reminders</th>
-                <th className="px-3 py-2">Notes</th>
+                <th className="px-3 py-2">Meeting notes / transcript (manual)</th>
               </tr>
             </thead>
             <tbody>
