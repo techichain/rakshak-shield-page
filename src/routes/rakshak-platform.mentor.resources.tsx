@@ -92,7 +92,7 @@ function MentorResourcesPage() {
     }
     setSubmitting(true);
     try {
-      let payload: any = {
+      const payload: any = {
         title: title.trim(),
         description: description.trim() || undefined,
         team_id: teamId || null,

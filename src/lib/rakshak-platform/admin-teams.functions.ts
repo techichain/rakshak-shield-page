@@ -133,7 +133,7 @@ export const getTeamPhaseRankings = createServerFn({ method: "GET" })
 
       const pr = progByPhase.get(phase) ?? null;
       const now = Date.now();
-      let status: string = pr?.status ?? "not_started";
+      const status: string = pr?.status ?? "not_started";
       let timeliness: "on_time" | "late" | "overdue" | null = null;
       if (pr?.deadline) {
         const dl = new Date(pr.deadline).getTime();

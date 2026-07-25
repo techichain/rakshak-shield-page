@@ -43,7 +43,7 @@ export const compareSubmissions = createServerFn({ method: "POST" })
     }
 
     const submissionIds = Array.from(subByTeam.values()).map((s) => s.id);
-    let evalsBySub = new Map<string, any[]>();
+    const evalsBySub = new Map<string, any[]>();
     if (submissionIds.length > 0) {
       const { data: evals, error: eErr } = await supabase
         .from("rp_evaluations")

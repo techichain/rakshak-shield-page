@@ -77,7 +77,10 @@ function DataPage() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     supabase.from("rp_cohorts").select("id, name").order("created_at", { ascending: false })
-      .then(({ data }) => { setCohorts(data ?? []); if (data?.[0]) setCohortId(data[0].id); });
+      .then(
+        ({ data }) => { setCohorts(data ?? []); if (data?.[0]) setCohortId(data[0].id); },
+        () => { setCohorts([]); },
+      );
   }, [loading, userId, isAdmin, navigate]);
 
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {

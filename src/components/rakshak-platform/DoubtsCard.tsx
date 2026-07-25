@@ -71,7 +71,8 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
     }
   }
 
-  useEffect(() => { void refresh(); /* eslint-disable-next-line */ }, [teamId]);
+  // refresh is intentionally omitted: it is recreated each render and would re-fetch in a loop.
+  useEffect(() => { void refresh(); }, [teamId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

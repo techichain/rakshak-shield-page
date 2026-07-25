@@ -73,7 +73,8 @@ function PublicTeamPage() {
 
   async function copyLink() {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      try { await navigator.clipboard.writeText(shareUrl); } catch {}
+      // Clipboard access can be denied by the browser; failing silently is acceptable here.
+      try { await navigator.clipboard.writeText(shareUrl); } catch { /* ignore */ }
     }
   }
 
