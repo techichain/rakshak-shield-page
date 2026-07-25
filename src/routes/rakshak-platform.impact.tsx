@@ -157,7 +157,7 @@ function ImpactPage() {
             panelId="impact-panel-cities"
           />
           <Stat
-            icon={Map}
+            icon={MapIcon}
             label="States"
             value={stateCounts.length}
             expandable
