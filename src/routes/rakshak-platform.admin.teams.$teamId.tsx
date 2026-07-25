@@ -889,6 +889,8 @@ function AdminTeamDetail() {
           )}
 
           {tab === "members" && (
+            <div className="space-y-6">
+            <AddMemberPanel teamId={teamId} onAdded={() => setReloadKey((k) => k + 1)} />
             <div className="rounded-2xl border border-border bg-card overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
