@@ -69,11 +69,6 @@ export function AdminFAB() {
           {open ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
         </button>
       </div>
-
-      <AdminCreateTeamDialog
-        open={teamOpen}
-        onClose={() => setTeamOpen(false)}
-      />
     </>
   );
 }
