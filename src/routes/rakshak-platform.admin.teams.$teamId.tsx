@@ -309,6 +309,9 @@ function AdminTeamDetail() {
                 <Card label="Created" value={fmtDate(t.created_at)} />
               </div>
 
+              <PhaseRankingsPanel teamId={teamId} />
+
+
               <div className="rounded-2xl border border-border bg-card p-5">
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Evaluator scores
