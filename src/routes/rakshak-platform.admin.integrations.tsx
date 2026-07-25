@@ -52,38 +52,40 @@ const SMOKE_TARGETS: { key: string; name: string }[] = [
   { key: "outbound", name: "Custom outbound webhooks" },
 ];
 
-function StatusBadge({ status }: { status: SmokeResult["status"] | "idle" | "running" }) {
+function StatusBadge({ status, size = "sm" }: { status: SmokeResult["status"] | "idle" | "running"; size?: "sm" | "lg" }) {
+  const pad = size === "lg" ? "text-sm px-3 py-1" : "text-xs px-2 py-0.5";
+  const icon = size === "lg" ? "h-4 w-4" : "h-3 w-3";
   if (status === "running") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border bg-muted text-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> Running
+      <span className={`inline-flex items-center gap-1 rounded-full border border-border bg-muted text-foreground ${pad}`}>
+        <Loader2 className={`${icon} animate-spin`} aria-hidden /> Checking…
       </span>
     );
   }
   if (status === "pass") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-emerald-300 bg-emerald-50 text-emerald-800">
-        <CheckCircle2 className="h-3 w-3" aria-hidden /> Pass
+      <span className={`inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 text-emerald-800 ${pad}`}>
+        <CheckCircle2 className={icon} aria-hidden /> Working
       </span>
     );
   }
   if (status === "fail") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-red-300 bg-red-50 text-red-800">
-        <XCircle className="h-3 w-3" aria-hidden /> Fail
+      <span className={`inline-flex items-center gap-1 rounded-full border border-red-300 bg-red-50 text-red-800 ${pad}`}>
+        <XCircle className={icon} aria-hidden /> Not working
       </span>
     );
   }
   if (status === "skip") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border bg-muted text-muted-foreground">
-        <MinusCircle className="h-3 w-3" aria-hidden /> Skip
+      <span className={`inline-flex items-center gap-1 rounded-full border border-border bg-muted text-muted-foreground ${pad}`}>
+        <MinusCircle className={icon} aria-hidden /> Not set up
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border bg-background text-muted-foreground">
-      <Circle className="h-3 w-3" aria-hidden /> Idle
+    <span className={`inline-flex items-center gap-1 rounded-full border border-border bg-background text-muted-foreground ${pad}`}>
+      <Circle className={icon} aria-hidden /> Not checked yet
     </span>
   );
 }
