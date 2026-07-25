@@ -857,12 +857,24 @@ export const getTeamPhaseTimeline = createServerFn({ method: "GET" })
 
     const byPhase = new Map<number, any>();
     for (let n = 0; n <= 4; n++) {
-      byPhase.set(n, { phase_number: n, submission: null, feedback: [], evaluations: [] });
+      byPhase.set(n, { phase_number: n, submission: null, submissions: [], feedback: [], evaluations: [] });
     }
     for (const s of subs ?? []) {
       const row = byPhase.get(s.phase_number);
-      if (row) row.submission = s;
+      if (!row) continue;
+      row.submissions.push(s);
+      // Headline submission for a phase: the final one if it exists,
+      // otherwise the most recently updated draft.
+      const cur = row.submission;
+      const better =
+        !cur ||
+        (s.is_final && !cur.is_final) ||
+        (!!s.is_final === !!cur.is_final &&
+          new Date(s.updated_at ?? s.created_at ?? 0).getTime() >
+            new Date(cur.updated_at ?? cur.created_at ?? 0).getTime());
+      if (better) row.submission = s;
     }
+
     for (const f of feedback) {
       const s = (subs ?? []).find((x: any) => x.id === f.submission_id);
       if (!s) continue;
