@@ -17,6 +17,7 @@ import {
   XCircle,
   MinusCircle,
   Loader2,
+  ChevronDown,
 } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/integrations")({
@@ -52,38 +53,40 @@ const SMOKE_TARGETS: { key: string; name: string }[] = [
   { key: "outbound", name: "Custom outbound webhooks" },
 ];
 
-function StatusBadge({ status }: { status: SmokeResult["status"] | "idle" | "running" }) {
+function StatusBadge({ status, size = "sm" }: { status: SmokeResult["status"] | "idle" | "running"; size?: "sm" | "lg" }) {
+  const pad = size === "lg" ? "text-sm px-3 py-1" : "text-xs px-2 py-0.5";
+  const icon = size === "lg" ? "h-4 w-4" : "h-3 w-3";
   if (status === "running") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border bg-muted text-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> Running
+      <span className={`inline-flex items-center gap-1 rounded-full border border-border bg-muted text-foreground ${pad}`}>
+        <Loader2 className={`${icon} animate-spin`} aria-hidden /> Checking…
       </span>
     );
   }
   if (status === "pass") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-emerald-300 bg-emerald-50 text-emerald-800">
-        <CheckCircle2 className="h-3 w-3" aria-hidden /> Pass
+      <span className={`inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 text-emerald-800 ${pad}`}>
+        <CheckCircle2 className={icon} aria-hidden /> Working
       </span>
     );
   }
   if (status === "fail") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-red-300 bg-red-50 text-red-800">
-        <XCircle className="h-3 w-3" aria-hidden /> Fail
+      <span className={`inline-flex items-center gap-1 rounded-full border border-red-300 bg-red-50 text-red-800 ${pad}`}>
+        <XCircle className={icon} aria-hidden /> Not working
       </span>
     );
   }
   if (status === "skip") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border bg-muted text-muted-foreground">
-        <MinusCircle className="h-3 w-3" aria-hidden /> Skip
+      <span className={`inline-flex items-center gap-1 rounded-full border border-border bg-muted text-muted-foreground ${pad}`}>
+        <MinusCircle className={icon} aria-hidden /> Not set up
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-border bg-background text-muted-foreground">
-      <Circle className="h-3 w-3" aria-hidden /> Idle
+    <span className={`inline-flex items-center gap-1 rounded-full border border-border bg-background text-muted-foreground ${pad}`}>
+      <Circle className={icon} aria-hidden /> Not checked yet
     </span>
   );
 }
@@ -94,6 +97,7 @@ function IntegrationsPage() {
   const [results, setResults] = useState<Record<string, SmokeResult>>({});
   const [running, setRunning] = useState<Set<string>>(new Set());
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const smoke = useServerFn(runIntegrationSmoke);
 
   function copy(text: string, key: string) {
@@ -153,82 +157,47 @@ function IntegrationsPage() {
   ];
 
   const services = [
-    { key: "ai", icon: <Sparkles className="h-5 w-5" aria-hidden />, name: "Lovable AI Gateway", description: "Powers the AI report checker (Gemini 2.5 Flash).", docs: "https://docs.lovable.dev/features/ai-gateway" },
-    { key: "supabase", icon: <Database className="h-5 w-5" aria-hidden />, name: "Lovable Cloud", description: "Database, auth, storage, realtime — fully managed.", docs: "https://supabase.com/docs" },
-    { key: "admin-digest", icon: <Mail className="h-5 w-5" aria-hidden />, name: "Resend (email)", description: "Transactional + digest email delivery via Resend.", docs: "https://resend.com/docs" },
+    { key: "supabase", icon: <Database className="h-5 w-5" aria-hidden />, name: "Database & logins", description: "Stores all your teams, reports, files and logins.", docs: "https://supabase.com/docs" },
+    { key: "admin-digest", icon: <Mail className="h-5 w-5" aria-hidden />, name: "Email sending", description: "Sends emails to teams, mentors and admins.", docs: "https://resend.com/docs" },
+    { key: "ai", icon: <Sparkles className="h-5 w-5" aria-hidden />, name: "AI report checker", description: "Powers the AI that reviews and summarises team reports.", docs: "https://docs.lovable.dev/features/ai-gateway" },
   ];
 
   const placeholders = [
-    { key: "slack", icon: <MessageSquare className="h-5 w-5" aria-hidden />, name: "Slack notifications", description: "Mirror admin notifications to a Slack channel via incoming webhook." },
-    { key: "whatsapp", icon: <MessageSquare className="h-5 w-5" aria-hidden />, name: "WhatsApp Business", description: "Send phase deadline reminders to team leaders via WhatsApp Business API." },
-    { key: "sheets", icon: <Database className="h-5 w-5" aria-hidden />, name: "Google Sheets sync", description: "Periodic export of teams / submissions to a shared Sheet for partners." },
-    { key: "outbound", icon: <Webhook className="h-5 w-5" aria-hidden />, name: "Custom outbound webhooks", description: "Fire HTTP callbacks on submission/approval/at-risk events to your stack." },
+    { key: "slack", icon: <MessageSquare className="h-5 w-5" aria-hidden />, name: "Slack alerts", description: "Would post admin alerts into a Slack channel so your team sees them without logging in." },
+    { key: "whatsapp", icon: <MessageSquare className="h-5 w-5" aria-hidden />, name: "WhatsApp reminders", description: "Would send phase deadline reminders to team leaders on WhatsApp." },
+    { key: "sheets", icon: <Database className="h-5 w-5" aria-hidden />, name: "Google Sheets export", description: "Would keep a shared Google Sheet of teams and submissions up to date for partners." },
+    { key: "outbound", icon: <Webhook className="h-5 w-5" aria-hidden />, name: "Custom notifications to other tools", description: "Would notify other software you use whenever a report is submitted or approved." },
   ];
 
   return (
     <PlatformShell>
       <Section>
-        <Eyebrow>Admin · Integrations</Eyebrow>
+        <Eyebrow>Admin · Connections &amp; health</Eyebrow>
         <div className="mt-3 flex items-end justify-between gap-4 flex-wrap">
           <h1 className="font-heading text-3xl sm:text-4xl tracking-tight">
-            Connect Rakshak<br /><span className="text-brand">to your stack.</span>
+            Is everything<br /><span className="text-brand">working?</span>
           </h1>
           <button
             onClick={() => run()}
             disabled={running.size > 0}
             className="inline-flex items-center gap-2 min-h-11 rounded-full bg-brand px-5 text-sm text-brand-foreground hover:bg-brand/90 disabled:opacity-60"
-            aria-label="Run all integration smoke tests"
+            aria-label="Check everything now"
           >
             {running.size > 0 ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : <PlayCircle className="h-4 w-4" aria-hidden />}
-            Run all smoke tests
+            Check everything now
           </button>
         </div>
         <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
-          Active webhook endpoints, connected services, and a roadmap of integrations the team can wire up next.
-          Run smoke tests to validate readiness before connecting real external systems.
+          This page shows whether the systems Rakshak depends on are running, and lets you re-check them at any time.
         </p>
         <p className="mt-2 text-xs text-muted-foreground" aria-live="polite">
-          {lastRunAt ? `Last run: ${new Date(lastRunAt).toLocaleString()}` : "No smoke tests run yet."}
+          {lastRunAt ? `Last checked: ${new Date(lastRunAt).toLocaleString()}` : "Nothing checked yet."}
         </p>
 
-        <h2 className="mt-14 font-heading text-2xl">Webhook endpoints</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Configure these in pg_cron or your scheduler of choice.</p>
-        <div className="mt-6 space-y-4">
-          {webhooks.map((w) => {
-            const url = `${origin}${w.path}`;
-            return (
-              <article key={w.path} className="rounded-2xl border border-border bg-background p-5" aria-labelledby={`hook-${w.path}`}>
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div>
-                    <h3 id={`hook-${w.path}`} className="font-heading text-lg">{w.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{w.description}</p>
-                  </div>
-                  <span className="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" aria-hidden /> Live
-                  </span>
-                </div>
-                <div className="mt-4 flex items-center gap-2 rounded-xl bg-brand-lite border border-brand/15 px-3 py-2">
-                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-brand text-brand-foreground" aria-label={`HTTP method ${w.method}`}>{w.method}</span>
-                  <code className="flex-1 text-xs truncate">{url}</code>
-                  <button
-                    onClick={() => copy(url, w.path)}
-                    className="inline-flex items-center gap-1 text-xs text-brand hover:underline min-h-9 px-2"
-                    aria-label={`Copy URL for ${w.name}`}
-                  >
-                    {copied === w.path ? <CheckCircle2 className="h-3 w-3" aria-hidden /> : <Copy className="h-3 w-3" aria-hidden />}
-                    {copied === w.path ? "Copied" : "Copy"}
-                  </button>
-                </div>
-                <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div><dt className="text-muted-foreground inline">Auth: </dt><dd className="inline font-mono">{w.auth}</dd></div>
-                  <div><dt className="text-muted-foreground inline">Cadence: </dt><dd className="inline">{w.cadence}</dd></div>
-                </dl>
-              </article>
-            );
-          })}
-        </div>
-
-        <h2 className="mt-16 font-heading text-2xl">Connected services</h2>
+        <h2 className="mt-14 font-heading text-2xl">The systems Rakshak runs on</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          If any of these says “Not working”, something on the site will be broken — tell your developer.
+        </p>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 list-none p-0">
           {services.map((s) => {
             const res = results[s.key];
@@ -237,26 +206,26 @@ function IntegrationsPage() {
               <li key={s.key} className="rounded-2xl border border-border bg-background p-5">
                 <div className="flex items-center gap-2 text-brand">{s.icon}<span className="font-heading text-foreground">{s.name}</span></div>
                 <p className="mt-2 text-sm text-muted-foreground">{s.description}</p>
-                <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
-                  <StatusBadge status={isRunning ? "running" : (res?.status ?? "idle") as any} />
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => run([s.key])}
-                      disabled={isRunning}
-                      className="text-xs text-brand hover:underline inline-flex items-center gap-1 min-h-9"
-                      aria-label={`Run smoke test for ${s.name}`}
-                    >
-                      <PlayCircle className="h-3.5 w-3.5" aria-hidden /> Smoke test
-                    </button>
-                    <a href={s.docs} target="_blank" rel="noreferrer" className="text-xs text-brand inline-flex items-center gap-1 hover:underline min-h-9" aria-label={`${s.name} docs (opens in new tab)`}>
-                      Docs <ExternalLink className="h-3 w-3" aria-hidden />
-                    </a>
-                  </div>
+                <div className="mt-4">
+                  <StatusBadge status={isRunning ? "running" : ((res?.status ?? "idle") as any)} size="lg" />
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => run([s.key])}
+                    disabled={isRunning}
+                    className="text-xs text-brand hover:underline inline-flex items-center gap-1 min-h-9"
+                    aria-label={`Check ${s.name} now`}
+                  >
+                    <PlayCircle className="h-3.5 w-3.5" aria-hidden /> Check now
+                  </button>
+                  <a href={s.docs} target="_blank" rel="noreferrer" className="text-xs text-brand inline-flex items-center gap-1 hover:underline min-h-9" aria-label={`${s.name} help pages (opens in new tab)`}>
+                    Help <ExternalLink className="h-3 w-3" aria-hidden />
+                  </a>
                 </div>
                 {res && (
                   <p className="mt-2 text-xs text-muted-foreground" aria-live="polite">
-                    {res.detail} {res.latency_ms ? `· ${res.latency_ms}ms` : ""}
+                    {res.detail}
                   </p>
                 )}
               </li>
@@ -264,9 +233,9 @@ function IntegrationsPage() {
           })}
         </ul>
 
-        <h2 className="mt-16 font-heading text-2xl">Roadmap (smoke-testable)</h2>
+        <h2 className="mt-16 font-heading text-2xl">Optional add-ons — not set up yet</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Each placeholder reports a clear readiness signal so you can validate wiring the moment credentials land.
+          These are extras Rakshak could use later. Nothing is broken if they say “Not set up”.
         </p>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 list-none p-0">
           {placeholders.map((p) => {
@@ -277,15 +246,15 @@ function IntegrationsPage() {
                 <div className="flex items-center gap-2 text-muted-foreground">{p.icon}<span className="font-heading text-foreground">{p.name}</span></div>
                 <p className="mt-2 text-sm text-muted-foreground">{p.description}</p>
                 <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
-                  <StatusBadge status={isRunning ? "running" : (res?.status ?? "idle") as any} />
+                  <StatusBadge status={isRunning ? "running" : ((res?.status ?? "skip") as any)} />
                   <button
                     type="button"
                     onClick={() => run([p.key])}
                     disabled={isRunning}
                     className="text-xs text-brand hover:underline inline-flex items-center gap-1 min-h-9"
-                    aria-label={`Run smoke test for ${p.name}`}
+                    aria-label={`Check ${p.name} now`}
                   >
-                    <PlayCircle className="h-3.5 w-3.5" aria-hidden /> Smoke test
+                    <PlayCircle className="h-3.5 w-3.5" aria-hidden /> Check now
                   </button>
                 </div>
                 {res && (
@@ -297,6 +266,75 @@ function IntegrationsPage() {
             );
           })}
         </ul>
+
+        <div className="mt-16 rounded-2xl border border-border bg-background">
+          <button
+            type="button"
+            onClick={() => setAdvancedOpen((v) => !v)}
+            aria-expanded={advancedOpen}
+            aria-controls="advanced-developer-details"
+            className="flex w-full items-center justify-between gap-3 rounded-2xl px-5 py-4 text-left min-h-11"
+          >
+            <span className="font-heading text-lg">Advanced — for your developer</span>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${advancedOpen ? "rotate-180" : ""}`} aria-hidden />
+          </button>
+          {advancedOpen && (
+            <div id="advanced-developer-details" className="border-t border-border p-5">
+              <p className="text-sm text-muted-foreground">
+                You don&apos;t need to change anything here — this is for whoever set up the site.
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Scheduled webhook endpoints. Configure these in pg_cron or your scheduler of choice.
+              </p>
+              <div className="mt-5 space-y-4">
+                {webhooks.map((w) => {
+                  const url = `${origin}${w.path}`;
+                  return (
+                    <article key={w.path} className="rounded-2xl border border-border bg-background p-5" aria-labelledby={`hook-${w.path}`}>
+                      <div className="flex items-start justify-between gap-4 flex-wrap">
+                        <div>
+                          <h3 id={`hook-${w.path}`} className="font-heading text-lg">{w.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">{w.description}</p>
+                        </div>
+                        <span className="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" aria-hidden /> Live
+                        </span>
+                      </div>
+                      <div className="mt-4 flex items-center gap-2 rounded-xl bg-brand-lite border border-brand/15 px-3 py-2">
+                        <span className="text-xs font-mono px-2 py-0.5 rounded bg-brand text-brand-foreground" aria-label={`HTTP method ${w.method}`}>{w.method}</span>
+                        <code className="flex-1 text-xs truncate">{url}</code>
+                        <button
+                          onClick={() => copy(url, w.path)}
+                          className="inline-flex items-center gap-1 text-xs text-brand hover:underline min-h-9 px-2"
+                          aria-label={`Copy URL for ${w.name}`}
+                        >
+                          {copied === w.path ? <CheckCircle2 className="h-3 w-3" aria-hidden /> : <Copy className="h-3 w-3" aria-hidden />}
+                          {copied === w.path ? "Copied" : "Copy"}
+                        </button>
+                      </div>
+                      <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div><dt className="text-muted-foreground inline">Auth: </dt><dd className="inline font-mono">{w.auth}</dd></div>
+                        <div><dt className="text-muted-foreground inline">Cadence: </dt><dd className="inline">{w.cadence}</dd></div>
+                      </dl>
+                    </article>
+                  );
+                })}
+              </div>
+
+              <h3 className="mt-8 font-heading text-lg">Raw check results</h3>
+              <ul className="mt-3 space-y-1 text-xs text-muted-foreground list-none p-0">
+                {SMOKE_TARGETS.map((t) => {
+                  const res = results[t.key];
+                  return (
+                    <li key={t.key} className="font-mono">
+                      {t.key} — {res ? `${res.status}${res.latency_ms ? ` · ${res.latency_ms}ms` : ""}${res.detail ? ` · ${res.detail}` : ""}` : "not checked yet"}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
       </Section>
     </PlatformShell>
   );
