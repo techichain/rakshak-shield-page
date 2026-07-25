@@ -569,6 +569,31 @@ export const createTeamWithCredentials = createServerFn({ method: "POST" })
       if (teamErr) throw teamErr;
       teamId = team.id as string;
 
+      // Seed the 5 phase-progress rows so the team dashboard timeline is live
+      // from day one. Deadlines come from the cohort's phase schedule if set.
+      {
+        const { data: sched } = await supabaseAdmin
+          .from("rp_cohort_phase_schedule")
+          .select("phase_number, deadline")
+          .eq("cohort_id", cohortId);
+        const deadlineByPhase = new Map<number, string | null>(
+          (sched ?? []).map((s: any) => [Number(s.phase_number), s.deadline ?? null]),
+        );
+        const nowIso = new Date().toISOString();
+        await supabaseAdmin.from("rp_team_phase_progress").insert(
+          [0, 1, 2, 3, 4].map((phase) => ({
+            team_id: teamId as string,
+            phase_number: phase,
+            status: (phase === 1 ? "draft" : "not_started") as "draft" | "not_started",
+            started_at: phase === 1 ? nowIso : null,
+            completion_percentage: 0,
+            deadline: deadlineByPhase.get(phase) ?? null,
+          })),
+        );
+      }
+
+
+
       await supabaseAdmin.from("rp_team_members").insert({
         team_id: teamId,
         profile_id: leaderCred.userId,
