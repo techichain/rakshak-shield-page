@@ -4,7 +4,7 @@ import {
   MapPin, BookOpen, Trophy, Sparkles, Users,
   ShieldCheck, ClipboardCheck, CalendarDays, GraduationCap, UsersRound,
   LayoutDashboard, FileText, UserCog, Wrench, Wallet, BellRing,
-  Mail,
+  Mail, FolderOpen,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
