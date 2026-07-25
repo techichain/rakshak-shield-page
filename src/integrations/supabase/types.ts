@@ -1985,6 +1985,9 @@ export type Database = {
       rp_doubts: {
         Row: {
           created_at: string
+          escalated_at: string | null
+          escalated_to: string | null
+          follow_up_count: number
           id: string
           last_reminder_sent_at: string | null
           phase_number: number | null
@@ -1994,12 +1997,16 @@ export type Database = {
           resolution_text: string | null
           resolved_at: string | null
           resolved_by: string | null
+          sla_due_at: string | null
           status: string
           team_id: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          escalated_at?: string | null
+          escalated_to?: string | null
+          follow_up_count?: number
           id?: string
           last_reminder_sent_at?: string | null
           phase_number?: number | null
@@ -2009,12 +2016,16 @@ export type Database = {
           resolution_text?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
+          sla_due_at?: string | null
           status?: string
           team_id: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          escalated_at?: string | null
+          escalated_to?: string | null
+          follow_up_count?: number
           id?: string
           last_reminder_sent_at?: string | null
           phase_number?: number | null
@@ -2024,11 +2035,19 @@ export type Database = {
           resolution_text?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
+          sla_due_at?: string | null
           status?: string
           team_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rp_doubts_escalated_to_fkey"
+            columns: ["escalated_to"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rp_doubts_team_id_fkey"
             columns: ["team_id"]
@@ -4068,6 +4087,67 @@ export type Database = {
           },
           {
             foreignKeyName: "rp_team_phase_progress_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_team_updates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          details: string | null
+          end_date: string | null
+          file_path: string | null
+          id: string
+          start_date: string | null
+          team_id: string
+          title: string
+          update_type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          details?: string | null
+          end_date?: string | null
+          file_path?: string | null
+          id?: string
+          start_date?: string | null
+          team_id: string
+          title: string
+          update_type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          details?: string | null
+          end_date?: string | null
+          file_path?: string | null
+          id?: string
+          start_date?: string | null
+          team_id?: string
+          title?: string
+          update_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_team_updates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_team_updates_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_team_updates_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "rp_teams"
