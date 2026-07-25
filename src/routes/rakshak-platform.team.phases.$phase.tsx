@@ -57,15 +57,14 @@ function PhaseDetail() {
   const allFeedback = slots.flatMap((s) => s.feedback ?? []);
   const finalSlot = slots.find((s) => s.key === "final");
 
+  const qQuery = useQuery({
+    queryKey: ["rp-questionnaires", team, phaseNum],
+    queryFn: () => qListFn({ data: { team_id: team, phase_number: phaseNum } }),
+  });
   const teamQuestionnaires = (qQuery.data as any)?.questionnaires ?? [];
 
-  const [title, setTitle] = useState(data.submission?.title ?? "");
-  const [summary, setSummary] = useState(data.submission?.summary ?? "");
-  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [caption, setCaption] = useState("");
   const [qAnswers, setQAnswers] = useState<Record<string, string[]>>({});
   const [qBusy, setQBusy] = useState<string | null>(null);
 
