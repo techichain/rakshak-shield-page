@@ -3581,8 +3581,10 @@ export type Database = {
         Row: {
           admin_review_status: string | null
           created_at: string
+          document_type: string
           evaluator_score: number | null
           id: string
+          is_final: boolean
           mentor_review_status: string | null
           phase_number: number
           revision_number: number
@@ -3597,8 +3599,10 @@ export type Database = {
         Insert: {
           admin_review_status?: string | null
           created_at?: string
+          document_type?: string
           evaluator_score?: number | null
           id?: string
+          is_final?: boolean
           mentor_review_status?: string | null
           phase_number: number
           revision_number?: number
@@ -3613,8 +3617,10 @@ export type Database = {
         Update: {
           admin_review_status?: string | null
           created_at?: string
+          document_type?: string
           evaluator_score?: number | null
           id?: string
+          is_final?: boolean
           mentor_review_status?: string | null
           phase_number?: number
           revision_number?: number
