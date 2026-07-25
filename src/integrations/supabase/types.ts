@@ -853,6 +853,7 @@ export type Database = {
       }
       rp_authority_reports: {
         Row: {
+          approval_letter_url: string | null
           attachment_url: string | null
           authority_category: string
           authority_name: string
@@ -862,6 +863,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          implementation_notes: string | null
+          implementation_status: string | null
           location_id: string | null
           message: string
           response_at: string | null
@@ -875,6 +878,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approval_letter_url?: string | null
           attachment_url?: string | null
           authority_category?: string
           authority_name: string
@@ -884,6 +888,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          implementation_notes?: string | null
+          implementation_status?: string | null
           location_id?: string | null
           message?: string
           response_at?: string | null
@@ -897,6 +903,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approval_letter_url?: string | null
           attachment_url?: string | null
           authority_category?: string
           authority_name?: string
@@ -906,6 +913,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          implementation_notes?: string | null
+          implementation_status?: string | null
           location_id?: string | null
           message?: string
           response_at?: string | null
@@ -935,6 +944,68 @@ export type Database = {
           },
           {
             foreignKeyName: "rp_authority_reports_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_authority_updates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_path: string | null
+          id: string
+          report_id: string
+          status: string | null
+          team_id: string
+          update_text: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          report_id: string
+          status?: string | null
+          team_id: string
+          update_text: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          report_id?: string
+          status?: string | null
+          team_id?: string
+          update_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_authority_updates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_authority_updates_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "rp_authority_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_authority_updates_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_authority_updates_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "rp_teams"
@@ -2509,9 +2580,11 @@ export type Database = {
           file_size: number | null
           id: string
           latitude: number | null
-          location_id: string
+          location_id: string | null
           longitude: number | null
+          media_type: string
           mime_type: string | null
+          phase_number: number | null
           storage_path: string
           taken_at: string | null
           team_id: string
@@ -2524,9 +2597,11 @@ export type Database = {
           file_size?: number | null
           id?: string
           latitude?: number | null
-          location_id: string
+          location_id?: string | null
           longitude?: number | null
+          media_type?: string
           mime_type?: string | null
+          phase_number?: number | null
           storage_path: string
           taken_at?: string | null
           team_id: string
@@ -2539,9 +2614,11 @@ export type Database = {
           file_size?: number | null
           id?: string
           latitude?: number | null
-          location_id?: string
+          location_id?: string | null
           longitude?: number | null
+          media_type?: string
           mime_type?: string | null
+          phase_number?: number | null
           storage_path?: string
           taken_at?: string | null
           team_id?: string
