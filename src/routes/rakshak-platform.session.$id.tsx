@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
@@ -61,7 +62,7 @@ function SessionPage() {
             <Eyebrow>Live session</Eyebrow>
             <h1 className="text-2xl md:text-3xl font-extrabold">{data.meeting.title}</h1>
             <p className="text-muted-foreground text-sm mt-1">
-              {new Date(data.meeting.scheduled_start).toLocaleString()} · {data.meeting.rp_teams?.team_name ?? "1:1"}
+              {formatMeetingWhen(data.meeting.scheduled_start, data.meeting.scheduled_end)} · {data.meeting.rp_teams?.team_name ?? "1:1"}
             </p>
           </div>
           <div className="flex items-center gap-2">

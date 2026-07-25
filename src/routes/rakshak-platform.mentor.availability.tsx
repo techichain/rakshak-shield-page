@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -135,7 +136,7 @@ function AvailabilityPage() {
                       <Calendar className="size-4 text-muted-foreground" />
                       <div className="flex-1 min-w-[200px]">
                         <div className="font-medium">{b.title}</div>
-                        <div className="text-xs text-muted-foreground">{new Date(b.scheduled_start).toLocaleString()} {b.rp_teams?.team_name ? `· ${b.rp_teams.team_name}` : ""}</div>
+                        <div className="text-xs text-muted-foreground">{formatMeetingWhen(b.scheduled_start, b.scheduled_end)} {b.rp_teams?.team_name ? `· ${b.rp_teams.team_name}` : ""}</div>
                       </div>
                       <Link to="/rakshak-platform/session/$id" params={{ id: b.id }} className="rp-btn-primary inline-flex items-center gap-1 text-sm">
                         <Video className="size-4" /> Join session
