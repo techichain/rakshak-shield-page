@@ -107,12 +107,19 @@ function ImpactPage() {
   const [open, setOpen] = useState<null | "institutions" | "cities" | "states">(null);
   const toggle = (k: "institutions" | "cities" | "states") => setOpen((p) => (p === k ? null : k));
 
-  const cityCounts = countBy("ci");
-  const stateCounts = countBy("st");
-  const byCity = cityCounts.map(([city]) => ({
+  const institutionsList = data.institutionsList ?? [];
+  const citiesList = data.citiesList ?? [];
+  const statesList = data.statesList ?? [];
+  const locationRows = data.locationRows ?? [];
+
+  const locationCityOrder = [...new Set(locationRows.map((l) => l.city).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b),
+  );
+  const byCity = locationCityOrder.map((city) => ({
     city,
-    rows: LOC.filter((l) => (l.ci || "").trim() === city),
+    rows: locationRows.filter((l) => l.city === city),
   }));
+
 
   return (
     <PlatformShell>
