@@ -141,7 +141,7 @@ function ImpactPage() {
           <Stat
             icon={Building2}
             label="Institutions"
-            value={UNIS.length}
+            value={institutionsList.length}
             tone="brand"
             expandable
             expanded={open === "institutions"}
@@ -152,7 +152,7 @@ function ImpactPage() {
           <Stat
             icon={MapPin}
             label="Cities"
-            value={cityCounts.length}
+            value={citiesList.length}
             expandable
             expanded={open === "cities"}
             onToggle={() => toggle("cities")}
@@ -161,7 +161,7 @@ function ImpactPage() {
           <Stat
             icon={MapIcon}
             label="States"
-            value={stateCounts.length}
+            value={statesList.length}
             expandable
             expanded={open === "states"}
             onToggle={() => toggle("states")}
@@ -171,30 +171,39 @@ function ImpactPage() {
 
         {open === "institutions" && (
           <Panel id="impact-panel-institutions">
-            <h3 className="font-heading text-xl tracking-tight">Academic partner institutions</h3>
+            <h3 className="font-heading text-xl tracking-tight">Participating institutions</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              {UNIS.length} partner institutions supporting Project Rakshak audits.
+              {institutionsList.length} institution{institutionsList.length === 1 ? "" : "s"} with active Rakshak teams.
             </p>
-            <div className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-              {UNIS.map((u) => {
-                const url = u.file ? uniLogoUrl(u.file) : undefined;
-                return (
-                  <div
-                    key={u.name}
-                    className="flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-3"
-                  >
-                    {url ? (
-                      <img src={url} alt={u.name} className="h-8 w-8 shrink-0 object-contain" />
-                    ) : (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand/40 bg-brand-lite text-[10px] font-medium text-brand">
-                        {u.name.split(" ").map((w) => w[0]).join("").slice(0, 4)}
+            {institutionsList.length === 0 ? (
+              <p className="mt-6 text-sm text-muted-foreground">No institutions yet.</p>
+            ) : (
+              <div className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                {institutionsList.map((u) => {
+                  const url = partnerLogo(u.name);
+                  return (
+                    <div
+                      key={u.name}
+                      className="flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-3"
+                    >
+                      {url ? (
+                        <img src={url} alt={u.name} className="h-8 w-8 shrink-0 object-contain" />
+                      ) : (
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand/40 bg-brand-lite text-[10px] font-medium text-brand">
+                          {u.name.split(" ").map((w) => w[0]).join("").slice(0, 4)}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="truncate text-sm">{u.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {u.count} team{u.count === 1 ? "" : "s"}
+                        </div>
                       </div>
-                    )}
-                    <span className="truncate text-sm">{u.name}</span>
-                  </div>
-                );
-              })}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </Panel>
         )}
 
@@ -202,17 +211,17 @@ function ImpactPage() {
           <Panel id="impact-panel-states">
             <h3 className="font-heading text-xl tracking-tight">States covered</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Audit locations per state, from the Rakshak hazard map.
+              Active teams per state.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {stateCounts.map(([state, count]) => (
+              {statesList.map((s) => (
                 <div
-                  key={state}
+                  key={s.name}
                   className="flex items-baseline justify-between rounded-2xl border border-border bg-background p-4"
                 >
-                  <div className="font-heading text-base">{state}</div>
+                  <div className="font-heading text-base">{s.name}</div>
                   <div className="text-sm text-muted-foreground">
-                    {count} location{count === 1 ? "" : "s"}
+                    {s.count} team{s.count === 1 ? "" : "s"}
                   </div>
                 </div>
               ))}
@@ -224,17 +233,17 @@ function ImpactPage() {
           <Panel id="impact-panel-cities">
             <h3 className="font-heading text-xl tracking-tight">Cities covered</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Audit locations per city, from the Rakshak hazard map.
+              Active teams per city.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {cityCounts.map(([city, count]) => (
+              {citiesList.map((c) => (
                 <div
-                  key={city}
+                  key={c.name}
                   className="flex items-baseline justify-between rounded-2xl border border-border bg-background p-4"
                 >
-                  <div className="font-heading text-base">{city}</div>
+                  <div className="font-heading text-base">{c.name}</div>
                   <div className="text-sm text-muted-foreground">
-                    {count} location{count === 1 ? "" : "s"}
+                    {c.count} team{c.count === 1 ? "" : "s"}
                   </div>
                 </div>
               ))}
@@ -244,6 +253,9 @@ function ImpactPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Geo-coordinates, owning authority and risk level for every mapped location.
             </p>
+            {byCity.length === 0 ? (
+              <p className="mt-4 text-sm text-muted-foreground">No mapped locations yet.</p>
+            ) : (
             <div className="mt-4 -mx-2 overflow-x-auto px-2">
               <table className="w-full min-w-[720px] border-collapse text-sm">
                 <thead>
@@ -258,24 +270,33 @@ function ImpactPage() {
                 </thead>
                 <tbody>
                   {byCity.map(({ city, rows }) => (
-                    <>
-                      <tr key={`h-${city}`} className="bg-brand-lite/60">
+                    <React.Fragment key={city}>
+                      <tr className="bg-brand-lite/60">
                         <td colSpan={6} className="py-2 pr-4 font-heading text-sm">
                           {city} · {rows.length} location{rows.length === 1 ? "" : "s"}
                         </td>
                       </tr>
                       {rows.map((l) => (
                         <tr key={l.id} className="border-b border-border/60">
-                          <td className="py-2 pr-4">{l.n}</td>
-                          <td className="py-2 pr-4 text-muted-foreground">{l.st}</td>
-                          <td className="py-2 pr-4 tabular-nums text-muted-foreground">{l.lat.toFixed(4)}</td>
-                          <td className="py-2 pr-4 tabular-nums text-muted-foreground">{l.lng.toFixed(4)}</td>
-                          <td className="py-2 pr-4 text-muted-foreground">{authLabel(l.auth)}</td>
-                          <td className="py-2 capitalize text-muted-foreground">{l.risk}</td>
+                          <td className="py-2 pr-4">{l.name}</td>
+                          <td className="py-2 pr-4 text-muted-foreground">{l.state || "—"}</td>
+                          <td className="py-2 pr-4 tabular-nums text-muted-foreground">
+                            {l.latitude == null ? "—" : l.latitude.toFixed(4)}
+                          </td>
+                          <td className="py-2 pr-4 tabular-nums text-muted-foreground">
+                            {l.longitude == null ? "—" : l.longitude.toFixed(4)}
+                          </td>
+                          <td className="py-2 pr-4 text-muted-foreground">{l.authority || "—"}</td>
+                          <td className="py-2 capitalize text-muted-foreground">{l.risk || "—"}</td>
                         </tr>
                       ))}
-                    </>
+                    </React.Fragment>
                   ))}
+                </tbody>
+              </table>
+            </div>
+            )}
+
                 </tbody>
               </table>
             </div>
