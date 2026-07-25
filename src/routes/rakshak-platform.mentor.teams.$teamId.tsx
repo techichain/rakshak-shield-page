@@ -6,6 +6,7 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { getMentorTeamDetail } from "@/lib/rakshak-platform/mentor-team-detail.functions";
 import { EvidenceRepository } from "@/components/rakshak-platform/EvidenceRepository";
 import { MediaGallery } from "@/components/rakshak-platform/MediaGallery";
+import { TeamUpdates } from "@/components/rakshak-platform/TeamUpdates";
 import { AuthorityEngagement } from "@/components/rakshak-platform/AuthorityEngagement";
 
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
@@ -273,6 +274,7 @@ function MentorTeamDetail() {
             <EvidenceRepository teamId={team.id} readOnly heading="Evidence & records filed by this team" />
             <MediaGallery teamId={team.id} readOnly heading="Site media from this team" />
             <AuthorityEngagement teamId={team.id} readOnly heading="Authority engagement by this team" />
+            <TeamUpdates teamId={team.id} readOnly heading="Shared by this team (exam schedules, availability)" />
 
             {phaseNumbers.map((n) => {
               const subs = subsByPhase.get(n) ?? [];
