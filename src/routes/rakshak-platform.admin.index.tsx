@@ -581,8 +581,59 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
         </select>
       </div>
 
+      {/* Clusters */}
+      {view === "clusters" && (
+        <div className="space-y-8">
+          {CLUSTER_ORDER.map((key) => {
+            const group = filtered
+              .filter((r) => (healthByTeam.get(r.id)?.cluster ?? "needs_attention") === key)
+              .sort((a, b) => (healthByTeam.get(b.id)?.health ?? 0) - (healthByTeam.get(a.id)?.health ?? 0));
+            if (group.length === 0) return null;
+            const meta = CLUSTER_META[key];
+            return (
+              <div key={key}>
+                <div className="flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 rounded-full ${meta.dot}`} />
+                  <h3 className={`font-heading text-lg font-bold ${meta.header}`}>{meta.label}</h3>
+                  <span className={`text-xs rounded-full border px-2 py-0.5 ${meta.badge}`}>{group.length}</span>
+                </div>
+                <div className="mt-3 rounded-2xl border border-border bg-card divide-y divide-border">
+                  {group.map((r) => {
+                    const h = healthByTeam.get(r.id);
+                    return (
+                      <div key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+                        <div className="min-w-[180px] flex-1">
+                          <div className="font-semibold truncate">{r.team_name}</div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {r.leaderName} · {r.mentorName}
+                          </div>
+                        </div>
+                        <span className={`text-[11px] rounded-full border px-2 py-0.5 ${meta.badge}`}>
+                          Health {h?.health ?? 0}
+                        </span>
+                        <span className="text-xs text-muted-foreground">Progress {r.completion_percentage}%</span>
+                        <span className="font-mono text-sm font-semibold text-brand">{r.tScore.toFixed(1)} pts</span>
+                        {(h?.overdue_count ?? 0) > 0 && (
+                          <span className="text-xs font-medium text-red-600">{h!.overdue_count} overdue</span>
+                        )}
+                        <span className={`text-xs ${urgencyTone(r.nextDeadline)}`}>{fmtDate(r.nextDeadline)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          {filtered.length === 0 && (
+            <div className="text-center py-12 text-muted-foreground text-sm">No teams match.</div>
+          )}
+        </div>
+      )}
+
       {/* Table */}
+      {view === "table" && (
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-brand-lite text-[11px] uppercase tracking-wider text-muted-foreground">
