@@ -2138,6 +2138,141 @@ export type Database = {
           },
         ]
       }
+      rp_evidence_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          record_id: string
+          storage_path: string
+          team_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          record_id: string
+          storage_path: string
+          team_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          record_id?: string
+          storage_path?: string
+          team_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_evidence_files_record_id_fkey"
+            columns: ["record_id"]
+            isOneToOne: false
+            referencedRelation: "rp_evidence_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_evidence_files_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_evidence_files_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_evidence_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rp_evidence_records: {
+        Row: {
+          authority: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          filed_on: string | null
+          id: string
+          phase_number: number | null
+          record_type: string
+          reference_no: string | null
+          status: string | null
+          team_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          authority?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filed_on?: string | null
+          id?: string
+          phase_number?: number | null
+          record_type: string
+          reference_no?: string | null
+          status?: string | null
+          team_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          authority?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filed_on?: string | null
+          id?: string
+          phase_number?: number | null
+          record_type?: string
+          reference_no?: string | null
+          status?: string | null
+          team_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_evidence_records_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_evidence_records_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_evidence_records_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_feedback: {
         Row: {
           created_at: string
