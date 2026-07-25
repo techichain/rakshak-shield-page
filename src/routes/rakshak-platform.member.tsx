@@ -34,13 +34,7 @@ import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 
 function formatMeetingDate(iso: string) {
   try {
-    return new Date(iso).toLocaleString(undefined, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
+    return formatMeetingWhen(iso);
   } catch {
     return iso;
   }
