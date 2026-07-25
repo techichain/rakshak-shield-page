@@ -316,3 +316,77 @@ export const listAllDoubts = createServerFn({ method: "GET" })
       })),
     };
   });
+
+// ---------- followUpDoubt ----------
+// Manual escalation path. The `status` column keeps its existing values
+// ('pending' / 'resolved') — escalation is tracked purely via escalated_at,
+// escalated_to and follow_up_count so nothing downstream breaks.
+export const followUpDoubt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ doubt_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existing } = await supabaseAdmin
+      .from("rp_doubts")
+      .select("id, team_id, status, question, phase_number, follow_up_count")
+      .eq("id", data.doubt_id)
+      .maybeSingle();
+    if (!existing) throw new Error("Doubt not found");
+    if (existing.status === "resolved") throw new Error("This doubt is already resolved");
+
+    const { isMember, mentorProfileId, team } = await resolveTeamMembership(
+      context.supabase,
+      context.userId,
+      existing.team_id,
+    );
+    if (!isMember) throw new Error("Forbidden: not a member of this team");
+
+    // Escalate to a programme admin (super_admin preferred).
+    const { data: adminRows } = await supabaseAdmin
+      .from("rp_user_roles")
+      .select("user_id, role")
+      .in("role", ["cfi_admin", "super_admin"]);
+    const admins = (adminRows ?? []).map((a: any) => a.user_id as string);
+    const escalatedTo =
+      (adminRows ?? []).find((a: any) => a.role === "super_admin")?.user_id ?? admins[0] ?? null;
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("rp_doubts")
+      .update({
+        follow_up_count: (existing.follow_up_count ?? 0) + 1,
+        escalated_at: new Date().toISOString(),
+        escalated_to: escalatedTo,
+      })
+      .eq("id", data.doubt_id)
+      .select("*")
+      .single();
+    if (error) throw error;
+
+    // In-app notifications only — email is delivered centrally from rp_notifications.
+    try {
+      const recipients = new Set<string>(admins);
+      if (mentorProfileId) recipients.add(mentorProfileId);
+      recipients.delete(context.userId);
+      const teamName = (team as any)?.team_name ?? "A team";
+      const phaseLabel =
+        existing.phase_number != null ? `Phase ${existing.phase_number}` : "their";
+      const rows = Array.from(recipients).map((rid) => ({
+        recipient_id: rid,
+        type: "doubt_escalated",
+        title: `${teamName} still needs help on ${phaseLabel} query`,
+        message: existing.question.slice(0, 200),
+        action_link:
+          mentorProfileId === rid
+            ? "/rakshak-platform/mentor"
+            : "/rakshak-platform/admin/doubts",
+        related_entity_type: "rp_doubts",
+        related_entity_id: data.doubt_id,
+      }));
+      if (rows.length) await supabaseAdmin.from("rp_notifications").insert(rows);
+    } catch (e) {
+      console.error("[doubts] escalation notify failed", e);
+    }
+
+    return { doubt: updated };
+  });
