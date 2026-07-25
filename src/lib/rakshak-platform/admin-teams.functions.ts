@@ -562,6 +562,7 @@ export const createTeamWithCredentials = createServerFn({ method: "POST" })
           state: data.state ?? null,
           team_leader_id: leaderCred.userId,
           assigned_mentor_id: data.assigned_mentor_id ?? null,
+          current_phase: 1,
         })
         .select("id")
         .single();
