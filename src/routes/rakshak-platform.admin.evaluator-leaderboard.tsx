@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Award, AlertTriangle, CalendarIcon, X } from "lucide-react";
+import { Loader2, AlertTriangle, CalendarIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderbo
   errorComponent: ({ error }) => (
     <PlatformShell>
       <Section>
-        <Eyebrow>Evaluator analytics</Eyebrow>
+        <Eyebrow>Evaluator activity &amp; calibration</Eyebrow>
         <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6">
           <p className="font-semibold text-red-700">Failed to load evaluator analytics</p>
           <p className="mt-1 text-sm text-red-600">{error instanceof Error ? error.message : "Unknown error"}</p>
@@ -190,10 +190,13 @@ function EvaluatorLeaderboard() {
   return (
     <PlatformShell>
       <Section>
-        <Eyebrow>Evaluator analytics</Eyebrow>
+        <Eyebrow>Evaluator activity &amp; calibration</Eyebrow>
         <h1 className="mt-3 font-heading text-4xl tracking-tight">
-          Who's scoring,<br /><span className="text-brand">and how consistently.</span>
+          Evaluator activity<br /><span className="text-brand">&amp; calibration.</span>
         </h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Who's scoring, and how consistently — not a ranking of evaluators.
+        </p>
 
         {/* Filters */}
         <div className="mt-8 flex flex-wrap items-end gap-3">
@@ -271,7 +274,7 @@ function EvaluatorLeaderboard() {
 
         {usingDummy && (
           <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            Showing dummy evaluator analytics because live evaluation data {fetchError ? "could not be loaded" : "is not available yet"}.
+            Showing sample data. Real evaluator analytics will appear here automatically once evaluations exist{fetchError ? " (live evaluation data could not be loaded)" : ""}.
           </div>
         )}
 
@@ -282,20 +285,22 @@ function EvaluatorLeaderboard() {
         </div>
 
         <h2 className="mt-14 font-heading text-2xl tracking-tight flex items-center gap-2">
-          <Award className="h-5 w-5 text-brand" /> Leaderboard
+          Evaluator activity
         </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          How many submissions each evaluator has scored, which phases they covered, and the average score they gave. This reflects workload and scoring tendency — it is not a measure of evaluator quality or a ranking.
+        </p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <tr><th className="p-3 w-10">#</th><th className="p-3">Evaluator</th><th className="p-3">Scores</th><th className="p-3">Phases</th><th className="p-3">Avg score</th></tr>
+              <tr><th className="p-3">Evaluator</th><th className="p-3">Scores submitted</th><th className="p-3">Phases covered</th><th className="p-3">Avg score given</th></tr>
             </thead>
             <tbody>
-              {leaderboard.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No submitted evaluations match the current filters.</td></tr>}
-              {leaderboard.map((e, idx) => {
+              {leaderboard.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-muted-foreground">No submitted evaluations match the current filters.</td></tr>}
+              {leaderboard.map((e) => {
                 const p = profiles[e.id];
                 return (
                   <tr key={e.id} className="border-t border-border">
-                    <td className="p-3 text-muted-foreground">{idx + 1}</td>
                     <td className="p-3">
                       <div className="font-medium">{p?.full_name ?? "Unknown"}</div>
                       <div className="text-xs text-muted-foreground">{p?.email}</div>
@@ -314,7 +319,7 @@ function EvaluatorLeaderboard() {
           <AlertTriangle className="h-5 w-5 text-brand" /> Calibration — biggest score spreads
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Submissions where two or more evaluators disagreed most within the selected scope. High spread suggests a calibration session is needed.
+          Submissions scored by two or more evaluators, ordered by how far apart their scores were. A large spread means evaluators disagreed — a signal to run a calibration/alignment session, not that anyone scored wrong.
         </p>
         <div className="mt-4 overflow-hidden rounded-2xl border border-border">
           <table className="w-full text-sm">

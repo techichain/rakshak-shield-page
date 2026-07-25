@@ -252,7 +252,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                 ]} />
                 <NavDropdown id="review" label="Review" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                  { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
+                  { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Evaluator activity", icon: Trophy },
                   { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
                 ]} />
                 <NavDropdown id="ops" label="Operations" icon={Wrench} openId={openDropdown} setOpenId={setOpenDropdown} items={[
@@ -375,7 +375,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Review" items={[
-                    { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Eval analytics", icon: Trophy },
+                    { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Evaluator activity", icon: Trophy },
                     { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Operations" items={[
