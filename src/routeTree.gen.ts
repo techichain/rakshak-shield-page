@@ -68,7 +68,6 @@ import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/raksha
 import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
 import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
 import { Route as RakshakPlatformAdminTeamMembersRouteImport } from './routes/rakshak-platform.admin.team-members'
-import { Route as RakshakPlatformAdminRolesRouteImport } from './routes/rakshak-platform.admin.roles'
 import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
 import { Route as RakshakPlatformAdminResourcesRouteImport } from './routes/rakshak-platform.admin.resources'
 import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
@@ -82,7 +81,6 @@ import { Route as RakshakPlatformAdminDataRouteImport } from './routes/rakshak-p
 import { Route as RakshakPlatformAdminCredentialsRouteImport } from './routes/rakshak-platform.admin.credentials'
 import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
 import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
-import { Route as RakshakPlatformAdminAccessRequestsRouteImport } from './routes/rakshak-platform.admin.access-requests'
 import { Route as RakshakMentorUploadTokenRouteImport } from './routes/rakshak-mentor.upload.$token'
 import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-mentor.apply.success'
 import { Route as RakshakMentorAdminLoginRouteImport } from './routes/rakshak-mentor.admin.login'
@@ -103,6 +101,7 @@ import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rak
 import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
 import { Route as RakshakPlatformMentorTeamsTeamIdRouteImport } from './routes/rakshak-platform.mentor.teams.$teamId'
 import { Route as RakshakPlatformMeetingsIcsMeetingIdRouteImport } from './routes/rakshak-platform.meetings.ics.$meetingId'
+import { Route as RakshakPlatformAdminTeamsNewRouteImport } from './routes/rakshak-platform.admin.teams.new'
 import { Route as RakshakPlatformAdminTeamsTeamIdRouteImport } from './routes/rakshak-platform.admin.teams.$teamId'
 import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -447,12 +446,6 @@ const RakshakPlatformAdminTeamMembersRoute =
     path: '/team-members',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformAdminRolesRoute =
-  RakshakPlatformAdminRolesRouteImport.update({
-    id: '/roles',
-    path: '/roles',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
 const RakshakPlatformAdminReviewsRoute =
   RakshakPlatformAdminReviewsRouteImport.update({
     id: '/reviews',
@@ -529,12 +522,6 @@ const RakshakPlatformAdminAnalyticsRoute =
   RakshakPlatformAdminAnalyticsRouteImport.update({
     id: '/analytics',
     path: '/analytics',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminAccessRequestsRoute =
-  RakshakPlatformAdminAccessRequestsRouteImport.update({
-    id: '/access-requests',
-    path: '/access-requests',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
 const RakshakMentorUploadTokenRoute =
@@ -650,6 +637,12 @@ const RakshakPlatformMeetingsIcsMeetingIdRoute =
     id: '/ics/$meetingId',
     path: '/ics/$meetingId',
     getParentRoute: () => RakshakPlatformMeetingsRoute,
+  } as any)
+const RakshakPlatformAdminTeamsNewRoute =
+  RakshakPlatformAdminTeamsNewRouteImport.update({
+    id: '/teams/new',
+    path: '/teams/new',
+    getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
 const RakshakPlatformAdminTeamsTeamIdRoute =
   RakshakPlatformAdminTeamsTeamIdRouteImport.update({
@@ -779,7 +772,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
-  '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/credentials': typeof RakshakPlatformAdminCredentialsRoute
@@ -793,7 +785,6 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
-  '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -836,6 +827,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
+  '/rakshak-platform/admin/teams/new': typeof RakshakPlatformAdminTeamsNewRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
   '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
@@ -880,7 +872,6 @@ export interface FileRoutesByTo {
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
-  '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/credentials': typeof RakshakPlatformAdminCredentialsRoute
@@ -894,7 +885,6 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
-  '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -935,6 +925,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
+  '/rakshak-platform/admin/teams/new': typeof RakshakPlatformAdminTeamsNewRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
   '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
@@ -989,7 +980,6 @@ export interface FileRoutesById {
   '/rakshak-mentor/admin/login': typeof RakshakMentorAdminLoginRoute
   '/rakshak-mentor/apply/success': typeof RakshakMentorApplySuccessRoute
   '/rakshak-mentor/upload/$token': typeof RakshakMentorUploadTokenRoute
-  '/rakshak-platform/admin/access-requests': typeof RakshakPlatformAdminAccessRequestsRoute
   '/rakshak-platform/admin/analytics': typeof RakshakPlatformAdminAnalyticsRoute
   '/rakshak-platform/admin/certificates': typeof RakshakPlatformAdminCertificatesRoute
   '/rakshak-platform/admin/credentials': typeof RakshakPlatformAdminCredentialsRoute
@@ -1003,7 +993,6 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
-  '/rakshak-platform/admin/roles': typeof RakshakPlatformAdminRolesRoute
   '/rakshak-platform/admin/team-members': typeof RakshakPlatformAdminTeamMembersRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -1046,6 +1035,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
+  '/rakshak-platform/admin/teams/new': typeof RakshakPlatformAdminTeamsNewRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
   '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
@@ -1101,7 +1091,6 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/login'
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
-    | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/credentials'
@@ -1115,7 +1104,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/mentor-applications'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
-    | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1158,6 +1146,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
+    | '/rakshak-platform/admin/teams/new'
     | '/rakshak-platform/meetings/ics/$meetingId'
     | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
@@ -1202,7 +1191,6 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/login'
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
-    | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/credentials'
@@ -1216,7 +1204,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/mentor-applications'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
-    | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1257,6 +1244,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
+    | '/rakshak-platform/admin/teams/new'
     | '/rakshak-platform/meetings/ics/$meetingId'
     | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
@@ -1310,7 +1298,6 @@ export interface FileRouteTypes {
     | '/rakshak-mentor/admin/login'
     | '/rakshak-mentor/apply/success'
     | '/rakshak-mentor/upload/$token'
-    | '/rakshak-platform/admin/access-requests'
     | '/rakshak-platform/admin/analytics'
     | '/rakshak-platform/admin/certificates'
     | '/rakshak-platform/admin/credentials'
@@ -1324,7 +1311,6 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/mentor-applications'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
-    | '/rakshak-platform/admin/roles'
     | '/rakshak-platform/admin/team-members'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1367,6 +1353,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
+    | '/rakshak-platform/admin/teams/new'
     | '/rakshak-platform/meetings/ics/$meetingId'
     | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
@@ -1817,13 +1804,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminTeamMembersRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
-    '/rakshak-platform/admin/roles': {
-      id: '/rakshak-platform/admin/roles'
-      path: '/roles'
-      fullPath: '/rakshak-platform/admin/roles'
-      preLoaderRoute: typeof RakshakPlatformAdminRolesRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
     '/rakshak-platform/admin/reviews': {
       id: '/rakshak-platform/admin/reviews'
       path: '/reviews'
@@ -1913,13 +1893,6 @@ declare module '@tanstack/react-router' {
       path: '/analytics'
       fullPath: '/rakshak-platform/admin/analytics'
       preLoaderRoute: typeof RakshakPlatformAdminAnalyticsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/access-requests': {
-      id: '/rakshak-platform/admin/access-requests'
-      path: '/access-requests'
-      fullPath: '/rakshak-platform/admin/access-requests'
-      preLoaderRoute: typeof RakshakPlatformAdminAccessRequestsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
     '/rakshak-mentor/upload/$token': {
@@ -2061,6 +2034,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/meetings/ics/$meetingId'
       preLoaderRoute: typeof RakshakPlatformMeetingsIcsMeetingIdRouteImport
       parentRoute: typeof RakshakPlatformMeetingsRoute
+    }
+    '/rakshak-platform/admin/teams/new': {
+      id: '/rakshak-platform/admin/teams/new'
+      path: '/teams/new'
+      fullPath: '/rakshak-platform/admin/teams/new'
+      preLoaderRoute: typeof RakshakPlatformAdminTeamsNewRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
     }
     '/rakshak-platform/admin/teams/$teamId': {
       id: '/rakshak-platform/admin/teams/$teamId'
@@ -2261,7 +2241,6 @@ const RakshakMentorRouteWithChildren = RakshakMentorRoute._addFileChildren(
 )
 
 interface RakshakPlatformAdminRouteChildren {
-  RakshakPlatformAdminAccessRequestsRoute: typeof RakshakPlatformAdminAccessRequestsRoute
   RakshakPlatformAdminAnalyticsRoute: typeof RakshakPlatformAdminAnalyticsRoute
   RakshakPlatformAdminCertificatesRoute: typeof RakshakPlatformAdminCertificatesRoute
   RakshakPlatformAdminCredentialsRoute: typeof RakshakPlatformAdminCredentialsRoute
@@ -2275,17 +2254,15 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminMentorApplicationsRoute: typeof RakshakPlatformAdminMentorApplicationsRoute
   RakshakPlatformAdminResourcesRoute: typeof RakshakPlatformAdminResourcesRoute
   RakshakPlatformAdminReviewsRoute: typeof RakshakPlatformAdminReviewsRoute
-  RakshakPlatformAdminRolesRoute: typeof RakshakPlatformAdminRolesRoute
   RakshakPlatformAdminTeamMembersRoute: typeof RakshakPlatformAdminTeamMembersRoute
   RakshakPlatformAdminIndexRoute: typeof RakshakPlatformAdminIndexRoute
   RakshakPlatformAdminPrintDatasetRoute: typeof RakshakPlatformAdminPrintDatasetRoute
   RakshakPlatformAdminTeamsTeamIdRoute: typeof RakshakPlatformAdminTeamsTeamIdRoute
+  RakshakPlatformAdminTeamsNewRoute: typeof RakshakPlatformAdminTeamsNewRoute
   RakshakPlatformAdminTeamsIndexRoute: typeof RakshakPlatformAdminTeamsIndexRoute
 }
 
 const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
-  RakshakPlatformAdminAccessRequestsRoute:
-    RakshakPlatformAdminAccessRequestsRoute,
   RakshakPlatformAdminAnalyticsRoute: RakshakPlatformAdminAnalyticsRoute,
   RakshakPlatformAdminCertificatesRoute: RakshakPlatformAdminCertificatesRoute,
   RakshakPlatformAdminCredentialsRoute: RakshakPlatformAdminCredentialsRoute,
@@ -2301,11 +2278,11 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
     RakshakPlatformAdminMentorApplicationsRoute,
   RakshakPlatformAdminResourcesRoute: RakshakPlatformAdminResourcesRoute,
   RakshakPlatformAdminReviewsRoute: RakshakPlatformAdminReviewsRoute,
-  RakshakPlatformAdminRolesRoute: RakshakPlatformAdminRolesRoute,
   RakshakPlatformAdminTeamMembersRoute: RakshakPlatformAdminTeamMembersRoute,
   RakshakPlatformAdminIndexRoute: RakshakPlatformAdminIndexRoute,
   RakshakPlatformAdminPrintDatasetRoute: RakshakPlatformAdminPrintDatasetRoute,
   RakshakPlatformAdminTeamsTeamIdRoute: RakshakPlatformAdminTeamsTeamIdRoute,
+  RakshakPlatformAdminTeamsNewRoute: RakshakPlatformAdminTeamsNewRoute,
   RakshakPlatformAdminTeamsIndexRoute: RakshakPlatformAdminTeamsIndexRoute,
 }
 
@@ -2512,13 +2489,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
-import { PendingApprovalsBell } from "@/components/rakshak-platform/PendingApprovalsBell";
+
 import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
 
 type NavItem = { to: string; label: string; icon?: LucideIcon; desc?: string };
@@ -246,8 +246,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/certificates", label: "Certificates" },
                 ]} />
                 <NavDropdown id="people" label="People" icon={UsersRound} openId={openDropdown} setOpenId={setOpenDropdown} items={[
-                  { to: "/rakshak-platform/admin/access-requests", label: "Approvals & roles", icon: BellRing, desc: "Requests, invites & role assignments — one place" },
+                  { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog, desc: "Team + leader + members, with login credentials" },
                   { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound, desc: "Per-team hub: submissions, feedback, resources, meetings" },
+                  { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing, desc: "Provision login IDs & passwords" },
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                 ]} />
                 <NavDropdown id="review" label="Review" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
@@ -280,7 +281,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             )}
             {userId ? (
               <>
-                {isAdmin && <PendingApprovalsBell />}
                 <NotificationBell userId={userId} />
                 <Link
                   to="/rakshak-platform/profile"
@@ -366,7 +366,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/admin", label: "Overview", icon: LayoutDashboard },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="People" items={[
-                    { to: "/rakshak-platform/admin/access-requests", label: "Approvals & roles", icon: BellRing },
+                    { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog },
+                    { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound },
+                    { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Content" items={[
