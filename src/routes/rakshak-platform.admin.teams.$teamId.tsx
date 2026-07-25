@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { getAdminTeamDetail, addAdminRemark } from "@/lib/rakshak-platform/admin-teams.functions";
+import {
+  getAdminTeamDetail,
+  addAdminRemark,
+  addTeamMemberWithCredentials,
+  suggestTeamLoginIds,
+} from "@/lib/rakshak-platform/admin-teams.functions";
 import { adminReviewSubmission } from "@/lib/rakshak-platform/submissions.functions";
 import { setMeetingNotes } from "@/lib/rakshak-platform/meetings.functions";
 import { listTeamReports } from "@/lib/rakshak-platform/authority.functions";
@@ -1083,6 +1088,131 @@ function HazardEditor({
           </button>
           {err && <span className="text-xs text-red-600">{err}</span>}
         </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Add a member to an existing team (creates their login credential)    */
+/* ------------------------------------------------------------------ */
+
+function genMemberPassword(len = 14) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%^&*";
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, (n) => chars[n % chars.length]).join("");
+}
+
+function AddMemberPanel({ teamId, onAdded }: { teamId: string; onAdded: () => void }) {
+  const addMember = useServerFn(addTeamMemberWithCredentials);
+  const suggest = useServerFn(suggestTeamLoginIds);
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({
+    full_name: "", login_id: "", password: "", phone: "", email: "", department: "", year: "",
+  });
+  const [created, setCreated] = useState<any>(null);
+
+  async function openForm() {
+    setOpen(true);
+    setCreated(null);
+    try {
+      const r: any = await suggest({ data: { leader: 0, members: 1 } });
+      setForm((f) => ({ ...f, login_id: r.members?.[0] ?? "", password: genMemberPassword() }));
+    } catch {
+      setForm((f) => ({ ...f, password: genMemberPassword() }));
+    }
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!form.full_name.trim() || !form.login_id.trim() || form.password.length < 8) {
+      alert("Name, login ID and an 8+ character password are required.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const r: any = await addMember({
+        data: {
+          team_id: teamId,
+          member: {
+            full_name: form.full_name.trim(),
+            login_id: form.login_id.trim(),
+            password: form.password,
+            phone: form.phone.trim() || null,
+            email: form.email.trim() || null,
+            department: form.department.trim() || null,
+            year: form.year.trim() || null,
+          },
+        },
+      });
+      setCreated(r);
+      setForm({ full_name: "", login_id: "", password: "", phone: "", email: "", department: "", year: "" });
+      onAdded();
+    } catch (err: any) {
+      alert(err?.message ?? "Could not add member");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const input =
+    "w-full h-10 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:border-brand";
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      {created && (
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm">
+          <div className="font-semibold text-emerald-900">
+            {created.full_name} added — copy these credentials now
+          </div>
+          <div className="mt-1 font-mono text-xs text-emerald-900">
+            Login ID: {created.login_id} · Password: {created.password} · Email: {created.email}
+          </div>
+        </div>
+      )}
+      {!open ? (
+        <button
+          onClick={openForm}
+          className="h-10 px-4 rounded-full bg-brand text-brand-foreground text-sm font-semibold inline-flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" /> Add member
+        </button>
+      ) : (
+        <form onSubmit={submit} className="space-y-3">
+          <div className="font-semibold text-sm">Add a member to this team</div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <input className={input} placeholder="Full name *" value={form.full_name}
+              onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+            <input className={`${input} font-mono`} placeholder="Login ID *" value={form.login_id}
+              onChange={(e) => setForm({ ...form, login_id: e.target.value })} />
+            <div className="flex gap-2">
+              <input className={`${input} font-mono`} placeholder="Password *" value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <button type="button" onClick={() => setForm({ ...form, password: genMemberPassword() })}
+                className="h-10 px-3 rounded-lg border border-border text-xs shrink-0">Gen</button>
+            </div>
+            <input className={input} placeholder="Phone (optional)" value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <input className={input} placeholder="Real email (optional)" value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            <div className="flex gap-2">
+              <input className={input} placeholder="Dept" value={form.department}
+                onChange={(e) => setForm({ ...form, department: e.target.value })} />
+              <input className={input} placeholder="Year" value={form.year}
+                onChange={(e) => setForm({ ...form, year: e.target.value })} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={() => setOpen(false)}
+              className="h-10 px-4 rounded-full border border-border text-sm">Close</button>
+            <button type="submit" disabled={busy}
+              className="h-10 px-4 rounded-full bg-brand text-brand-foreground text-sm font-semibold disabled:opacity-50 inline-flex items-center gap-2">
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create member login
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );
