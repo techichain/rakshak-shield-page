@@ -52,6 +52,7 @@ import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrid
 import { Route as RakshakPlatformVerifySlugRouteImport } from './routes/rakshak-platform.verify.$slug'
 import { Route as RakshakPlatformTeamReportsRouteImport } from './routes/rakshak-platform.team.reports'
 import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
+import { Route as RakshakPlatformTeamEvidenceRouteImport } from './routes/rakshak-platform.team.evidence'
 import { Route as RakshakPlatformTeamBookMentorRouteImport } from './routes/rakshak-platform.team.book-mentor'
 import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
 import { Route as RakshakPlatformShareTeamIdRouteImport } from './routes/rakshak-platform.share.$teamId'
@@ -349,6 +350,12 @@ const RakshakPlatformTeamLocationsRoute =
   RakshakPlatformTeamLocationsRouteImport.update({
     id: '/team/locations',
     path: '/team/locations',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamEvidenceRoute =
+  RakshakPlatformTeamEvidenceRouteImport.update({
+    id: '/team/evidence',
+    path: '/team/evidence',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformTeamBookMentorRoute =
@@ -793,6 +800,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/book-mentor': typeof RakshakPlatformTeamBookMentorRoute
+  '/rakshak-platform/team/evidence': typeof RakshakPlatformTeamEvidenceRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
@@ -892,6 +900,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/book-mentor': typeof RakshakPlatformTeamBookMentorRoute
+  '/rakshak-platform/team/evidence': typeof RakshakPlatformTeamEvidenceRoute
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
   '/gigrider-checklist/admin': typeof GigriderChecklistAdminIndexRoute
   '/gigrider-checklist/observer': typeof GigriderChecklistObserverIndexRoute
@@ -999,6 +1008,7 @@ export interface FileRoutesById {
   '/rakshak-platform/share/$teamId': typeof RakshakPlatformShareTeamIdRoute
   '/rakshak-platform/t/$slug': typeof RakshakPlatformTSlugRoute
   '/rakshak-platform/team/book-mentor': typeof RakshakPlatformTeamBookMentorRoute
+  '/rakshak-platform/team/evidence': typeof RakshakPlatformTeamEvidenceRoute
   '/rakshak-platform/team/locations': typeof RakshakPlatformTeamLocationsRouteWithChildren
   '/rakshak-platform/team/reports': typeof RakshakPlatformTeamReportsRouteWithChildren
   '/rakshak-platform/verify/$slug': typeof RakshakPlatformVerifySlugRoute
@@ -1109,6 +1119,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/book-mentor'
+    | '/rakshak-platform/team/evidence'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
     | '/rakshak-platform/verify/$slug'
@@ -1208,6 +1219,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/book-mentor'
+    | '/rakshak-platform/team/evidence'
     | '/rakshak-platform/verify/$slug'
     | '/gigrider-checklist/admin'
     | '/gigrider-checklist/observer'
@@ -1314,6 +1326,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/share/$teamId'
     | '/rakshak-platform/t/$slug'
     | '/rakshak-platform/team/book-mentor'
+    | '/rakshak-platform/team/evidence'
     | '/rakshak-platform/team/locations'
     | '/rakshak-platform/team/reports'
     | '/rakshak-platform/verify/$slug'
@@ -1677,6 +1690,13 @@ declare module '@tanstack/react-router' {
       path: '/team/locations'
       fullPath: '/rakshak-platform/team/locations'
       preLoaderRoute: typeof RakshakPlatformTeamLocationsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/evidence': {
+      id: '/rakshak-platform/team/evidence'
+      path: '/team/evidence'
+      fullPath: '/rakshak-platform/team/evidence'
+      preLoaderRoute: typeof RakshakPlatformTeamEvidenceRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/team/book-mentor': {
@@ -2379,6 +2399,7 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformShareTeamIdRoute: typeof RakshakPlatformShareTeamIdRoute
   RakshakPlatformTSlugRoute: typeof RakshakPlatformTSlugRoute
   RakshakPlatformTeamBookMentorRoute: typeof RakshakPlatformTeamBookMentorRoute
+  RakshakPlatformTeamEvidenceRoute: typeof RakshakPlatformTeamEvidenceRoute
   RakshakPlatformTeamLocationsRoute: typeof RakshakPlatformTeamLocationsRouteWithChildren
   RakshakPlatformTeamReportsRoute: typeof RakshakPlatformTeamReportsRouteWithChildren
   RakshakPlatformVerifySlugRoute: typeof RakshakPlatformVerifySlugRoute
@@ -2423,6 +2444,7 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
   RakshakPlatformShareTeamIdRoute: RakshakPlatformShareTeamIdRoute,
   RakshakPlatformTSlugRoute: RakshakPlatformTSlugRoute,
   RakshakPlatformTeamBookMentorRoute: RakshakPlatformTeamBookMentorRoute,
+  RakshakPlatformTeamEvidenceRoute: RakshakPlatformTeamEvidenceRoute,
   RakshakPlatformTeamLocationsRoute:
     RakshakPlatformTeamLocationsRouteWithChildren,
   RakshakPlatformTeamReportsRoute: RakshakPlatformTeamReportsRouteWithChildren,
@@ -2467,13 +2489,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
