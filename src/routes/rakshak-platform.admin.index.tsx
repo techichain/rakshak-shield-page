@@ -336,26 +336,19 @@ function AdminDashboard() {
             </h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => setInviteOpen(true)}
+            <Link
+              to="/rakshak-platform/admin/teams/new"
               className="h-10 rounded-full bg-brand px-4 text-sm text-brand-foreground hover:bg-brand/90 inline-flex items-center gap-2 font-semibold"
-              title="Invite mentor or evaluator by email"
+              title="Create a team with its leader and members"
             >
-              <Plus className="h-4 w-4" /> Invite by email
-            </button>
+              <Plus className="h-4 w-4" /> Create a team
+            </Link>
           </div>
         </div>
 
-        {inviteOpen && (
-          <InviteModal
-            onClose={() => setInviteOpen(false)}
-            invitedBy={userId}
-            onDone={() => { setInviteOpen(false); loadPendingCount(); }}
-          />
-        )}
-
         {/* Quick access — admin tools grouped */}
-        <AdminQuickAccess pendingCount={pendingCount} />
+        <AdminQuickAccess />
+
 
 
         <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
