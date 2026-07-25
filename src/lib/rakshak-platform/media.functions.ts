@@ -141,10 +141,15 @@ export const updateTeamMedia = createServerFn({ method: "POST" })
     if (!existing) throw new Error("Media not found");
     await ensureTeamWrite(context.supabase, context.userId, existing.team_id);
 
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      caption?: string | null;
+      location_id?: string | null;
+      phase_number?: number | null;
+    } = {};
     if (data.caption !== undefined) patch.caption = data.caption || null;
     if (data.location_id !== undefined) patch.location_id = data.location_id || null;
     if (data.phase_number !== undefined) patch.phase_number = data.phase_number ?? null;
+
 
     const { data: row, error } = await context.supabase
       .from("rp_location_photos")
