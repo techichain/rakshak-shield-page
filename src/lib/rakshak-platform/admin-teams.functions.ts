@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { computeTeamHealth } from "@/lib/rakshak-platform/admin-team-health";
 import { z } from "zod";
 
 async function assertAdmin(supabase: any, userId: string) {
