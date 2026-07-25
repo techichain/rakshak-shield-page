@@ -3,7 +3,14 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useMemo } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { listAllMeetingsAdmin } from "@/lib/rakshak-platform/meetings.functions";
+import { listAllMeetingsAdmin, setMeetingNotes } from "@/lib/rakshak-platform/meetings.functions";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  formatMeetingDate,
+  formatMeetingTimeRange,
+  formatMeetingDuration,
+} from "@/lib/rakshak-platform/meeting-time";
 
 export const Route = createFileRoute("/rakshak-platform/admin/meetings")({
   component: AdminMeetings,
@@ -19,7 +26,12 @@ const TYPES = ["all", "team_mentor", "mentor_evaluator", "evaluator_team", "team
 
 function AdminMeetings() {
   const fn = useServerFn(listAllMeetingsAdmin);
+  const saveNotes = useServerFn(setMeetingNotes);
+  const qc = useQueryClient();
   const { data } = useSuspenseQuery({ queryKey: ["admin-meetings"], queryFn: () => fn() });
+  const [notesOpen, setNotesOpen] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState("");
+  const [notesBusy, setNotesBusy] = useState(false);
   const [filter, setFilter] = useState("all");
   const [status, setStatus] = useState("all");
   const [q, setQ] = useState("");
@@ -79,12 +91,20 @@ function AdminMeetings() {
                 <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-2">Attendees</th>
                 <th className="px-3 py-2">Reminders</th>
+                <th className="px-3 py-2">Notes</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((m: any) => (
                 <tr key={m.id} className="border-t border-border">
-                  <td className="px-3 py-2 whitespace-nowrap">{new Date(m.scheduled_start).toLocaleString()}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div>{formatMeetingDate(m.scheduled_start)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatMeetingTimeRange(m.scheduled_start, m.scheduled_end)}
+                      {formatMeetingDuration(m.scheduled_start, m.scheduled_end) &&
+                        ` · ${formatMeetingDuration(m.scheduled_start, m.scheduled_end)}`}
+                    </div>
+                  </td>
                   <td className="px-3 py-2">
                     {m.title}
                     {m.meeting_link && <a href={m.meeting_link} target="_blank" rel="noreferrer" className="ml-2 text-xs text-brand hover:underline">link</a>}
@@ -109,10 +129,65 @@ function AdminMeetings() {
                     <span className={m.reminder_1h_sent_at ? "text-emerald-600 font-medium" : ""}>1h</span>{" "}
                     <span className={m.reminder_30m_sent_at ? "text-emerald-600 font-medium" : ""}>30m</span>
                   </td>
+                  <td className="px-3 py-2 align-top max-w-[280px]">
+                    {notesOpen === m.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={notesDraft}
+                          onChange={(e) => setNotesDraft(e.target.value)}
+                          rows={5}
+                          maxLength={20000}
+                          placeholder="Meeting notes / transcript (added manually by admin)…"
+                          className="rp-input w-[260px] text-xs"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            disabled={notesBusy}
+                            onClick={async () => {
+                              setNotesBusy(true);
+                              try {
+                                await saveNotes({ data: { meeting_id: m.id, notes: notesDraft } });
+                                await qc.invalidateQueries({ queryKey: ["admin-meetings"] });
+                                setNotesOpen(null);
+                                toast.success("Notes saved");
+                              } catch (e: any) {
+                                toast.error(e?.message ?? "Could not save notes");
+                              } finally {
+                                setNotesBusy(false);
+                              }
+                            }}
+                            className="rounded-full bg-brand px-3 py-1 text-xs text-brand-foreground disabled:opacity-60"
+                          >
+                            {notesBusy ? "Saving…" : "Save"}
+                          </button>
+                          <button
+                            onClick={() => setNotesOpen(null)}
+                            className="rounded-full border border-border px-3 py-1 text-xs"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        {m.notes ? (
+                          <p className="text-xs whitespace-pre-line line-clamp-4 text-muted-foreground">{m.notes}</p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">No notes yet</p>
+                        )}
+                        <button
+                          onClick={() => { setNotesDraft(m.notes ?? ""); setNotesOpen(m.id); }}
+                          className="text-xs text-brand hover:underline"
+                        >
+                          {m.notes ? "Edit notes" : "Add notes"}
+                        </button>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               ))}
               {rows.length === 0 && (
-                <tr><td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">No meetings match.</td></tr>
+                <tr><td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">No meetings match.</td></tr>
               )}
             </tbody>
           </table>
