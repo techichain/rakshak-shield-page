@@ -12,6 +12,7 @@ import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { CheckCircle2, XCircle, Loader2, History, Inbox } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SubmissionTimeline } from "@/components/rakshak-platform/SubmissionTimeline";
+import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 
 type Role = "mentor" | "admin";
 
@@ -106,6 +107,11 @@ function ReviewRow({
             Phase {sub.phase_number} · {PHASE_TITLES[sub.phase_number]}
           </div>
           <div className="font-heading text-lg font-semibold">{sub.title}</div>
+          <SubmissionKindBadge
+            documentType={sub.document_type}
+            isFinal={sub.is_final}
+            className="mt-1"
+          />
           <div className="text-xs text-muted-foreground mt-0.5">
             {teamName} · rev {sub.revision_number}
             {sub.submitted_at && ` · submitted ${new Date(sub.submitted_at).toLocaleString()}`}

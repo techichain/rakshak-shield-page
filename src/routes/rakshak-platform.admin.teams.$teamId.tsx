@@ -20,6 +20,7 @@ import {
 } from "@/lib/rakshak-platform/questionnaires.functions";
 import { getTeamPhaseRankings } from "@/lib/rakshak-platform/admin-teams.functions";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
   Loader2,
@@ -372,7 +373,9 @@ function AdminTeamDetail() {
               <StakeholderReports reports={reports} />
 
               {[0, 1, 2, 3, 4].map((p) => {
-                const sub = data.submissions.find((s: any) => s.phase_number === p);
+                const phaseSubs = data.submissions.filter((s: any) => s.phase_number === p);
+                // A phase can hold draft + final rows; show the final one when it exists.
+                const sub = phaseSubs.find((s: any) => s.is_final) ?? phaseSubs[0];
                 const phaseEvals = evalsByPhase.get(p) ?? [];
                 const phaseLocs = locationsByPhase.get(p) ?? [];
                 const phaseFeedback = sub ? (feedbackBySubmission.get(sub.id) ?? []) : [];
@@ -386,6 +389,12 @@ function AdminTeamDetail() {
                         <div className="text-xs text-muted-foreground">Phase {p}</div>
                         <div className="font-heading text-lg font-semibold flex items-center gap-2 flex-wrap">
                           {sub?.title ?? PHASE_TITLES[p] ?? "—"}
+                          {sub && (
+                            <SubmissionKindBadge
+                              documentType={sub.document_type}
+                              isFinal={sub.is_final}
+                            />
+                          )}
                           {badge && (
                             <span className="text-[10px] font-semibold uppercase tracking-wide rounded-full border border-brand/40 bg-brand/10 text-brand px-2 py-0.5">
                               {badge}
