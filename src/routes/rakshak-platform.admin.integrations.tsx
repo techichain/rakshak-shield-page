@@ -98,7 +98,6 @@ function IntegrationsPage() {
   const [running, setRunning] = useState<Set<string>>(new Set());
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const smoke = useServerFn(runIntegrationSmoke);
 
   function copy(text: string, key: string) {
