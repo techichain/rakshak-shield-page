@@ -30,6 +30,8 @@ export const Route = createFileRoute("/rakshak-platform/member")({
   component: MemberDashboard,
 });
 
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
+
 function formatMeetingDate(iso: string) {
   try {
     return new Date(iso).toLocaleString(undefined, {
@@ -329,7 +331,7 @@ function MemberDashboard() {
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold truncate">{m.title}</div>
                     <div className="text-xs text-muted-foreground">
-                      {formatMeetingDate(m.scheduled_start)}
+                      {formatMeetingWhen(m.scheduled_start, m.scheduled_end)}
                     </div>
                   </div>
                   {m.meet_link ? (
