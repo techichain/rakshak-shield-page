@@ -238,6 +238,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team/evidence", label: "Evidence & records", icon: FolderOpen },
                 { to: "/rakshak-platform/team/media", label: "Site media", icon: Images },
                 { to: "/rakshak-platform/team/updates", label: "Share with us", icon: CalendarDays },
+                { to: "/rakshak-platform/team/book-admin", label: "Book programme team", icon: CalendarDays },
 
               ]} />
             )}
@@ -254,6 +255,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound, desc: "Per-team hub: submissions, feedback, resources, meetings" },
                   { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing, desc: "Provision login IDs & passwords" },
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
+                  { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays, desc: "Let teams book you, or announce to all teams" },
                 ]} />
                 <NavDropdown id="review" label="Review" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
                   { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Evaluator activity", icon: Trophy },
@@ -364,6 +366,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team/evidence", label: "Evidence & records", icon: FolderOpen },
                   { to: "/rakshak-platform/team/media", label: "Site media", icon: Images },
                   { to: "/rakshak-platform/team/updates", label: "Share with us", icon: CalendarDays },
+                  { to: "/rakshak-platform/team/book-admin", label: "Book programme team", icon: CalendarDays },
 
                 ]} onPick={() => setMenuOpen(false)} />
               )}
@@ -378,6 +381,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                     { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound },
                     { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
+                    { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Content" items={[
                     { to: "/rakshak-platform/admin/certificates", label: "Certificates", icon: FileText },
