@@ -65,12 +65,16 @@ function AdminCredentialsPage() {
       <Section className="!py-8 lg:!py-10">
         <Eyebrow>Admin · Access provisioning</Eyebrow>
         <h1 className="mt-3 font-heading text-3xl sm:text-4xl font-bold tracking-tight">
-          Login credentials
+          Mentor &amp; evaluator credentials
         </h1>
         <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          Create login IDs and passwords for programme participants. Passwords are shown only once
-          at creation — copy and share them securely. Existing team/mentor/evaluator assignment
-          flows are unchanged.
+          Create login IDs and passwords for mentors and evaluators. Passwords are shown only once
+          at creation — copy and share them securely. Team leader and team member logins are created
+          together with the team on the{" "}
+          <Link to="/rakshak-platform/admin/teams/new" className="text-brand underline">
+            Create a team
+          </Link>{" "}
+          page.
         </p>
 
         <CountsHeader />
