@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { listTeamReports, upsertAuthorityReport } from "@/lib/rakshak-platform/authority.functions";
+import { AuthorityEngagement } from "@/components/rakshak-platform/AuthorityEngagement";
 import { FileText, Send, Plus, Printer } from "lucide-react";
+
 
 export const Route = createFileRoute("/rakshak-platform/team/reports/")({
   ssr: false,
@@ -201,7 +203,14 @@ function TeamReports() {
             </div>
           ))}
         </div>
+
+        {team && (
+          <div className="mt-10">
+            <AuthorityEngagement teamId={team.id} />
+          </div>
+        )}
       </Section>
+
     </PlatformShell>
   );
 }
