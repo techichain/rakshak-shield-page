@@ -53,6 +53,8 @@ export const createDoubt = createServerFn({ method: "POST" })
     if (!isMember) throw new Error("Forbidden: not a member of this team");
 
     const posted_by_role = isLeader ? "team_leader" : "team_member";
+    // 48h response window; a later scheduled job can auto-escalate anything overdue.
+    const slaDueAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
     const { data: inserted, error } = await context.supabase
       .from("rp_doubts")
       .insert({
@@ -61,6 +63,7 @@ export const createDoubt = createServerFn({ method: "POST" })
         posted_by: context.userId,
         posted_by_role,
         question: data.question.trim(),
+        sla_due_at: slaDueAt,
       })
       .select("*")
       .single();
