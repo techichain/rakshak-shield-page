@@ -86,20 +86,43 @@ export const getMyTeams = createServerFn({ method: "GET" })
     return { teams: out };
   });
 
+// ---------- document slots ----------
+// A phase can hold up to three submission "slots":
+//   draft questionnaire | draft report | final submission
+// Slot identity = (document_type, is_final). Legacy rows default to
+// ('report', false) so they land in the "Draft report" slot untouched.
+export const DOCUMENT_TYPES = ["questionnaire", "report", "other"] as const;
+const DocumentTypeSchema = z.enum(DOCUMENT_TYPES);
+
 // ---------- getSubmission ----------
 export const getSubmissionDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ team_id: z.string().uuid(), phase_number: z.number().int().min(0).max(4) }).parse(d),
+    z
+      .object({
+        team_id: z.string().uuid(),
+        phase_number: z.number().int().min(0).max(4),
+        document_type: DocumentTypeSchema.optional(),
+        is_final: z.boolean().optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     await ensureTeamMembership(context.supabase, context.userId, data.team_id);
-    const { data: sub } = await context.supabase
+    let q = context.supabase
       .from("rp_submissions")
       .select("*")
       .eq("team_id", data.team_id)
-      .eq("phase_number", data.phase_number)
-      .maybeSingle();
+      .eq("phase_number", data.phase_number);
+    if (data.document_type) q = q.eq("document_type", data.document_type);
+    if (data.is_final !== undefined) q = q.eq("is_final", data.is_final);
+    // A phase may now hold several slot rows; prefer the final one, then the
+    // most recently touched, so single-submission callers keep working.
+    const { data: rows } = await q
+      .order("is_final", { ascending: false })
+      .order("updated_at", { ascending: false })
+      .limit(1);
+    const sub = (rows ?? [])[0] ?? null;
     let files: any[] = [];
     let feedback: any[] = [];
     if (sub) {
@@ -127,24 +150,112 @@ export const getSubmissionDetail = createServerFn({ method: "GET" })
     return { submission: sub, files, feedback, progress };
   });
 
+// ---------- getPhaseSubmissionSlots ----------
+// Everything the per-phase team view needs: the three slots with their
+// submission row, files and feedback, plus the phase progress row.
+export const getPhaseSubmissionSlots = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ team_id: z.string().uuid(), phase_number: z.number().int().min(0).max(4) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await ensureTeamMembership(context.supabase, context.userId, data.team_id);
+
+    const { data: subs } = await context.supabase
+      .from("rp_submissions")
+      .select("*")
+      .eq("team_id", data.team_id)
+      .eq("phase_number", data.phase_number)
+      .order("updated_at", { ascending: false });
+
+    const rows = subs ?? [];
+    const ids = rows.map((s: any) => s.id);
+    let files: any[] = [];
+    let feedback: any[] = [];
+    if (ids.length) {
+      const [f, fb] = await Promise.all([
+        context.supabase
+          .from("rp_submission_files")
+          .select("*")
+          .in("submission_id", ids)
+          .order("created_at", { ascending: false }),
+        context.supabase
+          .from("rp_feedback")
+          .select("*, rp_profiles:author_id(full_name)")
+          .in("submission_id", ids)
+          .order("created_at", { ascending: false }),
+      ]);
+      files = f.data ?? [];
+      feedback = fb.data ?? [];
+    }
+
+    const pick = (documentType: string, isFinal: boolean) =>
+      rows.find((s: any) => s.document_type === documentType && !!s.is_final === isFinal) ?? null;
+
+    const build = (
+      key: "draft_questionnaire" | "draft_report" | "final",
+      documentType: "questionnaire" | "report",
+      isFinal: boolean,
+    ) => {
+      const submission = pick(documentType, isFinal);
+      return {
+        key,
+        document_type: documentType,
+        is_final: isFinal,
+        submission,
+        files: submission ? files.filter((f: any) => f.submission_id === submission.id) : [],
+        feedback: submission ? feedback.filter((f: any) => f.submission_id === submission.id) : [],
+      };
+    };
+
+    const { data: progress } = await context.supabase
+      .from("rp_team_phase_progress")
+      .select("*")
+      .eq("team_id", data.team_id)
+      .eq("phase_number", data.phase_number)
+      .maybeSingle();
+
+    return {
+      slots: [
+        build("draft_questionnaire", "questionnaire", false),
+        build("draft_report", "report", false),
+        build("final", "report", true),
+      ],
+      // Any extra rows (e.g. document_type 'other') so nothing is hidden.
+      others: rows.filter(
+        (s: any) =>
+          !(s.document_type === "questionnaire" && !s.is_final) &&
+          !(s.document_type === "report" && !s.is_final) &&
+          !(s.document_type === "report" && s.is_final),
+      ),
+      progress,
+    };
+  });
+
 // ---------- upsertSubmission (draft) ----------
 const UpsertInput = z.object({
   team_id: z.string().uuid(),
   phase_number: z.number().int().min(0).max(4),
   title: z.string().min(1).max(400),
   summary: z.string().max(8000).default(""),
+  document_type: DocumentTypeSchema.default("report"),
+  is_final: z.boolean().default(false),
 });
 export const upsertSubmission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => UpsertInput.parse(d))
   .handler(async ({ data, context }) => {
     await ensureTeamMembership(context.supabase, context.userId, data.team_id);
-    const { data: existing } = await context.supabase
+    const { data: existingRows } = await context.supabase
       .from("rp_submissions")
       .select("id, status")
       .eq("team_id", data.team_id)
       .eq("phase_number", data.phase_number)
-      .maybeSingle();
+      .eq("document_type", data.document_type)
+      .eq("is_final", data.is_final)
+      .order("updated_at", { ascending: false })
+      .limit(1);
+    const existing = (existingRows ?? [])[0] ?? null;
     if (existing) {
       const { error } = await context.supabase
         .from("rp_submissions")
@@ -166,6 +277,8 @@ export const upsertSubmission = createServerFn({ method: "POST" })
         summary: data.summary,
         status: "draft",
         submitted_by: context.userId,
+        document_type: data.document_type,
+        is_final: data.is_final,
       })
       .select("id")
       .single();
@@ -185,6 +298,7 @@ export const upsertSubmission = createServerFn({ method: "POST" })
       );
     return { submission_id: row.id };
   });
+
 
 // ---------- submitForReview ----------
 export const submitForReview = createServerFn({ method: "POST" })
