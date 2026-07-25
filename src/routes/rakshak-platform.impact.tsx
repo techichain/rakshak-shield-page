@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getPublicImpactStats } from "@/lib/rakshak-platform/stats.functions";
-import { Building2, ClipboardList, MapPin, Map, ChevronDown } from "lucide-react";
+import { Building2, ClipboardList, MapPin, Map as MapIcon, ChevronDown } from "lucide-react";
 import { UNIS, uniLogoUrl, AUTH_CATS, LOC } from "@/components/rakshak/data";
 
 export const Route = createFileRoute("/rakshak-platform/impact")({
