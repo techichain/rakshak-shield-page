@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { exportDataset } from "@/lib/rakshak-platform/exports.functions";
+import { PhaseScheduleEditor } from "@/components/rakshak-platform/PhaseScheduleEditor";
 import {
   Loader2, Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Download, Printer,
 } from "lucide-react";
@@ -57,7 +58,7 @@ function splitLine(line: string): string[] {
 function DataPage() {
   const navigate = useNavigate();
   const { loading, userId, isAdmin } = useRPAuth();
-  const [tab, setTab] = useState<"import" | "export">("import");
+  const [tab, setTab] = useState<"import" | "export" | "schedule">("import");
 
   // Import state
   const [cohorts, setCohorts] = useState<any[]>([]);
@@ -157,6 +158,12 @@ function DataPage() {
             className={`h-9 px-5 rounded-full text-sm font-medium ${tab === "export" ? "bg-brand text-brand-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             Export
+          </button>
+          <button
+            onClick={() => setTab("schedule")}
+            className={`h-9 px-5 rounded-full text-sm font-medium ${tab === "schedule" ? "bg-brand text-brand-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Phase schedule
           </button>
         </div>
 
@@ -276,6 +283,19 @@ function DataPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+        {tab === "schedule" && (
+          <div className="mt-8 grid gap-6 max-w-3xl">
+            <label className="block">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cohort</span>
+              <select value={cohortId} onChange={(e) => setCohortId(e.target.value)}
+                className="mt-1 w-full h-11 rounded-md border border-border bg-background px-3 text-sm">
+                {cohorts.length === 0 && <option value="">No cohorts — create one first</option>}
+                {cohorts.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </label>
+            <PhaseScheduleEditor cohortId={cohortId} />
           </div>
         )}
       </Section>
