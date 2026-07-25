@@ -242,3 +242,330 @@ export const addAdminRemark = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/* ------------------------------------------------------------------ */
+/* Unified admin team creation (team + leader + members, credentialed)  */
+/* ------------------------------------------------------------------ */
+
+const SYNTH_DOMAIN = "rakshak.credentials.local";
+
+const ROLE_CAPS = { team_leader: 120, team_member: 240 } as const;
+
+function sanitizeLoginId(raw: string): string {
+  const cleaned = raw.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "");
+  if (!cleaned || cleaned.length < 3 || cleaned.length > 40) {
+    throw new Error(`Login ID "${raw}" must be 3–40 chars (letters, digits, . _ -).`);
+  }
+  return cleaned;
+}
+
+const personSchema = z.object({
+  full_name: z.string().trim().min(1).max(160),
+  login_id: z.string().trim().min(3).max(60),
+  password: z.string().min(8).max(200),
+  phone: z.string().trim().max(40).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable(),
+  college: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(120).optional().nullable(),
+  year: z.string().trim().max(20).optional().nullable(),
+});
+
+type Person = z.infer<typeof personSchema>;
+
+async function countRole(supabaseAdmin: any, role: "team_leader" | "team_member") {
+  const { count } = await supabaseAdmin
+    .from("rp_user_roles")
+    .select("user_id", { count: "exact", head: true })
+    .eq("role", role);
+  return count ?? 0;
+}
+
+/** Creates auth user + rp_profiles row + rp_user_roles row. Returns the new user id. */
+async function provisionUser(
+  supabaseAdmin: any,
+  p: Person,
+  role: "team_leader" | "team_member",
+  fallbackCollege: string | null,
+) {
+  const login_id = sanitizeLoginId(p.login_id);
+
+  const { data: dupLogin } = await supabaseAdmin
+    .from("rp_profiles").select("id").eq("login_id", login_id).maybeSingle();
+  if (dupLogin) throw new Error(`Login ID "${login_id}" is already in use.`);
+
+  const email = p.email?.trim()
+    ? p.email.trim().toLowerCase()
+    : `${login_id}@${SYNTH_DOMAIN}`;
+
+  const { data: dupEmail } = await supabaseAdmin
+    .from("rp_profiles").select("id").eq("email", email).maybeSingle();
+  if (dupEmail) throw new Error(`An account with email "${email}" already exists.`);
+
+  const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password: p.password,
+    email_confirm: true,
+    user_metadata: { full_name: p.full_name, login_id, provisioned: true },
+  });
+  if (createErr || !created?.user) throw new Error(createErr?.message || "Could not create user.");
+  const userId = created.user.id as string;
+
+  const { error: profErr } = await supabaseAdmin.from("rp_profiles").upsert(
+    {
+      id: userId,
+      full_name: p.full_name,
+      email,
+      login_id,
+      phone: p.phone ?? null,
+      organization: p.college ?? fallbackCollege,
+    },
+    { onConflict: "id" },
+  );
+  if (profErr) {
+    await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+    throw profErr;
+  }
+
+  const { error: roleErr } = await supabaseAdmin
+    .from("rp_user_roles")
+    .upsert({ user_id: userId, role }, { onConflict: "user_id,role" });
+  if (roleErr) {
+    await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+    throw roleErr;
+  }
+
+  return { userId, login_id, email, password: p.password };
+}
+
+export const listTeamCreationOptions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [cohorts, mentors, leaderCount, memberCount] = await Promise.all([
+      supabaseAdmin.from("rp_cohorts").select("id, name, year, status").order("created_at"),
+      supabaseAdmin
+        .from("rp_mentors")
+        .select("id, profile_id, organization, rp_profiles:profile_id(full_name, email)")
+        .order("created_at"),
+      countRole(supabaseAdmin, "team_leader"),
+      countRole(supabaseAdmin, "team_member"),
+    ]);
+    return {
+      cohorts: cohorts.data ?? [],
+      mentors: (mentors.data ?? []).map((m: any) => ({
+        id: m.id,
+        full_name: m.rp_profiles?.full_name ?? "Unnamed mentor",
+        email: m.rp_profiles?.email ?? null,
+        organization: m.organization ?? null,
+      })),
+      counts: { team_leader: leaderCount, team_member: memberCount },
+      caps: { ...ROLE_CAPS },
+    };
+  });
+
+export const suggestTeamLoginIds = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ leader: z.number().int().min(0).max(1), members: z.number().int().min(0).max(20) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    async function nextFrom(prefix: string, n: number) {
+      const { data: rows } = await supabaseAdmin
+        .from("rp_profiles").select("login_id").not("login_id", "is", null).ilike("login_id", `${prefix}%`);
+      const re = new RegExp(`^${prefix.toLowerCase()}(\\d{1,6})$`);
+      let max = 0;
+      for (const r of rows ?? []) {
+        const m = String(r.login_id).toLowerCase().match(re);
+        if (m) max = Math.max(max, parseInt(m[1], 10));
+      }
+      return Array.from({ length: n }, (_, i) => `${prefix}${String(max + 1 + i).padStart(4, "0")}`);
+    }
+
+    return {
+      leader: (await nextFrom("TL", data.leader))[0] ?? null,
+      members: await nextFrom("TM", data.members),
+    };
+  });
+
+export const createTeamWithCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      team_name: z.string().trim().min(2).max(160),
+      cohort_id: z.string().uuid().optional().nullable(),
+      college: z.string().trim().max(200).optional().nullable(),
+      city: z.string().trim().max(120).optional().nullable(),
+      state: z.string().trim().max(120).optional().nullable(),
+      assigned_mentor_id: z.string().uuid().optional().nullable(),
+      leader: personSchema,
+      members: z.array(personSchema).max(20).default([]),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Duplicate login IDs within the payload
+    const allIds = [data.leader.login_id, ...data.members.map((m) => m.login_id)].map((s) =>
+      s.trim().toLowerCase(),
+    );
+    if (new Set(allIds).size !== allIds.length) {
+      throw new Error("Duplicate login IDs in this form. Each person needs a unique login ID.");
+    }
+
+    // Caps
+    const [leaders, members] = await Promise.all([
+      countRole(supabaseAdmin, "team_leader"),
+      countRole(supabaseAdmin, "team_member"),
+    ]);
+    if (leaders + 1 > ROLE_CAPS.team_leader) {
+      throw new Error(`Cap reached: ${ROLE_CAPS.team_leader} team leader accounts already exist.`);
+    }
+    if (members + data.members.length > ROLE_CAPS.team_member) {
+      throw new Error(
+        `Cap reached: only ${ROLE_CAPS.team_member - members} team member slots left (needed ${data.members.length}).`,
+      );
+    }
+
+    // Resolve cohort
+    let cohortId = data.cohort_id ?? null;
+    if (!cohortId) {
+      const { data: c } = await supabaseAdmin
+        .from("rp_cohorts").select("id").eq("status", "active").order("created_at").limit(1).maybeSingle();
+      cohortId = c?.id ?? null;
+    }
+    if (!cohortId) throw new Error("No cohort available. Create a cohort first.");
+
+    const createdUserIds: string[] = [];
+    let teamId: string | null = null;
+
+    try {
+      const leaderCred = await provisionUser(supabaseAdmin, data.leader, "team_leader", data.college ?? null);
+      createdUserIds.push(leaderCred.userId);
+
+      const { data: team, error: teamErr } = await supabaseAdmin
+        .from("rp_teams")
+        .insert({
+          cohort_id: cohortId,
+          team_name: data.team_name,
+          college: data.college ?? null,
+          city: data.city ?? null,
+          state: data.state ?? null,
+          team_leader_id: leaderCred.userId,
+          assigned_mentor_id: data.assigned_mentor_id ?? null,
+        })
+        .select("id")
+        .single();
+      if (teamErr) throw teamErr;
+      teamId = team.id as string;
+
+      await supabaseAdmin.from("rp_team_members").insert({
+        team_id: teamId,
+        profile_id: leaderCred.userId,
+        full_name: data.leader.full_name,
+        email: leaderCred.email,
+        phone: data.leader.phone ?? null,
+        college: data.leader.college ?? data.college ?? null,
+        department: data.leader.department ?? null,
+        year: data.leader.year ?? null,
+        role_in_team: "leader",
+      });
+
+      const memberCreds: Array<{ full_name: string; login_id: string; email: string; password: string }> = [];
+      for (const m of data.members) {
+        const cred = await provisionUser(supabaseAdmin, m, "team_member", data.college ?? null);
+        createdUserIds.push(cred.userId);
+        await supabaseAdmin.from("rp_team_members").insert({
+          team_id: teamId,
+          profile_id: cred.userId,
+          full_name: m.full_name,
+          email: cred.email,
+          phone: m.phone ?? null,
+          college: m.college ?? data.college ?? null,
+          department: m.department ?? null,
+          year: m.year ?? null,
+          role_in_team: "member",
+        });
+        memberCreds.push({ full_name: m.full_name, login_id: cred.login_id, email: cred.email, password: cred.password });
+      }
+
+      if (data.assigned_mentor_id) {
+        const { data: mentorRow } = await supabaseAdmin
+          .from("rp_mentors").select("current_team_count").eq("id", data.assigned_mentor_id).maybeSingle();
+        await supabaseAdmin
+          .from("rp_mentors")
+          .update({ current_team_count: Number(mentorRow?.current_team_count ?? 0) + 1 })
+          .eq("id", data.assigned_mentor_id);
+      }
+
+      return {
+        team_id: teamId,
+        team_name: data.team_name,
+        leader: {
+          full_name: data.leader.full_name,
+          login_id: leaderCred.login_id,
+          email: leaderCred.email,
+          password: leaderCred.password,
+        },
+        members: memberCreds,
+      };
+    } catch (e) {
+      // Roll back everything we created so the admin can retry cleanly.
+      if (teamId) {
+        await supabaseAdmin.from("rp_team_members").delete().eq("team_id", teamId).catch?.(() => {});
+        await supabaseAdmin.from("rp_teams").delete().eq("id", teamId);
+      }
+      for (const uid of createdUserIds) {
+        await supabaseAdmin.auth.admin.deleteUser(uid).catch(() => {});
+      }
+      throw e;
+    }
+  });
+
+export const addTeamMemberWithCredentials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ team_id: z.string().uuid(), member: personSchema }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const used = await countRole(supabaseAdmin, "team_member");
+    if (used + 1 > ROLE_CAPS.team_member) {
+      throw new Error(`Cap reached: ${ROLE_CAPS.team_member} team member accounts already exist.`);
+    }
+
+    const { data: team } = await supabaseAdmin
+      .from("rp_teams").select("id, college").eq("id", data.team_id).maybeSingle();
+    if (!team) throw new Error("Team not found");
+
+    const cred = await provisionUser(supabaseAdmin, data.member, "team_member", team.college ?? null);
+
+    const { error: insErr } = await supabaseAdmin.from("rp_team_members").insert({
+      team_id: data.team_id,
+      profile_id: cred.userId,
+      full_name: data.member.full_name,
+      email: cred.email,
+      phone: data.member.phone ?? null,
+      college: data.member.college ?? team.college ?? null,
+      department: data.member.department ?? null,
+      year: data.member.year ?? null,
+      role_in_team: "member",
+    });
+    if (insErr) {
+      await supabaseAdmin.auth.admin.deleteUser(cred.userId).catch(() => {});
+      throw insErr;
+    }
+
+    return {
+      full_name: data.member.full_name,
+      login_id: cred.login_id,
+      email: cred.email,
+      password: cred.password,
+    };
+  });
