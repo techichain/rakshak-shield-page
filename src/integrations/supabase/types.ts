@@ -815,6 +815,63 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_announcements: {
+        Row: {
+          cohort_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          host_name: string | null
+          id: string
+          kind: string
+          meeting_link: string | null
+          scheduled_end: string | null
+          scheduled_start: string | null
+          title: string
+        }
+        Insert: {
+          cohort_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          host_name?: string | null
+          id?: string
+          kind: string
+          meeting_link?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          title: string
+        }
+        Update: {
+          cohort_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          host_name?: string | null
+          id?: string
+          kind?: string
+          meeting_link?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_announcements_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "rp_cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_announcements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_audit_logs: {
         Row: {
           action: string
@@ -2927,6 +2984,8 @@ export type Database = {
           created_by: string
           google_event_id: string | null
           google_organizer_user_id: string | null
+          host_type: string
+          host_user_id: string | null
           id: string
           location: string | null
           meeting_link: string | null
@@ -2955,6 +3014,8 @@ export type Database = {
           created_by: string
           google_event_id?: string | null
           google_organizer_user_id?: string | null
+          host_type?: string
+          host_user_id?: string | null
           id?: string
           location?: string | null
           meeting_link?: string | null
@@ -2983,6 +3044,8 @@ export type Database = {
           created_by?: string
           google_event_id?: string | null
           google_organizer_user_id?: string | null
+          host_type?: string
+          host_user_id?: string | null
           id?: string
           location?: string | null
           meeting_link?: string | null
@@ -3006,6 +3069,13 @@ export type Database = {
           whiteboard_room_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "rp_meetings_host_user_id_fkey"
+            columns: ["host_user_id"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rp_meetings_mentor_id_fkey"
             columns: ["mentor_id"]
@@ -3200,8 +3270,10 @@ export type Database = {
           created_at: string
           created_by: string | null
           ends_at: string
+          host_type: string
+          host_user_id: string | null
           id: string
-          mentor_id: string
+          mentor_id: string | null
           notes: string | null
           starts_at: string
           status: string
@@ -3213,8 +3285,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           ends_at: string
+          host_type?: string
+          host_user_id?: string | null
           id?: string
-          mentor_id: string
+          mentor_id?: string | null
           notes?: string | null
           starts_at: string
           status?: string
@@ -3226,8 +3300,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           ends_at?: string
+          host_type?: string
+          host_user_id?: string | null
           id?: string
-          mentor_id?: string
+          mentor_id?: string | null
           notes?: string | null
           starts_at?: string
           status?: string
@@ -3237,6 +3313,13 @@ export type Database = {
           {
             foreignKeyName: "rp_mentor_slots_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_mentor_slots_host_user_id_fkey"
+            columns: ["host_user_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]

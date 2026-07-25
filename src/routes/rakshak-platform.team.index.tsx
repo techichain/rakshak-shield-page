@@ -12,6 +12,7 @@ import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourc
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
+import { AnnouncementsCard } from "@/components/rakshak-platform/AnnouncementsCard";
 import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
 export const Route = createFileRoute("/rakshak-platform/team/")({
@@ -295,6 +296,7 @@ function TeamDashboard() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <AnnouncementsCard />
           <RecentMeetingNotesCard />
           <div className="rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2">
