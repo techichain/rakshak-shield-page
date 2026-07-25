@@ -1289,9 +1289,9 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
     label: "People",
     tone: "from-rose-50 to-white border-rose-100",
     items: [
+      { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog, desc: "Team + leader + members with logins" },
       { to: "/rakshak-platform/admin/teams", label: "Teams", icon: Users, desc: "All teams · members · reports" },
-      { to: "/rakshak-platform/admin/credentials", label: "Login credentials", icon: HeartHandshake, desc: "Provision login IDs & passwords" },
-      { to: "/rakshak-platform/admin/access-requests", label: "Approvals & roles", icon: UserCog, desc: "Requests, invites & role assignments" },
+      { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: HeartHandshake, desc: "Provision login IDs & passwords" },
       { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: Calendar, desc: "Mentor-team sessions" },
     ],
   },
