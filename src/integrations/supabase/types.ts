@@ -1753,6 +1753,44 @@ export type Database = {
           },
         ]
       }
+      rp_cohort_phase_schedule: {
+        Row: {
+          cohort_id: string
+          created_at: string
+          deadline: string | null
+          id: string
+          phase_number: number
+          starts_on: string | null
+          updated_at: string
+        }
+        Insert: {
+          cohort_id: string
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          phase_number: number
+          starts_on?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cohort_id?: string
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          phase_number?: number
+          starts_on?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_cohort_phase_schedule_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "rp_cohorts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_cohorts: {
         Row: {
           created_at: string
@@ -3741,11 +3779,13 @@ export type Database = {
           completion_percentage: number
           created_at: string
           deadline: string | null
+          deadline_reminder_sent_at: string | null
           id: string
           is_at_risk: boolean
           last_activity_at: string
           mentor_reviewed_at: string | null
           mentor_status: string | null
+          overdue_at: string | null
           phase_number: number
           revision_count: number
           started_at: string | null
@@ -3762,11 +3802,13 @@ export type Database = {
           completion_percentage?: number
           created_at?: string
           deadline?: string | null
+          deadline_reminder_sent_at?: string | null
           id?: string
           is_at_risk?: boolean
           last_activity_at?: string
           mentor_reviewed_at?: string | null
           mentor_status?: string | null
+          overdue_at?: string | null
           phase_number: number
           revision_count?: number
           started_at?: string | null
@@ -3783,11 +3825,13 @@ export type Database = {
           completion_percentage?: number
           created_at?: string
           deadline?: string | null
+          deadline_reminder_sent_at?: string | null
           id?: string
           is_at_risk?: boolean
           last_activity_at?: string
           mentor_reviewed_at?: string | null
           mentor_status?: string | null
+          overdue_at?: string | null
           phase_number?: number
           revision_count?: number
           started_at?: string | null
