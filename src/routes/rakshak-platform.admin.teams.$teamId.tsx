@@ -20,6 +20,7 @@ import {
 } from "@/lib/rakshak-platform/questionnaires.functions";
 import { getTeamPhaseRankings } from "@/lib/rakshak-platform/admin-teams.functions";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { EvidenceRepository } from "@/components/rakshak-platform/EvidenceRepository";
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
@@ -370,6 +371,7 @@ function AdminTeamDetail() {
 
           {tab === "submissions" && (
             <div className="space-y-4">
+              <EvidenceRepository teamId={teamId} readOnly heading="Evidence & records filed by this team" />
               <StakeholderReports reports={reports} />
 
               {[0, 1, 2, 3, 4].map((p) => {

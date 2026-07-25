@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getMentorTeamDetail } from "@/lib/rakshak-platform/mentor-team-detail.functions";
+import { EvidenceRepository } from "@/components/rakshak-platform/EvidenceRepository";
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
@@ -266,6 +267,7 @@ function MentorTeamDetail() {
 
         {tab === "submissions" && (
           <div className="mt-8 space-y-8">
+            <EvidenceRepository teamId={team.id} readOnly heading="Evidence & records filed by this team" />
             {phaseNumbers.map((n) => {
               const subs = subsByPhase.get(n) ?? [];
               const locs = locsByPhase.get(n) ?? [];
