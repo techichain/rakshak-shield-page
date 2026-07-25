@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -68,6 +69,7 @@ function BookMentorPage() {
   const [title, setTitle] = useState("Mentor sync");
   const [agenda, setAgenda] = useState("");
   const [customLink, setCustomLink] = useState("");
+  const [durationMin, setDurationMin] = useState(SLOT_MINUTES);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<{ email: string; mentor_connected: boolean } | null>(null);
 
@@ -119,7 +121,7 @@ function BookMentorPage() {
     setBusy(true);
     try {
       const start = new Date(selected);
-      const end = new Date(start.getTime() + SLOT_MINUTES * 60_000);
+      const end = new Date(start.getTime() + durationMin * 60_000);
       const trimmedLink = customLink.trim();
       const res: any = await bookFn({
         data: {
@@ -346,9 +348,30 @@ function BookMentorPage() {
                   Leave blank to let your mentor auto-generate a Google Meet link on approval.
                 </span>
               </label>
+              <div>
+                <span className="text-sm text-muted-foreground">Duration</span>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {[15, 30, 45, 60, 90].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDurationMin(d)}
+                      className={`rounded-full border px-3 py-1.5 text-xs ${
+                        durationMin === d
+                          ? "border-brand bg-brand text-brand-foreground"
+                          : "border-border hover:border-brand/40"
+                      }`}
+                    >
+                      {d} min
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div className="text-xs text-muted-foreground">
                 {selected ? (
-                  <>Selected: <span className="text-foreground font-medium">{new Date(selected).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</span> · 30 min</>
+                  <>Selected: <span className="text-foreground font-medium">
+                    {formatMeetingWhen(selected, new Date(new Date(selected).getTime() + durationMin * 60_000))}
+                  </span></>
                 ) : "No slot picked yet."}
               </div>
               <button
