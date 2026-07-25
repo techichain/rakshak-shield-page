@@ -1,16 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
-import { listAdminPendingReviews } from "@/lib/rakshak-platform/submissions.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-} from "recharts";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/admin/reviews")({
   component: AdminReviewsPage,
@@ -38,10 +32,7 @@ type MentorRow = typeof DUMMY_MENTOR_ANALYTICS[number];
 function AdminReviewsPage() {
   const { loading, userId, isAdmin } = useRPAuth();
   const navigate = useNavigate();
-  const loadPending = useServerFn(listAdminPendingReviews);
 
-  const [pending, setPending] = useState<any[]>([]);
-  const [pendingBusy, setPendingBusy] = useState(true);
   const [mentorRows, setMentorRows] = useState<MentorRow[]>([]);
   const [mentorBusy, setMentorBusy] = useState(true);
   const [mentorDummy, setMentorDummy] = useState(false);
@@ -51,14 +42,6 @@ function AdminReviewsPage() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); }
   }, [loading, userId, isAdmin, navigate]);
-
-  useEffect(() => {
-    if (!isAdmin) return;
-    loadPending({})
-      .then((r: any) => setPending(r.items ?? []))
-      .catch(() => setPending([]))
-      .finally(() => setPendingBusy(false));
-  }, [isAdmin, loadPending]);
 
   // Best-effort mentor analytics from live data; dummy fallback if empty/errors
   useEffect(() => {
@@ -113,7 +96,7 @@ function AdminReviewsPage() {
               avg_completion: avgCompletion,
               turnaround_days: turnaroundN
                 ? Math.round((turnaroundSum / turnaroundN) * 10) / 10
-                : Math.round((1 + Math.random() * 2) * 10) / 10,
+                : 0,
               approved,
               changes,
             };
@@ -130,15 +113,6 @@ function AdminReviewsPage() {
     })();
   }, [isAdmin]);
 
-  const chartLoad = useMemo(
-    () => mentorRows.slice(0, 10).map((r) => ({ name: r.name.split(" ")[0], teams: r.team_count })),
-    [mentorRows],
-  );
-  const chartTurnaround = useMemo(
-    () => mentorRows.slice(0, 10).map((r) => ({ name: r.name.split(" ")[0], days: r.turnaround_days })),
-    [mentorRows],
-  );
-
   if (loading || !isAdmin) {
     return <PlatformShell><Section>Loading…</Section></PlatformShell>;
   }
@@ -146,155 +120,61 @@ function AdminReviewsPage() {
   return (
     <PlatformShell>
       <Section>
-        <Eyebrow>Admin · Approval queue</Eyebrow>
-        <h1 className="mt-6 mb-6 font-heading text-4xl sm:text-5xl font-bold leading-[1.05]">
-          Final <span className="text-brand">approvals.</span>
+        <Eyebrow>Admin · Mentor review stats</Eyebrow>
+        <h1 className="mt-6 mb-4 font-heading text-4xl sm:text-5xl font-bold leading-[1.05]">
+          Mentor review <span className="text-brand">activity.</span>
         </h1>
-        <p className="text-muted-foreground max-w-2xl mb-10">
-          Review actions live on each team's detail page (Submissions & feedback tab). Use the list below to jump straight to what needs your decision.
+        <p className="text-muted-foreground max-w-2xl mb-8">
+          Each mentor's review workload and outcomes — teams assigned, average team completion,
+          review turnaround, and how many submissions they approved vs sent back for changes.
         </p>
 
-        <Card className="mb-10">
-          <CardHeader>
-            <CardTitle className="text-base">Pending admin reviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pendingBusy ? (
-              <div className="grid place-items-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
-            ) : pending.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No submissions currently awaiting admin review.</p>
-            ) : (
-              <ul className="divide-y divide-border">
-                {pending.map((s: any) => (
-                  <li key={s.id}>
-                    <Link
-                      to="/rakshak-platform/admin/teams/$teamId"
-                      params={{ teamId: s.team_id }}
-                      className="group flex items-start justify-between gap-4 py-3 hover:bg-muted/40 rounded-md px-2 -mx-2 transition"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium truncate">{s.rp_teams?.team_name ?? "Team"}</span>
-                          <Badge variant="secondary" className="text-xs">Phase {s.phase_number}</Badge>
-                          {s.revision_number > 0 && (
-                            <Badge variant="outline" className="text-xs">rev {s.revision_number}</Badge>
-                          )}
-                        </div>
-                        <div className="text-sm mt-0.5 truncate">{s.title}</div>
-                        {s.summary && (
-                          <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{s.summary}</div>
-                        )}
-                        <div className="text-[11px] text-muted-foreground mt-1">
-                          {s.rp_teams?.college ? `${s.rp_teams.college} · ` : ""}
-                          {s.rp_teams?.city ? `${s.rp_teams.city} · ` : ""}
-                          Submitted {s.submitted_at ? new Date(s.submitted_at).toLocaleDateString() : "—"}
-                        </div>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-brand shrink-0 mt-1" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        <div className="mb-4 flex items-baseline gap-3">
-          <h2 className="font-heading text-2xl font-bold">Mentor analytics</h2>
-          {mentorDummy && (
+        {mentorDummy && (
+          <div className="mb-4">
             <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-800">
-              Showing sample data
+              Showing sample data — no mentors found yet
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {mentorBusy ? (
           <div className="grid place-items-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader><CardTitle className="text-base">Team load (top 10)</CardTitle></CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={chartLoad} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" allowDecimals={false} fontSize={12} />
-                    <YAxis type="category" dataKey="name" fontSize={11} width={80} />
-                    <Tooltip />
-                    <Bar dataKey="teams" fill="#8b5cf6" radius={[0, 6, 6, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader><CardTitle className="text-base">Avg review turnaround (days)</CardTitle></CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={chartTurnaround}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="name" fontSize={11} />
-                    <YAxis fontSize={12} />
-                    <Tooltip />
-                    <Bar dataKey="days" fill="#1f4ed8" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-2">
-              <CardHeader><CardTitle className="text-base">Per-mentor breakdown</CardTitle></CardHeader>
-              <CardContent className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-xs uppercase text-muted-foreground bg-muted/40">
-                    <tr>
-                      <th className="text-left px-3 py-2">Mentor</th>
-                      <th className="text-right px-3 py-2">Teams</th>
-                      <th className="text-right px-3 py-2">Avg completion</th>
-                      <th className="text-right px-3 py-2">Turnaround (d)</th>
-                      <th className="text-right px-3 py-2">Approved</th>
-                      <th className="text-right px-3 py-2">Changes req.</th>
-                      <th className="text-right px-3 py-2">Approval ratio</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {mentorRows.map((r) => {
-                      const total = r.approved + r.changes;
-                      const ratio = total ? Math.round((r.approved / total) * 100) : 0;
-                      return (
-                        <tr key={r.name}>
-                          <td className="px-3 py-2 font-medium">{r.name}</td>
-                          <td className="px-3 py-2 text-right">{r.team_count}</td>
-                          <td className="px-3 py-2 text-right">{r.avg_completion}%</td>
-                          <td className="px-3 py-2 text-right">{r.turnaround_days}</td>
-                          <td className="px-3 py-2 text-right">{r.approved}</td>
-                          <td className="px-3 py-2 text-right">{r.changes}</td>
-                          <td className="px-3 py-2 text-right">{total ? `${ratio}%` : "—"}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-2">
-              <CardHeader><CardTitle className="text-base">Approved vs changes-requested</CardTitle></CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={mentorRows.map((r) => ({ name: r.name.split(" ")[0], approved: r.approved, changes: r.changes }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="name" fontSize={11} />
-                    <YAxis fontSize={12} allowDecimals={false} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="approved" name="Approved" stackId="r" fill="#10b981" />
-                    <Bar dataKey="changes" name="Changes requested" stackId="r" fill="#f59e0b" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
+          <Card>
+            <CardHeader><CardTitle className="text-base">Per-mentor breakdown</CardTitle></CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-xs uppercase text-muted-foreground bg-muted/40">
+                  <tr>
+                    <th className="text-left px-3 py-2">Mentor</th>
+                    <th className="text-right px-3 py-2">Teams</th>
+                    <th className="text-right px-3 py-2">Avg completion</th>
+                    <th className="text-right px-3 py-2">Turnaround (d)</th>
+                    <th className="text-right px-3 py-2">Approved</th>
+                    <th className="text-right px-3 py-2">Changes req.</th>
+                    <th className="text-right px-3 py-2">Approval ratio</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {mentorRows.map((r) => {
+                    const total = r.approved + r.changes;
+                    const ratio = total ? Math.round((r.approved / total) * 100) : 0;
+                    return (
+                      <tr key={r.name}>
+                        <td className="px-3 py-2 font-medium">{r.name}</td>
+                        <td className="px-3 py-2 text-right">{r.team_count}</td>
+                        <td className="px-3 py-2 text-right">{r.avg_completion}%</td>
+                        <td className="px-3 py-2 text-right">{r.turnaround_days || "—"}</td>
+                        <td className="px-3 py-2 text-right">{r.approved}</td>
+                        <td className="px-3 py-2 text-right">{r.changes}</td>
+                        <td className="px-3 py-2 text-right">{total ? `${ratio}%` : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
         )}
       </Section>
     </PlatformShell>
