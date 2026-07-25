@@ -17,8 +17,6 @@ import {
 type Role = "team_leader" | "team_member" | "mentor" | "evaluator";
 
 const ROLE_TABS: Array<{ id: Role; label: string; needsCollege: boolean }> = [
-  { id: "team_leader", label: "Team Leaders", needsCollege: true },
-  { id: "team_member", label: "Team Members", needsCollege: true },
   { id: "mentor", label: "Mentors", needsCollege: false },
   { id: "evaluator", label: "Evaluators", needsCollege: false },
 ];

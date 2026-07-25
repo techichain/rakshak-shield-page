@@ -103,6 +103,7 @@ import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rak
 import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
 import { Route as RakshakPlatformMentorTeamsTeamIdRouteImport } from './routes/rakshak-platform.mentor.teams.$teamId'
 import { Route as RakshakPlatformMeetingsIcsMeetingIdRouteImport } from './routes/rakshak-platform.meetings.ics.$meetingId'
+import { Route as RakshakPlatformAdminTeamsNewRouteImport } from './routes/rakshak-platform.admin.teams.new'
 import { Route as RakshakPlatformAdminTeamsTeamIdRouteImport } from './routes/rakshak-platform.admin.teams.$teamId'
 import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -651,6 +652,12 @@ const RakshakPlatformMeetingsIcsMeetingIdRoute =
     path: '/ics/$meetingId',
     getParentRoute: () => RakshakPlatformMeetingsRoute,
   } as any)
+const RakshakPlatformAdminTeamsNewRoute =
+  RakshakPlatformAdminTeamsNewRouteImport.update({
+    id: '/teams/new',
+    path: '/teams/new',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminTeamsTeamIdRoute =
   RakshakPlatformAdminTeamsTeamIdRouteImport.update({
     id: '/teams/$teamId',
@@ -836,6 +843,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
+  '/rakshak-platform/admin/teams/new': typeof RakshakPlatformAdminTeamsNewRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
   '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
@@ -935,6 +943,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
+  '/rakshak-platform/admin/teams/new': typeof RakshakPlatformAdminTeamsNewRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
   '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
@@ -1046,6 +1055,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/rakshak-platform/admin/print/$dataset': typeof RakshakPlatformAdminPrintDatasetRoute
   '/rakshak-platform/admin/teams/$teamId': typeof RakshakPlatformAdminTeamsTeamIdRoute
+  '/rakshak-platform/admin/teams/new': typeof RakshakPlatformAdminTeamsNewRoute
   '/rakshak-platform/meetings/ics/$meetingId': typeof RakshakPlatformMeetingsIcsMeetingIdRoute
   '/rakshak-platform/mentor/teams/$teamId': typeof RakshakPlatformMentorTeamsTeamIdRoute
   '/rakshak-platform/team/locations/$id': typeof RakshakPlatformTeamLocationsIdRoute
@@ -1158,6 +1168,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
+    | '/rakshak-platform/admin/teams/new'
     | '/rakshak-platform/meetings/ics/$meetingId'
     | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
@@ -1257,6 +1268,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
+    | '/rakshak-platform/admin/teams/new'
     | '/rakshak-platform/meetings/ics/$meetingId'
     | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
@@ -1367,6 +1379,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/rakshak-platform/admin/print/$dataset'
     | '/rakshak-platform/admin/teams/$teamId'
+    | '/rakshak-platform/admin/teams/new'
     | '/rakshak-platform/meetings/ics/$meetingId'
     | '/rakshak-platform/mentor/teams/$teamId'
     | '/rakshak-platform/team/locations/$id'
@@ -2062,6 +2075,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformMeetingsIcsMeetingIdRouteImport
       parentRoute: typeof RakshakPlatformMeetingsRoute
     }
+    '/rakshak-platform/admin/teams/new': {
+      id: '/rakshak-platform/admin/teams/new'
+      path: '/teams/new'
+      fullPath: '/rakshak-platform/admin/teams/new'
+      preLoaderRoute: typeof RakshakPlatformAdminTeamsNewRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/teams/$teamId': {
       id: '/rakshak-platform/admin/teams/$teamId'
       path: '/teams/$teamId'
@@ -2280,6 +2300,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminIndexRoute: typeof RakshakPlatformAdminIndexRoute
   RakshakPlatformAdminPrintDatasetRoute: typeof RakshakPlatformAdminPrintDatasetRoute
   RakshakPlatformAdminTeamsTeamIdRoute: typeof RakshakPlatformAdminTeamsTeamIdRoute
+  RakshakPlatformAdminTeamsNewRoute: typeof RakshakPlatformAdminTeamsNewRoute
   RakshakPlatformAdminTeamsIndexRoute: typeof RakshakPlatformAdminTeamsIndexRoute
 }
 
@@ -2306,6 +2327,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminIndexRoute: RakshakPlatformAdminIndexRoute,
   RakshakPlatformAdminPrintDatasetRoute: RakshakPlatformAdminPrintDatasetRoute,
   RakshakPlatformAdminTeamsTeamIdRoute: RakshakPlatformAdminTeamsTeamIdRoute,
+  RakshakPlatformAdminTeamsNewRoute: RakshakPlatformAdminTeamsNewRoute,
   RakshakPlatformAdminTeamsIndexRoute: RakshakPlatformAdminTeamsIndexRoute,
 }
 
