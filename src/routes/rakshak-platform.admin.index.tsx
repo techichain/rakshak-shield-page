@@ -596,7 +596,19 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
           <option value="mid">40–75%</option>
           <option value="high">≥ 75%</option>
         </select>
+        <div className="inline-flex rounded-full border border-border p-0.5">
+          {(["clusters", "table"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`h-9 rounded-full px-3 text-sm ${view === v ? "bg-brand text-brand-foreground" : "text-muted-foreground"}`}
+            >
+              {v === "clusters" ? "Clusters" : "Ranked table"}
+            </button>
+          ))}
+        </div>
       </div>
+
 
       {/* Clusters */}
       {view === "clusters" && (
