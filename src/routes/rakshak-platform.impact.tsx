@@ -83,18 +83,12 @@ function Stat({
   );
 }
 
-function authLabel(key: string) {
-  return AUTH_CATS.find((a) => a.k === key)?.l ?? key;
+function partnerLogo(name: string) {
+  const n = name.trim().toLowerCase();
+  const match = UNIS.find((u) => u.name.trim().toLowerCase() === n);
+  return match?.file ? uniLogoUrl(match.file) : undefined;
 }
 
-function countBy(field: "ci" | "st") {
-  const m = new Map<string, number>();
-  LOC.forEach((l) => {
-    const v = (l[field] || "").trim();
-    if (v) m.set(v, (m.get(v) ?? 0) + 1);
-  });
-  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-}
 
 function Panel({ id, children }: { id: string; children: React.ReactNode }) {
   return (
