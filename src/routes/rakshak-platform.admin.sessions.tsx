@@ -48,13 +48,15 @@ function AdminSessionsPage() {
   const [annBusy, setAnnBusy] = useState(false);
 
   useEffect(() => {
-    supabase
-      .from("rp_cohorts")
-      .select("id, name")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setCohorts(data ?? []))
-      .catch(() => setCohorts([]));
+    void (async () => {
+      const { data } = await supabase
+        .from("rp_cohorts")
+        .select("id, name")
+        .order("created_at", { ascending: false });
+      setCohorts(data ?? []);
+    })().catch(() => setCohorts([]));
   }, []);
+
 
   const slotsQ = useQuery({
     queryKey: ["rp-admin-slots"],
