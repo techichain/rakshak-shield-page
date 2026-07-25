@@ -52,7 +52,8 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
     }
   }
 
-  useEffect(() => { void refresh(); /* eslint-disable-next-line */ }, []);
+  // refresh is intentionally omitted: it is recreated each render and would re-fetch in a loop.
+  useEffect(() => { void refresh(); }, []);
 
   async function submit(id: string) {
     if (!text.trim()) return;

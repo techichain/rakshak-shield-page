@@ -75,7 +75,8 @@ function AvailabilityPage() {
           notes: String(fd.get("notes") || ""),
         },
       });
-      try { form.reset(); } catch {}
+      // Form may already be unmounted; a failed reset is safe to ignore.
+      try { form.reset(); } catch { /* ignore */ }
       await qc.invalidateQueries({ queryKey: ["rp-my-slots"] });
       toast.success("Slot published");
     } catch (e: any) {
