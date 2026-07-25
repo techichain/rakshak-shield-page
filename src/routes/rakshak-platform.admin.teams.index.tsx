@@ -16,14 +16,6 @@ export const Route = createFileRoute("/rakshak-platform/admin/teams/")({
   component: AdminTeamsIndex,
 });
 
-function riskTone(r: string | null) {
-  switch ((r ?? "").toLowerCase()) {
-    case "high": return "bg-red-50 text-red-700 border-red-200";
-    case "medium": return "bg-amber-50 text-amber-700 border-amber-200";
-    case "low": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    default: return "bg-muted text-muted-foreground border-border";
-  }
-}
 
 function AdminTeamsIndex() {
   const fetchTeams = useServerFn(listTeamsAdminOverview);
