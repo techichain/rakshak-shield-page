@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { rpRequireRole } from "@/lib/rakshak-platform/auth";
@@ -764,7 +765,7 @@ function AdminTeamDetail() {
                     <div>
                       <div className="font-semibold">{m.title}</div>
                       <div className="text-xs text-muted-foreground">
-                        {fmtDate(m.scheduled_start)} — {fmtDate(m.scheduled_end)}
+                        {formatMeetingWhen(m.scheduled_start, m.scheduled_end)}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -817,7 +818,7 @@ function AdminTeamDetail() {
                     {meetingNotesOpen === m.id ? (
                       <div className="space-y-2">
                         <label className="text-xs font-semibold text-muted-foreground">
-                          Meeting notes / transcript (visible to team)
+                          Meeting notes / transcript (added manually by admin · visible to team)
                         </label>
                         <textarea
                           value={meetingNotesDraft}

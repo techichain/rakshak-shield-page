@@ -13,6 +13,8 @@ const IssueInput = z.object({
   phase_number: z.number().int().min(0).max(4).optional().nullable(),
   title: z.string().min(1).max(200),
   recipient_name: z.string().min(1).max(200),
+  // Optional admin override for the issue date; defaults to now().
+  issued_at: z.string().datetime().optional().nullable(),
 });
 
 export const issueCertificate = createServerFn({ method: "POST" })
@@ -40,6 +42,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
         serial_no: serial,
         public_slug: slug,
         issued_by: context.userId,
+        issued_at: data.issued_at ?? new Date().toISOString(),
       })
       .select()
       .single();

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyMeetings } from "@/lib/rakshak-platform/meetings.functions";
 import { ClipboardList, Loader2 } from "lucide-react";
@@ -71,7 +72,7 @@ export function RecentMeetingNotesCard() {
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="font-semibold text-sm">{m.title}</div>
                 <div className="text-[11px] text-muted-foreground">
-                  {m.scheduled_start ? fmtDate(m.scheduled_start) : ""}
+                  {m.scheduled_start ? formatMeetingWhen(m.scheduled_start, m.scheduled_end) : ""}
                 </div>
               </div>
               <p className="mt-1 text-sm whitespace-pre-line text-foreground/90">

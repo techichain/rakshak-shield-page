@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect, useMemo } from "react";
@@ -391,9 +392,7 @@ function MeetingsPage() {
                       <div>
                         <div className="font-semibold">{m.title}</div>
                         <div className="text-xs text-muted-foreground">
-                          {m.team_name} · {new Date(m.scheduled_start).toLocaleString()}
-                          {" — "}
-                          {new Date(m.scheduled_end).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {m.team_name} · {formatMeetingWhen(m.scheduled_start, m.scheduled_end)}
                         </div>
                         {m.agenda && (
                           <p className="mt-2 text-sm whitespace-pre-line">{m.agenda}</p>
@@ -633,7 +632,7 @@ function MeetingsPage() {
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {m.rp_teams?.team_name ? `${m.rp_teams.team_name} · ` : ""}
-                        {new Date(m.scheduled_start).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })} → {new Date(m.scheduled_end).toLocaleTimeString(undefined, { timeStyle: "short" } as any)} <span className="opacity-70">({userTimezone})</span>
+                        {formatMeetingWhen(m.scheduled_start, m.scheduled_end)} <span className="opacity-70">({userTimezone})</span>
                       </p>
 
                     </div>
@@ -643,7 +642,7 @@ function MeetingsPage() {
                   {m.notes && (
                     <div className="mt-3 rounded-md border border-amber-200 bg-amber-50/60 p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-                        Meeting notes
+                        Meeting notes / transcript (added manually by admin)
                       </div>
                       <p className="mt-1 text-sm whitespace-pre-line text-amber-900">{m.notes}</p>
                     </div>

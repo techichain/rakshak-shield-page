@@ -57,6 +57,9 @@ function AdminCerts() {
           phase_number: fd.get("phase_number") ? Number(fd.get("phase_number")) : null,
           title: String(fd.get("title")),
           recipient_name: String(fd.get("recipient_name")),
+          ...(fd.get("issued_on")
+            ? { issued_at: new Date(String(fd.get("issued_on"))).toISOString() }
+            : {}),
         },
       });
       form.reset();
@@ -96,6 +99,10 @@ function AdminCerts() {
           <input name="phase_number" type="number" min={0} max={4} placeholder="Phase #" className="rp-input" />
           <input name="recipient_name" required maxLength={200} placeholder="Recipient name" className="rp-input md:col-span-1" />
           <input name="title" required maxLength={200} placeholder="Certificate title" className="rp-input md:col-span-1" />
+          <label className="md:col-span-2 block text-xs text-muted-foreground">
+            Issue date (optional — defaults to today)
+            <input name="issued_on" type="date" className="rp-input mt-1 w-full" />
+          </label>
           <div className="md:col-span-6 flex items-center justify-between">
             {err && <p className="text-sm text-red-600">{err}</p>}
             <button type="submit" disabled={busy} className="ml-auto inline-flex items-center gap-2 h-10 rounded-full bg-brand px-5 text-sm text-brand-foreground hover:bg-brand/90 disabled:opacity-60">
@@ -126,7 +133,7 @@ function AdminCerts() {
                   <td className="px-4 py-3">{c.recipient_name}</td>
                   <td className="px-4 py-3">{c.rp_teams?.team_name}</td>
                   <td className="px-4 py-3 capitalize text-xs">{c.certificate_type.replace(/_/g, " ")}</td>
-                  <td className="px-4 py-3 text-xs">{new Date(c.issued_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-xs">{new Date(c.issued_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                   <td className="px-4 py-3 text-right space-x-3">
                     <Link
                       to="/rakshak-platform/verify/$slug"

@@ -25,6 +25,8 @@ export const Route = createFileRoute("/rakshak-platform/mentor/teams/$teamId")({
 
 type Tab = "overview" | "submissions" | "meetings";
 
+import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
+
 function fmtDate(iso?: string | null) {
   if (!iso) return "—";
   try { return new Date(iso).toLocaleString(); } catch { return iso; }
@@ -459,7 +461,7 @@ function MentorTeamDetail() {
                       <CalendarDays className="h-4 w-4" />
                       {m.title ?? "Meeting"}
                     </div>
-                    <span className="text-xs text-muted-foreground">{fmtDate(m.scheduled_start)}</span>
+                    <span className="text-xs text-muted-foreground">{formatMeetingWhen(m.scheduled_start, m.scheduled_end)}</span>
                   </div>
                   {m.agenda && (
                     <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">{m.agenda}</p>

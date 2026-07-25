@@ -148,7 +148,7 @@ function VerifyPage() {
               {valid ? "Verified certificate" : "Revoked certificate"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Serial <span className="font-mono">{cert.serial_no}</span> · issued {new Date(cert.issued_at).toLocaleDateString()}
+              Serial <span className="font-mono">{cert.serial_no}</span> · issued on {new Date(cert.issued_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
             </p>
             {!valid && cert.revoked_reason && (
               <p className="mt-2 text-sm text-red-700">Reason: {cert.revoked_reason}</p>
@@ -189,7 +189,7 @@ function VerifyPage() {
             )}
             <div className="rounded-xl bg-brand-lite p-4">
               <div className="text-muted-foreground text-xs uppercase tracking-wide">Issued</div>
-              <div className="mt-1 font-medium">{new Date(cert.issued_at).toLocaleDateString()}</div>
+              <div className="mt-1 font-medium">{new Date(cert.issued_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</div>
             </div>
           </div>
         </div>
