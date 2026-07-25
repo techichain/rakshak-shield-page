@@ -123,7 +123,7 @@ function CountsHeader() {
   if (!state) return <div className="mt-6 h-16 rounded-2xl border border-border bg-muted/30 animate-pulse" />;
 
   return (
-    <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="mt-6 grid grid-cols-2 gap-3 max-w-xl">
       {ROLE_TABS.map((t) => {
         const c = state.counts[t.id] ?? 0;
         const cap = state.caps[t.id];
