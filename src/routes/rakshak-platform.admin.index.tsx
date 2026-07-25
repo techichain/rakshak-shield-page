@@ -647,6 +647,8 @@ function LeaderboardPanel({ rows, mentors }: { rows: Enriched[]; mentors: Mentor
           </table>
         </div>
       </div>
+      )}
+
     </div>
   );
 }
