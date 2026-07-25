@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getMentorTeamDetail } from "@/lib/rakshak-platform/mentor-team-detail.functions";
+import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
   Loader2,
@@ -292,9 +293,13 @@ function MentorTeamDetail() {
                         return (
                           <div key={s.id} className="rounded-xl border border-border p-4">
                             <div className="flex items-center justify-between gap-3 flex-wrap">
-                              <div className="font-medium flex items-center gap-2">
+                              <div className="font-medium flex items-center gap-2 flex-wrap">
                                 <FileText className="h-4 w-4" />
                                 {s.title ?? `Submission ${s.id.slice(0, 6)}`}
+                                <SubmissionKindBadge
+                                  documentType={s.document_type}
+                                  isFinal={s.is_final}
+                                />
                               </div>
                               <span className="text-xs px-2 py-0.5 rounded-full border border-border">
                                 {s.status}
