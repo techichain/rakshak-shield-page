@@ -105,70 +105,10 @@ function PhaseDetail() {
     }
   }
 
-  const status = (data.submission?.status ?? data.progress?.status ?? "not_started") as PhaseStatus;
+  const status = ((finalSlot?.submission?.status ??
+    (data as any)?.progress?.status ??
+    "not_started") as PhaseStatus);
   const meta = STATUS_META[status];
-  const editable =
-    !data.submission ||
-    status === "draft" ||
-    status === "changes_requested" ||
-    status === "rejected";
-
-  async function save() {
-    if (!title.trim()) { setErr("Title required"); return; }
-    setBusy(true); setErr(null); setMsg(null);
-    try {
-      await saveFn({ data: { team_id: team, phase_number: phaseNum, title, summary } });
-      qc.invalidateQueries({ queryKey: ["rp-submission", team, phaseNum] });
-      setMsg("Saved");
-    } catch (e: any) { setErr(e?.message ?? "Could not save"); }
-    finally { setBusy(false); }
-  }
-
-  async function submit() {
-    if (!data.submission) { setErr("Save a draft first."); return; }
-    if (!confirm("Submit this phase for mentor review? You will not be able to edit until they reply.")) return;
-    setBusy(true); setErr(null);
-    try {
-      await submitFn({ data: { submission_id: data.submission.id } });
-      qc.invalidateQueries({ queryKey: ["rp-submission", team, phaseNum] });
-      qc.invalidateQueries({ queryKey: ["rp-team-phases", team] });
-      setMsg("Submitted for review!");
-    } catch (e: any) { setErr(e?.message ?? "Could not submit"); }
-    finally { setBusy(false); }
-  }
-
-  async function uploadFile(file: File) {
-    if (!data.submission) { setErr("Save a draft first to upload files."); return; }
-    if (file.size > 30 * 1024 * 1024) { setErr("Max 30 MB."); return; }
-    setUploading(true); setErr(null);
-    try {
-      const path = `${team}/${data.submission.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage.from("rp-submissions").upload(path, file, { upsert: false });
-      if (upErr) throw upErr;
-      // 1h signed URL; readers should re-sign from storage_path for longer-lived access.
-      const { data: signed } = await supabase.storage.from("rp-submissions").createSignedUrl(path, 60 * 60);
-      await attachFn({
-        data: {
-          submission_id: data.submission.id,
-          file_name: file.name,
-          file_type: file.type,
-          file_url: signed?.signedUrl ?? path,
-          storage_path: path,
-          file_size: file.size,
-          caption: caption || undefined,
-        },
-      });
-      setCaption("");
-      qc.invalidateQueries({ queryKey: ["rp-submission", team, phaseNum] });
-    } catch (e: any) { setErr(e?.message ?? "Upload failed"); }
-    finally { setUploading(false); }
-  }
-
-  async function removeFile(id: string) {
-    if (!confirm("Remove this file?")) return;
-    await removeFn({ data: { file_id: id } });
-    qc.invalidateQueries({ queryKey: ["rp-submission", team, phaseNum] });
-  }
 
   return (
     <PlatformShell>
@@ -187,73 +127,29 @@ function PhaseDetail() {
 
         <div className="grid lg:grid-cols-3 gap-6 mt-6">
           <div className="lg:col-span-2 space-y-6">
-            <div className="rp-card p-5">
-              <label className="block">
-                <span className="text-sm font-medium">Title</span>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} disabled={!editable} maxLength={400} className="rp-input w-full mt-1" placeholder="Give your submission a clear title" />
-              </label>
-              <label className="block mt-4">
-                <span className="text-sm font-medium">Summary / Body</span>
-                <textarea value={summary} onChange={(e) => setSummary(e.target.value)} disabled={!editable} maxLength={8000} className="rp-input w-full min-h-56 mt-1" placeholder="Describe what you did this phase. Evidence, findings, next steps…" />
-              </label>
-              {editable && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button onClick={save} disabled={busy} className="rp-btn-secondary inline-flex items-center gap-1">
-                    <Save className="size-4" /> Save draft
-                  </button>
-                  <button onClick={submit} disabled={busy || !data.submission} className="rp-btn-primary inline-flex items-center gap-1">
-                    <Send className="size-4" /> Submit for review
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="rp-card p-5">
-              <h3 className="font-semibold mb-3">Evidence files</h3>
-              {data.submission ? (
-                <div className="space-y-3">
-                  {editable && (
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <input value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="Optional caption for next upload" className="rp-input flex-1" maxLength={500} />
-                      <label className="rp-btn-secondary inline-flex items-center gap-1 cursor-pointer">
-                        <Upload className="size-4" /> {uploading ? "Uploading…" : "Upload file"}
-                        <input type="file" hidden disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.currentTarget.value = ""; }} />
-                      </label>
-                    </div>
-                  )}
-                  {data.files.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No files yet.</p>
-                  ) : (
-                    <ul className="divide-y divide-border">
-                      {data.files.map((f: any) => (
-                        <li key={f.id} className="py-2 flex items-center gap-2">
-                          <FileText className="size-4 text-muted-foreground" />
-                          <a href={f.file_url} target="_blank" rel="noreferrer" className="text-sm text-brand hover:underline truncate flex-1">{f.file_name}</a>
-                          {f.caption && <span className="text-xs text-muted-foreground truncate max-w-[40%]">{f.caption}</span>}
-                          {editable && (
-                            <button onClick={() => removeFile(f.id)} className="text-muted-foreground hover:text-red-600">
-                              <X className="size-4" />
-                            </button>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Save a draft first to attach evidence files.</p>
-              )}
-            </div>
+            <p className="text-sm text-muted-foreground">
+              This phase has three slots. Drafts are for your own work-in-progress; only the
+              final submission goes to your mentor for review.
+            </p>
+            {slots.map((slot) => (
+              <PhaseSubmissionSlot
+                key={slot.key}
+                slot={slot}
+                teamId={team}
+                phaseNumber={phaseNum}
+                queryKey={slotsQueryKey}
+              />
+            ))}
           </div>
 
           <div className="space-y-6">
             <div className="rp-card p-5">
               <h3 className="font-semibold flex items-center gap-2 mb-3"><MessageSquare className="size-4" /> Mentor & evaluator feedback</h3>
-              {data.feedback.length === 0 ? (
+              {allFeedback.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No feedback yet.</p>
               ) : (
                 <ul className="space-y-3">
-                  {data.feedback.map((fb: any) => (
+                  {allFeedback.map((fb: any) => (
                     <li key={fb.id} className="text-sm border-l-2 border-brand pl-3">
                       <div className="text-xs text-muted-foreground">{fb.rp_profiles?.full_name ?? "Reviewer"} · {new Date(fb.created_at).toLocaleString()}</div>
                       <div className="whitespace-pre-line mt-1">{fb.content ?? fb.message}</div>
@@ -316,9 +212,6 @@ function PhaseDetail() {
               </div>
             )}
 
-            {data.submission?.id && (
-              <SubmissionTimeline submissionId={data.submission.id} />
-            )}
             <div className="rp-card p-5 text-sm space-y-2">
               <h3 className="font-semibold">Tips for this phase</h3>
               <ul className="list-disc list-inside text-muted-foreground space-y-1">
