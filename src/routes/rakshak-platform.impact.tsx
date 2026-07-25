@@ -296,10 +296,6 @@ function ImpactPage() {
               </table>
             </div>
             )}
-
-                </tbody>
-              </table>
-            </div>
           </Panel>
         )}
       </Section>
