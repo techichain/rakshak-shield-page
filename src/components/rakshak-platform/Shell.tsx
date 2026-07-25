@@ -282,7 +282,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             {userId ? (
               <>
                 <NotificationBell userId={userId} />
-                <NotificationBell userId={userId} />
                 <Link
                   to="/rakshak-platform/profile"
                   className="hidden sm:block text-xs text-muted-foreground hover:text-brand max-w-[10rem] truncate"
