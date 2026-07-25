@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Plus, X, Users, UserPlus, FolderPlus } from "lucide-react";
-import { AdminCreateTeamDialog } from "./AdminCreateTeamDialog";
+import { Plus, X, Users, UserPlus } from "lucide-react";
 
 /**
  * Floating speed-dial action button for admin screens.
@@ -9,7 +8,6 @@ import { AdminCreateTeamDialog } from "./AdminCreateTeamDialog";
  */
 export function AdminFAB() {
   const [open, setOpen] = useState(false);
-  const [teamOpen, setTeamOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,12 +20,12 @@ export function AdminFAB() {
     {
       label: "Create team",
       icon: Users,
-      onClick: () => { setOpen(false); setTeamOpen(true); },
+      onClick: () => { setOpen(false); navigate({ to: "/rakshak-platform/admin/teams/new" }); },
     },
     {
-      label: "Invite role",
+      label: "Mentor / evaluator login",
       icon: UserPlus,
-      onClick: () => { setOpen(false); navigate({ to: "/rakshak-platform/admin/access-requests" }); },
+      onClick: () => { setOpen(false); navigate({ to: "/rakshak-platform/admin/credentials" }); },
     },
   ];
 
