@@ -4,7 +4,7 @@ import {
   MapPin, BookOpen, Trophy, Sparkles, Users,
   ShieldCheck, ClipboardCheck, CalendarDays, GraduationCap, UsersRound,
   LayoutDashboard, FileText, UserCog, Wrench, Wallet, BellRing,
-  Mail, FolderOpen,
+  Mail, FolderOpen, Images,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -236,6 +236,8 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                 { to: "/rakshak-platform/team/phases", label: "Phases" },
                 { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                 { to: "/rakshak-platform/team/evidence", label: "Evidence & records", icon: FolderOpen },
+                { to: "/rakshak-platform/team/media", label: "Site media", icon: Images },
+
               ]} />
             )}
 
@@ -359,6 +361,8 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
                   { to: "/rakshak-platform/team/phases", label: "Phases", icon: ClipboardCheck },
                   { to: "/rakshak-platform/team/locations", label: "Locations", icon: MapPin },
                   { to: "/rakshak-platform/team/evidence", label: "Evidence & records", icon: FolderOpen },
+                  { to: "/rakshak-platform/team/media", label: "Site media", icon: Images },
+
                 ]} onPick={() => setMenuOpen(false)} />
               )}
 
