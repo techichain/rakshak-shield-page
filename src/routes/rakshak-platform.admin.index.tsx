@@ -1340,37 +1340,31 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
   },
 ];
 
-function AdminQuickAccess({ pendingCount }: { pendingCount: number }) {
+function AdminQuickAccess() {
   return (
     <section className="mb-10">
-      {/* Pending approvals hero — high-frequency action, made prominent */}
+      {/* Create a team — the single entry point for onboarding people */}
       <Link
-        to="/rakshak-platform/admin/access-requests"
+        to="/rakshak-platform/admin/teams/new"
         className="group relative block overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand to-brand/85 p-5 sm:p-6 text-brand-foreground shadow-sm hover:shadow-md transition-shadow"
       >
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4">
           <div className="h-12 w-12 rounded-full bg-brand-foreground/15 backdrop-blur grid place-items-center shrink-0">
-            <BellRing className="h-5 w-5" />
+            <Users className="h-5 w-5" />
           </div>
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-[0.18em] font-semibold opacity-80">
-              People · Pending approvals
+              People · Onboarding
             </div>
             <div className="mt-1 font-heading text-lg sm:text-xl font-bold leading-tight">
-              {pendingCount > 0
-                ? `${pendingCount} request${pendingCount === 1 ? "" : "s"} awaiting your review`
-                : "All caught up on approvals"}
+              Create a team
             </div>
             <div className="mt-0.5 text-xs sm:text-sm opacity-85">
-              Mentors, evaluators, team leaders, and email invites — bulk actions, CSV export, SLA badges.
+              Team, leader and members in one step — each with a login ID and password you hand out.
+              No self-registration, nothing to approve.
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-2 shrink-0">
-            {pendingCount > 0 && (
-              <span className="inline-flex h-7 min-w-[28px] px-2 items-center justify-center rounded-full bg-brand-foreground text-brand text-xs font-bold">
-                {pendingCount > 99 ? "99+" : pendingCount}
-              </span>
-            )}
             <span className="inline-flex items-center gap-1 text-xs font-semibold opacity-90 group-hover:opacity-100">
               Open
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -1378,6 +1372,7 @@ function AdminQuickAccess({ pendingCount }: { pendingCount: number }) {
           </div>
         </div>
       </Link>
+
 
       {/* Grouped admin tiles */}
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
