@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { computeTeamHealth } from "@/lib/rakshak-platform/admin-team-health";
 import { z } from "zod";
 
 async function assertAdmin(supabase: any, userId: string) {
@@ -34,6 +35,29 @@ export const listTeamsAdminOverview = createServerFn({ method: "GET" })
       membersByTeam.set(m.team_id, arr);
     }
 
+    const { data: progress } = ids.length
+      ? await supabaseAdmin
+          .from("rp_team_phase_progress")
+          .select("team_id, phase_number, status, deadline")
+          .in("team_id", ids)
+      : { data: [] as any[] };
+    const phasesByTeam = new Map<string, any[]>();
+    for (const p of progress ?? []) {
+      const arr = phasesByTeam.get(p.team_id) ?? [];
+      arr.push(p);
+      phasesByTeam.set(p.team_id, arr);
+    }
+
+    // Health / cluster — see admin-team-health.ts for the formula.
+    const health = computeTeamHealth(
+      (teams ?? []).map((t: any) => ({
+        id: t.id,
+        completion_percentage: t.completion_percentage,
+        score: t.final_score,
+        phases: phasesByTeam.get(t.id) ?? [],
+      })),
+    );
+
     // Rank by final_score (already sorted desc). Ties get same rank.
     let lastScore: number | null = null;
     let lastRank = 0;
@@ -43,15 +67,96 @@ export const listTeamsAdminOverview = createServerFn({ method: "GET" })
         lastRank = i + 1;
         lastScore = score;
       }
+      const h = health.get(t.id);
       return {
         ...t,
         rank: t.final_score == null ? null : lastRank,
         members: membersByTeam.get(t.id) ?? [],
         member_count: (membersByTeam.get(t.id) ?? []).length,
+        health: h?.health ?? 0,
+        cluster: h?.cluster ?? "needs_attention",
+        overdue_count: h?.overdue_count ?? 0,
       };
     });
 
     return { teams: ranked };
+  });
+
+/**
+ * Admin-only. Per-phase rank (across all teams), score and status for one team.
+ * Rank is computed by ranking every team's best submitted evaluation score for
+ * that phase; ties share a rank (competition ranking).
+ */
+export const getTeamPhaseRankings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ team_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [{ data: evals }, { data: progress }, { count: teamCount }] = await Promise.all([
+      supabaseAdmin
+        .from("rp_evaluations")
+        .select("team_id, phase_number, weighted_score, total_score, status")
+        .eq("status", "submitted"),
+      supabaseAdmin
+        .from("rp_team_phase_progress")
+        .select("phase_number, status, deadline, submitted_at, completion_percentage")
+        .eq("team_id", data.team_id),
+      supabaseAdmin.from("rp_teams").select("id", { count: "exact", head: true }),
+    ]);
+
+    // best weighted score per (team, phase)
+    const best = new Map<string, number>();
+    for (const e of evals ?? []) {
+      const k = `${e.phase_number}|${e.team_id}`;
+      const w = Number(e.weighted_score ?? e.total_score) || 0;
+      if (w > (best.get(k) ?? -Infinity)) best.set(k, w);
+    }
+
+    const progByPhase = new Map<number, any>();
+    for (const p of progress ?? []) progByPhase.set(Number(p.phase_number), p);
+
+    const rows = [0, 1, 2, 3, 4].map((phase) => {
+      const scores: Array<{ team_id: string; score: number }> = [];
+      for (const [k, v] of best) {
+        const [p, teamId] = k.split("|");
+        if (Number(p) === phase) scores.push({ team_id: teamId, score: v });
+      }
+      scores.sort((a, b) => b.score - a.score);
+
+      const mine = scores.find((s) => s.team_id === data.team_id) ?? null;
+      let rank: number | null = null;
+      if (mine) {
+        rank = scores.filter((s) => s.score > mine.score).length + 1;
+      }
+
+      const pr = progByPhase.get(phase) ?? null;
+      const now = Date.now();
+      let status: string = pr?.status ?? "not_started";
+      let timeliness: "on_time" | "late" | "overdue" | null = null;
+      if (pr?.deadline) {
+        const dl = new Date(pr.deadline).getTime();
+        if (pr.submitted_at) {
+          timeliness = new Date(pr.submitted_at).getTime() <= dl ? "on_time" : "late";
+        } else if (dl < now && !["completed", "admin_approved", "mentor_approved"].includes(status)) {
+          timeliness = "overdue";
+        }
+      }
+
+      return {
+        phase_number: phase,
+        rank,
+        of: scores.length,
+        score: mine ? Number(mine.score.toFixed(2)) : null,
+        status,
+        timeliness,
+        deadline: pr?.deadline ?? null,
+        submitted_at: pr?.submitted_at ?? null,
+      };
+    });
+
+    return { phases: rows, team_count: teamCount ?? 0 };
   });
 
 export const getAdminTeamDetail = createServerFn({ method: "GET" })

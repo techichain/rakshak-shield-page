@@ -17,6 +17,7 @@ import {
   createQuestionnaire,
   listQuestionnairesForTeam,
 } from "@/lib/rakshak-platform/questionnaires.functions";
+import { getTeamPhaseRankings } from "@/lib/rakshak-platform/admin-teams.functions";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
@@ -308,6 +309,9 @@ function AdminTeamDetail() {
                 <Card label="College" value={t.college ?? "—"} sub={[t.city, t.state].filter(Boolean).join(", ")} />
                 <Card label="Created" value={fmtDate(t.created_at)} />
               </div>
+
+              <PhaseRankingsPanel teamId={teamId} />
+
 
               <div className="rounded-2xl border border-border bg-card p-5">
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -1213,6 +1217,90 @@ function AddMemberPanel({ teamId, onAdded }: { teamId: string; onAdded: () => vo
             </button>
           </div>
         </form>
+      )}
+    </div>
+  );
+}
+
+/* ── Phase-by-phase performance (rank / score / status) ─────────────── */
+
+function phaseStatusPill(status: string, timeliness: string | null) {
+  if (timeliness === "overdue") return { label: "Overdue", tone: "bg-red-50 text-red-700 border-red-200" };
+  if (timeliness === "late") return { label: "Submitted late", tone: "bg-amber-50 text-amber-700 border-amber-200" };
+  if (["completed", "admin_approved"].includes(status))
+    return { label: "Completed", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  if (status === "mentor_approved")
+    return { label: "Mentor approved", tone: "bg-emerald-50 text-emerald-700 border-emerald-200" };
+  if (["changes_requested", "rejected"].includes(status))
+    return { label: "Needs revision", tone: "bg-amber-50 text-amber-700 border-amber-200" };
+  if (["submitted", "resubmitted", "under_mentor_review", "under_admin_review"].includes(status))
+    return { label: timeliness === "on_time" ? "Submitted on time" : "In review", tone: "bg-sky-50 text-sky-700 border-sky-200" };
+  if (status === "draft") return { label: "In progress", tone: "bg-muted text-muted-foreground border-border" };
+  return { label: "Not started", tone: "bg-muted text-muted-foreground border-border" };
+}
+
+function PhaseRankingsPanel({ teamId }: { teamId: string }) {
+  const fetchRankings = useServerFn(getTeamPhaseRankings);
+  const [rows, setRows] = useState<any[]>([]);
+  const [busy, setBusy] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = (await fetchRankings({ data: { team_id: teamId } } as any)) as any;
+        if (!cancelled) setRows(res?.phases ?? []);
+      } catch {
+        if (!cancelled) setRows([]);
+      } finally {
+        if (!cancelled) setBusy(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [fetchRankings, teamId]);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Phase-by-phase performance
+      </div>
+      {busy ? (
+        <p className="mt-2 text-sm text-muted-foreground">Loading…</p>
+      ) : (
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground border-b border-border">
+                <th className="py-2 pr-3 font-semibold">Phase</th>
+                <th className="py-2 pr-3 font-semibold">Rank</th>
+                <th className="py-2 pr-3 font-semibold">Score</th>
+                <th className="py-2 pr-3 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r: any) => {
+                const pill = phaseStatusPill(String(r.status ?? ""), r.timeliness ?? null);
+                return (
+                  <tr key={r.phase_number} className="border-b border-border/60 last:border-0">
+                    <td className="py-2 pr-3">
+                      Phase {r.phase_number}
+                      <div className="text-[11px] text-muted-foreground">{PHASE_TITLES[r.phase_number] ?? ""}</div>
+                    </td>
+                    <td className="py-2 pr-3 font-semibold">
+                      {r.rank ? `#${r.rank} of ${r.of}` : <span className="text-muted-foreground font-normal">—</span>}
+                    </td>
+                    <td className="py-2 pr-3 font-semibold">
+                      {r.score != null ? r.score : <span className="text-muted-foreground font-normal">Not evaluated</span>}
+                    </td>
+                    <td className="py-2 pr-3">
+                      <span className={`text-xs rounded-full border px-2 py-0.5 ${pill.tone}`}>{pill.label}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
