@@ -44,7 +44,7 @@ async function copy(text: string) {
 function AdminCredentialsPage() {
   const navigate = useNavigate();
   const { loading, userId, isAdmin } = useRPAuth();
-  const [tab, setTab] = useState<Role>("team_leader");
+  const [tab, setTab] = useState<Role>("mentor");
 
   useEffect(() => {
     if (loading) return;
