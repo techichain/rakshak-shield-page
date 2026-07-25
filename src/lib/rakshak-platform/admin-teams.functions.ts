@@ -516,7 +516,7 @@ export const createTeamWithCredentials = createServerFn({ method: "POST" })
     } catch (e) {
       // Roll back everything we created so the admin can retry cleanly.
       if (teamId) {
-        await supabaseAdmin.from("rp_team_members").delete().eq("team_id", teamId).catch?.(() => {});
+        try { await supabaseAdmin.from("rp_team_members").delete().eq("team_id", teamId); } catch { /* noop */ }
         await supabaseAdmin.from("rp_teams").delete().eq("id", teamId);
       }
       for (const uid of createdUserIds) {
