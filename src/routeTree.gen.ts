@@ -113,6 +113,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksRpNotifyDispatcherRouteImport } from './routes/api/public/hooks/rp-notify-dispatcher'
 import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
+import { Route as ApiPublicHooksRpDeadlineSweepRouteImport } from './routes/api/public/hooks/rp-deadline-sweep'
 import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
 import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
@@ -715,6 +716,12 @@ const ApiPublicHooksRpMeetingSelftestRoute =
     path: '/api/public/hooks/rp-meeting-selftest',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRpDeadlineSweepRoute =
+  ApiPublicHooksRpDeadlineSweepRouteImport.update({
+    id: '/api/public/hooks/rp-deadline-sweep',
+    path: '/api/public/hooks/rp-deadline-sweep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksResendWebhookRoute =
   ApiPublicHooksResendWebhookRouteImport.update({
     id: '/api/public/hooks/resend-webhook',
@@ -860,6 +867,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
+  '/api/public/hooks/rp-deadline-sweep': typeof ApiPublicHooksRpDeadlineSweepRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -963,6 +971,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
+  '/api/public/hooks/rp-deadline-sweep': typeof ApiPublicHooksRpDeadlineSweepRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1078,6 +1087,7 @@ export interface FileRoutesById {
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
+  '/api/public/hooks/rp-deadline-sweep': typeof ApiPublicHooksRpDeadlineSweepRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
   '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -1194,6 +1204,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
+    | '/api/public/hooks/rp-deadline-sweep'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
@@ -1297,6 +1308,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
+    | '/api/public/hooks/rp-deadline-sweep'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
@@ -1411,6 +1423,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
+    | '/api/public/hooks/rp-deadline-sweep'
     | '/api/public/hooks/rp-meeting-selftest'
     | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
@@ -1448,6 +1461,7 @@ export interface RootRouteChildren {
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
   ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
   ApiPublicHooksResendWebhookRoute: typeof ApiPublicHooksResendWebhookRoute
+  ApiPublicHooksRpDeadlineSweepRoute: typeof ApiPublicHooksRpDeadlineSweepRoute
   ApiPublicHooksRpMeetingSelftestRoute: typeof ApiPublicHooksRpMeetingSelftestRoute
   ApiPublicHooksRpNotifyDispatcherRoute: typeof ApiPublicHooksRpNotifyDispatcherRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -2185,6 +2199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRpMeetingSelftestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/rp-deadline-sweep': {
+      id: '/api/public/hooks/rp-deadline-sweep'
+      path: '/api/public/hooks/rp-deadline-sweep'
+      fullPath: '/api/public/hooks/rp-deadline-sweep'
+      preLoaderRoute: typeof ApiPublicHooksRpDeadlineSweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/resend-webhook': {
       id: '/api/public/hooks/resend-webhook'
       path: '/api/public/hooks/resend-webhook'
@@ -2590,6 +2611,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
   ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,
   ApiPublicHooksResendWebhookRoute: ApiPublicHooksResendWebhookRoute,
+  ApiPublicHooksRpDeadlineSweepRoute: ApiPublicHooksRpDeadlineSweepRoute,
   ApiPublicHooksRpMeetingSelftestRoute: ApiPublicHooksRpMeetingSelftestRoute,
   ApiPublicHooksRpNotifyDispatcherRoute: ApiPublicHooksRpNotifyDispatcherRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
