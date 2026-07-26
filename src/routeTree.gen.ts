@@ -74,6 +74,7 @@ import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './route
 import { Route as RakshakPlatformAdminSessionsRouteImport } from './routes/rakshak-platform.admin.sessions'
 import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
 import { Route as RakshakPlatformAdminResourcesRouteImport } from './routes/rakshak-platform.admin.resources'
+import { Route as RakshakPlatformAdminRanksRouteImport } from './routes/rakshak-platform.admin.ranks'
 import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
 import { Route as RakshakPlatformAdminMeetingsRouteImport } from './routes/rakshak-platform.admin.meetings'
 import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/rakshak-platform.admin.integrations'
@@ -488,6 +489,12 @@ const RakshakPlatformAdminResourcesRoute =
     path: '/resources',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminRanksRoute =
+  RakshakPlatformAdminRanksRouteImport.update({
+    id: '/ranks',
+    path: '/ranks',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminMentorApplicationsRoute =
   RakshakPlatformAdminMentorApplicationsRouteImport.update({
     id: '/mentor-applications',
@@ -825,6 +832,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
@@ -931,6 +939,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
@@ -1045,6 +1054,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
@@ -1162,6 +1172,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/integrations'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/sessions'
@@ -1268,6 +1279,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/integrations'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/sessions'
@@ -1381,6 +1393,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/integrations'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/sessions'
@@ -1926,6 +1939,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminResourcesRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/ranks': {
+      id: '/rakshak-platform/admin/ranks'
+      path: '/ranks'
+      fullPath: '/rakshak-platform/admin/ranks'
+      preLoaderRoute: typeof RakshakPlatformAdminRanksRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/mentor-applications': {
       id: '/rakshak-platform/admin/mentor-applications'
       path: '/mentor-applications'
@@ -2374,6 +2394,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminIntegrationsRoute: typeof RakshakPlatformAdminIntegrationsRoute
   RakshakPlatformAdminMeetingsRoute: typeof RakshakPlatformAdminMeetingsRoute
   RakshakPlatformAdminMentorApplicationsRoute: typeof RakshakPlatformAdminMentorApplicationsRoute
+  RakshakPlatformAdminRanksRoute: typeof RakshakPlatformAdminRanksRoute
   RakshakPlatformAdminResourcesRoute: typeof RakshakPlatformAdminResourcesRoute
   RakshakPlatformAdminReviewsRoute: typeof RakshakPlatformAdminReviewsRoute
   RakshakPlatformAdminSessionsRoute: typeof RakshakPlatformAdminSessionsRoute
@@ -2398,6 +2419,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminMeetingsRoute: RakshakPlatformAdminMeetingsRoute,
   RakshakPlatformAdminMentorApplicationsRoute:
     RakshakPlatformAdminMentorApplicationsRoute,
+  RakshakPlatformAdminRanksRoute: RakshakPlatformAdminRanksRoute,
   RakshakPlatformAdminResourcesRoute: RakshakPlatformAdminResourcesRoute,
   RakshakPlatformAdminReviewsRoute: RakshakPlatformAdminReviewsRoute,
   RakshakPlatformAdminSessionsRoute: RakshakPlatformAdminSessionsRoute,
