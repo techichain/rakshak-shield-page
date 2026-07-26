@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
-import { runIntegrationSmoke, type SmokeResult } from "@/lib/rakshak-platform/integrations.functions";
+import { runIntegrationSmoke, listScheduledJobStatus, type SmokeResult, type ScheduledJobStatus } from "@/lib/rakshak-platform/integrations.functions";
 import {
   Copy,
   CheckCircle2,
