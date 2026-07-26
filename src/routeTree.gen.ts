@@ -74,6 +74,7 @@ import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './route
 import { Route as RakshakPlatformAdminSessionsRouteImport } from './routes/rakshak-platform.admin.sessions'
 import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
 import { Route as RakshakPlatformAdminResourcesRouteImport } from './routes/rakshak-platform.admin.resources'
+import { Route as RakshakPlatformAdminRanksRouteImport } from './routes/rakshak-platform.admin.ranks'
 import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
 import { Route as RakshakPlatformAdminMeetingsRouteImport } from './routes/rakshak-platform.admin.meetings'
 import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/rakshak-platform.admin.integrations'
@@ -111,7 +112,9 @@ import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/r
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicHooksRpNotifyDispatcherRouteImport } from './routes/api/public/hooks/rp-notify-dispatcher'
 import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
+import { Route as ApiPublicHooksRpDeadlineSweepRouteImport } from './routes/api/public/hooks/rp-deadline-sweep'
 import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
 import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
 import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
@@ -486,6 +489,12 @@ const RakshakPlatformAdminResourcesRoute =
     path: '/resources',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminRanksRoute =
+  RakshakPlatformAdminRanksRouteImport.update({
+    id: '/ranks',
+    path: '/ranks',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminMentorApplicationsRoute =
   RakshakPlatformAdminMentorApplicationsRouteImport.update({
     id: '/mentor-applications',
@@ -702,10 +711,22 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRpNotifyDispatcherRoute =
+  ApiPublicHooksRpNotifyDispatcherRouteImport.update({
+    id: '/api/public/hooks/rp-notify-dispatcher',
+    path: '/api/public/hooks/rp-notify-dispatcher',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRpMeetingSelftestRoute =
   ApiPublicHooksRpMeetingSelftestRouteImport.update({
     id: '/api/public/hooks/rp-meeting-selftest',
     path: '/api/public/hooks/rp-meeting-selftest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksRpDeadlineSweepRoute =
+  ApiPublicHooksRpDeadlineSweepRouteImport.update({
+    id: '/api/public/hooks/rp-deadline-sweep',
+    path: '/api/public/hooks/rp-deadline-sweep',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksResendWebhookRoute =
@@ -811,6 +832,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
@@ -853,7 +875,9 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
+  '/api/public/hooks/rp-deadline-sweep': typeof ApiPublicHooksRpDeadlineSweepRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
+  '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -915,6 +939,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
@@ -955,7 +980,9 @@ export interface FileRoutesByTo {
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
+  '/api/public/hooks/rp-deadline-sweep': typeof ApiPublicHooksRpDeadlineSweepRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
+  '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -1027,6 +1054,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/integrations': typeof RakshakPlatformAdminIntegrationsRoute
   '/rakshak-platform/admin/meetings': typeof RakshakPlatformAdminMeetingsRoute
   '/rakshak-platform/admin/mentor-applications': typeof RakshakPlatformAdminMentorApplicationsRoute
+  '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
@@ -1069,7 +1097,9 @@ export interface FileRoutesById {
   '/api/public/hooks/meeting-reminders': typeof ApiPublicHooksMeetingRemindersRoute
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
+  '/api/public/hooks/rp-deadline-sweep': typeof ApiPublicHooksRpDeadlineSweepRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
+  '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -1142,6 +1172,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/integrations'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/sessions'
@@ -1184,7 +1215,9 @@ export interface FileRouteTypes {
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
+    | '/api/public/hooks/rp-deadline-sweep'
     | '/api/public/hooks/rp-meeting-selftest'
+    | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1246,6 +1279,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/integrations'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/sessions'
@@ -1286,7 +1320,9 @@ export interface FileRouteTypes {
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
+    | '/api/public/hooks/rp-deadline-sweep'
     | '/api/public/hooks/rp-meeting-selftest'
+    | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1357,6 +1393,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/integrations'
     | '/rakshak-platform/admin/meetings'
     | '/rakshak-platform/admin/mentor-applications'
+    | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
     | '/rakshak-platform/admin/sessions'
@@ -1399,7 +1436,9 @@ export interface FileRouteTypes {
     | '/api/public/hooks/meeting-reminders'
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
+    | '/api/public/hooks/rp-deadline-sweep'
     | '/api/public/hooks/rp-meeting-selftest'
+    | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1435,7 +1474,9 @@ export interface RootRouteChildren {
   ApiPublicHooksMeetingRemindersRoute: typeof ApiPublicHooksMeetingRemindersRoute
   ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
   ApiPublicHooksResendWebhookRoute: typeof ApiPublicHooksResendWebhookRoute
+  ApiPublicHooksRpDeadlineSweepRoute: typeof ApiPublicHooksRpDeadlineSweepRoute
   ApiPublicHooksRpMeetingSelftestRoute: typeof ApiPublicHooksRpMeetingSelftestRoute
+  ApiPublicHooksRpNotifyDispatcherRoute: typeof ApiPublicHooksRpNotifyDispatcherRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
@@ -1898,6 +1939,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminResourcesRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/ranks': {
+      id: '/rakshak-platform/admin/ranks'
+      path: '/ranks'
+      fullPath: '/rakshak-platform/admin/ranks'
+      preLoaderRoute: typeof RakshakPlatformAdminRanksRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/mentor-applications': {
       id: '/rakshak-platform/admin/mentor-applications'
       path: '/mentor-applications'
@@ -2157,11 +2205,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/rp-notify-dispatcher': {
+      id: '/api/public/hooks/rp-notify-dispatcher'
+      path: '/api/public/hooks/rp-notify-dispatcher'
+      fullPath: '/api/public/hooks/rp-notify-dispatcher'
+      preLoaderRoute: typeof ApiPublicHooksRpNotifyDispatcherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/rp-meeting-selftest': {
       id: '/api/public/hooks/rp-meeting-selftest'
       path: '/api/public/hooks/rp-meeting-selftest'
       fullPath: '/api/public/hooks/rp-meeting-selftest'
       preLoaderRoute: typeof ApiPublicHooksRpMeetingSelftestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/rp-deadline-sweep': {
+      id: '/api/public/hooks/rp-deadline-sweep'
+      path: '/api/public/hooks/rp-deadline-sweep'
+      fullPath: '/api/public/hooks/rp-deadline-sweep'
+      preLoaderRoute: typeof ApiPublicHooksRpDeadlineSweepRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/resend-webhook': {
@@ -2332,6 +2394,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminIntegrationsRoute: typeof RakshakPlatformAdminIntegrationsRoute
   RakshakPlatformAdminMeetingsRoute: typeof RakshakPlatformAdminMeetingsRoute
   RakshakPlatformAdminMentorApplicationsRoute: typeof RakshakPlatformAdminMentorApplicationsRoute
+  RakshakPlatformAdminRanksRoute: typeof RakshakPlatformAdminRanksRoute
   RakshakPlatformAdminResourcesRoute: typeof RakshakPlatformAdminResourcesRoute
   RakshakPlatformAdminReviewsRoute: typeof RakshakPlatformAdminReviewsRoute
   RakshakPlatformAdminSessionsRoute: typeof RakshakPlatformAdminSessionsRoute
@@ -2356,6 +2419,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminMeetingsRoute: RakshakPlatformAdminMeetingsRoute,
   RakshakPlatformAdminMentorApplicationsRoute:
     RakshakPlatformAdminMentorApplicationsRoute,
+  RakshakPlatformAdminRanksRoute: RakshakPlatformAdminRanksRoute,
   RakshakPlatformAdminResourcesRoute: RakshakPlatformAdminResourcesRoute,
   RakshakPlatformAdminReviewsRoute: RakshakPlatformAdminReviewsRoute,
   RakshakPlatformAdminSessionsRoute: RakshakPlatformAdminSessionsRoute,
@@ -2569,7 +2633,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksMeetingRemindersRoute: ApiPublicHooksMeetingRemindersRoute,
   ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,
   ApiPublicHooksResendWebhookRoute: ApiPublicHooksResendWebhookRoute,
+  ApiPublicHooksRpDeadlineSweepRoute: ApiPublicHooksRpDeadlineSweepRoute,
   ApiPublicHooksRpMeetingSelftestRoute: ApiPublicHooksRpMeetingSelftestRoute,
+  ApiPublicHooksRpNotifyDispatcherRoute: ApiPublicHooksRpNotifyDispatcherRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,

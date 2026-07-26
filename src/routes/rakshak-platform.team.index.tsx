@@ -13,6 +13,7 @@ import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedback
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
 import { AnnouncementsCard } from "@/components/rakshak-platform/AnnouncementsCard";
+import { TeamRankCard } from "@/components/rakshak-platform/TeamRankCard";
 import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
 export const Route = createFileRoute("/rakshak-platform/team/")({
@@ -296,6 +297,7 @@ function TeamDashboard() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <TeamRankCard teamId={team.id} phaseNumber={team.current_phase} />
           <AnnouncementsCard />
           <RecentMeetingNotesCard />
           <div className="rounded-2xl border border-border bg-card p-6">

@@ -145,3 +145,54 @@ export const runIntegrationSmoke = createServerFn({ method: "POST" })
 
     return { ran_at: new Date().toISOString(), results };
   });
+
+export type ScheduledJobStatus = {
+  key: string;
+  name: string;
+  description: string;
+  last_run_at: string | null;
+  last_status: string | null;
+  next_run_hint: string;
+};
+
+const SCHEDULED_JOBS: { key: string; name: string; description: string; every: string }[] = [
+  {
+    key: "rp-notify-dispatcher",
+    name: "Notifications dispatcher",
+    description: "Emails out the alerts people see in the portal (doubts, bookings, ranks).",
+    every: "every 5 minutes",
+  },
+  {
+    key: "rp-deadline-sweep",
+    name: "Deadline reminders",
+    description: "Warns teams 3 days before a phase deadline and flags missed ones.",
+    every: "every hour",
+  },
+];
+
+/** Last-run status for the Phase E scheduled jobs, read from our own run log. */
+export const listScheduledJobStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const out: ScheduledJobStatus[] = [];
+    for (const job of SCHEDULED_JOBS) {
+      const { data } = await supabaseAdmin
+        .from("rp_cron_runs")
+        .select("started_at, status")
+        .eq("hook_name", job.key)
+        .order("started_at", { ascending: false })
+        .limit(1);
+      const row = data?.[0] as any;
+      out.push({
+        key: job.key,
+        name: job.name,
+        description: job.description,
+        last_run_at: row?.started_at ?? null,
+        last_status: row?.status ?? null,
+        next_run_hint: `Runs ${job.every}`,
+      });
+    }
+    return { jobs: out };
+  });
