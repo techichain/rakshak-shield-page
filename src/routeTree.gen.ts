@@ -111,6 +111,7 @@ import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/r
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicHooksRpNotifyDispatcherRouteImport } from './routes/api/public/hooks/rp-notify-dispatcher'
 import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
 import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
 import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
@@ -702,6 +703,12 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRpNotifyDispatcherRoute =
+  ApiPublicHooksRpNotifyDispatcherRouteImport.update({
+    id: '/api/public/hooks/rp-notify-dispatcher',
+    path: '/api/public/hooks/rp-notify-dispatcher',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRpMeetingSelftestRoute =
   ApiPublicHooksRpMeetingSelftestRouteImport.update({
     id: '/api/public/hooks/rp-meeting-selftest',
@@ -854,6 +861,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
+  '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -956,6 +964,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
+  '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -1070,6 +1079,7 @@ export interface FileRoutesById {
   '/api/public/hooks/mentor-upload': typeof ApiPublicHooksMentorUploadRoute
   '/api/public/hooks/resend-webhook': typeof ApiPublicHooksResendWebhookRoute
   '/api/public/hooks/rp-meeting-selftest': typeof ApiPublicHooksRpMeetingSelftestRoute
+  '/api/public/hooks/rp-notify-dispatcher': typeof ApiPublicHooksRpNotifyDispatcherRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -1185,6 +1195,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
+    | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1287,6 +1298,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
+    | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1400,6 +1412,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/mentor-upload'
     | '/api/public/hooks/resend-webhook'
     | '/api/public/hooks/rp-meeting-selftest'
+    | '/api/public/hooks/rp-notify-dispatcher'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -1436,6 +1449,7 @@ export interface RootRouteChildren {
   ApiPublicHooksMentorUploadRoute: typeof ApiPublicHooksMentorUploadRoute
   ApiPublicHooksResendWebhookRoute: typeof ApiPublicHooksResendWebhookRoute
   ApiPublicHooksRpMeetingSelftestRoute: typeof ApiPublicHooksRpMeetingSelftestRoute
+  ApiPublicHooksRpNotifyDispatcherRoute: typeof ApiPublicHooksRpNotifyDispatcherRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
@@ -2157,6 +2171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/rp-notify-dispatcher': {
+      id: '/api/public/hooks/rp-notify-dispatcher'
+      path: '/api/public/hooks/rp-notify-dispatcher'
+      fullPath: '/api/public/hooks/rp-notify-dispatcher'
+      preLoaderRoute: typeof ApiPublicHooksRpNotifyDispatcherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/rp-meeting-selftest': {
       id: '/api/public/hooks/rp-meeting-selftest'
       path: '/api/public/hooks/rp-meeting-selftest'
@@ -2570,6 +2591,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksMentorUploadRoute: ApiPublicHooksMentorUploadRoute,
   ApiPublicHooksResendWebhookRoute: ApiPublicHooksResendWebhookRoute,
   ApiPublicHooksRpMeetingSelftestRoute: ApiPublicHooksRpMeetingSelftestRoute,
+  ApiPublicHooksRpNotifyDispatcherRoute: ApiPublicHooksRpNotifyDispatcherRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
