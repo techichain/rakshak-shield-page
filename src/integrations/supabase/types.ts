@@ -3463,6 +3463,7 @@ export type Database = {
         Row: {
           action_link: string | null
           created_at: string
+          email_sent_at: string | null
           id: string
           is_read: boolean
           message: string | null
@@ -3475,6 +3476,7 @@ export type Database = {
         Insert: {
           action_link?: string | null
           created_at?: string
+          email_sent_at?: string | null
           id?: string
           is_read?: boolean
           message?: string | null
@@ -3487,6 +3489,7 @@ export type Database = {
         Update: {
           action_link?: string | null
           created_at?: string
+          email_sent_at?: string | null
           id?: string
           is_read?: boolean
           message?: string | null
@@ -3497,6 +3500,61 @@ export type Database = {
           type?: string
         }
         Relationships: []
+      }
+      rp_phase_ranks: {
+        Row: {
+          cohort_id: string | null
+          computed_at: string
+          id: string
+          notified_at: string | null
+          phase_number: number
+          rank: number
+          score: number | null
+          team_id: string
+        }
+        Insert: {
+          cohort_id?: string | null
+          computed_at?: string
+          id?: string
+          notified_at?: string | null
+          phase_number: number
+          rank: number
+          score?: number | null
+          team_id: string
+        }
+        Update: {
+          cohort_id?: string | null
+          computed_at?: string
+          id?: string
+          notified_at?: string | null
+          phase_number?: number
+          rank?: number
+          score?: number | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_phase_ranks_cohort_id_fkey"
+            columns: ["cohort_id"]
+            isOneToOne: false
+            referencedRelation: "rp_cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_phase_ranks_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_leaderboard_view"
+            referencedColumns: ["team_id"]
+          },
+          {
+            foreignKeyName: "rp_phase_ranks_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "rp_teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rp_phase_templates: {
         Row: {
