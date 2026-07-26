@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { runIntegrationSmoke, listScheduledJobStatus, type SmokeResult, type ScheduledJobStatus } from "@/lib/rakshak-platform/integrations.functions";
@@ -99,6 +99,23 @@ function IntegrationsPage() {
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const smoke = useServerFn(runIntegrationSmoke);
+  const jobsFn = useServerFn(listScheduledJobStatus);
+  const [jobs, setJobs] = useState<ScheduledJobStatus[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = (await jobsFn({} as any)) as any;
+        if (!cancelled) setJobs(res?.jobs ?? []);
+      } catch {
+        // status panel is enrichment only
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [jobsFn]);
 
   function copy(text: string, key: string) {
     navigator.clipboard?.writeText(text);
@@ -231,6 +248,28 @@ function IntegrationsPage() {
               </li>
             );
           })}
+        </ul>
+
+        <h2 className="mt-16 font-heading text-2xl">Automatic background jobs</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          These run on their own in the background. If one hasn&apos;t run recently, tell your developer.
+        </p>
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 list-none p-0">
+          {jobs.map((j) => (
+            <li key={j.key} className="rounded-2xl border border-border bg-background p-5">
+              <div className="font-heading text-foreground">{j.name}</div>
+              <p className="mt-2 text-sm text-muted-foreground">{j.description}</p>
+              <p className="mt-3 text-sm">
+                {j.last_run_at
+                  ? `Last ran ${new Date(j.last_run_at).toLocaleString()}${j.last_status && j.last_status !== "ok" ? " — with a problem" : ""}`
+                  : "Hasn't run yet"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{j.next_run_hint}</p>
+            </li>
+          ))}
+          {jobs.length === 0 && (
+            <li className="text-sm text-muted-foreground">No background job history yet.</li>
+          )}
         </ul>
 
         <h2 className="mt-16 font-heading text-2xl">Optional add-ons — not set up yet</h2>
