@@ -90,15 +90,17 @@ function TeamDashboard() {
           <div className="mt-8">
             <EmptyState
               icon={UsersRound}
-              title="No team assigned yet"
-              description="You're registered as a team leader. A CFI admin will create your team and assign you a mentor. Once that's done your phase timeline will appear here."
+              title="You're not linked to a team yet."
+              description="Your account isn't currently attached to any Project Rakshak team. If this is unexpected, ask a programme admin to add you to a team."
               action={{ label: "Go to platform home", to: "/rakshak-platform" }}
+              secondaryAction={{ label: "Switch account", to: "/rakshak-platform/auth" }}
             />
           </div>
         </Section>
       </PlatformShell>
     );
   }
+
 
 
   return (
