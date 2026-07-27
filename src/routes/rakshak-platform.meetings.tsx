@@ -219,7 +219,7 @@ function MeetingsPage() {
           scheduled_start: new Date(String(fd.get("scheduled_start"))).toISOString(),
           scheduled_end: new Date(String(fd.get("scheduled_end"))).toISOString(),
           meeting_link: String(fd.get("meeting_link") || ""),
-          location: String(fd.get("location") || ""),
+          
           status: "proposed",
           invitee_ids: [],
           extra_emails: extraEmails,
@@ -372,6 +372,18 @@ function MeetingsPage() {
           Automatic email reminders fire 24h, 1h, and 30min before every meeting.
         </p>
 
+        <div className="mt-10 flex flex-wrap gap-2">
+          {(["upcoming", "calendar", "past"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-wide ${view === v ? "border-brand bg-brand text-brand-foreground" : "border-border hover:border-brand/40"}`}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+
         {pendingData?.pending?.length ? (
           <div className="mt-8 rounded-2xl border border-amber-300 bg-amber-50 p-5">
             <div className="flex items-center gap-2">
@@ -505,7 +517,7 @@ function MeetingsPage() {
               <input name="meeting_link" type="url" placeholder="Google Meet / video link (optional)" className="rp-input" />
               <input name="scheduled_start" type="datetime-local" required className="rp-input" />
               <input name="scheduled_end" type="datetime-local" required className="rp-input" />
-              <input name="location" placeholder="Physical location (optional)" className="rp-input md:col-span-2" />
+              
               <textarea name="agenda" rows={2} placeholder="Agenda" maxLength={4000} className="rp-input md:col-span-2" />
               {teamIdSelected === "__all__" && isMentor && type === "team_mentor" && (
                 <div className="md:col-span-2 rounded-xl border border-border bg-muted/30 p-4">
@@ -567,17 +579,8 @@ function MeetingsPage() {
           </form>
         )}
 
-        <div className="mt-10 flex flex-wrap gap-2">
-          {(["upcoming", "calendar", "past"] as const).map((v) => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              className={`rounded-full border px-4 py-1.5 text-xs uppercase tracking-wide ${view === v ? "border-brand bg-brand text-brand-foreground" : "border-border hover:border-brand/40"}`}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
+
+
 
         {view === "calendar" ? (
           <div className="mt-6 rounded-2xl border border-border bg-background p-4">
