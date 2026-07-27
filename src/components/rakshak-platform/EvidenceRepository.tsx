@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { ScrollText } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -344,11 +346,19 @@ export function EvidenceRepository({
       {loading ? (
         <p className="mt-4 text-sm text-muted-foreground">Loading records…</p>
       ) : records.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          {readOnly
-            ? "This team has not added any records yet."
-            : "No records yet. Add your first one above."}
-        </p>
+        readOnly ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            This team has not added any records yet.
+          </p>
+        ) : (
+          <EmptyState
+            className="mt-4"
+            icon={ScrollText}
+            title="No records yet"
+            description="Add your first RTI, FIR, crash-data or media evidence for this team. Everything you file lands here."
+            action={{ label: "Add record", onClick: () => setShowForm(true) }}
+          />
+        )
       ) : (
         <div className="mt-5 space-y-6">
           {grouped.map((g) => (
