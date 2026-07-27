@@ -130,13 +130,14 @@ function LeaderboardPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Submitted from</label>
+            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Cohort start</label>
             <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 h-10 rounded-lg border border-border bg-background px-3 text-sm" />
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Submitted to</label>
+            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Deadline before</label>
             <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 h-10 rounded-lg border border-border bg-background px-3 text-sm" />
           </div>
+
           {(phase !== "all" || from || to) && (
             <button
               onClick={() => { setPhase("all"); setFrom(""); setTo(""); }}
