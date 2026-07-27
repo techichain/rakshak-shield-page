@@ -170,7 +170,13 @@ function LeaderboardPage() {
         {isLoading ? (
           <p className="mt-12 text-sm text-muted-foreground">Loading rankings…</p>
         ) : rows.length === 0 ? (
-          <p className="mt-12 text-sm text-muted-foreground">No scored teams in this scope.</p>
+          <EmptyState
+            className="mt-12"
+            icon={Trophy}
+            title="No ranks yet for this phase"
+            description="As teams complete this phase and are evaluated, the leaderboard will populate here."
+          />
+
         ) : (
           <>
             {podium.length > 0 && (
