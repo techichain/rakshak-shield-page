@@ -169,6 +169,7 @@ function MobileGroup({
   items: NavItem[];
   onPick: () => void;
 }) {
+  const isActive = useIsActive();
   return (
     <div>
       <div className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -177,14 +178,15 @@ function MobileGroup({
       <div className="grid gap-0.5">
         {items.map((item) => {
           const Icon = item.icon;
+          const active = isActive(item.to);
           return (
             <Link
               key={item.to}
               to={item.to}
               onClick={onPick}
-              activeOptions={{ exact: false }}
-              activeProps={{ className: "!bg-brand-lite !text-brand font-semibold" }}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:bg-muted/60"
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-muted/60 ${
+                active ? "bg-brand-lite text-brand font-semibold" : "text-foreground"
+              }`}
             >
               {Icon && <Icon className="h-4 w-4 shrink-0 opacity-70" />}
               <span>{item.label}</span>
@@ -195,6 +197,7 @@ function MobileGroup({
     </div>
   );
 }
+
 
 
 export function PlatformShell({
