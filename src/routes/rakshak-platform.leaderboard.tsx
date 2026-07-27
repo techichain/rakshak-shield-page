@@ -88,10 +88,14 @@ function LeaderboardPage() {
           The teams making roads
           <br /><span className="text-brand">safer.</span>
         </h1>
-        <p className="mt-6 max-w-2xl text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          See how teams are ranking against each other across phases. Ranks update after evaluations are finalised.
+        </p>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
           Weighted scores across all five phases of Project Rakshak. Filter by phase or evaluation window
           to recalibrate the standings, then export the result.
         </p>
+
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <button
