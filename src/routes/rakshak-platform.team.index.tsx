@@ -14,6 +14,8 @@ import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeet
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
 import { AnnouncementsCard } from "@/components/rakshak-platform/AnnouncementsCard";
 import { TeamRankCard } from "@/components/rakshak-platform/TeamRankCard";
+import { TeamProgressCard } from "@/components/rakshak-platform/TeamProgressCard";
+
 import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
 export const Route = createFileRoute("/rakshak-platform/team/")({
@@ -90,15 +92,17 @@ function TeamDashboard() {
           <div className="mt-8">
             <EmptyState
               icon={UsersRound}
-              title="No team assigned yet"
-              description="You're registered as a team leader. A CFI admin will create your team and assign you a mentor. Once that's done your phase timeline will appear here."
+              title="You're not linked to a team yet."
+              description="Your account isn't currently attached to any Project Rakshak team. If this is unexpected, ask a programme admin to add you to a team."
               action={{ label: "Go to platform home", to: "/rakshak-platform" }}
+              secondaryAction={{ label: "Switch account", to: "/rakshak-platform/auth" }}
             />
           </div>
         </Section>
       </PlatformShell>
     );
   }
+
 
 
   return (
@@ -297,7 +301,9 @@ function TeamDashboard() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <TeamProgressCard teamId={team.id} phaseNumber={team.current_phase} />
           <TeamRankCard teamId={team.id} phaseNumber={team.current_phase} />
+
           <AnnouncementsCard />
           <RecentMeetingNotesCard />
           <div className="rounded-2xl border border-border bg-card p-6">
