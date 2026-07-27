@@ -105,7 +105,7 @@ function EvaluatorQueue() {
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
           <Stat label="To review" value={pending.length} icon={<FileEdit className="h-4 w-4" />} tone="amber" />
           <Stat label="Completed by you" value={done.length} icon={<CheckCircle2 className="h-4 w-4" />} tone="emerald" />
-          <Stat label="Total in pipeline" value={items.length} icon={<Star className="h-4 w-4" />} tone="brand" />
+          <Stat label="All reviewable submissions" value={items.length} icon={<Star className="h-4 w-4" />} tone="brand" />
         </div>
 
         {/* Tabs + filters */}

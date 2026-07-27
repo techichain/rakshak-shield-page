@@ -142,7 +142,14 @@ function MobileGroup({
 }
 
 
-export function PlatformShell({ children }: { children: React.ReactNode }) {
+export function PlatformShell({
+  children,
+  hideMenu = false,
+}: {
+  children: React.ReactNode;
+  /** Hides the hamburger/side menu entirely. Defaults to existing behaviour. */
+  hideMenu?: boolean;
+}) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const evaluatorOnly = isEvaluator && !isAdmin && !isMentor && !isTeam && !isAuthority && !isFinance;
