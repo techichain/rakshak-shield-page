@@ -108,6 +108,9 @@ function NavDropdown({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const open = openId === id;
+  const isActive = useIsActive();
+  const navMatch = items.find((i) => isActive(i.to))?.to ?? null;
+
 
   useEffect(() => {
     if (!open) return;
