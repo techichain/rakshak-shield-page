@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ChevronDown, LogOut, Menu, X,
   MapPin, BookOpen, Trophy, Sparkles, Users,
@@ -19,19 +19,74 @@ import cfiLogoWhite from "@/assets/brand/cfi-logo-white.svg";
 
 type NavItem = { to: string; label: string; icon?: LucideIcon; desc?: string };
 
-function NavLink({ to, label, icon: Icon }: { to: string; label: string; icon?: LucideIcon }) {
+/** Every destination reachable from the shell nav — used to pick the single
+ *  best (longest) match for the current route so only one entry highlights. */
+const NAV_PATHS = [
+  "/rakshak-platform/map",
+  "/rakshak-platform/knowledge",
+  "/rakshak-platform/leaderboard",
+  "/rakshak-platform/impact",
+  "/rakshak-platform/mentors",
+  "/rakshak-platform/mails",
+  "/rakshak-platform/authority",
+  "/rakshak-platform/evaluator",
+  "/rakshak-platform/mentor",
+  "/rakshak-platform/mentor/resources",
+  "/rakshak-platform/team",
+  "/rakshak-platform/team/phases",
+  "/rakshak-platform/team/locations",
+  "/rakshak-platform/team/evidence",
+  "/rakshak-platform/team/media",
+  "/rakshak-platform/team/updates",
+  "/rakshak-platform/team/book-admin",
+  "/rakshak-platform/admin",
+  "/rakshak-platform/admin/certificates",
+  "/rakshak-platform/admin/teams",
+  "/rakshak-platform/admin/teams/new",
+  "/rakshak-platform/admin/credentials",
+  "/rakshak-platform/admin/meetings",
+  "/rakshak-platform/admin/sessions",
+  "/rakshak-platform/admin/evaluator-leaderboard",
+  "/rakshak-platform/admin/ranks",
+  "/rakshak-platform/admin/reviews",
+  "/rakshak-platform/admin/analytics",
+  "/rakshak-platform/admin/data",
+  "/rakshak-platform/admin/integrations",
+];
+
+function bestNavMatch(pathname: string): string | null {
+  const clean = pathname.replace(/\/+$/, "") || "/";
+  let best: string | null = null;
+  for (const p of NAV_PATHS) {
+    if (clean === p || clean.startsWith(p + "/")) {
+      if (!best || p.length > best.length) best = p;
+    }
+  }
+  return best;
+}
+
+function useIsActive() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const best = bestNavMatch(pathname);
+  return (to: string) => best === to.replace(/\/+$/, "");
+}
+
+function NavLink({ to, label, icon: Icon, active }: { to: string; label: string; icon?: LucideIcon; active?: boolean }) {
   return (
     <Link
       to={to}
-      activeOptions={{ exact: false }}
-      activeProps={{ className: "!text-brand !bg-white shadow-sm font-semibold ring-1 ring-brand/20" }}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-slate-700 hover:text-brand hover:bg-white hover:shadow-sm transition-all"
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all ${
+        active
+          ? "text-brand bg-white shadow-sm font-semibold ring-1 ring-brand/20"
+          : "text-slate-700 hover:text-brand hover:bg-white hover:shadow-sm"
+      }`}
     >
       {Icon && <Icon className="h-3.5 w-3.5" />}
       {label}
     </Link>
   );
 }
+
 
 function NavDropdown({
   label,
