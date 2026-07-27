@@ -5,7 +5,7 @@ import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { LocationMap, type MapMarker } from "@/components/rakshak-platform/LocationMap";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
-import { MapPin, Plus, Star, ChevronRight, Crosshair } from "lucide-react";
+import { MapPin, Plus, Star, ChevronRight, Crosshair, AlertOctagon } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/team/locations/")({
   ssr: false,
@@ -38,6 +38,7 @@ function TeamLocationsIndex() {
   const [activePhase, setActivePhase] = useState<number | null>(null);
   const [geoBusy, setGeoBusy] = useState(false);
   const [geoErr, setGeoErr] = useState<string | null>(null);
+  const [loadErr, setLoadErr] = useState<string | null>(null);
 
   // form state
   const [form, setForm] = useState({
@@ -63,21 +64,32 @@ function TeamLocationsIndex() {
   }, [loading, userId, isTeam, navigate]);
 
   async function load() {
-    const { data: t } = await supabase
+    setLoadErr(null);
+    try {
+      await loadInner();
+    } catch (e: any) {
+      setLoadErr(e?.message ? String(e.message) : "Something went wrong.");
+    }
+  }
+
+  async function loadInner() {
+    const { data: t, error: teamErr } = await supabase
       .from("rp_teams")
       .select("*")
       .eq("team_leader_id", userId!)
       .maybeSingle();
+    if (teamErr) throw teamErr;
     setTeam(t);
     if (!t) return;
     setForm((f) => ({ ...f, city: t.city ?? "", state: t.state ?? "" }));
     setActivePhase((prev) => (prev == null ? (t.current_phase ?? 0) : prev));
-    const { data: l } = await supabase
+    const { data: l, error: locErr } = await supabase
       .from("rp_locations")
       .select("*")
       .eq("team_id", t.id)
       .order("priority_rank", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false });
+    if (locErr) throw locErr;
     setLocs(l ?? []);
   }
 
@@ -182,8 +194,52 @@ function TeamLocationsIndex() {
     void load();
   }
 
+  if (loadErr) {
+    return (
+      <PlatformShell>
+        <Section>
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-destructive/10 text-destructive">
+              <AlertOctagon className="h-5 w-5" />
+            </div>
+            <h2 className="mt-4 font-heading text-xl font-semibold">
+              Couldn&apos;t load your locations
+            </h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+              {loadErr.slice(0, 200)}
+            </p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-6 h-10 rounded-full bg-brand px-5 text-sm font-semibold text-brand-foreground hover:bg-brand/90"
+            >
+              Try again
+            </button>
+          </div>
+        </Section>
+      </PlatformShell>
+    );
+  }
+
   if (loading || !team) {
-    return <PlatformShell><Section>Loading…</Section></PlatformShell>;
+    return (
+      <PlatformShell>
+        <Section>
+          <div className="h-4 w-40 rounded bg-muted animate-pulse" />
+          <div className="mt-6 h-10 w-2/3 max-w-lg rounded bg-muted animate-pulse" />
+          <div className="mt-10 space-y-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-6">
+                <div className="h-5 w-1/3 rounded bg-muted animate-pulse" />
+                <div className="mt-4 h-3 w-1/2 rounded bg-muted animate-pulse" />
+                <div className="mt-3 h-3 w-2/5 rounded bg-muted animate-pulse" />
+                <div className="mt-4 h-6 w-24 rounded-full bg-muted animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </Section>
+      </PlatformShell>
+    );
   }
 
   return (
