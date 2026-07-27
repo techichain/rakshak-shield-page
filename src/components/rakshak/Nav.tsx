@@ -14,7 +14,8 @@ export function Nav({ onReport, onPetition }: Props) {
       <div className="nav-left">
         <img
           className="nav-logo-img"
-          src={LOGO_DATA_URI}
+          style={{ filter: "none" }}
+          src={cfiLogoWhite}
           alt="Crashfree India"
           title="Crashfree India — A Cars24 Commitment"
         />
