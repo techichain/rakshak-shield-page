@@ -13,6 +13,9 @@ import { useRPAuth, rpSignOut } from "@/lib/rakshak-platform/auth";
 import { NotificationBell } from "@/components/rakshak-platform/NotificationBell";
 
 import { GlobalSearch } from "@/components/rakshak-platform/GlobalSearch";
+import cfiLogoPrimary from "@/assets/brand/cfi-logo-primary.svg";
+import cfiLogoWhite from "@/assets/brand/cfi-logo-white.svg";
+
 
 type NavItem = { to: string; label: string; icon?: LucideIcon; desc?: string };
 
