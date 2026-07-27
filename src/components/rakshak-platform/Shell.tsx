@@ -292,7 +292,19 @@ export function PlatformShell({
           <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
             {!evaluatorOnly && (
               <>
-                {!mentorOnly && <NavLink to="/rakshak-platform/map" label="Hotspots" icon={MapPin} />}
+                {!mentorOnly && (
+                  <NavLink
+                    to="/rakshak-platform/map"
+                    icon={MapPin}
+                    label={
+                      <>
+                        <span className="lg:hidden">Unsafe locations</span>
+                        <span className="hidden lg:inline">Unsafe Road Locations</span>
+                      </>
+                    }
+                  />
+                )}
+
                 {!mentorOnly && <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />}
                 <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
