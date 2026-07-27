@@ -8,7 +8,7 @@ import {
   TrendingUp, Users, Trophy, AlertTriangle, ChevronUp, ChevronDown,
   LayoutGrid, Table as TableIcon, BarChart3, ListChecks, Plus, Mail, X, BellRing,
   ArrowRight, BookOpen, ClipboardCheck, FileText, GraduationCap, HeartHandshake,
-  MapPin, ScanSearch, UserCog, Wallet, Wrench, type LucideIcon,
+  MapPin, ScanSearch, UserCog, Upload, Wallet, Wrench, type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CLUSTER_META, CLUSTER_ORDER, computeTeamHealth } from "@/lib/rakshak-platform/admin-team-health";
