@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getLeaderboard } from "@/lib/rakshak-platform/evaluations.functions";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
+
 import { Trophy, MapPin, Download, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/leaderboard")({
