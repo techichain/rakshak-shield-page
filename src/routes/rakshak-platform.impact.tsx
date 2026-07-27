@@ -312,7 +312,9 @@ function ImpactPage() {
               </table>
             </div>
             )}
+            <DetailsLink to="/rakshak-platform/impact/cities" />
           </Panel>
+
         )}
       </Section>
 
