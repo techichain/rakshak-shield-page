@@ -8,7 +8,7 @@ import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { getEvaluatorQueue } from "@/lib/rakshak-platform/evaluations.functions";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
-  CheckCircle2, FileEdit, Star, Loader2, Search,
+  CheckCircle2, FileEdit, Star, Loader2, Search, FolderOpen,
   ArrowRight, ScanSearch, Clock, AlertTriangle,
 } from "lucide-react";
 
