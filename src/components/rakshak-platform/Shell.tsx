@@ -141,14 +141,17 @@ function NavDropdown({
         <div className="absolute right-0 top-full mt-2 min-w-[14rem] rounded-xl border border-border bg-background shadow-xl shadow-foreground/10 p-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
           {items.map((item) => {
             const IIcon = item.icon;
+            const itemActive = navMatch === item.to;
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpenId(null)}
-                activeProps={{ className: "bg-brand-lite text-brand" }}
-                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-foreground hover:bg-brand-lite hover:text-brand whitespace-nowrap"
+                className={`flex items-start gap-2.5 rounded-md px-3 py-2 text-sm hover:bg-brand-lite hover:text-brand whitespace-nowrap ${
+                  itemActive ? "bg-brand-lite text-brand" : "text-foreground"
+                }`}
               >
+
                 {IIcon && <IIcon className="h-4 w-4 mt-0.5 shrink-0 opacity-70" />}
                 <span className="flex flex-col">
                   <span className="leading-tight">{item.label}</span>
