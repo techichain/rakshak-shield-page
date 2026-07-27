@@ -10,7 +10,8 @@ import {
   bookAdminSlot,
 } from "@/lib/rakshak-platform/admin-meetings.functions";
 import { formatMeetingWhen } from "@/lib/rakshak-platform/meeting-time";
-import { Loader2, CalendarDays } from "lucide-react";
+import { Loader2, CalendarDays, CalendarPlus } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 
 export const Route = createFileRoute("/rakshak-platform/team/book-admin")({
   ssr: false,
@@ -88,9 +89,12 @@ function BookAdminPage() {
             No team is linked to your account yet.
           </p>
         ) : slots.length === 0 ? (
-          <p className="mt-8 text-sm text-muted-foreground">
-            No open programme-team slots right now. Check back soon.
-          </p>
+          <EmptyState
+            className="mt-8"
+            icon={CalendarPlus}
+            title="No admin slots open right now"
+            description="The programme team hasn't published any slots yet. Check back later, or watch for a broadcast announcement."
+          />
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             <ul className="space-y-2 lg:col-span-2">

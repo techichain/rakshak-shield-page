@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { MessageSquare } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -262,11 +264,18 @@ export function TeamUpdates({
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {readOnly
-              ? "This team has not shared anything yet."
-              : "Nothing shared yet. Add your exam schedule so we can plan deadlines around it."}
-          </p>
+          readOnly ? (
+            <p className="text-sm text-muted-foreground">
+              This team has not shared anything yet.
+            </p>
+          ) : (
+            <EmptyState
+              icon={MessageSquare}
+              title="Nothing shared yet"
+              description="Post updates for the programme team — exam schedules, availability changes, or anything else we should know."
+              action={{ label: "Share an update", onClick: () => setShowForm(true) }}
+            />
+          )
         ) : (
           <ul className="space-y-3">
             {rows.map((u) => (

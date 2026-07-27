@@ -10,7 +10,7 @@ import {
   submitQuestionnaireResponse,
 } from "@/lib/rakshak-platform/questionnaires.functions";
 import { PHASE_TITLES, STATUS_META, type PhaseStatus } from "@/lib/rakshak-platform/constants";
-import { ArrowLeft, Send, MessageSquare, ClipboardList } from "lucide-react";
+import { ArrowLeft, Send, MessageSquare, ClipboardList, CalendarClock } from "lucide-react";
 import {
   PhaseSubmissionSlot,
   type SubmissionSlot,
@@ -20,6 +20,12 @@ import { useRPAuth } from "@/lib/rakshak-platform/auth";
 
 
 const SearchSchema = z.object({ team: z.string().uuid() });
+
+const SLOT_LABELS: Record<string, string> = {
+  draft_questionnaire: "Draft questionnaire",
+  draft_report: "Draft report",
+  final: "Final submission",
+};
 
 export const Route = createFileRoute("/rakshak-platform/team/phases/$phase")({
   ssr: false,
@@ -105,6 +111,12 @@ function PhaseDetail() {
     }
   }
 
+  const progressRow = (data as any)?.progress ?? null;
+  const completion = Math.max(
+    0,
+    Math.min(100, Number(progressRow?.completion_percentage ?? 0)),
+  );
+
   const status = ((finalSlot?.submission?.status ??
     (data as any)?.progress?.status ??
     "not_started") as PhaseStatus);
@@ -113,12 +125,25 @@ function PhaseDetail() {
   return (
     <PlatformShell>
       <Section>
-        <button onClick={() => navigate({ to: "/rakshak-platform/team/phases" })} className="text-sm text-muted-foreground hover:text-brand mb-4 inline-flex items-center gap-1">
-          <ArrowLeft className="size-4" /> Back to board
-        </button>
-        <Eyebrow>Phase {phaseNum}</Eyebrow>
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <h1 className="text-3xl font-extrabold">{PHASE_TITLES[phaseNum]}</h1>
+        <div className="mb-4 flex flex-wrap items-center gap-4">
+          <Link
+            to="/rakshak-platform/team"
+            className="text-sm text-muted-foreground hover:text-brand inline-flex items-center gap-1"
+          >
+            <ArrowLeft className="size-4" /> Back to dashboard
+          </Link>
+          <button
+            onClick={() => navigate({ to: "/rakshak-platform/team/phases" })}
+            className="text-sm text-muted-foreground hover:text-brand"
+          >
+            Back to board
+          </button>
+        </div>
+        <Eyebrow>Phase {phaseNum} · {PHASE_TITLES[phaseNum]}</Eyebrow>
+        <div className="mt-3 flex items-center justify-between gap-4 flex-wrap">
+          <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">
+            {PHASE_TITLES[phaseNum]}
+          </h1>
           <span className={`text-xs px-3 py-1 rounded-full border ${meta.tone}`}>{meta.label}</span>
         </div>
 
@@ -131,18 +156,72 @@ function PhaseDetail() {
               This phase has three slots. Drafts are for your own work-in-progress; only the
               final submission goes to your mentor for review.
             </p>
-            {slots.map((slot) => (
-              <PhaseSubmissionSlot
-                key={slot.key}
-                slot={slot}
-                teamId={team}
-                phaseNumber={phaseNum}
-                queryKey={slotsQueryKey}
-              />
+            {slots.map((slot, i) => (
+              <div key={slot.key} id={`slot-${slot.key}`} className="scroll-mt-24">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-lite text-[11px] font-semibold text-brand">
+                    {i + 1}
+                  </span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {SLOT_LABELS[slot.key] ?? slot.key}
+                  </span>
+                </div>
+                <PhaseSubmissionSlot
+                  slot={slot}
+                  teamId={team}
+                  phaseNumber={phaseNum}
+                  queryKey={slotsQueryKey}
+                />
+              </div>
             ))}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            <div className="rp-card p-5">
+              <h3 className="font-semibold flex items-center gap-2 mb-3">
+                <CalendarClock className="size-4" /> Phase summary
+              </h3>
+              <dl className="space-y-2 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-muted-foreground">Deadline</dt>
+                  <dd className="font-medium">
+                    {progressRow?.deadline
+                      ? new Date(progressRow.deadline).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Not set"}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-muted-foreground">Progress</dt>
+                  <dd className="font-medium">{completion}%</dd>
+                </div>
+              </dl>
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full rounded-full bg-brand" style={{ width: `${completion}%` }} />
+              </div>
+              <h4 className="mt-5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                What to submit here
+              </h4>
+              <ul className="mt-2 space-y-1.5 text-sm">
+                {slots.map((slot) => (
+                  <li key={slot.key}>
+                    <a
+                      href={`#slot-${slot.key}`}
+                      className="inline-flex items-center gap-2 text-brand hover:underline"
+                    >
+                      {SLOT_LABELS[slot.key] ?? slot.key}
+                      <span className="text-[11px] text-muted-foreground">
+                        {slot.submission ? "started" : "not started"}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div className="rp-card p-5">
               <h3 className="font-semibold flex items-center gap-2 mb-3"><MessageSquare className="size-4" /> Mentor & evaluator feedback</h3>
               {allFeedback.length === 0 ? (

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -255,12 +256,13 @@ export function MediaGallery({
               />
             </label>
           </div>
-          <label className="inline-flex items-center gap-2 text-sm cursor-pointer">
+          <label htmlFor="rp-media-upload-input" className="inline-flex items-center gap-2 text-sm cursor-pointer">
             <span className="rp-btn-primary inline-flex items-center gap-1">
               <Upload className="size-4" />
               {uploading ? "Uploading…" : "Upload photos or videos"}
             </span>
             <input
+              id="rp-media-upload-input"
               type="file"
               multiple
               accept="image/*,video/*"
@@ -281,9 +283,23 @@ export function MediaGallery({
       {loading ? (
         <p className="mt-4 text-sm text-muted-foreground">Loading media…</p>
       ) : shown.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          {readOnly ? "This team has not uploaded any media yet." : "Nothing here yet."}
-        </p>
+        readOnly ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            This team has not uploaded any media yet.
+          </p>
+        ) : (
+          <EmptyState
+            className="mt-4"
+            icon={ImageIcon}
+            title="No site media yet"
+            description="Upload photos and videos from your audit sites. They'll appear here for mentors and reviewers to see."
+            action={{
+              label: "Upload media",
+              onClick: () =>
+                document.getElementById("rp-media-upload-input")?.click(),
+            }}
+          />
+        )
       ) : (
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((m) => (
