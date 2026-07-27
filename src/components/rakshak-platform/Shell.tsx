@@ -281,16 +281,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 shrink-0" title={`Timezone: India Standard Time (${tz})`}>
-              <div className="hidden md:block h-5 w-px bg-slate-200 dark:bg-slate-700" aria-hidden />
-              <div className="flex items-center gap-1.5 leading-none rounded-lg bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 shadow-sm">
-                <div className="flex flex-col items-end">
-                  <span className="text-[12px] font-semibold text-slate-800 dark:text-slate-100 tabular-nums">{timeStr}</span>
-                  <span className="hidden md:block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{dateStr}</span>
-                </div>
-                <span className="text-[9px] font-semibold tracking-wide text-brand bg-brand/10 rounded px-1 py-0.5">IST</span>
-              </div>
-            </div>
+
             {isAdmin && (
               <div className="hidden lg:block w-72"><GlobalSearch /></div>
             )}
