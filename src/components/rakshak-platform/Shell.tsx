@@ -413,7 +413,7 @@ export function PlatformShell({
                 <MobileGroup
                   label="Explore"
                   items={[
-                    ...(!mentorOnly ? [{ to: "/rakshak-platform/map", label: "Hotspots", icon: MapPin }] : []),
+                    ...(!mentorOnly ? [{ to: "/rakshak-platform/map", label: "Unsafe Road Locations", icon: MapPin }] : []),
                     ...(!mentorOnly ? [{ to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen }] : []),
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
