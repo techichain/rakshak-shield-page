@@ -124,16 +124,50 @@ function MentorDashboard() {
           <br /><span className="text-brand">teams.</span>
         </h1>
 
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link to="/rakshak-platform/meetings" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Upcoming meetings</div>
+            <div className="mt-2 font-heading text-3xl">{overview ? overview.upcoming7 : "—"}</div>
+            <div className="mt-1 text-xs text-muted-foreground">next 7 days</div>
+          </Link>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Today's schedule</div>
+            <div className="mt-2 font-heading text-3xl">{overview ? overview.today : "—"}</div>
+            {overview?.nextSoon ? (
+              <Link
+                to="/rakshak-platform/session/$id"
+                params={{ id: overview.nextSoon.id }}
+                className="mt-2 inline-flex items-center gap-1 text-xs text-brand hover:underline"
+              >
+                Quick join next →
+              </Link>
+            ) : (
+              <div className="mt-1 text-xs text-muted-foreground">meetings today</div>
+            )}
+          </div>
+          <Link to="/rakshak-platform/mentor" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Pending actions</div>
+            <div className="mt-2 font-heading text-3xl">{overview ? overview.pendingDoubts : "—"}</div>
+            <div className="mt-1 text-xs text-muted-foreground">unresolved doubts from your teams</div>
+          </Link>
+          <Link to="/rakshak-platform/mentor/availability" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Availability slots</div>
+            <div className="mt-2 font-heading text-3xl">{overview ? overview.openSlots : "—"}</div>
+            <div className="mt-1 text-xs text-muted-foreground">open slots ahead</div>
+          </Link>
+        </div>
+
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Link to="/rakshak-platform/mentor/availability" className="rounded-2xl border border-brand/30 bg-brand-lite p-5 hover:border-brand transition">
+          <Link to="/rakshak-platform/mentor/availability" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-brand text-brand-foreground flex items-center justify-center"><Clock className="h-5 w-5" /></div>
+              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><Clock className="h-5 w-5 text-brand" /></div>
               <div>
                 <div className="font-heading text-lg">Availability</div>
-                <div className="text-xs text-muted-foreground">Connect Google Calendar so teams can book you</div>
+                <div className="text-xs text-muted-foreground">Publish slots so teams can book you</div>
               </div>
             </div>
           </Link>
+
           <Link to="/rakshak-platform/meetings" className="rounded-2xl border border-border bg-card p-5 hover:border-brand/40 transition">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"><CalendarDays className="h-5 w-5 text-brand" /></div>
