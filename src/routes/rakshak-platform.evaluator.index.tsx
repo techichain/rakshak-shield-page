@@ -82,12 +82,12 @@ function EvaluatorQueue() {
       <Section className="!py-10 lg:!py-12">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <Eyebrow>Evaluator workspace</Eyebrow>
-          <div className="inline-flex items-center gap-4">
+          <div className="inline-flex items-center gap-3">
             <Link
               to="/rakshak-platform/evaluator/reports"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
+              className="rp-btn-secondary h-10"
             >
-              Browse all reports <ArrowRight className="h-3.5 w-3.5" />
+              <FolderOpen className="h-4 w-4" /> Browse all reports
             </Link>
             <Link
               to="/rakshak-platform/impact"
