@@ -496,7 +496,15 @@ export function PlatformShell({
       <footer className="border-t border-border bg-brand text-brand-foreground">
         <div className="mx-auto w-full max-w-7xl px-6 md:px-8 py-16 grid gap-8 md:grid-cols-3">
           <div>
-            <div className="font-heading text-lg font-bold">Crashfree India</div>
+            <a
+              href="https://crashfreeindia.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block font-heading text-lg font-bold hover:underline"
+              title="Crashfree India — main website"
+            >
+              Crashfree India
+            </a>
             <p className="mt-4 text-sm text-brand-foreground/70">
               Project Rakshak is a youth-led road safety audit programme run across Indian cities.
             </p>
