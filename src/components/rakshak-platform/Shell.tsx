@@ -327,7 +327,7 @@ export function PlatformShell({
             )}
           </div>
         </div>
-        {menuOpen && (
+        {menuOpen && !hideMenu && (
           <div className={`border-t border-border bg-background max-h-[75vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
             <nav className="mx-auto w-full max-w-7xl px-5 py-5 flex flex-col gap-5 text-sm">
               {!evaluatorOnly && (
