@@ -299,7 +299,9 @@ function TeamDashboard() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <TeamProgressCard teamId={team.id} phaseNumber={team.current_phase} />
           <TeamRankCard teamId={team.id} phaseNumber={team.current_phase} />
+
           <AnnouncementsCard />
           <RecentMeetingNotesCard />
           <div className="rounded-2xl border border-border bg-card p-6">
