@@ -42,7 +42,7 @@ function EvaluatorReports() {
 
   if (loading || isLoading) {
     return (
-      <PlatformShell>
+      <PlatformShell hideMenu>
         <Section className="!py-16">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading reports…
@@ -53,7 +53,7 @@ function EvaluatorReports() {
   }
 
   return (
-    <PlatformShell>
+    <PlatformShell hideMenu>
       <Section className="!py-10 lg:!py-12">
         <Link to="/rakshak-platform/evaluator" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to queue

@@ -67,7 +67,7 @@ function EvaluatorQueue() {
 
   if (loading) {
     return (
-      <PlatformShell>
+      <PlatformShell hideMenu>
         <Section className="!py-16">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading workspace…
@@ -78,7 +78,7 @@ function EvaluatorQueue() {
   }
 
   return (
-    <PlatformShell>
+    <PlatformShell hideMenu>
       <Section className="!py-10 lg:!py-12">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <Eyebrow>Evaluator workspace</Eyebrow>
