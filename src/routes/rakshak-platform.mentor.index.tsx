@@ -23,10 +23,19 @@ export const Route = createFileRoute("/rakshak-platform/mentor/")({
   component: MentorDashboard,
 });
 
+type Overview = {
+  upcoming7: number;
+  today: number;
+  pendingDoubts: number;
+  openSlots: number;
+  nextSoon: { id: string; title: string; scheduled_start: string } | null;
+};
+
 function MentorDashboard() {
   const navigate = useNavigate();
   const { loading, userId, isMentor } = useRPAuth();
   const [teams, setTeams] = useState<any[]>([]);
+  const [overview, setOverview] = useState<Overview | null>(null);
   const fetchAdminForMentor = useServerFn(listAdminResourcesForMentor);
   const adminResourceFetcher = useCallback(
     () => fetchAdminForMentor({} as any) as unknown as Promise<{ resources: any[] }>,
@@ -46,9 +55,53 @@ function MentorDashboard() {
         .from("rp_teams")
         .select("id, team_name, college, city, state, current_phase, status, risk_status, completion_percentage")
         .eq("assigned_mentor_id", mentor.id);
-      setTeams(data ?? []);
+      const teamRows = data ?? [];
+      setTeams(teamRows);
+
+      // --- read-only overview numbers (existing tables only) ---
+      const now = new Date();
+      const in7 = new Date(now.getTime() + 7 * 24 * 3600 * 1000);
+      const endOfToday = new Date(now); endOfToday.setHours(23, 59, 59, 999);
+      const in2h = new Date(now.getTime() + 2 * 3600 * 1000);
+
+      const [meetingsRes, slotsRes, doubtsRes] = await Promise.all([
+        supabase
+          .from("rp_meetings")
+          .select("id, title, scheduled_start, status")
+          .eq("mentor_id", mentor.id)
+          .neq("status", "cancelled")
+          .gte("scheduled_start", now.toISOString())
+          .lte("scheduled_start", in7.toISOString())
+          .order("scheduled_start", { ascending: true }),
+        supabase
+          .from("rp_mentor_slots")
+          .select("id", { count: "exact", head: true })
+          .eq("mentor_id", mentor.id)
+          .eq("status", "open")
+          .gte("starts_at", now.toISOString()),
+        teamRows.length
+          ? supabase
+              .from("rp_doubts")
+              .select("id", { count: "exact", head: true })
+              .eq("status", "pending")
+              .in("team_id", teamRows.map((t: any) => t.id))
+          : Promise.resolve({ count: 0 } as any),
+      ]);
+
+      const meetings = meetingsRes.data ?? [];
+      const todayMeetings = meetings.filter((m: any) => new Date(m.scheduled_start) <= endOfToday);
+      const soon = todayMeetings.find((m: any) => new Date(m.scheduled_start) <= in2h) ?? null;
+
+      setOverview({
+        upcoming7: meetings.length,
+        today: todayMeetings.length,
+        pendingDoubts: doubtsRes.count ?? 0,
+        openSlots: slotsRes.count ?? 0,
+        nextSoon: soon ? { id: soon.id, title: soon.title, scheduled_start: soon.scheduled_start } : null,
+      });
     })();
   }, [loading, userId, isMentor, navigate]);
+
 
   if (loading) {
     return (
