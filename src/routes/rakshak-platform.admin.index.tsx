@@ -422,6 +422,12 @@ function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Quick access — admin tools grouped */}
+        <div className="mt-8">
+          <AdminQuickAccess />
+        </div>
+
       </Section>
     </PlatformShell>
   );
