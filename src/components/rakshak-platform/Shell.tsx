@@ -142,7 +142,14 @@ function MobileGroup({
 }
 
 
-export function PlatformShell({ children }: { children: React.ReactNode }) {
+export function PlatformShell({
+  children,
+  hideMenu = false,
+}: {
+  children: React.ReactNode;
+  /** Hides the hamburger/side menu entirely. Defaults to existing behaviour. */
+  hideMenu?: boolean;
+}) {
   const navigate = useNavigate();
   const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const evaluatorOnly = isEvaluator && !isAdmin && !isMentor && !isTeam && !isAuthority && !isFinance;
@@ -189,14 +196,16 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       <header className="border-b border-border/80 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 backdrop-blur supports-[backdrop-filter]:bg-white/85 sticky top-0 z-40 w-full shadow-[0_2px_8px_-2px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/60">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-8 h-16 gap-4 min-w-0">
           <div className="flex items-center gap-4 min-w-0 shrink">
-            <button
-              type="button"
-              onClick={() => setMenuOpen((o) => !o)}
-              aria-label="Toggle navigation"
-              className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
-            >
-              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            </button>
+            {!hideMenu && (
+              <button
+                type="button"
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label="Toggle navigation"
+                className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
+              >
+                {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+              </button>
+            )}
             <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink py-2">
 
               <img
@@ -318,7 +327,7 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
             )}
           </div>
         </div>
-        {menuOpen && (
+        {menuOpen && !hideMenu && (
           <div className={`border-t border-border bg-background max-h-[75vh] overflow-y-auto ${navOverflow ? '' : 'xl:hidden'}`}>
             <nav className="mx-auto w-full max-w-7xl px-5 py-5 flex flex-col gap-5 text-sm">
               {!evaluatorOnly && (

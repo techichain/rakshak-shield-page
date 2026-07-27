@@ -75,7 +75,7 @@ function ScoringPage() {
   });
 
   if (loading || isLoading || !data) {
-    return <PlatformShell><Section>Loading submission…</Section></PlatformShell>;
+    return <PlatformShell hideMenu><Section>Loading submission…</Section></PlatformShell>;
   }
 
   const submission = data.submission;
@@ -86,7 +86,7 @@ function ScoringPage() {
   const currentSubmittedTotal = isSubmitted ? Number(data.myEval?.total_score ?? 0) : null;
 
   return (
-    <PlatformShell>
+    <PlatformShell hideMenu>
       <Section>
         <Link to="/rakshak-platform/evaluator" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to queue
