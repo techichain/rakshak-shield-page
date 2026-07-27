@@ -71,7 +71,9 @@ function useIsActive() {
   return (to: string) => best === to.replace(/\/+$/, "");
 }
 
-function NavLink({ to, label, icon: Icon, active }: { to: string; label: string; icon?: LucideIcon; active?: boolean }) {
+function NavLink({ to, label, icon: Icon }: { to: string; label: React.ReactNode; icon?: LucideIcon }) {
+  const isActive = useIsActive();
+  const active = isActive(to);
   return (
     <Link
       to={to}
@@ -86,6 +88,7 @@ function NavLink({ to, label, icon: Icon, active }: { to: string; label: string;
     </Link>
   );
 }
+
 
 
 function NavDropdown({
