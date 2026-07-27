@@ -283,7 +283,7 @@ export const parseAndValidateBulkCsv = createServerFn({ method: "POST" })
           results_summary_json: {
             will_create: willCreate,
             will_skip: willSkip,
-            preview: preview.slice(0, 50),
+            preview,
           },
           completed_at: errors.length === 0 ? null : new Date().toISOString(),
         })
@@ -324,4 +324,100 @@ export const getBulkImport = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw error;
     return row;
+  });
+
+/* ------------------------------------------------------------------ */
+/* Execution                                                           */
+/* ------------------------------------------------------------------ */
+
+export const getBulkImportProgress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ import_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context as any;
+    await assertAdmin(supabase, userId);
+    const { data: row, error } = await supabase
+      .from("rp_bulk_imports")
+      .select("status, rows_total, rows_created, rows_skipped, rows_failed, completed_at, errors_json")
+      .eq("id", data.import_id)
+      .maybeSingle();
+    if (error) throw error;
+    return row;
+  });
+
+/**
+ * Creates the accounts described by a validated import.
+ * Temp passwords are returned ONCE inside `results_csv_base64` and are never
+ * written to the database.
+ */
+export const executeBulkOnboarding = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ import_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context as any;
+    await assertAdmin(supabase, userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { runBulkOnboarding, buildResultsCsv, toBase64 } = await import(
+      "./bulk-onboarding-exec.server"
+    );
+
+    const { data: job, error: jobErr } = await supabaseAdmin
+      .from("rp_bulk_imports")
+      .select("id, kind, status, results_summary_json")
+      .eq("id", data.import_id)
+      .maybeSingle();
+    if (jobErr) throw jobErr;
+    if (!job) throw new Error("Import not found.");
+    if (job.status !== "ready") {
+      throw new Error(`This import is "${job.status}" — only a validated (ready) import can be run.`);
+    }
+
+    const preview = ((job.results_summary_json as any)?.preview ?? []) as BulkPreviewRow[];
+    if (!Array.isArray(preview) || preview.length === 0) {
+      throw new Error("This import has no stored preview. Re-upload the CSV and try again.");
+    }
+
+    await supabaseAdmin
+      .from("rp_bulk_imports")
+      .update({ status: "processing", rows_created: 0, rows_failed: 0, errors_json: [] })
+      .eq("id", data.import_id);
+
+    let outcome;
+    try {
+      outcome = await runBulkOnboarding(
+        supabaseAdmin,
+        data.import_id,
+        job.kind as BulkKind,
+        preview,
+      );
+    } catch (e: any) {
+      // Leave the job in "processing" on an unexpected abort so an admin can
+      // inspect what was created rather than us guessing.
+      await supabaseAdmin
+        .from("rp_bulk_imports")
+        .update({ errors_json: [{ row: 0, message: `Run aborted: ${String(e?.message ?? e)}` }] })
+        .eq("id", data.import_id);
+      throw e;
+    }
+
+    await supabaseAdmin
+      .from("rp_bulk_imports")
+      .update({
+        status: "done",
+        rows_created: outcome.rows_created,
+        rows_skipped: outcome.rows_skipped,
+        rows_failed: outcome.rows_failed,
+        errors_json: outcome.errors,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", data.import_id);
+
+    return {
+      results_csv_base64: toBase64(buildResultsCsv(outcome.results)),
+      rows_created: outcome.rows_created,
+      rows_skipped: outcome.rows_skipped,
+      rows_failed: outcome.rows_failed,
+      errors: outcome.errors,
+    };
   });
