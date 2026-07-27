@@ -178,16 +178,6 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
     };
   }, [isAdmin, isAuthority, isEvaluator, isFinance, isMentor, isTeam]);
 
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    // tick every second so time is always accurate on first render
-    const id = setInterval(() => setNow(new Date()), 1_000);
-    return () => clearInterval(id);
-  }, []);
-  const tz = "Asia/Kolkata";
-  const dateStr = now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: tz });
-  const timeStr = now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: tz });
-
   return (
     <div className="rp-platform min-h-dvh">
       <a href="#rp-main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow focus:outline-2 focus:outline-brand">
@@ -195,12 +185,30 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       </a>
       <header className="border-b border-border/80 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 backdrop-blur supports-[backdrop-filter]:bg-white/85 sticky top-0 z-40 w-full shadow-[0_2px_8px_-2px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/60">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
-          <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink">
-            <span className="inline-block h-2 w-2 shrink-0 rounded-sm bg-brand" />
-            <span className="font-heading text-base font-bold tracking-tight truncate">
-              Crashfree India · Project Rakshak
-            </span>
-          </Link>
+          <div className="flex items-center gap-3 min-w-0 shrink">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Toggle navigation"
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
+            >
+              {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
+            <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink" style={{ paddingBlock: "calc(28px / 4)" }}>
+              <img
+                src={cfiLogoPrimary}
+                alt="Crashfree India"
+                className="h-7 w-auto min-w-[180px] object-contain dark:hidden"
+              />
+              <img
+                src={cfiLogoWhite}
+                alt="Crashfree India"
+                className="h-7 w-auto min-w-[180px] object-contain hidden dark:block"
+              />
+              <span className="sr-only">Crashfree India · Project Rakshak</span>
+            </Link>
+          </div>
+
           <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
             {!evaluatorOnly && (
               <>
