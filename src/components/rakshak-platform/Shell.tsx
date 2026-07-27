@@ -273,8 +273,13 @@ export function PlatformShell({
                 {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </button>
             )}
-            <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink py-2">
-
+            <a
+              href="https://crashfreeindia.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 min-w-0 shrink py-2"
+              title="Crashfree India — main website"
+            >
               <img
                 src={cfiLogoPrimary}
                 alt="Crashfree India"
@@ -286,7 +291,7 @@ export function PlatformShell({
                 className="h-7 w-auto min-w-[180px] object-contain hidden dark:block"
               />
               <span className="sr-only">Crashfree India · Project Rakshak</span>
-            </Link>
+            </a>
           </div>
 
           <nav ref={navRef} className={`hidden items-center gap-0.5 text-sm min-w-0 rounded-full bg-slate-100/70 border border-slate-200/80 px-1.5 py-1 shadow-inner ${navOverflow ? '' : 'xl:flex'}`}>
