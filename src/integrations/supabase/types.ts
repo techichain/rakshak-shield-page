@@ -1799,6 +1799,59 @@ export type Database = {
         }
         Relationships: []
       }
+      rp_bulk_imports: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          errors_json: Json | null
+          id: string
+          kind: string
+          results_summary_json: Json | null
+          rows_created: number
+          rows_failed: number
+          rows_skipped: number
+          rows_total: number | null
+          status: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          errors_json?: Json | null
+          id?: string
+          kind: string
+          results_summary_json?: Json | null
+          rows_created?: number
+          rows_failed?: number
+          rows_skipped?: number
+          rows_total?: number | null
+          status: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          errors_json?: Json | null
+          id?: string
+          kind?: string
+          results_summary_json?: Json | null
+          rows_created?: number
+          rows_failed?: number
+          rows_skipped?: number
+          rows_total?: number | null
+          status?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_bulk_imports_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rp_certificates: {
         Row: {
           certificate_type: string
