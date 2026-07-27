@@ -280,7 +280,7 @@ export async function runBulkOnboarding(
           await supabaseAdmin.from("rp_notifications").insert({
             recipient_id: authUserId,
             title: "Your Project Rakshak account is ready",
-            message: `Hi ${row.full_name}, an account has been created for you on Project Rakshak. Please set your password using the link below (valid for 24 hours). Your login ID is ${loginId}. If you miss the window, you can request a new link from the login page.`,
+            message: `Hi ${row.full_name}, an account has been created for you on Project Rakshak. Please set your password using the link below (valid for 1 hour). Your login ID is ${loginId}. If you miss the window, you can request a new link from the login page.`,
             type: "credentials_issued",
             related_entity_type: "rp_bulk_imports",
             related_entity_id: importId,
