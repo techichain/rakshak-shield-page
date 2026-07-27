@@ -26,7 +26,10 @@ const SUBJECT_PREFIX: Record<string, string> = {
   deadline_missed: "Deadline missed",
 };
 
-function buildHtml(n: { title: string; message: string | null; action_link: string | null }) {
+// Types whose title is already a complete subject line.
+const SUBJECT_VERBATIM = new Set(["credentials_issued"]);
+
+function buildHtml(n: { title: string; message: string | null; action_link: string | null; type?: string | null }) {
   const esc = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const link = n.action_link
@@ -40,20 +43,26 @@ function buildHtml(n: { title: string; message: string | null; action_link: stri
     ${n.message ? `<p style="font-size:15px;line-height:1.6;margin:0 0 20px">${esc(n.message)}</p>` : ""}
     ${
       link
-        ? `<p style="margin:0 0 24px"><a href="${esc(link)}" style="display:inline-block;background:#c1121f;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:999px;font-size:14px">Open Rakshak's Portal</a></p>`
+        ? `<p style="margin:0 0 24px"><a href="${esc(link)}" style="display:inline-block;background:#c1121f;color:#ffffff;text-decoration:none;padding:11px 20px;border-radius:999px;font-size:14px">${
+            n.type === "credentials_issued" ? "Set your password" : "Open Rakshak&#39;s Portal"
+          }</a></p>`
         : ""
     }
     <p style="font-size:12px;color:#666666;margin:0">Rakshak's Portal · Crash Free India</p>
   </div></body></html>`;
 }
 
-function buildText(n: { title: string; message: string | null; action_link: string | null }) {
+function buildText(n: { title: string; message: string | null; action_link: string | null; type?: string | null }) {
   const link = n.action_link
     ? n.action_link.startsWith("http")
       ? n.action_link
       : `${PORTAL_BASE}${n.action_link}`
     : null;
-  return [n.title, n.message ?? "", link ? `Open: ${link}` : ""].filter(Boolean).join("\n\n");
+  const cta =
+    n.type === "credentials_issued" ? "Set your password" : "Open";
+  return [n.title, n.message ?? "", link ? `${cta}: ${link}` : "", "Thanks — the Project Rakshak team."]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 export const Route = createFileRoute("/api/public/hooks/rp-notify-dispatcher")({
@@ -128,7 +137,9 @@ export const Route = createFileRoute("/api/public/hooks/rp-notify-dispatcher")({
                 continue;
               }
 
-              const prefix = SUBJECT_PREFIX[n.type as string];
+              const prefix = SUBJECT_VERBATIM.has(n.type as string)
+                ? null
+                : SUBJECT_PREFIX[n.type as string];
               const subject = prefix ? `${prefix} · ${n.title}` : n.title;
               const messageId = crypto.randomUUID();
 
