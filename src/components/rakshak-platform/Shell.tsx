@@ -401,16 +401,16 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       </header>
       <main id="rp-main" tabIndex={-1}>{children}</main>
       <footer className="border-t border-border bg-brand text-brand-foreground">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-10 py-12 grid gap-8 md:grid-cols-3">
+        <div className="mx-auto w-full max-w-7xl px-6 md:px-8 py-16 grid gap-8 md:grid-cols-3">
           <div>
             <div className="font-heading text-lg font-bold">Crashfree India</div>
-            <p className="mt-3 text-sm text-brand-foreground/70">
+            <p className="mt-4 text-sm text-brand-foreground/70">
               Project Rakshak is a youth-led road safety audit programme run across Indian cities.
             </p>
           </div>
           <div className="text-sm text-brand-foreground/70">
             <div className="font-semibold text-brand-foreground mb-2">Platform</div>
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               <li><Link to="/rakshak-platform/auth">Sign in</Link></li>
               <li><Link to="/rakshak-platform/map">Hotspot map</Link></li>
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
@@ -450,7 +450,7 @@ export function Section({
       : "bg-background";
   return (
     <section className={`border-t border-border ${bg}`}>
-      <div className={`mx-auto w-full max-w-7xl px-6 md:px-10 py-24 lg:py-32 ${className}`}>
+      <div className={`mx-auto w-full max-w-7xl px-6 md:px-8 py-16 lg:py-24 ${className}`}>
         {children}
       </div>
     </section>
