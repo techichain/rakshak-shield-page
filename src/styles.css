@@ -148,10 +148,11 @@
    ============================================================ */
 :root {
   --brand: #4A35FF;
-  --brand-lite: #F8F7FF;
+  --brand-lite: #F3F1FF;
   --brand-foreground: #FFFFFF;
   --rp-danger: #F10015;
-  --rp-success: #91E88A;
+  --rp-warning: #F57C00;
+  --rp-success: #00AA44;
   --rp-border: #EDEEF2;
 }
 .dark {
@@ -166,14 +167,31 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-rp-danger: var(--rp-danger);
   --color-rp-success: var(--rp-success);
+  --color-danger: var(--rp-danger);
+  --color-warning: var(--rp-warning);
+  --color-success: var(--rp-success);
   --font-heading: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
   --font-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Scope a clean body font to the platform shell so it doesn't disturb existing routes */
-.rp-platform { font-family: var(--font-body); color: var(--color-foreground); background: var(--color-background); }
+/* CFI neutral palette is scoped here so the Gig Rider / public Rakshak apps stay untouched. */
+.rp-platform {
+  --background: #FFFFFF;
+  --foreground: #1a1c1c;
+  --card: #FFFFFF;
+  --card-foreground: #1a1c1c;
+  --muted: #EEEEEE;
+  --muted-foreground: #777589;
+  --border: #EDEEF2;
+  --input: #EDEEF2;
+  font-family: var(--font-body);
+  color: var(--color-foreground);
+  background: var(--color-background);
+}
 .rp-platform .font-heading { font-family: var(--font-heading); }
 .rp-platform * { border-color: var(--rp-border); }
+
 .rp-platform .rp-input {
   height: 2.75rem;
   padding: 0 0.875rem;
