@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getPublicImpactStats } from "@/lib/rakshak-platform/stats.functions";
 import { Building2, ClipboardList, MapPin, Map as MapIcon, ChevronDown } from "lucide-react";
 import { UNIS, uniLogoUrl } from "@/components/rakshak/data";
+
 
 
 export const Route = createFileRoute("/rakshak-platform/impact")({
@@ -98,6 +99,17 @@ function Panel({ id, children }: { id: string; children: React.ReactNode }) {
   );
 }
 
+function DetailsLink({ to }: { to: string }) {
+  return (
+    <div className="mt-6 flex justify-end">
+      <Link to={to} className="text-sm font-medium text-brand hover:underline">
+        See full details →
+      </Link>
+    </div>
+  );
+}
+
+
 function ImpactPage() {
   const { data } = useSuspenseQuery({
     queryKey: ["rp-impact"],
@@ -142,7 +154,7 @@ function ImpactPage() {
             icon={Building2}
             label="Institutions"
             value={institutionsList.length}
-            tone="brand"
+            tone={open === "institutions" ? "brand" : "default"}
             expandable
             expanded={open === "institutions"}
             onToggle={() => toggle("institutions")}
@@ -204,7 +216,9 @@ function ImpactPage() {
                 })}
               </div>
             )}
+            <DetailsLink to="/rakshak-platform/impact/institutions" />
           </Panel>
+
         )}
 
         {open === "states" && (
@@ -226,7 +240,9 @@ function ImpactPage() {
                 </div>
               ))}
             </div>
+            <DetailsLink to="/rakshak-platform/impact/states" />
           </Panel>
+
         )}
 
         {open === "cities" && (
@@ -296,7 +312,9 @@ function ImpactPage() {
               </table>
             </div>
             )}
+            <DetailsLink to="/rakshak-platform/impact/cities" />
           </Panel>
+
         )}
       </Section>
 
