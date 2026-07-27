@@ -187,17 +187,18 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
         Skip to main content
       </a>
       <header className="border-b border-border/80 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 backdrop-blur supports-[backdrop-filter]:bg-white/85 sticky top-0 z-40 w-full shadow-[0_2px_8px_-2px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/60">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-10 h-16 gap-2 min-w-0">
-          <div className="flex items-center gap-3 min-w-0 shrink">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 md:px-8 h-16 gap-4 min-w-0">
+          <div className="flex items-center gap-4 min-w-0 shrink">
             <button
               type="button"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle navigation"
-              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
+              className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-brand ${navOverflow ? '' : 'xl:hidden'}`}
             >
               {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
-            <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink" style={{ paddingBlock: "calc(28px / 4)" }}>
+            <Link to="/rakshak-platform" className="flex items-center gap-2 min-w-0 shrink py-2">
+
               <img
                 src={cfiLogoPrimary}
                 alt="Crashfree India"
@@ -400,16 +401,16 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
       </header>
       <main id="rp-main" tabIndex={-1}>{children}</main>
       <footer className="border-t border-border bg-brand text-brand-foreground">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-10 py-12 grid gap-8 md:grid-cols-3">
+        <div className="mx-auto w-full max-w-7xl px-6 md:px-8 py-16 grid gap-8 md:grid-cols-3">
           <div>
             <div className="font-heading text-lg font-bold">Crashfree India</div>
-            <p className="mt-3 text-sm text-brand-foreground/70">
+            <p className="mt-4 text-sm text-brand-foreground/70">
               Project Rakshak is a youth-led road safety audit programme run across Indian cities.
             </p>
           </div>
           <div className="text-sm text-brand-foreground/70">
             <div className="font-semibold text-brand-foreground mb-2">Platform</div>
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               <li><Link to="/rakshak-platform/auth">Sign in</Link></li>
               <li><Link to="/rakshak-platform/map">Hotspot map</Link></li>
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
@@ -449,7 +450,7 @@ export function Section({
       : "bg-background";
   return (
     <section className={`border-t border-border ${bg}`}>
-      <div className={`mx-auto w-full max-w-7xl px-6 md:px-10 py-24 lg:py-32 ${className}`}>
+      <div className={`mx-auto w-full max-w-7xl px-6 md:px-8 py-16 lg:py-24 ${className}`}>
         {children}
       </div>
     </section>
