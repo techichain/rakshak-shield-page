@@ -161,12 +161,13 @@ function AdminResourcesPage() {
     <PlatformShell>
       <Section>
         <Eyebrow>Admin · Resources</Eyebrow>
-        <div className="mt-4 flex items-center justify-between">
-          <h1 className="font-heading text-3xl sm:text-4xl font-bold">Programme resources</h1>
-          <Link to="/rakshak-platform/admin" className="text-sm text-brand hover:underline">
+        <div className="mt-4">
+          <Link to="/rakshak-platform/admin" className="inline-flex items-center text-sm text-brand hover:underline">
             ← Back to admin
           </Link>
+          <h1 className="mt-2 font-heading text-3xl sm:text-4xl font-bold">Programme resources</h1>
         </div>
+
         <p className="mt-2 text-muted-foreground max-w-2xl">
           Share programme handbooks, rubrics, templates and reference material. Choose Global to make
           them visible to every team and mentor, or scope a resource to a single team.

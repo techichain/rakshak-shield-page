@@ -65,32 +65,32 @@ function AdminTeamsIndex() {
     <PlatformShell>
       <Section>
         <Eyebrow>Admin · Teams</Eyebrow>
-        <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
+        <div className="mt-4 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="font-heading text-3xl sm:text-4xl font-bold">All teams</h1>
+            <Link to="/rakshak-platform/admin" className="inline-flex items-center text-sm text-brand hover:underline">
+              ← Back to admin
+            </Link>
+            <h1 className="mt-2 font-heading text-3xl sm:text-4xl font-bold">All teams</h1>
             <p className="mt-1 text-muted-foreground">
               Ranked by score. Click a card to see phase-wise submissions, mentor & evaluator remarks, meetings and every member.
             </p>
           </div>
-          <Link to="/rakshak-platform/admin" className="text-sm text-brand hover:underline">
-            ← Back to admin
-          </Link>
+          <div className="relative w-full max-w-xs sm:ml-auto">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search team, college, leader, member, mentor…"
+              className="w-full rounded-full border border-border bg-background pl-9 pr-3 h-10 text-sm"
+            />
+            {q && (
+              <div className="mt-1 text-xs text-muted-foreground">
+                {filtered.length} of {teams.length} teams match.
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="mt-6 relative max-w-2xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search team, college, leader, member (name or email), mentor, evaluator…"
-            className="w-full rounded-lg border border-border bg-background pl-9 pr-3 py-2.5 text-sm"
-          />
-          {q && (
-            <div className="mt-1 text-xs text-muted-foreground">
-              {filtered.length} of {teams.length} teams match.
-            </div>
-          )}
-        </div>
 
         {busy ? (
           <div className="mt-8 flex items-center gap-2 text-sm text-muted-foreground">

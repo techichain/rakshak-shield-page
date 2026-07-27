@@ -88,8 +88,9 @@ function AdminRanksPage() {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <label className="text-sm text-muted-foreground" htmlFor="phase-select">
-            Phase
+            Showing
           </label>
+
           <select
             id="phase-select"
             value={phase}

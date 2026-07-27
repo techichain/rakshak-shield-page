@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { getLeaderboard } from "@/lib/rakshak-platform/evaluations.functions";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
+
 import { Trophy, MapPin, Download, Printer } from "lucide-react";
 
 export const Route = createFileRoute("/rakshak-platform/leaderboard")({
@@ -88,10 +90,14 @@ function LeaderboardPage() {
           The teams making roads
           <br /><span className="text-brand">safer.</span>
         </h1>
-        <p className="mt-6 max-w-2xl text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-muted-foreground">
+          See how teams are ranking against each other across phases. Ranks update after evaluations are finalised.
+        </p>
+        <p className="mt-4 max-w-2xl text-muted-foreground">
           Weighted scores across all five phases of Project Rakshak. Filter by phase or evaluation window
           to recalibrate the standings, then export the result.
         </p>
+
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <button
@@ -126,13 +132,14 @@ function LeaderboardPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Submitted from</label>
+            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Cohort start</label>
             <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 h-10 rounded-lg border border-border bg-background px-3 text-sm" />
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Submitted to</label>
+            <label className="block text-xs uppercase tracking-wider text-muted-foreground">Deadline before</label>
             <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="mt-1 h-10 rounded-lg border border-border bg-background px-3 text-sm" />
           </div>
+
           {(phase !== "all" || from || to) && (
             <button
               onClick={() => { setPhase("all"); setFrom(""); setTo(""); }}
@@ -165,7 +172,13 @@ function LeaderboardPage() {
         {isLoading ? (
           <p className="mt-12 text-sm text-muted-foreground">Loading rankings…</p>
         ) : rows.length === 0 ? (
-          <p className="mt-12 text-sm text-muted-foreground">No scored teams in this scope.</p>
+          <EmptyState
+            className="mt-12"
+            icon={Trophy}
+            title="No ranks yet for this phase"
+            description="As teams complete this phase and are evaluated, the leaderboard will populate here."
+          />
+
         ) : (
           <>
             {podium.length > 0 && (

@@ -347,12 +347,8 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Quick access — admin tools grouped */}
-        <AdminQuickAccess />
-
-
-
         <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
+
           {/* Left sidebar nav */}
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <nav className="rounded-2xl border border-border bg-card p-2 shadow-sm">
@@ -426,6 +422,12 @@ function AdminDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Quick access — admin tools grouped */}
+        <div className="mt-8">
+          <AdminQuickAccess />
+        </div>
+
       </Section>
     </PlatformShell>
   );
