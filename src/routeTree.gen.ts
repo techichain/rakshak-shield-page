@@ -66,6 +66,9 @@ import { Route as RakshakPlatformMentorAvailabilityRouteImport } from './routes/
 import { Route as RakshakPlatformMIdRouteImport } from './routes/rakshak-platform.m.$id'
 import { Route as RakshakPlatformLeaderboardPrintRouteImport } from './routes/rakshak-platform.leaderboard_.print'
 import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
+import { Route as RakshakPlatformImpactStatesRouteImport } from './routes/rakshak-platform.impact_.states'
+import { Route as RakshakPlatformImpactInstitutionsRouteImport } from './routes/rakshak-platform.impact_.institutions'
+import { Route as RakshakPlatformImpactCitiesRouteImport } from './routes/rakshak-platform.impact_.cities'
 import { Route as RakshakPlatformEvaluatorReportsRouteImport } from './routes/rakshak-platform.evaluator.reports'
 import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
 import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
@@ -440,6 +443,24 @@ const RakshakPlatformKnowledgeSlugRoute =
     id: '/$slug',
     path: '/$slug',
     getParentRoute: () => RakshakPlatformKnowledgeRoute,
+  } as any)
+const RakshakPlatformImpactStatesRoute =
+  RakshakPlatformImpactStatesRouteImport.update({
+    id: '/impact_/states',
+    path: '/impact/states',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformImpactInstitutionsRoute =
+  RakshakPlatformImpactInstitutionsRouteImport.update({
+    id: '/impact_/institutions',
+    path: '/impact/institutions',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformImpactCitiesRoute =
+  RakshakPlatformImpactCitiesRouteImport.update({
+    id: '/impact_/cities',
+    path: '/impact/cities',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformEvaluatorReportsRoute =
   RakshakPlatformEvaluatorReportsRouteImport.update({
@@ -841,6 +862,9 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/reports': typeof RakshakPlatformEvaluatorReportsRoute
+  '/rakshak-platform/impact/cities': typeof RakshakPlatformImpactCitiesRoute
+  '/rakshak-platform/impact/institutions': typeof RakshakPlatformImpactInstitutionsRoute
+  '/rakshak-platform/impact/states': typeof RakshakPlatformImpactStatesRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/leaderboard/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
@@ -948,6 +972,9 @@ export interface FileRoutesByTo {
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/reports': typeof RakshakPlatformEvaluatorReportsRoute
+  '/rakshak-platform/impact/cities': typeof RakshakPlatformImpactCitiesRoute
+  '/rakshak-platform/impact/institutions': typeof RakshakPlatformImpactInstitutionsRoute
+  '/rakshak-platform/impact/states': typeof RakshakPlatformImpactStatesRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/leaderboard/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
@@ -1063,6 +1090,9 @@ export interface FileRoutesById {
   '/rakshak-platform/book/$mentorId': typeof RakshakPlatformBookMentorIdRoute
   '/rakshak-platform/evaluator/$submissionId': typeof RakshakPlatformEvaluatorSubmissionIdRoute
   '/rakshak-platform/evaluator/reports': typeof RakshakPlatformEvaluatorReportsRoute
+  '/rakshak-platform/impact_/cities': typeof RakshakPlatformImpactCitiesRoute
+  '/rakshak-platform/impact_/institutions': typeof RakshakPlatformImpactInstitutionsRoute
+  '/rakshak-platform/impact_/states': typeof RakshakPlatformImpactStatesRoute
   '/rakshak-platform/knowledge/$slug': typeof RakshakPlatformKnowledgeSlugRoute
   '/rakshak-platform/leaderboard_/print': typeof RakshakPlatformLeaderboardPrintRoute
   '/rakshak-platform/m/$id': typeof RakshakPlatformMIdRoute
@@ -1181,6 +1211,9 @@ export interface FileRouteTypes {
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/reports'
+    | '/rakshak-platform/impact/cities'
+    | '/rakshak-platform/impact/institutions'
+    | '/rakshak-platform/impact/states'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/leaderboard/print'
     | '/rakshak-platform/m/$id'
@@ -1288,6 +1321,9 @@ export interface FileRouteTypes {
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/reports'
+    | '/rakshak-platform/impact/cities'
+    | '/rakshak-platform/impact/institutions'
+    | '/rakshak-platform/impact/states'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/leaderboard/print'
     | '/rakshak-platform/m/$id'
@@ -1402,6 +1438,9 @@ export interface FileRouteTypes {
     | '/rakshak-platform/book/$mentorId'
     | '/rakshak-platform/evaluator/$submissionId'
     | '/rakshak-platform/evaluator/reports'
+    | '/rakshak-platform/impact_/cities'
+    | '/rakshak-platform/impact_/institutions'
+    | '/rakshak-platform/impact_/states'
     | '/rakshak-platform/knowledge/$slug'
     | '/rakshak-platform/leaderboard_/print'
     | '/rakshak-platform/m/$id'
@@ -1882,6 +1921,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/rakshak-platform/knowledge/$slug'
       preLoaderRoute: typeof RakshakPlatformKnowledgeSlugRouteImport
       parentRoute: typeof RakshakPlatformKnowledgeRoute
+    }
+    '/rakshak-platform/impact_/states': {
+      id: '/rakshak-platform/impact_/states'
+      path: '/impact/states'
+      fullPath: '/rakshak-platform/impact/states'
+      preLoaderRoute: typeof RakshakPlatformImpactStatesRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/impact_/institutions': {
+      id: '/rakshak-platform/impact_/institutions'
+      path: '/impact/institutions'
+      fullPath: '/rakshak-platform/impact/institutions'
+      preLoaderRoute: typeof RakshakPlatformImpactInstitutionsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/impact_/cities': {
+      id: '/rakshak-platform/impact_/cities'
+      path: '/impact/cities'
+      fullPath: '/rakshak-platform/impact/cities'
+      preLoaderRoute: typeof RakshakPlatformImpactCitiesRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
     '/rakshak-platform/evaluator/reports': {
       id: '/rakshak-platform/evaluator/reports'
@@ -2536,6 +2596,9 @@ interface RakshakPlatformRouteChildren {
   RakshakPlatformAuthCalendarCallbackRoute: typeof RakshakPlatformAuthCalendarCallbackRoute
   RakshakPlatformAuthCallbackRoute: typeof RakshakPlatformAuthCallbackRoute
   RakshakPlatformBookMentorIdRoute: typeof RakshakPlatformBookMentorIdRoute
+  RakshakPlatformImpactCitiesRoute: typeof RakshakPlatformImpactCitiesRoute
+  RakshakPlatformImpactInstitutionsRoute: typeof RakshakPlatformImpactInstitutionsRoute
+  RakshakPlatformImpactStatesRoute: typeof RakshakPlatformImpactStatesRoute
   RakshakPlatformLeaderboardPrintRoute: typeof RakshakPlatformLeaderboardPrintRoute
   RakshakPlatformMIdRoute: typeof RakshakPlatformMIdRoute
   RakshakPlatformMentorAvailabilityRoute: typeof RakshakPlatformMentorAvailabilityRoute
@@ -2583,6 +2646,10 @@ const RakshakPlatformRouteChildren: RakshakPlatformRouteChildren = {
     RakshakPlatformAuthCalendarCallbackRoute,
   RakshakPlatformAuthCallbackRoute: RakshakPlatformAuthCallbackRoute,
   RakshakPlatformBookMentorIdRoute: RakshakPlatformBookMentorIdRoute,
+  RakshakPlatformImpactCitiesRoute: RakshakPlatformImpactCitiesRoute,
+  RakshakPlatformImpactInstitutionsRoute:
+    RakshakPlatformImpactInstitutionsRoute,
+  RakshakPlatformImpactStatesRoute: RakshakPlatformImpactStatesRoute,
   RakshakPlatformLeaderboardPrintRoute: RakshakPlatformLeaderboardPrintRoute,
   RakshakPlatformMIdRoute: RakshakPlatformMIdRoute,
   RakshakPlatformMentorAvailabilityRoute:
@@ -2643,13 +2710,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
