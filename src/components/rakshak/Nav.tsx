@@ -1,5 +1,5 @@
 import { BarChart3, AlertTriangle, PenLine, LogIn } from "lucide-react";
-import { LOGO_DATA_URI } from "@/data/logo";
+import cfiLogoWhite from "@/assets/brand/cfi-logo-white.svg";
 
 interface Props {
   onReport: () => void;
@@ -14,7 +14,8 @@ export function Nav({ onReport, onPetition }: Props) {
       <div className="nav-left">
         <img
           className="nav-logo-img"
-          src={LOGO_DATA_URI}
+          style={{ filter: "none" }}
+          src={cfiLogoWhite}
           alt="Crashfree India"
           title="Crashfree India — A Cars24 Commitment"
         />
