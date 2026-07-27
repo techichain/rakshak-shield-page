@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 72" width="360" height="72" role="img" aria-label="Crashfree India">
+  <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 46 L30 18 L46 46" />
+    <path d="M20 36 H40" />
+  </g>
+  <text x="62" y="34" font-family="Montserrat, Geist, sans-serif" font-size="24" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">CRASHFREE</text>
+  <text x="62" y="56" font-family="Montserrat, Geist, sans-serif" font-size="18" font-weight="600" fill="#FFFFFF" letter-spacing="4">INDIA</text>
+</svg>
