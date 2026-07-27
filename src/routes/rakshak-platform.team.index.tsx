@@ -14,6 +14,8 @@ import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeet
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
 import { AnnouncementsCard } from "@/components/rakshak-platform/AnnouncementsCard";
 import { TeamRankCard } from "@/components/rakshak-platform/TeamRankCard";
+import { TeamProgressCard } from "@/components/rakshak-platform/TeamProgressCard";
+
 import { getTeamPhaseTimeline } from "@/lib/rakshak-platform/submissions.functions";
 
 export const Route = createFileRoute("/rakshak-platform/team/")({
