@@ -154,7 +154,7 @@ function ImpactPage() {
             icon={Building2}
             label="Institutions"
             value={institutionsList.length}
-            tone="brand"
+            tone={open === "institutions" ? "brand" : "default"}
             expandable
             expanded={open === "institutions"}
             onToggle={() => toggle("institutions")}
@@ -216,7 +216,9 @@ function ImpactPage() {
                 })}
               </div>
             )}
+            <DetailsLink to="/rakshak-platform/impact/institutions" />
           </Panel>
+
         )}
 
         {open === "states" && (
@@ -238,7 +240,9 @@ function ImpactPage() {
                 </div>
               ))}
             </div>
+            <DetailsLink to="/rakshak-platform/impact/states" />
           </Panel>
+
         )}
 
         {open === "cities" && (
