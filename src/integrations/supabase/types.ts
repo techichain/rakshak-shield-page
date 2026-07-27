@@ -4629,6 +4629,12 @@ export type Database = {
         Args: { _mentor: string; _team: string; _user: string }
         Returns: boolean
       }
+      rp_existing_auth_emails: {
+        Args: { _emails: string[] }
+        Returns: {
+          email: string
+        }[]
+      }
       rp_has_role: {
         Args: {
           _role: Database["public"]["Enums"]["rp_app_role"]
