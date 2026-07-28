@@ -62,6 +62,25 @@ async function ensureAdmin(supabase: any, userId: string) {
   if (!isAdmin) throw new Error("Forbidden: admin role required");
 }
 
+/** The team name for a user: leader of a team, or a member of one. */
+async function teamNameFor(supabase: any, userId: string): Promise<string | null> {
+  const { data: led } = await supabase
+    .from("rp_teams")
+    .select("team_name")
+    .eq("team_leader_id", userId)
+    .limit(1)
+    .maybeSingle();
+  if (led?.team_name) return led.team_name as string;
+
+  const { data: member } = await supabase
+    .from("rp_team_members")
+    .select("team_id, rp_teams(team_name)")
+    .eq("profile_id", userId)
+    .limit(1)
+    .maybeSingle();
+  return ((member as any)?.rp_teams?.team_name ?? null) as string | null;
+}
+
 /** The caller's own full profile row, bank fields included. */
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -74,13 +93,17 @@ export const getMyProfile = createServerFn({ method: "GET" })
     if (error) throw error;
     const roles = await rolesFor(context.supabase, context.userId);
     const completion = computeCompletion(data as any, roles);
+    const isTeamRole = roles.some((r) => r === "team_leader" || r === "team_member");
+    const team_name = isTeamRole ? await teamNameFor(context.supabase, context.userId) : null;
     return {
       profile: data as any,
       roles,
+      team_name,
       percentage: completion.percentage,
       missing_fields: completion.missing_fields,
     };
   });
+
 
 const updateInput = z.object({
   full_name: z.string().trim().max(200).nullable().optional(),
