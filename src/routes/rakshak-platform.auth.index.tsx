@@ -36,18 +36,18 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If already signed in, bounce to dashboard (or redirect target).
+  const [existingUser, setExistingUser] = useState<{ email: string } | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled || !data.user) return;
-      const target = safeRedirect(redirect);
-      navigate({ to: target, replace: true });
+      setExistingUser({ email: data.user.email ?? "unknown" });
     });
     return () => {
       cancelled = true;
     };
-  }, [redirect, navigate]);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -88,41 +88,68 @@ function AuthPage() {
             Use the login ID and password issued to you by your programme admin.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            <Field label="Login ID">
-              <input
-                required
-                autoFocus
-                type="text"
-                autoComplete="username"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="priya.sharma@cfi"
-                className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-              />
-            </Field>
-            <Field label="Password">
-              <input
-                required
-                type="password"
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
-              />
-            </Field>
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            <button
-              type="submit"
-              disabled={busy}
-              className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
-            >
-              {busy ? "Signing in…" : "Sign in"}
-            </button>
-            <p className="text-xs text-muted-foreground text-center">
-              Forgot your password? Contact your programme admin to reset it.
-            </p>
-          </form>
+          {existingUser ? (
+            <div className="mt-8 rounded-xl border border-border bg-card p-6 space-y-4">
+              <p className="text-sm text-foreground">
+                Already signed in as <span className="font-medium">{existingUser.email}</span>.
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: safeRedirect(redirect), replace: true })}
+                  className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90"
+                >
+                  Go to your dashboard →
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setExistingUser(null);
+                  }}
+                  className="h-12 w-full rounded-full border border-border bg-background hover:bg-muted text-foreground"
+                >
+                  Sign out & switch account
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <Field label="Login ID">
+                <input
+                  required
+                  autoFocus
+                  type="text"
+                  autoComplete="username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="priya.sharma@cfi"
+                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                />
+              </Field>
+              <Field label="Password">
+                <input
+                  required
+                  type="password"
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
+                />
+              </Field>
+              {error && <p className="text-sm text-red-600">{error}</p>}
+              <button
+                type="submit"
+                disabled={busy}
+                className="h-12 w-full rounded-full bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+              >
+                {busy ? "Signing in…" : "Sign in"}
+              </button>
+              <p className="text-xs text-muted-foreground text-center">
+                Forgot your password? Contact your programme admin to reset it.
+              </p>
+            </form>
+          )}
         </div>
       </Section>
     </PlatformShell>

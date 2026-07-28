@@ -139,7 +139,7 @@ export async function rpRequireRole(
 ) {
   const {
     redirectTo = "/rakshak-platform/unauthorized",
-    blockAdmin = true,
+    blockAdmin = false,
     attemptedPath,
   } = opts;
 
