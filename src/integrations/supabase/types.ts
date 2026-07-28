@@ -2410,6 +2410,7 @@ export type Database = {
       rp_meetings: {
         Row: {
           agenda: string
+          audience: string
           created_at: string
           created_by: string
           google_event_id: string | null
@@ -2440,6 +2441,7 @@ export type Database = {
         }
         Insert: {
           agenda?: string
+          audience?: string
           created_at?: string
           created_by: string
           google_event_id?: string | null
@@ -2470,6 +2472,7 @@ export type Database = {
         }
         Update: {
           agenda?: string
+          audience?: string
           created_at?: string
           created_by?: string
           google_event_id?: string | null
@@ -3278,6 +3281,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      rp_rubric_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          criteria: Json
+          id: string
+          is_active: boolean
+          phase_number: number
+          total_max_score: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          criteria?: Json
+          id?: string
+          is_active?: boolean
+          phase_number: number
+          total_max_score?: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          criteria?: Json
+          id?: string
+          is_active?: boolean
+          phase_number?: number
+          total_max_score?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rp_rubric_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rp_rubric_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "rp_profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rp_rubrics: {
         Row: {
