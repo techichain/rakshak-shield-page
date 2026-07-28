@@ -112,6 +112,11 @@ function AdminDoubtsPage() {
                       {" · "}{d.posted_by_name} ({d.posted_by_role})
                       {" · "}{fmt(d.created_at)}
                       {d.phase_number != null && <> · Phase {d.phase_number}</>}
+                      {d.posted_by_role === "mentor" && (
+                        <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-brand/40 bg-brand-lite text-brand">
+                          Raised by mentor
+                        </span>
+                      )}
                       {d.escalated_at && (
                         <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-orange-300 bg-orange-50 text-orange-700">
                           Escalated{d.follow_up_count ? ` · ${d.follow_up_count} follow-up${d.follow_up_count > 1 ? "s" : ""}` : ""}
