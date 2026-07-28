@@ -530,7 +530,7 @@ export function PlatformShell({
           </div>
           <div className="text-sm text-brand-foreground/70">
             <div className="font-semibold text-brand-foreground mb-2">Contact</div>
-            <p>hello@crashfreeindia.org</p>
+            <p>project.rakshak@crashfreeindia.org</p>
           </div>
         </div>
       </footer>

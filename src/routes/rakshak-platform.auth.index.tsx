@@ -31,6 +31,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const resolveLoginId = useServerFn(resolveLoginIdToEmail);
 
+  const [mode, setMode] = useState<"login_id" | "email">("login_id");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -54,16 +55,20 @@ function AuthPage() {
     setError(null);
     const value = identifier.trim();
     if (!value || !password) {
-      setError("Enter your login ID or email and password.");
+      setError(
+        mode === "email"
+          ? "Enter your email and password."
+          : "Enter your login ID and password.",
+      );
       return;
     }
     setBusy(true);
     try {
       let email = value;
-      if (!value.includes("@")) {
+      if (mode === "login_id") {
         const r: any = await resolveLoginId({ data: { login_id: value } });
         if (!r?.email) {
-          setError("No account found for that login ID — check with your admin.");
+          setError("Login ID not recognized.");
           return;
         }
         email = r.email;
@@ -88,18 +93,21 @@ function AuthPage() {
             Sign in to your <span className="text-brand">workspace.</span>
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Use the login ID and password issued to you by your programme admin. If you registered
-            with a real email, you can sign in with that email instead.
+            {mode === "login_id"
+              ? "Use the login ID and password issued to you by your programme admin."
+              : "Sign in with the email address linked to your account."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            <Field label="Login ID or email">
+            <Field label={mode === "login_id" ? "Login ID" : "Email"}>
               <input
                 required
                 autoFocus
+                type={mode === "login_id" ? "text" : "email"}
+                autoComplete={mode === "login_id" ? "username" : "email"}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="TL0001 or you@example.com"
+                placeholder={mode === "login_id" ? "priya.sharma.iitd" : "you@example.com"}
                 className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
               />
             </Field>
@@ -121,6 +129,19 @@ function AuthPage() {
             >
               {busy ? "Signing in…" : "Sign in"}
             </button>
+            <p className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === "login_id" ? "email" : "login_id");
+                  setIdentifier("");
+                  setError(null);
+                }}
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-brand"
+              >
+                {mode === "login_id" ? "Or sign in with email" : "Back to login ID sign-in"}
+              </button>
+            </p>
             <p className="text-xs text-muted-foreground text-center">
               Forgot your password? Contact your programme admin to reset it.
             </p>
