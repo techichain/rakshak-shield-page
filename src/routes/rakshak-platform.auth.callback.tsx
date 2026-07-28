@@ -1,10 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
-import { onboardRPWorkspace } from "@/lib/rakshak-platform/onboarding.functions";
 import { PlatformShell, Section } from "@/components/rakshak-platform/Shell";
 
 const callbackSearchSchema = z.object({
@@ -22,8 +20,7 @@ export const Route = createFileRoute("/rakshak-platform/auth/callback")({
 
 function AuthCallbackPage() {
   const navigate = useNavigate();
-  const onboardWorkspace = useServerFn(onboardRPWorkspace);
-  const { code, mode, role, provider, error_description } = Route.useSearch();
+  const { code, error_description } = Route.useSearch();
   const [error, setError] = useState<string | null>(error_description ?? null);
 
   useEffect(() => {
@@ -54,23 +51,6 @@ function AuthCallbackPage() {
         if (sessionError) throw sessionError;
         if (!data.session) throw new Error("This sign-in link is invalid or has expired. Please request a new link.");
 
-        if (mode === "register" && provider === "google") {
-          const user = data.session.user;
-          const fullName =
-            user.user_metadata?.full_name ??
-            user.user_metadata?.name ??
-            user.email?.split("@")[0] ??
-            "Project Rakshak user";
-          await onboardWorkspace({
-            data: {
-              role,
-              accessToken: data.session.access_token,
-              fullName,
-              email: user.email ?? undefined,
-            },
-          });
-        }
-
         if (cancelled) return;
         // Self-registration was removed; always land on the dashboard after callback.
         navigate({ to: "/rakshak-platform/dashboard", replace: true });
@@ -83,7 +63,7 @@ function AuthCallbackPage() {
     return () => {
       cancelled = true;
     };
-  }, [code, error_description, mode, navigate, onboardWorkspace, provider, role]);
+  }, [code, error_description, navigate]);
 
   return (
     <PlatformShell>
