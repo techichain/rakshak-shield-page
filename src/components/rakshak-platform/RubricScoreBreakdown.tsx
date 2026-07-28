@@ -38,12 +38,18 @@ export function RubricScoreBreakdown({
         <tbody>
           {rows.map((r) => (
             <tr key={r.key} className="border-t border-border">
-              <td className="px-3 py-1.5">{r.label}</td>
-              <td className="px-3 py-1.5 text-right font-mono">
+              <td className="px-3 py-1.5">
+                {r.label}
+                {r.comment && (
+                  <div className="mt-0.5 text-xs text-muted-foreground whitespace-pre-wrap">{r.comment}</div>
+                )}
+              </td>
+              <td className="px-3 py-1.5 text-right font-mono align-top">
                 {Number(r.score ?? 0)} / {Number(r.max_score ?? 0)}
               </td>
             </tr>
           ))}
+
           <tr className="border-t border-border bg-muted/30 font-semibold">
             <td className="px-3 py-1.5">Total</td>
             <td className="px-3 py-1.5 text-right font-mono">
