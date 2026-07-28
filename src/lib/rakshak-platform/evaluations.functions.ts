@@ -185,12 +185,22 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
       .single();
     if (subErr) throw subErr;
 
-    const { data: rubric, error: rubErr } = await supabase
+    // Legacy per-phase rubric (may be absent).
+    const { data: rubric } = await supabase
       .from("rp_rubrics")
       .select("*")
       .eq("phase_number", submission.phase_number)
-      .single();
-    if (rubErr) throw rubErr;
+      .maybeSingle();
+
+    // Admin-authored rubric template takes precedence when present.
+    const { data: templates } = await supabase
+      .from("rp_rubric_templates")
+      .select("*")
+      .eq("phase_number", submission.phase_number)
+      .eq("is_active", true)
+      .order("version", { ascending: false })
+      .limit(1);
+    const template = (templates ?? [])[0] ?? null;
 
     const { data: myEval } = await supabase
       .from("rp_evaluations")
@@ -207,7 +217,7 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
       .eq("phase_number", submission.phase_number)
       .order("created_at", { ascending: true });
 
-    return { submission, rubric, myEval, locations: locations ?? [] };
+    return { submission, rubric, template, myEval, locations: locations ?? [] };
   });
 
 /**
