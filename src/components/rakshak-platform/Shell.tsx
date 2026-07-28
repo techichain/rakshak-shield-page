@@ -218,7 +218,7 @@ export function PlatformShell({
   hideMenu?: boolean;
 }) {
   const navigate = useNavigate();
-  const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
+  const { userId, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const evaluatorOnly = isEvaluator && !isAdmin && !isMentor && !isTeam && !isAuthority && !isFinance;
   const mentorOnly = isMentor && !isAdmin && !isTeam && !isAuthority && !isFinance;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -472,6 +472,7 @@ export function PlatformShell({
                   <MobileGroup label="People" items={[
                     { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog },
                     { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound },
+                    { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: UserCog },
                     { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                     { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays },
