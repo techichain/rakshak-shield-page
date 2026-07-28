@@ -222,28 +222,48 @@ function ScoringPage() {
               <div className="mt-5 space-y-3">
                 {hasRubric ? (
                   criteria.map((c) => (
-                    <div key={c.key} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
-                      <div className="flex-1 min-w-[200px]">
-                        <div className="font-heading text-sm font-semibold">{c.label}</div>
-                        {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
+                    <div key={c.key} className="rounded-2xl border border-border bg-card p-4">
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <div className="flex-1 min-w-[200px]">
+                          <div className="font-heading text-sm font-semibold">{c.label}</div>
+                          {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={0}
+                            max={c.max_score}
+                            step={1}
+                            value={scores[c.key] ?? 0}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
+                              setScores((s) => ({ ...s, [c.key]: clamped }));
+                            }}
+                            className="rp-input w-20 text-right font-mono"
+                          />
+                          <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          max={c.max_score}
-                          step={1}
-                          value={scores[c.key] ?? 0}
-                          onChange={(e) => {
-                            const v = Number(e.target.value);
-                            const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
-                            setScores((s) => ({ ...s, [c.key]: clamped }));
-                          }}
-                          className="rp-input w-20 text-right font-mono"
-                        />
-                        <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
-                      </div>
+                      {template && (
+                        <details className="mt-3" open={!!criterionComments[c.key]}>
+                          <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                            Add a remark for this criterion (optional)
+                          </summary>
+                          <textarea
+                            rows={2}
+                            maxLength={1000}
+                            value={criterionComments[c.key] ?? ""}
+                            onChange={(e) =>
+                              setCriterionComments((s) => ({ ...s, [c.key]: e.target.value }))
+                            }
+                            placeholder="Optional note on this criterion."
+                            className="rp-input mt-2 w-full text-sm"
+                          />
+                        </details>
+                      )}
                     </div>
+
                   ))
                 ) : (
                   <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
