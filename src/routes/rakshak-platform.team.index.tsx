@@ -10,6 +10,7 @@ import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3, ChevronD
 import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { RubricScoreBreakdown } from "@/components/rakshak-platform/RubricScoreBreakdown";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
