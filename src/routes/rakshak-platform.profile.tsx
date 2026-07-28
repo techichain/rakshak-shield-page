@@ -154,6 +154,10 @@ function ProfilePage() {
     () => roles.some((r) => r === "mentor" || r === "evaluator"),
     [roles],
   );
+  const isAdmin = useMemo(
+    () => roles.some((r) => r === "super_admin" || r === "cfi_admin"),
+    [roles],
+  );
 
   function set<K extends keyof FormState>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -319,29 +323,35 @@ function ProfilePage() {
                   className="h-11 w-full rounded-xl border border-border bg-muted px-4 text-sm text-muted-foreground"
                 />
               </Field>
-              <Field label="Phone">
-                <Input value={form.phone} onChange={(v) => set("phone", v)} />
-              </Field>
-              <Field label="Blood group">
-                <select
-                  value={form.blood_group}
-                  onChange={(e) => set("blood_group", e.target.value)}
-                  className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm focus:border-brand focus:outline-none"
-                >
-                  <option value="">Select…</option>
-                  {BLOOD_GROUPS.map((b) => <option key={b} value={b}>{b}</option>)}
-                </select>
-              </Field>
-              <div className="md:col-span-2">
-                <Field label="Address">
-                  <textarea
-                    value={form.address}
-                    onChange={(e) => set("address", e.target.value)}
-                    rows={3}
-                    className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm focus:border-brand focus:outline-none"
-                  />
+              {!isAdmin && (
+                <Field label="Phone">
+                  <Input value={form.phone} onChange={(v) => set("phone", v)} />
                 </Field>
-              </div>
+              )}
+              {!isAdmin && (
+                <Field label="Blood group">
+                  <select
+                    value={form.blood_group}
+                    onChange={(e) => set("blood_group", e.target.value)}
+                    className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm focus:border-brand focus:outline-none"
+                  >
+                    <option value="">Select…</option>
+                    {BLOOD_GROUPS.map((b) => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </Field>
+              )}
+              {!isAdmin && (
+                <div className="md:col-span-2">
+                  <Field label="Address">
+                    <textarea
+                      value={form.address}
+                      onChange={(e) => set("address", e.target.value)}
+                      rows={3}
+                      className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm focus:border-brand focus:outline-none"
+                    />
+                  </Field>
+                </div>
+              )}
             </div>
           </div>
 
@@ -368,56 +378,57 @@ function ProfilePage() {
             </div>
           )}
 
-          {/* Bank */}
-          <div>
-            <h2 className="font-heading text-2xl tracking-tight">Bank details</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Used only for reimbursements. Visible to you and programme admins — never to
-              mentors, evaluators or other teams.
-            </p>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <Field label="Account holder name">
-                <Input value={form.bank_account_name} onChange={(v) => set("bank_account_name", v)} />
-              </Field>
-              <Field label="Account number">
-                <input
-                  type="text"
-                  value={maskAcct && form.bank_account_number ? maskAccount(form.bank_account_number) : form.bank_account_number}
-                  onFocus={() => setMaskAcct(false)}
-                  onBlur={() => setMaskAcct(true)}
-                  onChange={(e) => set("bank_account_number", e.target.value)}
-                  className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm focus:border-brand focus:outline-none"
-                />
-              </Field>
-              <Field label="IFSC code">
-                <Input value={form.bank_ifsc} onChange={(v) => set("bank_ifsc", v.toUpperCase())} />
-              </Field>
-              <Field label="Branch">
-                <Input value={form.bank_branch} onChange={(v) => set("bank_branch", v)} />
-              </Field>
-              <div className="md:col-span-2">
-                <span className="mb-2 block text-xs font-medium tracking-[0.2em] text-muted-foreground">
-                  CANCELLED CHEQUE
-                </span>
-                <div className="flex flex-wrap items-center gap-3">
-                  <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-5 text-sm hover:bg-muted">
-                    <Upload className="h-4 w-4" />
-                    {chequePath ? "Replace file" : "Upload cancelled cheque"}
-                    <input type="file" className="hidden" onChange={onChequeChange} disabled={busy} />
-                  </label>
-                  {chequePath && (
-                    <button
-                      type="button"
-                      onClick={viewCheque}
-                      className="inline-flex items-center gap-1.5 text-sm text-brand hover:underline"
-                    >
-                      <FileText className="h-4 w-4" /> View cheque
-                    </button>
-                  )}
+          {!isAdmin && (
+            <div>
+              <h2 className="font-heading text-2xl tracking-tight">Bank details</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Used only for reimbursements. Visible to you and programme admins — never to
+                mentors, evaluators or other teams.
+              </p>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <Field label="Account holder name">
+                  <Input value={form.bank_account_name} onChange={(v) => set("bank_account_name", v)} />
+                </Field>
+                <Field label="Account number">
+                  <input
+                    type="text"
+                    value={maskAcct && form.bank_account_number ? maskAccount(form.bank_account_number) : form.bank_account_number}
+                    onFocus={() => setMaskAcct(false)}
+                    onBlur={() => setMaskAcct(true)}
+                    onChange={(e) => set("bank_account_number", e.target.value)}
+                    className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm focus:border-brand focus:outline-none"
+                  />
+                </Field>
+                <Field label="IFSC code">
+                  <Input value={form.bank_ifsc} onChange={(v) => set("bank_ifsc", v.toUpperCase())} />
+                </Field>
+                <Field label="Branch">
+                  <Input value={form.bank_branch} onChange={(v) => set("bank_branch", v)} />
+                </Field>
+                <div className="md:col-span-2">
+                  <span className="mb-2 block text-xs font-medium tracking-[0.2em] text-muted-foreground">
+                    CANCELLED CHEQUE
+                  </span>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-5 text-sm hover:bg-muted">
+                      <Upload className="h-4 w-4" />
+                      {chequePath ? "Replace file" : "Upload cancelled cheque"}
+                      <input type="file" className="hidden" onChange={onChequeChange} disabled={busy} />
+                    </label>
+                    {chequePath && (
+                      <button
+                        type="button"
+                        onClick={viewCheque}
+                        className="inline-flex items-center gap-1.5 text-sm text-brand hover:underline"
+                      >
+                        <FileText className="h-4 w-4" /> View cheque
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <button
             type="submit"
