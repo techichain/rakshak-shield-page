@@ -12,6 +12,8 @@ import { AuthorityEngagement } from "@/components/rakshak-platform/AuthorityEnga
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 import { RubricScoreBreakdown } from "@/components/rakshak-platform/RubricScoreBreakdown";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
+import { listQuestionnairesForTeam } from "@/lib/rakshak-platform/questionnaires.functions";
+import { createDoubt } from "@/lib/rakshak-platform/doubts.functions";
 import {
   Loader2,
   UsersRound,
@@ -20,7 +22,10 @@ import {
   MapPin,
   ExternalLink,
   CalendarDays,
+  ClipboardList,
+  HelpCircle,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/rakshak-platform/mentor/teams/$teamId")({
   ssr: false,
