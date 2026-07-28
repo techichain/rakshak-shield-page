@@ -129,6 +129,8 @@ function ProfilePage() {
     setChequePath(p.cancelled_cheque_path ?? null);
     setRoles(r.roles ?? []);
     if (r.team_name !== undefined) setTeamName(r.team_name ?? null);
+
+    if (r.team_name !== undefined) setTeamName(r.team_name ?? null);
     setPct(r.percentage ?? 0);
     setMissing(r.missing_fields ?? []);
   }, []);
