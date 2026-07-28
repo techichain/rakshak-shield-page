@@ -29,7 +29,7 @@ export function GlobalSearch() {
       const like = `%${term}%`;
       const [teams, mentors, locs, subs] = await Promise.all([
         supabase.from("rp_teams").select("id, team_name, college, city, state").or(`team_name.ilike.${like},college.ilike.${like},city.ilike.${like},state.ilike.${like}`).limit(6),
-        supabase.from("rp_mentors").select("id, organization, rp_profiles(full_name, email)").limit(20),
+        supabase.from("rp_mentors").select("id, organization, rp_profiles:rp_profiles_public!profile_id(full_name, email)").limit(20),
         supabase.from("rp_locations").select("id, team_id, location_name, city").ilike("location_name", like).limit(6),
         supabase.from("rp_submissions").select("id, title, team_id, phase_number").ilike("title", like).limit(6),
       ]);

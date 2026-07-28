@@ -134,7 +134,7 @@ export const getSubmissionDetail = createServerFn({ method: "GET" })
           .order("created_at", { ascending: false }),
         context.supabase
           .from("rp_feedback")
-          .select("*, rp_profiles:author_id(full_name)")
+          .select("*, rp_profiles:rp_profiles_public!author_id(full_name)")
           .eq("submission_id", sub.id)
           .order("created_at", { ascending: false }),
       ]);
@@ -181,7 +181,7 @@ export const getPhaseSubmissionSlots = createServerFn({ method: "GET" })
           .order("created_at", { ascending: false }),
         context.supabase
           .from("rp_feedback")
-          .select("*, rp_profiles:author_id(full_name)")
+          .select("*, rp_profiles:rp_profiles_public!author_id(full_name)")
           .in("submission_id", ids)
           .order("created_at", { ascending: false }),
       ]);
@@ -843,7 +843,7 @@ export const getTeamPhaseTimeline = createServerFn({ method: "GET" })
       const [fb, ev] = await Promise.all([
         context.supabase
           .from("rp_feedback")
-          .select("id, submission_id, reviewer_role, reviewer_id, feedback_text, phase_number, created_at, rp_profiles:reviewer_id(full_name)")
+          .select("id, submission_id, reviewer_role, reviewer_id, feedback_text, phase_number, created_at, rp_profiles:rp_profiles_public!reviewer_id(full_name)")
           .in("submission_id", submissionIds)
           .order("created_at", { ascending: false }),
         context.supabase

@@ -204,7 +204,7 @@ export const listTeamResourcesForViewer = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await context.supabase
       .from("rp_mentor_resources")
-      .select("*, rp_profiles:mentor_id(full_name), rp_teams:team_id(id, team_name)")
+      .select("*, rp_profiles:rp_profiles_public!mentor_id(full_name), rp_teams:team_id(id, team_name)")
       .or(orClauses.join(","))
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -231,7 +231,7 @@ export const listTeamResourcesAdmin = createServerFn({ method: "GET" })
     }
     const { data: rows, error } = await context.supabase
       .from("rp_mentor_resources")
-      .select("*, rp_profiles:mentor_id(full_name)")
+      .select("*, rp_profiles:rp_profiles_public!mentor_id(full_name)")
       .or(orClauses.join(","))
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -316,7 +316,7 @@ export const listMyRecentFeedback = createServerFn({ method: "GET" })
     if (teams.size === 0) return { feedback: [] };
     const { data: fb, error } = await context.supabase
       .from("rp_feedback")
-      .select("id, phase_number, team_id, feedback_text, reviewer_role, created_at, status, rp_profiles:reviewer_id(full_name)")
+      .select("id, phase_number, team_id, feedback_text, reviewer_role, created_at, status, rp_profiles:rp_profiles_public!reviewer_id(full_name)")
       .in("team_id", Array.from(teams.keys()))
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 5);
