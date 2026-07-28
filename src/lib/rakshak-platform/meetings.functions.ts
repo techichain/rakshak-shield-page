@@ -57,9 +57,20 @@ export const createMeeting = createServerFn({ method: "POST" })
         }
       }
     }
-    if ((data.meeting_type === "team_mentor" ||
-         data.meeting_type === "evaluator_team" ||
-         data.meeting_type === "team_internal") && !data.team_id) {
+    const isAllTeams = data.audience === "all_teams";
+    if (isAllTeams) {
+      const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", {
+        _user_id: context.userId,
+      });
+      if (!isAdmin) throw new Error("Only admins can invite all teams.");
+    }
+    if (
+      !isAllTeams &&
+      (data.meeting_type === "team_mentor" ||
+        data.meeting_type === "evaluator_team" ||
+        data.meeting_type === "team_internal") &&
+      !data.team_id
+    ) {
       throw new Error("A team is required for this meeting type.");
     }
     const finalLink =
@@ -67,7 +78,7 @@ export const createMeeting = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("rp_meetings")
       .insert({
-        team_id: data.team_id ?? null,
+        team_id: isAllTeams ? null : (data.team_id ?? null),
         meeting_type: data.meeting_type,
         title: data.title,
         agenda: data.agenda,
@@ -78,10 +89,35 @@ export const createMeeting = createServerFn({ method: "POST" })
         location: data.location || null,
         status: data.status,
         created_by: context.userId,
-      })
+        audience: data.audience,
+      } as any)
       .select()
       .single();
     if (error) throw error;
+
+    // Broadcast: notify every team leader in scope (mirrors announcements).
+    if (isAllTeams) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      let tq = supabaseAdmin.from("rp_teams").select("id, team_leader_id, cohort_id");
+      if (data.cohort_id) tq = tq.eq("cohort_id", data.cohort_id);
+      const { data: allTeams } = await tq;
+      const leaderIds = Array.from(
+        new Set((allTeams ?? []).map((t: any) => t.team_leader_id).filter(Boolean)),
+      );
+      if (leaderIds.length) {
+        await supabaseAdmin.from("rp_notifications").insert(
+          leaderIds.map((pid) => ({
+            recipient_id: pid,
+            type: "meeting_scheduled",
+            title: `All-teams meeting: ${data.title}`,
+            message: `Starts ${new Date(data.scheduled_start).toLocaleString("en-IN")}`,
+            action_link: "/rakshak-platform/meetings",
+            related_entity_type: "meeting",
+            related_entity_id: row.id,
+          })),
+        );
+      }
+    }
 
     const inviteeIds = new Set<string>(data.invitee_ids);
 
