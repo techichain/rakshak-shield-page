@@ -3201,45 +3201,6 @@ export type Database = {
           },
         ]
       }
-      rp_role_approvals: {
-        Row: {
-          created_at: string
-          id: string
-          notes: string | null
-          requested_at: string
-          requested_role: Database["public"]["Enums"]["rp_app_role"]
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          notes?: string | null
-          requested_at?: string
-          requested_role: Database["public"]["Enums"]["rp_app_role"]
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          notes?: string | null
-          requested_at?: string
-          requested_role?: Database["public"]["Enums"]["rp_app_role"]
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       rp_role_invites: {
         Row: {
           accepted_user_id: string | null
