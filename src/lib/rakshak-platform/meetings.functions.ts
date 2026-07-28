@@ -25,6 +25,10 @@ const CreateInput = z.object({
   status: z.enum(["proposed", "confirmed", "cancelled", "completed"]).default("proposed"),
   invitee_ids: z.array(z.string().uuid()).max(50).default([]),
   extra_emails: z.array(z.string().email()).max(50).default([]),
+  // 'team' = single team (default). 'all_teams' = admin broadcast to every team
+  // (optionally scoped to a cohort). 'custom' reserved for a future picker.
+  audience: z.enum(["team", "all_teams", "custom"]).default("team"),
+  cohort_id: z.string().uuid().nullable().optional(),
 });
 
 export const createMeeting = createServerFn({ method: "POST" })
@@ -53,9 +57,20 @@ export const createMeeting = createServerFn({ method: "POST" })
         }
       }
     }
-    if ((data.meeting_type === "team_mentor" ||
-         data.meeting_type === "evaluator_team" ||
-         data.meeting_type === "team_internal") && !data.team_id) {
+    const isAllTeams = data.audience === "all_teams";
+    if (isAllTeams) {
+      const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", {
+        _user_id: context.userId,
+      });
+      if (!isAdmin) throw new Error("Only admins can invite all teams.");
+    }
+    if (
+      !isAllTeams &&
+      (data.meeting_type === "team_mentor" ||
+        data.meeting_type === "evaluator_team" ||
+        data.meeting_type === "team_internal") &&
+      !data.team_id
+    ) {
       throw new Error("A team is required for this meeting type.");
     }
     const finalLink =
@@ -63,7 +78,7 @@ export const createMeeting = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("rp_meetings")
       .insert({
-        team_id: data.team_id ?? null,
+        team_id: isAllTeams ? null : (data.team_id ?? null),
         meeting_type: data.meeting_type,
         title: data.title,
         agenda: data.agenda,
@@ -74,10 +89,35 @@ export const createMeeting = createServerFn({ method: "POST" })
         location: data.location || null,
         status: data.status,
         created_by: context.userId,
-      })
+        audience: data.audience,
+      } as any)
       .select()
       .single();
     if (error) throw error;
+
+    // Broadcast: notify every team leader in scope (mirrors announcements).
+    if (isAllTeams) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      let tq = supabaseAdmin.from("rp_teams").select("id, team_leader_id, cohort_id");
+      if (data.cohort_id) tq = tq.eq("cohort_id", data.cohort_id);
+      const { data: allTeams } = await tq;
+      const leaderIds = Array.from(
+        new Set((allTeams ?? []).map((t: any) => t.team_leader_id).filter(Boolean)),
+      );
+      if (leaderIds.length) {
+        await supabaseAdmin.from("rp_notifications").insert(
+          leaderIds.map((pid) => ({
+            recipient_id: pid,
+            type: "meeting_scheduled",
+            title: `All-teams meeting: ${data.title}`,
+            message: `Starts ${new Date(data.scheduled_start).toLocaleString("en-IN")}`,
+            action_link: "/rakshak-platform/meetings",
+            related_entity_type: "meeting",
+            related_entity_id: row.id,
+          })),
+        );
+      }
+    }
 
     const inviteeIds = new Set<string>(data.invitee_ids);
 
@@ -331,7 +371,23 @@ export const listMyMeetings = createServerFn({ method: "GET" })
     }
     const { data, error } = await query;
     if (error) throw new Error(error.message || "Failed to load meetings");
-    return { meetings: data ?? [] };
+
+    // All-teams broadcasts have no team_id, so RLS hides them from teams.
+    // Merge them in for everyone (they are, by definition, for every team).
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: broadcasts } = await supabaseAdmin
+      .from("rp_meetings")
+      .select("*, rp_teams(team_name), rp_meeting_attendees(profile_id, rsvp)")
+      .eq("audience", "all_teams")
+      .order("scheduled_start", { ascending: true })
+      .limit(200);
+
+    const byId = new Map<string, any>();
+    for (const m of [...(data ?? []), ...(broadcasts ?? [])]) byId.set((m as any).id, m);
+    const meetings = Array.from(byId.values()).sort(
+      (a: any, b: any) => +new Date(a.scheduled_start) - +new Date(b.scheduled_start),
+    );
+    return { meetings };
   });
 
 export const listAllMeetingsAdmin = createServerFn({ method: "GET" })
@@ -816,8 +872,34 @@ export const setMeetingNotes = createServerFn({ method: "POST" })
     const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", {
       _user_id: context.userId,
     });
-    if (!isAdmin) throw new Error("Admin only");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!isAdmin) {
+      // The meeting's mentor may also write notes (team members stay read-only).
+      const { data: meeting } = await supabaseAdmin
+        .from("rp_meetings")
+        .select("id, team_id, mentor_id, created_by")
+        .eq("id", data.meeting_id)
+        .maybeSingle();
+      if (!meeting) throw new Error("Meeting not found");
+
+      const { data: mentorRow } = await supabaseAdmin
+        .from("rp_mentors")
+        .select("id")
+        .eq("profile_id", context.userId)
+        .maybeSingle();
+
+      let allowed = !!mentorRow?.id && meeting.mentor_id === mentorRow.id;
+      if (!allowed && mentorRow?.id && meeting.team_id) {
+        const { data: team } = await supabaseAdmin
+          .from("rp_teams")
+          .select("assigned_mentor_id")
+          .eq("id", meeting.team_id)
+          .maybeSingle();
+        allowed = team?.assigned_mentor_id === mentorRow.id;
+      }
+      if (!allowed && mentorRow?.id && meeting.created_by === context.userId) allowed = true;
+      if (!allowed) throw new Error("Only an admin or the meeting's mentor can edit notes.");
+    }
     const { error } = await supabaseAdmin
       .from("rp_meetings")
       .update({ notes: data.notes })

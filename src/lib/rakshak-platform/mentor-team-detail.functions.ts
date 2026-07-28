@@ -89,7 +89,7 @@ export const getMentorTeamDetail = createServerFn({ method: "GET" })
         .order("scheduled_start", { ascending: false }),
       supabaseAdmin
         .from("rp_evaluations")
-        .select("id, submission_id, phase_number, total_score, weighted_score, comments, status, submitted_at, evaluator:evaluator_id(id, full_name, email)")
+        .select("id, submission_id, phase_number, total_score, weighted_score, rubric_scores, comments, status, submitted_at, evaluator:evaluator_id(id, full_name, email)")
         .eq("team_id", data.team_id)
         .order("phase_number"),
       supabaseAdmin

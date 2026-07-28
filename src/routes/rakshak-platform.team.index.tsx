@@ -10,6 +10,7 @@ import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3, ChevronD
 import { Link } from "@tanstack/react-router";
 import { PHASE_TITLES, STATUS_META } from "@/lib/rakshak-platform/constants";
 import { MentorResourcesList } from "@/components/rakshak-platform/MentorResourcesList";
+import { RubricScoreBreakdown } from "@/components/rakshak-platform/RubricScoreBreakdown";
 import { RecentFeedbackCard } from "@/components/rakshak-platform/RecentFeedbackCard";
 import { RecentMeetingNotesCard } from "@/components/rakshak-platform/RecentMeetingNotesCard";
 import { DoubtsCard } from "@/components/rakshak-platform/DoubtsCard";
@@ -228,16 +229,24 @@ function TeamDashboard() {
                             <Star className="h-3.5 w-3.5" /> Evaluator scores
                           </div>
                           {tl?.evaluations?.length ? (
-                            <ul className="mt-1 space-y-1">
+                            <ul className="mt-1 space-y-2">
                               {tl.evaluations.map((ev: any) => (
-                                <li key={ev.id} className="flex items-center justify-between gap-2">
-                                  <span>
-                                    {ev.evaluator?.full_name ?? "Evaluator"}
-                                    <span className="text-muted-foreground"> · {ev.status}</span>
-                                  </span>
-                                  <span className="font-medium">
-                                    {ev.weighted_score ?? ev.total_score ?? "—"}
-                                  </span>
+                                <li key={ev.id} className="space-y-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span>
+                                      {ev.evaluator?.full_name ?? "Evaluator"}
+                                      <span className="text-muted-foreground"> · {ev.status}</span>
+                                    </span>
+                                    <span className="font-medium">
+                                      {ev.weighted_score ?? ev.total_score ?? "—"}
+                                    </span>
+                                  </div>
+                                  {Array.isArray(ev.rubric_scores) && ev.rubric_scores.length > 0 && (
+                                    <RubricScoreBreakdown
+                                      rubricScores={ev.rubric_scores}
+                                      totalScore={ev.total_score}
+                                    />
+                                  )}
                                 </li>
                               ))}
                             </ul>

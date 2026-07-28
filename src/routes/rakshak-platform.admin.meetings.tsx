@@ -110,7 +110,7 @@ function AdminMeetings() {
                     {m.meeting_link && <a href={m.meeting_link} target="_blank" rel="noreferrer" className="ml-2 text-xs text-brand hover:underline">link</a>}
                   </td>
                   <td className="px-3 py-2">{m.meeting_type}</td>
-                  <td className="px-3 py-2">{m.rp_teams?.team_name ?? "—"}</td>
+                  <td className="px-3 py-2">{m.audience === "all_teams" ? "All teams" : (m.rp_teams?.team_name ?? "—")}</td>
                   <td className="px-3 py-2">{m.status}</td>
                   <td className="px-3 py-2 max-w-[260px]">
                     <div className="space-y-0.5 text-xs">
