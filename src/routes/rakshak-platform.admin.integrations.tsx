@@ -304,7 +304,30 @@ function IntegrationsPage() {
               </li>
             );
           })}
+          <li className="rounded-2xl border border-dashed border-border bg-background p-5">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MessageSquare className="h-4 w-4" aria-hidden />
+              <span className="font-heading text-foreground">WhatsApp notifications</span>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              WhatsApp delivery for deadline, meeting, and resource notifications via Heltar + Message91
+            </p>
+            <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
+              <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                Coming soon
+              </span>
+              <button
+                type="button"
+                disabled
+                className="text-xs text-muted-foreground inline-flex items-center gap-1 min-h-9 cursor-not-allowed opacity-60"
+                aria-label="Check WhatsApp notifications now (unavailable)"
+              >
+                <PlayCircle className="h-3.5 w-3.5" aria-hidden /> Check now
+              </button>
+            </div>
+          </li>
         </ul>
+
 
         <div className="mt-16 rounded-2xl border border-border bg-background">
           <button
