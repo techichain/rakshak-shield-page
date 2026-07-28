@@ -404,6 +404,41 @@ function SiteEvidencePanel({ locations }: { locations: any[] }) {
   );
 }
 
+// Read-only awareness of the team's other submissions.
+// BLIND REVIEW: no college / institution identity is shown here.
+function TeamHistoryPanel({ history }: { history: any[] }) {
+  if (!history || history.length === 0) return null;
+  return (
+    <div className="mt-6">
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+        This team's submission history ({history.length})
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Other phases submitted by this team — read-only context. Institution identity stays hidden.
+      </p>
+      <ul className="mt-3 grid gap-2">
+        {history.map((h) => (
+          <li key={h.id} className="rounded-xl border border-border bg-card p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="font-heading text-sm font-semibold">
+                {h.title ?? `Submission ${String(h.id).slice(0, 6)}`}
+              </div>
+              <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border border-border text-muted-foreground">
+                {h.status}
+              </span>
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              Phase {h.phase_number} — {PHASE_TITLES[h.phase_number]}
+              {h.submitted_at ? ` · ${new Date(h.submitted_at).toLocaleDateString()}` : ""}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+
 function AnnexurePanel() {
   const entries = [
     { key: "A", title: "Annexure A — Site survey raw data" },
