@@ -25,6 +25,10 @@ const CreateInput = z.object({
   status: z.enum(["proposed", "confirmed", "cancelled", "completed"]).default("proposed"),
   invitee_ids: z.array(z.string().uuid()).max(50).default([]),
   extra_emails: z.array(z.string().email()).max(50).default([]),
+  // 'team' = single team (default). 'all_teams' = admin broadcast to every team
+  // (optionally scoped to a cohort). 'custom' reserved for a future picker.
+  audience: z.enum(["team", "all_teams", "custom"]).default("team"),
+  cohort_id: z.string().uuid().nullable().optional(),
 });
 
 export const createMeeting = createServerFn({ method: "POST" })
