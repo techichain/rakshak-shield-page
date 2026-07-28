@@ -218,7 +218,7 @@ export function PlatformShell({
   hideMenu?: boolean;
 }) {
   const navigate = useNavigate();
-  const { userId, fullName, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
+  const { userId, isAdmin, isMentor, isTeam, isEvaluator, isAuthority, isFinance } = useRPAuth();
   const evaluatorOnly = isEvaluator && !isAdmin && !isMentor && !isTeam && !isAuthority && !isFinance;
   const mentorOnly = isMentor && !isAdmin && !isTeam && !isAuthority && !isFinance;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -359,6 +359,8 @@ export function PlatformShell({
                   { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog, desc: "Team + leader + members, with login credentials" },
                   { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound, desc: "Per-team hub: submissions, feedback, resources, meetings" },
                   { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing, desc: "Provision login IDs & passwords" },
+                  { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: UserCog, desc: "Contact, bank & completion details for everyone" },
+
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                   { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays, desc: "Let teams book you, or announce to all teams" },
                 ]} />
@@ -387,10 +389,12 @@ export function PlatformShell({
                 <NotificationBell userId={userId} />
                 <Link
                   to="/rakshak-platform/profile"
-                  className="hidden sm:block text-xs text-muted-foreground hover:text-brand max-w-[10rem] truncate"
+                  className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand max-w-[12rem] truncate"
                 >
-                  {fullName}
+                  <UserCog className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">My profile</span>
                 </Link>
+
                 <button
                   onClick={async () => {
                     await rpSignOut();
@@ -468,6 +472,7 @@ export function PlatformShell({
                   <MobileGroup label="People" items={[
                     { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog },
                     { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound },
+                    { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: UserCog },
                     { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                     { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays },

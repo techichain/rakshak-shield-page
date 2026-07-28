@@ -72,7 +72,7 @@ export const listQuestionnairesForTeam = createServerFn({ method: "POST" })
     if (ids.length) {
       const { data: rows, error: rErr } = await context.supabase
         .from("rp_questionnaire_responses")
-        .select("id, questionnaire_id, team_id, respondent_id, answers, submitted_at, updated_at, rp_profiles:respondent_id(full_name, email)")
+        .select("id, questionnaire_id, team_id, respondent_id, answers, submitted_at, updated_at, rp_profiles:rp_profiles_public!respondent_id(full_name, email)")
         .in("questionnaire_id", ids);
       if (rErr) throw rErr;
       responses = rows ?? [];

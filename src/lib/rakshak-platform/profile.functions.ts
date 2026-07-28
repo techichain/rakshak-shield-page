@@ -301,3 +301,21 @@ export const getProfileUploadUrl = createServerFn({ method: "POST" })
     if (error) throw error;
     return { path, token: signed.token, signedUrl: signed.signedUrl };
   });
+
+/** Signed download URL for a profile file (cancelled cheque). Self or admin. */
+export const getProfileFileUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ path: z.string().trim().min(1).max(1000) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    if (!data.path.startsWith(`${context.userId}/profile/`)) {
+      await ensureAdmin(context.supabase, context.userId);
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed, error } = await supabaseAdmin.storage
+      .from(BUCKET)
+      .createSignedUrl(data.path, 300);
+    if (error) throw error;
+    return { url: signed.signedUrl };
+  });

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { ProfileNudgeBanner } from "@/components/rakshak-platform/ProfileNudgeBanner";
 import {
   Loader2, Sparkles, Search, Download, MessageSquare, Calendar,
   TrendingUp, Users, Trophy, AlertTriangle, ChevronUp, ChevronDown,
@@ -329,6 +330,7 @@ function AdminDashboard() {
   return (
     <PlatformShell>
       <Section className="!py-8 lg:!py-10">
+        <ProfileNudgeBanner userId={userId} />
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:flex-wrap sm:justify-between mb-8">
           <div className="min-w-0">
             <Eyebrow>CFI Admin command centre</Eyebrow>
@@ -1249,6 +1251,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/admin/onboarding", label: "Bulk onboarding", icon: Upload, desc: "Upload a CSV of teams, mentors or evaluators" },
       { to: "/rakshak-platform/admin/teams", label: "Teams", icon: Users, desc: "All teams · members · reports" },
       { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: HeartHandshake, desc: "Provision login IDs & passwords" },
+      { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: HeartHandshake, desc: "Contact, bank & completion details for everyone" },
       { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: Calendar, desc: "Mentor-team sessions" },
     ],
   },

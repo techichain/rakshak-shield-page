@@ -128,7 +128,7 @@ export const listMyMailThreads = createServerFn({ method: "GET" })
     // Fetch all participants + profiles for these threads
     const { data: allParts } = await supabase
       .from("rp_mail_participants")
-      .select("thread_id, profile_id, rp_profiles:profile_id(id, full_name, email)")
+      .select("thread_id, profile_id, rp_profiles:rp_profiles_public!profile_id(id, full_name, email)")
       .in("thread_id", ids);
 
     // Unread counts
@@ -182,11 +182,11 @@ export const getMailThread = createServerFn({ method: "POST" })
     const [{ data: participants }, { data: messages }] = await Promise.all([
       supabase
         .from("rp_mail_participants")
-        .select("profile_id, role_in_thread, last_read_at, added_at, rp_profiles:profile_id(id, full_name, email)")
+        .select("profile_id, role_in_thread, last_read_at, added_at, rp_profiles:rp_profiles_public!profile_id(id, full_name, email)")
         .eq("thread_id", data.threadId),
       supabase
         .from("rp_mail_messages")
-        .select("id, sender_id, body, sent_at, rp_profiles:sender_id(id, full_name, email)")
+        .select("id, sender_id, body, sent_at, rp_profiles:rp_profiles_public!sender_id(id, full_name, email)")
         .eq("thread_id", data.threadId)
         .order("sent_at", { ascending: true }),
     ]);

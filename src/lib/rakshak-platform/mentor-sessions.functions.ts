@@ -110,7 +110,7 @@ export const listMentorOpenSlots = createServerFn({ method: "GET" })
     if (error) throw error;
     const { data: mentor } = await context.supabase
       .from("rp_mentors")
-      .select("id, expertise, organization, rp_profiles:profile_id(full_name)")
+      .select("id, expertise, organization, rp_profiles:rp_profiles_public!profile_id(full_name)")
       .eq("id", data.mentor_id)
       .maybeSingle();
     return { mentor, slots: slots ?? [] };
@@ -130,7 +130,7 @@ export const bookMentorSlot = createServerFn({ method: "POST" })
     // Verify slot is open and has capacity
     const { data: slot } = await context.supabase
       .from("rp_mentor_slots")
-      .select("*, rp_mentors:mentor_id(profile_id, rp_profiles:profile_id(full_name))")
+      .select("*, rp_mentors:mentor_id(profile_id, rp_profiles:rp_profiles_public!profile_id(full_name))")
       .eq("id", data.slot_id)
       .maybeSingle();
     if (!slot) throw new Error("Slot not found");

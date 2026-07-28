@@ -359,7 +359,7 @@ export const listInvitees = createServerFn({ method: "GET" })
     // Require a search term to prevent bulk profile harvesting.
     if (!data.search) return { people: [] };
     const { data: rows, error } = await context.supabase
-      .from("rp_profiles")
+      .from("rp_profiles_public")
       .select("id, full_name")
       .or(`full_name.ilike.%${data.search}%,email.ilike.%${data.search}%`)
       .order("full_name", { ascending: true })
