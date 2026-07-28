@@ -45,6 +45,7 @@ const NAV_PATHS = [
   "/rakshak-platform/admin/teams/new",
   "/rakshak-platform/admin/credentials",
   "/rakshak-platform/admin/meetings",
+  "/rakshak-platform/admin/rubrics",
   "/rakshak-platform/admin/sessions",
   "/rakshak-platform/admin/evaluator-leaderboard",
   "/rakshak-platform/admin/ranks",
@@ -365,6 +366,7 @@ export function PlatformShell({
                   { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays, desc: "Let teams book you, or announce to all teams" },
                 ]} />
                 <NavDropdown id="review" label="Review" icon={ClipboardCheck} openId={openDropdown} setOpenId={setOpenDropdown} items={[
+                  { to: "/rakshak-platform/admin/rubrics", label: "Scoring rubrics", icon: ClipboardCheck, desc: "Per-phase evaluation criteria" },
                   { to: "/rakshak-platform/admin/evaluator-leaderboard", label: "Evaluator activity", icon: Trophy },
                   { to: "/rakshak-platform/admin/ranks", label: "Phase ranks", icon: Trophy, desc: "Publish global per-phase team ranks" },
                   { to: "/rakshak-platform/admin/reviews", label: "Reviews", icon: FileText },
@@ -475,6 +477,7 @@ export function PlatformShell({
                     { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: UserCog },
                     { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing },
                     { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
+                    { to: "/rakshak-platform/admin/rubrics", label: "Scoring rubrics", icon: ClipboardCheck },
                     { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays },
                   ]} onPick={() => setMenuOpen(false)} />
                   <MobileGroup label="Content" items={[

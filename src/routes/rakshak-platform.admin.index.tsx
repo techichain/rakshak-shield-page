@@ -1253,6 +1253,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: HeartHandshake, desc: "Provision login IDs & passwords" },
       { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: HeartHandshake, desc: "Contact, bank & completion details for everyone" },
       { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: Calendar, desc: "Mentor-team sessions" },
+      { to: "/rakshak-platform/admin/rubrics", label: "Scoring rubrics", icon: ClipboardCheck, desc: "Per-phase evaluation criteria & weights" },
     ],
   },
   {
