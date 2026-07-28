@@ -848,7 +848,7 @@ export const getTeamPhaseTimeline = createServerFn({ method: "GET" })
           .order("created_at", { ascending: false }),
         context.supabase
           .from("rp_evaluations")
-          .select("id, submission_id, evaluator_id, status, total_score, weighted_score, comments, updated_at, evaluator:evaluator_id(full_name)")
+          .select("id, submission_id, evaluator_id, status, total_score, weighted_score, rubric_scores, comments, updated_at, evaluator:evaluator_id(full_name)")
           .in("submission_id", submissionIds),
       ]);
       feedback = fb.data ?? [];
