@@ -381,7 +381,7 @@ export const listMailRecipients = createServerFn({ method: "GET" })
       if (leaderRecipients.length) groups.push({ label: "Team leaders", recipients: leaderRecipients });
       if (mentorIds.size) {
         const { data: mentors } = await supabaseAdmin
-          .from("rp_mentors").select("id, profile_id, rp_profiles:rp_profiles_public!profile_id(id, full_name, email)")
+          .from("rp_mentors").select("id, profile_id, rp_profiles:profile_id(id, full_name, email)")
           .in("id", Array.from(mentorIds));
         const mentorRecipients = (mentors ?? [])
           .map((m: any) => m.rp_profiles)
@@ -418,7 +418,7 @@ export const listMailRecipients = createServerFn({ method: "GET" })
       ));
       if (mentorIds.length) {
         const { data: mentors } = await supabaseAdmin
-          .from("rp_mentors").select("id, profile_id, rp_profiles:rp_profiles_public!profile_id(id, full_name, email)")
+          .from("rp_mentors").select("id, profile_id, rp_profiles:profile_id(id, full_name, email)")
           .in("id", mentorIds);
         const mentorRecipients = (mentors ?? [])
           .map((m: any) => m.rp_profiles)
