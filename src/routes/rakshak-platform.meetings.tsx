@@ -15,6 +15,7 @@ import {
   listMentorPendingBookings,
   respondToMentorBooking,
   createMentorAllTeamsMeeting,
+  setMeetingNotes,
 } from "@/lib/rakshak-platform/meetings.functions";
 import { Video, MapPin, Calendar, X, Check, HelpCircle, Bell, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
@@ -66,6 +67,7 @@ function MeetingsPage() {
   const rsvp = useServerFn(rsvpMeeting);
   const reschedule = useServerFn(rescheduleMeeting);
   const notify = useServerFn(notifyMeetingConfirmed);
+  const saveNotes = useServerFn(setMeetingNotes);
 
   const { data } = useSuspenseQuery({ queryKey: ["rp-meetings"], queryFn: () => list() });
   const listPending = useServerFn(listMentorPendingBookings);
@@ -92,6 +94,11 @@ function MeetingsPage() {
   const [linkMode, setLinkMode] = useState<"google_meet" | "custom" | "none">("none");
   const [allTeamsCustomLink, setAllTeamsCustomLink] = useState("");
   const [teamIdSelected, setTeamIdSelected] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [audience, setAudience] = useState<"team" | "all_teams">("team");
+  const [notesOpen, setNotesOpen] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState("");
+  const [notesBusy, setNotesBusy] = useState(false);
   const userTimezone = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata"; }
     catch { return "Asia/Kolkata"; }
@@ -109,6 +116,7 @@ function MeetingsPage() {
         const privileged = rs.some((r: string) => ["cfi_admin", "super_admin", "admin", "mentor", "evaluator", "authority", "finance"].includes(r));
         setIsTeamLeaderOnly(rs.includes("team_leader") && !privileged);
         setIsTeamMemberOnly(rs.includes("team_member") && !rs.includes("team_leader") && !privileged);
+        setIsAdmin(rs.some((r: string) => ["cfi_admin", "super_admin"].includes(r)));
         const mentor = rs.includes("mentor");
         setIsMentor(mentor);
         if (mentor) {
@@ -160,7 +168,10 @@ function MeetingsPage() {
     }
   }
 
-  const needsTeam = type === "team_mentor" || type === "evaluator_team" || type === "team_internal";
+  const isAllTeamsAudience = isAdmin && audience === "all_teams";
+  const needsTeam =
+    !isAllTeamsAudience &&
+    (type === "team_mentor" || type === "evaluator_team" || type === "team_internal");
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -221,6 +232,7 @@ function MeetingsPage() {
           meeting_link: String(fd.get("meeting_link") || ""),
           
           status: "proposed",
+          audience: isAllTeamsAudience ? "all_teams" : "team",
           invitee_ids: [],
           extra_emails: extraEmails,
         },
@@ -494,6 +506,17 @@ function MeetingsPage() {
               <select value={type} onChange={(e) => setType(e.target.value)} className="rp-input">
                 {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
+              {isAdmin && (
+                <select
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value as "team" | "all_teams")}
+                  className="rp-input"
+                  aria-label="Invite"
+                >
+                  <option value="team">Invite: One team</option>
+                  <option value="all_teams">Invite: All teams</option>
+                </select>
+              )}
               {needsTeam ? (
                 <select
                   name="team_id"
@@ -632,6 +655,9 @@ function MeetingsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-heading text-lg">{m.title}</h3>
                         <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">{TYPE_LABELS[m.meeting_type] ?? m.meeting_type}</span>
+                        <span className="rounded-full border border-brand/40 bg-brand-lite px-2 py-0.5 text-[10px] uppercase tracking-wide text-brand">
+                          {m.audience === "all_teams" ? "All teams" : (m.rp_teams?.team_name ?? "Team")}
+                        </span>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {m.rp_teams?.team_name ? `${m.rp_teams.team_name} · ` : ""}
@@ -642,12 +668,66 @@ function MeetingsPage() {
                     <span className="text-xs uppercase tracking-wide text-muted-foreground">{m.status}</span>
                   </div>
                   {m.agenda && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{m.agenda}</p>}
-                  {m.notes && (
+                  {(m.notes || isAdmin || isMentor) && (
                     <div className="mt-3 rounded-md border border-amber-200 bg-amber-50/60 p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-                        Meeting notes / transcript (added manually by admin)
+                        Meeting notes / transcript
                       </div>
-                      <p className="mt-1 text-sm whitespace-pre-line text-amber-900">{m.notes}</p>
+                      {notesOpen === m.id ? (
+                        <div className="mt-2 space-y-2">
+                          <textarea
+                            value={notesDraft}
+                            onChange={(e) => setNotesDraft(e.target.value)}
+                            rows={5}
+                            maxLength={20000}
+                            placeholder="Notes, decisions, action items, transcript…"
+                            className="rp-input w-full text-sm"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              disabled={notesBusy}
+                              onClick={async () => {
+                                setNotesBusy(true);
+                                try {
+                                  await saveNotes({ data: { meeting_id: m.id, notes: notesDraft } });
+                                  await qc.invalidateQueries({ queryKey: ["rp-meetings"] });
+                                  setNotesOpen(null);
+                                  toast.success("Notes saved");
+                                } catch (e) {
+                                  toast.error(formatErr(e));
+                                } finally {
+                                  setNotesBusy(false);
+                                }
+                              }}
+                              className="rounded-full bg-brand px-4 py-1 text-xs text-brand-foreground disabled:opacity-60"
+                            >
+                              {notesBusy ? "Saving…" : "Save notes"}
+                            </button>
+                            <button
+                              onClick={() => setNotesOpen(null)}
+                              className="rounded-full border border-border px-4 py-1 text-xs"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-1 space-y-1">
+                          {m.notes ? (
+                            <p className="text-sm whitespace-pre-line text-amber-900">{m.notes}</p>
+                          ) : (
+                            <p className="text-sm text-amber-900/60">No notes yet</p>
+                          )}
+                          {(isAdmin || isMentor) && (
+                            <button
+                              onClick={() => { setNotesDraft(m.notes ?? ""); setNotesOpen(m.id); }}
+                              className="text-xs font-medium text-brand hover:underline"
+                            >
+                              {m.notes ? "Edit notes" : "Add notes"}
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
