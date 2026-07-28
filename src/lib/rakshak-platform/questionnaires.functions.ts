@@ -12,6 +12,12 @@ async function isOnTeam(supabase: any, teamId: string, userId: string) {
   return !!data;
 }
 
+async function isTeamMentor(supabase: any, teamId: string, userId: string) {
+  const { data } = await supabase.rpc("rp_is_team_mentor", { _team: teamId, _user: userId });
+  return !!data;
+}
+
+
 export const createQuestionnaire = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
