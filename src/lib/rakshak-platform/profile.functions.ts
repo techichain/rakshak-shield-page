@@ -136,7 +136,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
 
     const { data: row, error } = await context.supabase
       .from("rp_profiles")
-      .update(patch)
+      .update(patch as never)
       .eq("id", context.userId)
       .select("*")
       .single();
