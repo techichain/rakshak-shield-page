@@ -305,6 +305,8 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
         z.string().min(1).max(80),
         z.number().min(0).max(1000),
       ),
+      // Optional per-criterion remarks (template scoring only), keyed by criterion key.
+      criterionComments: z.record(z.string().min(1).max(80), z.string().max(1000)).optional(),
       // Used only when no rubric exists for the phase (freeform scoring).
       freeformTotal: z.number().min(0).max(100).optional(),
       comments: z.string().max(4000).optional(),
