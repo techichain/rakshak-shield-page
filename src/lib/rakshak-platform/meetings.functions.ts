@@ -872,8 +872,34 @@ export const setMeetingNotes = createServerFn({ method: "POST" })
     const { data: isAdmin } = await context.supabase.rpc("rp_is_admin", {
       _user_id: context.userId,
     });
-    if (!isAdmin) throw new Error("Admin only");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!isAdmin) {
+      // The meeting's mentor may also write notes (team members stay read-only).
+      const { data: meeting } = await supabaseAdmin
+        .from("rp_meetings")
+        .select("id, team_id, mentor_id, created_by")
+        .eq("id", data.meeting_id)
+        .maybeSingle();
+      if (!meeting) throw new Error("Meeting not found");
+
+      const { data: mentorRow } = await supabaseAdmin
+        .from("rp_mentors")
+        .select("id")
+        .eq("profile_id", context.userId)
+        .maybeSingle();
+
+      let allowed = !!mentorRow?.id && meeting.mentor_id === mentorRow.id;
+      if (!allowed && mentorRow?.id && meeting.team_id) {
+        const { data: team } = await supabaseAdmin
+          .from("rp_teams")
+          .select("assigned_mentor_id")
+          .eq("id", meeting.team_id)
+          .maybeSingle();
+        allowed = team?.assigned_mentor_id === mentorRow.id;
+      }
+      if (!allowed && mentorRow?.id && meeting.created_by === context.userId) allowed = true;
+      if (!allowed) throw new Error("Only an admin or the meeting's mentor can edit notes.");
+    }
     const { error } = await supabaseAdmin
       .from("rp_meetings")
       .update({ notes: data.notes })
