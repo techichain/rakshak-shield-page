@@ -154,6 +154,10 @@ function ProfilePage() {
     () => roles.some((r) => r === "mentor" || r === "evaluator"),
     [roles],
   );
+  const isAdmin = useMemo(
+    () => roles.some((r) => r === "super_admin" || r === "cfi_admin"),
+    [roles],
+  );
 
   function set<K extends keyof FormState>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
