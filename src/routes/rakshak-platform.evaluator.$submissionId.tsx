@@ -98,6 +98,7 @@ function ScoringPage() {
           submissionId,
           rubricScores: scores,
           ...(hasRubric ? {} : { freeformTotal }),
+          ...(template ? { criterionComments } : {}),
           comments,
           submit,
         },
