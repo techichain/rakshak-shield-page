@@ -95,7 +95,7 @@ export function toBase64(text: string): string {
   return btoa(bin);
 }
 
-/** Next free sequential login id per role, seeded once from rp_profiles. */
+/** Allocates `firstname.lastname@cfi` login ids, deduped against rp_profiles + this batch. */
 async function makeLoginIdAllocator(supabaseAdmin: any) {
   const taken = new Set<string>();
   const { data: rows } = await supabaseAdmin
@@ -189,7 +189,7 @@ export async function runBulkOnboarding(
               : row.role === "leader"
                 ? "team_leader"
                 : "team_member";
-        const loginId = nextLoginId(appRole);
+        const loginId = nextLoginId(row.full_name);
 
         /* --- 1. auth user --- */
         const { data: createdUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({

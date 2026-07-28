@@ -107,7 +107,7 @@ function AuthPage() {
                 autoComplete={mode === "login_id" ? "username" : "email"}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder={mode === "login_id" ? "priya.sharma.iitd" : "you@example.com"}
+                placeholder={mode === "login_id" ? "priya.sharma@cfi" : "you@example.com"}
                 className="w-full h-11 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:border-brand"
               />
             </Field>
