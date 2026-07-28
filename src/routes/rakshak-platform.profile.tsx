@@ -323,29 +323,35 @@ function ProfilePage() {
                   className="h-11 w-full rounded-xl border border-border bg-muted px-4 text-sm text-muted-foreground"
                 />
               </Field>
-              <Field label="Phone">
-                <Input value={form.phone} onChange={(v) => set("phone", v)} />
-              </Field>
-              <Field label="Blood group">
-                <select
-                  value={form.blood_group}
-                  onChange={(e) => set("blood_group", e.target.value)}
-                  className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm focus:border-brand focus:outline-none"
-                >
-                  <option value="">Select…</option>
-                  {BLOOD_GROUPS.map((b) => <option key={b} value={b}>{b}</option>)}
-                </select>
-              </Field>
-              <div className="md:col-span-2">
-                <Field label="Address">
-                  <textarea
-                    value={form.address}
-                    onChange={(e) => set("address", e.target.value)}
-                    rows={3}
-                    className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm focus:border-brand focus:outline-none"
-                  />
+              {!isAdmin && (
+                <Field label="Phone">
+                  <Input value={form.phone} onChange={(v) => set("phone", v)} />
                 </Field>
-              </div>
+              )}
+              {!isAdmin && (
+                <Field label="Blood group">
+                  <select
+                    value={form.blood_group}
+                    onChange={(e) => set("blood_group", e.target.value)}
+                    className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm focus:border-brand focus:outline-none"
+                  >
+                    <option value="">Select…</option>
+                    {BLOOD_GROUPS.map((b) => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </Field>
+              )}
+              {!isAdmin && (
+                <div className="md:col-span-2">
+                  <Field label="Address">
+                    <textarea
+                      value={form.address}
+                      onChange={(e) => set("address", e.target.value)}
+                      rows={3}
+                      className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm focus:border-brand focus:outline-none"
+                    />
+                  </Field>
+                </div>
+              )}
             </div>
           </div>
 
