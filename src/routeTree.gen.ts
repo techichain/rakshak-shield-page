@@ -75,6 +75,7 @@ import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/raksha
 import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
 import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
 import { Route as RakshakPlatformAdminSessionsRouteImport } from './routes/rakshak-platform.admin.sessions'
+import { Route as RakshakPlatformAdminRubricsRouteImport } from './routes/rakshak-platform.admin.rubrics'
 import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
 import { Route as RakshakPlatformAdminResourcesRouteImport } from './routes/rakshak-platform.admin.resources'
 import { Route as RakshakPlatformAdminRanksRouteImport } from './routes/rakshak-platform.admin.ranks'
@@ -500,6 +501,12 @@ const RakshakPlatformAdminSessionsRoute =
     path: '/sessions',
     getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
+const RakshakPlatformAdminRubricsRoute =
+  RakshakPlatformAdminRubricsRouteImport.update({
+    id: '/rubrics',
+    path: '/rubrics',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
 const RakshakPlatformAdminReviewsRoute =
   RakshakPlatformAdminReviewsRouteImport.update({
     id: '/reviews',
@@ -872,6 +879,7 @@ export interface FileRoutesByFullPath {
   '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
+  '/rakshak-platform/admin/rubrics': typeof RakshakPlatformAdminRubricsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -984,6 +992,7 @@ export interface FileRoutesByTo {
   '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
+  '/rakshak-platform/admin/rubrics': typeof RakshakPlatformAdminRubricsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -1104,6 +1113,7 @@ export interface FileRoutesById {
   '/rakshak-platform/admin/ranks': typeof RakshakPlatformAdminRanksRoute
   '/rakshak-platform/admin/resources': typeof RakshakPlatformAdminResourcesRoute
   '/rakshak-platform/admin/reviews': typeof RakshakPlatformAdminReviewsRoute
+  '/rakshak-platform/admin/rubrics': typeof RakshakPlatformAdminRubricsRoute
   '/rakshak-platform/admin/sessions': typeof RakshakPlatformAdminSessionsRoute
   '/rakshak-platform/auth/calendar-callback': typeof RakshakPlatformAuthCalendarCallbackRoute
   '/rakshak-platform/auth/callback': typeof RakshakPlatformAuthCallbackRoute
@@ -1227,6 +1237,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
+    | '/rakshak-platform/admin/rubrics'
     | '/rakshak-platform/admin/sessions'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1339,6 +1350,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
+    | '/rakshak-platform/admin/rubrics'
     | '/rakshak-platform/admin/sessions'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -1458,6 +1470,7 @@ export interface FileRouteTypes {
     | '/rakshak-platform/admin/ranks'
     | '/rakshak-platform/admin/resources'
     | '/rakshak-platform/admin/reviews'
+    | '/rakshak-platform/admin/rubrics'
     | '/rakshak-platform/admin/sessions'
     | '/rakshak-platform/auth/calendar-callback'
     | '/rakshak-platform/auth/callback'
@@ -2011,6 +2024,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RakshakPlatformAdminSessionsRouteImport
       parentRoute: typeof RakshakPlatformAdminRoute
     }
+    '/rakshak-platform/admin/rubrics': {
+      id: '/rakshak-platform/admin/rubrics'
+      path: '/rubrics'
+      fullPath: '/rakshak-platform/admin/rubrics'
+      preLoaderRoute: typeof RakshakPlatformAdminRubricsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
     '/rakshak-platform/admin/reviews': {
       id: '/rakshak-platform/admin/reviews'
       path: '/reviews'
@@ -2499,6 +2519,7 @@ interface RakshakPlatformAdminRouteChildren {
   RakshakPlatformAdminRanksRoute: typeof RakshakPlatformAdminRanksRoute
   RakshakPlatformAdminResourcesRoute: typeof RakshakPlatformAdminResourcesRoute
   RakshakPlatformAdminReviewsRoute: typeof RakshakPlatformAdminReviewsRoute
+  RakshakPlatformAdminRubricsRoute: typeof RakshakPlatformAdminRubricsRoute
   RakshakPlatformAdminSessionsRoute: typeof RakshakPlatformAdminSessionsRoute
   RakshakPlatformAdminIndexRoute: typeof RakshakPlatformAdminIndexRoute
   RakshakPlatformAdminPrintDatasetRoute: typeof RakshakPlatformAdminPrintDatasetRoute
@@ -2526,6 +2547,7 @@ const RakshakPlatformAdminRouteChildren: RakshakPlatformAdminRouteChildren = {
   RakshakPlatformAdminRanksRoute: RakshakPlatformAdminRanksRoute,
   RakshakPlatformAdminResourcesRoute: RakshakPlatformAdminResourcesRoute,
   RakshakPlatformAdminReviewsRoute: RakshakPlatformAdminReviewsRoute,
+  RakshakPlatformAdminRubricsRoute: RakshakPlatformAdminRubricsRoute,
   RakshakPlatformAdminSessionsRoute: RakshakPlatformAdminSessionsRoute,
   RakshakPlatformAdminIndexRoute: RakshakPlatformAdminIndexRoute,
   RakshakPlatformAdminPrintDatasetRoute: RakshakPlatformAdminPrintDatasetRoute,
