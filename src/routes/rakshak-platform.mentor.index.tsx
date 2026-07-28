@@ -240,7 +240,14 @@ function MentorDashboard() {
               >
                 <div className="font-heading text-lg font-semibold">{t.team_name}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{t.college} · {t.city}</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Leader: <span className="text-foreground">{t.leader_name ?? "not assigned yet"}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t.location_count} site{t.location_count === 1 ? "" : "s"} logged
+                </div>
                 <div className="mt-4 text-sm">Phase {t.current_phase} — {PHASE_TITLES[t.current_phase]}</div>
+
                 <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-brand" style={{ width: `${t.completion_percentage}%` }} />
                 </div>
