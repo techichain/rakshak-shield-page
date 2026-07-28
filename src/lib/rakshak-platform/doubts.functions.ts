@@ -94,7 +94,9 @@ export const createDoubt = createServerFn({ method: "POST" })
         .map((rid) => ({
           recipient_id: rid,
           type: "doubt_created",
-          title: `New doubt from ${(team as any).team_name}`,
+          title: posted_by_role === "mentor"
+            ? `Mentor question — ${(team as any).team_name}`
+            : `New doubt from ${(team as any).team_name}`,
           message: data.question.slice(0, 200),
           action_link: mentorProfileId === rid
             ? "/rakshak-platform/mentor"
