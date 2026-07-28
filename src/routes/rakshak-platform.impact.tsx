@@ -85,8 +85,15 @@ function Stat({
 }
 
 function partnerLogo(name: string) {
-  const n = name.trim().toLowerCase();
-  const match = UNIS.find((u) => u.name.trim().toLowerCase() === n);
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const n = norm(name);
+  if (!n) return undefined;
+  const match =
+    UNIS.find((u) => norm(u.name) === n) ??
+    UNIS.find((u) => {
+      const un = norm(u.name);
+      return un.length >= 4 && (n.includes(un) || un.includes(n));
+    });
   return match?.file ? uniLogoUrl(match.file) : undefined;
 }
 

@@ -4,7 +4,8 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { ClipboardList, Loader2 } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 
 export const Route = createFileRoute("/rakshak-platform/admin/reviews")({
   component: AdminReviewsPage,
@@ -16,18 +17,14 @@ export const Route = createFileRoute("/rakshak-platform/admin/reviews")({
   ),
 });
 
-const DUMMY_MENTOR_ANALYTICS = [
-  { name: "Aarav Sharma",  team_count: 8, avg_completion: 78, turnaround_days: 1.6, approved: 22, changes: 5 },
-  { name: "Priya Menon",   team_count: 7, avg_completion: 71, turnaround_days: 2.1, approved: 18, changes: 6 },
-  { name: "Rohan Kapoor",  team_count: 6, avg_completion: 82, turnaround_days: 1.2, approved: 20, changes: 3 },
-  { name: "Isha Verma",    team_count: 6, avg_completion: 64, turnaround_days: 2.8, approved: 14, changes: 8 },
-  { name: "Karan Iyer",    team_count: 5, avg_completion: 69, turnaround_days: 2.3, approved: 13, changes: 5 },
-  { name: "Neha Reddy",    team_count: 5, avg_completion: 76, turnaround_days: 1.9, approved: 15, changes: 4 },
-  { name: "Vikram Singh",  team_count: 4, avg_completion: 58, turnaround_days: 3.1, approved: 9,  changes: 7 },
-  { name: "Ananya Das",    team_count: 3, avg_completion: 88, turnaround_days: 1.1, approved: 11, changes: 2 },
-];
-
-type MentorRow = typeof DUMMY_MENTOR_ANALYTICS[number];
+type MentorRow = {
+  name: string;
+  team_count: number;
+  avg_completion: number;
+  turnaround_days: number;
+  approved: number;
+  changes: number;
+};
 
 function AdminReviewsPage() {
   const { loading, userId, isAdmin } = useRPAuth();
@@ -35,7 +32,6 @@ function AdminReviewsPage() {
 
   const [mentorRows, setMentorRows] = useState<MentorRow[]>([]);
   const [mentorBusy, setMentorBusy] = useState(true);
-  const [mentorDummy, setMentorDummy] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -58,8 +54,7 @@ function AdminReviewsPage() {
         const sData = subs.data ?? [];
 
         if (mData.length === 0) {
-          setMentorRows(DUMMY_MENTOR_ANALYTICS);
-          setMentorDummy(true);
+          setMentorRows([]);
         } else {
           const teamsByMentor = new Map<string, any[]>();
           for (const t of tData) {
@@ -102,11 +97,9 @@ function AdminReviewsPage() {
             };
           }).sort((a, b) => b.team_count - a.team_count);
           setMentorRows(rows);
-          setMentorDummy(false);
         }
       } catch {
-        setMentorRows(DUMMY_MENTOR_ANALYTICS);
-        setMentorDummy(true);
+        setMentorRows([]);
       } finally {
         setMentorBusy(false);
       }
@@ -129,16 +122,14 @@ function AdminReviewsPage() {
           review turnaround, and how many submissions they approved vs sent back for changes.
         </p>
 
-        {mentorDummy && (
-          <div className="mb-4">
-            <span className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-800">
-              Showing sample data — no mentors found yet
-            </span>
-          </div>
-        )}
-
         {mentorBusy ? (
           <div className="grid place-items-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+        ) : mentorRows.length === 0 ? (
+          <EmptyState
+            icon={ClipboardList}
+            title="No reviews yet"
+            description="Mentor review activity will appear here once evaluators and mentors start reviewing team submissions."
+          />
         ) : (
           <Card>
             <CardHeader><CardTitle className="text-base">Per-mentor breakdown</CardTitle></CardHeader>
