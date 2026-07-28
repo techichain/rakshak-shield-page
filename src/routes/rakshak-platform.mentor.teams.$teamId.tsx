@@ -10,6 +10,7 @@ import { TeamUpdates } from "@/components/rakshak-platform/TeamUpdates";
 import { AuthorityEngagement } from "@/components/rakshak-platform/AuthorityEngagement";
 
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
+import { RubricScoreBreakdown } from "@/components/rakshak-platform/RubricScoreBreakdown";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import {
   Loader2,
