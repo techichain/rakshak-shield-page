@@ -11,8 +11,9 @@ export function RubricScoreBreakdown({
   totalScore?: number | null;
 }) {
   const rows = Array.isArray(rubricScores)
-    ? (rubricScores as Array<{ key: string; label: string; score: number; max_score: number }>)
+    ? (rubricScores as Array<{ key: string; label: string; score: number; max_score: number; comment?: string }>)
     : [];
+
 
   if (rows.length === 0) {
     return (
