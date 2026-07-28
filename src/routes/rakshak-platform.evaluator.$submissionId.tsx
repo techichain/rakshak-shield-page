@@ -195,6 +195,7 @@ function ScoringPage() {
             )}
 
             <SiteEvidencePanel locations={(data as any).locations ?? []} />
+            <TeamHistoryPanel history={(data as any).teamHistory ?? []} />
             <AnnexurePanel />
 
 
