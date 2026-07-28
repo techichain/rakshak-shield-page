@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { ProfileNudgeBanner } from "@/components/rakshak-platform/ProfileNudgeBanner";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 import { getEvaluatorQueue } from "@/lib/rakshak-platform/evaluations.functions";
@@ -80,6 +81,7 @@ function EvaluatorQueue() {
   return (
     <PlatformShell hideMenu>
       <Section className="!py-10 lg:!py-12">
+        <ProfileNudgeBanner userId={userId} />
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <Eyebrow>Evaluator workspace</Eyebrow>
           <div className="inline-flex items-center gap-3">

@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { ProfileNudgeBanner } from "@/components/rakshak-platform/ProfileNudgeBanner";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { Loader2, UsersRound, Video, CalendarDays, BookOpen, BarChart3, ChevronDown, ChevronRight, FileText, MessageSquare, Star, FolderOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -108,6 +109,7 @@ function TeamDashboard() {
   return (
     <PlatformShell>
       <Section>
+        <ProfileNudgeBanner userId={userId} />
         <Eyebrow>My team</Eyebrow>
         <h1 className="mt-6 font-heading text-4xl sm:text-5xl font-bold leading-[1.05]">
           {team.team_name}

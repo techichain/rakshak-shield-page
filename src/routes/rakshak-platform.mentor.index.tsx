@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useRPAuth, rpRequireRole } from "@/lib/rakshak-platform/auth";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
+import { ProfileNudgeBanner } from "@/components/rakshak-platform/ProfileNudgeBanner";
 import { TEAM_STATUS_META, PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { ReviewPanel } from "@/components/rakshak-platform/ReviewPanel";
 import { ResolveDoubtsPanel } from "@/components/rakshak-platform/ResolveDoubtsPanel";
@@ -118,6 +119,7 @@ function MentorDashboard() {
   return (
     <PlatformShell>
       <Section>
+        <ProfileNudgeBanner userId={userId} />
         <Eyebrow>Mentor workspace</Eyebrow>
         <h1 className="mt-6 font-heading text-4xl sm:text-5xl font-bold leading-[1.05]">
           Your assigned
