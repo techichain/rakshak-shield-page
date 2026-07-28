@@ -373,7 +373,14 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
         total += score;
         weightedNum += score * w;
         weightedDen += (Number(c.max_score) || 0) * w;
-        return { key: c.key, label: c.label, score, max_score: Number(c.max_score) || 0 };
+        const comment = (data.criterionComments?.[c.key] ?? "").trim();
+        return {
+          key: c.key,
+          label: c.label,
+          score,
+          max_score: Number(c.max_score) || 0,
+          ...(comment ? { comment } : {}),
+        };
       });
       const pct = weightedDen > 0 ? (weightedNum / weightedDen) * 100 : 0;
       // Keep the leaderboard scale: contribution = percentage × phase weight.
