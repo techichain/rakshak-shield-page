@@ -1239,7 +1239,7 @@ function AnalyticsPanel({ rows, mentors }: { rows: Enriched[]; mentors: MentorRo
 /* Admin quick access — grouped tiles mirroring the nav                  */
 /* ──────────────────────────────────────────────────────────────────── */
 
-type AdminTile = { to: string; label: string; icon: LucideIcon; desc?: string };
+type AdminTile = { to: string; label: string; icon: LucideIcon; desc?: string; soon?: boolean };
 
 const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: AdminTile[] }> = [
   {
@@ -1294,6 +1294,14 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/impact", label: "Programme impact", icon: TrendingUp, desc: "Public-facing headline numbers" },
       { to: "/rakshak-platform/admin/data", label: "Import & export", icon: Download },
       { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
+      {
+        to: "#whatsapp-notifications",
+        label: "WhatsApp notifications",
+        icon: MessageSquare,
+        desc: "Send deadline reminders, meeting links, and resource alerts to team leaders and mentors via WhatsApp. Powered by Heltar + Message91.",
+        soon: true,
+      },
+
       
       
     ],
@@ -1352,8 +1360,33 @@ function AdminQuickAccess() {
             <ul className="grid gap-1">
               {g.items.map((it) => {
                 const Icon = it.icon;
+                if (it.soon) {
+                  return (
+                    <li key={it.to}>
+                      <div className="flex items-start gap-3 rounded-lg px-2.5 py-2 opacity-80">
+                        <span className="h-7 w-7 shrink-0 grid place-items-center rounded-md bg-white/70 text-muted-foreground border border-border/60">
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground">{it.label}</span>
+                            <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                              Coming soon
+                            </span>
+                          </span>
+                          {it.desc && (
+                            <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">
+                              {it.desc}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                }
                 return (
                   <li key={it.to}>
+
                     <Link
                       to={it.to}
                       className="group flex items-center gap-3 rounded-lg px-2.5 py-2 hover:bg-white/80 transition-colors"

@@ -18,12 +18,6 @@ const BATCH_SIZE = 10;
 const BATCH_DELAY_MS = 100;
 const PORTAL_BASE = "https://rakshak.crashfreeindia.org";
 
-const ROLE_PREFIX: Record<string, string> = {
-  team_leader: "TL",
-  team_member: "TM",
-  mentor: "MT",
-  evaluator: "EV",
-};
 
 export type ExecResultRow = {
   email: string;
@@ -101,28 +95,43 @@ export function toBase64(text: string): string {
   return btoa(bin);
 }
 
-/** Next free sequential login id per role, seeded once from rp_profiles. */
+/** Allocates `firstname.lastname@cfi` login ids, deduped against rp_profiles + this batch. */
 async function makeLoginIdAllocator(supabaseAdmin: any) {
-  const maxByPrefix = new Map<string, number>();
+  const taken = new Set<string>();
   const { data: rows } = await supabaseAdmin
     .from("rp_profiles")
     .select("login_id")
     .not("login_id", "is", null);
-  for (const r of rows ?? []) {
-    const id = String(r.login_id).toLowerCase();
-    const m = id.match(/^([a-z]{2})(\d{1,6})$/);
-    if (!m) continue;
-    const p = m[1].toUpperCase();
-    const n = parseInt(m[2], 10);
-    if (n > (maxByPrefix.get(p) ?? 0)) maxByPrefix.set(p, n);
-  }
-  return (role: string) => {
-    const prefix = ROLE_PREFIX[role] ?? "US";
-    const next = (maxByPrefix.get(prefix) ?? 0) + 1;
-    maxByPrefix.set(prefix, next);
-    return `${prefix}${String(next).padStart(4, "0")}`.toLowerCase();
+  for (const r of rows ?? []) taken.add(String(r.login_id).toLowerCase());
+
+  const clean = (s: string) =>
+    s
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  return (fullName: string) => {
+    const parts = String(fullName ?? "")
+      .trim()
+      .split(/\s+/)
+      .map(clean)
+      .filter(Boolean);
+    const first = parts[0] ?? "user";
+    const last = parts.length > 1 ? parts[parts.length - 1] : "";
+    const base = last ? `${first}.${last}` : first;
+
+    let candidate = `${base}@cfi`;
+    let n = 1;
+    while (taken.has(candidate)) {
+      n += 1;
+      candidate = `${base}${n}@cfi`;
+    }
+    taken.add(candidate);
+    return candidate;
   };
 }
+
 
 /* ---------------------------------------------------------------- */
 /* Main runner                                                       */
@@ -180,7 +189,7 @@ export async function runBulkOnboarding(
               : row.role === "leader"
                 ? "team_leader"
                 : "team_member";
-        const loginId = nextLoginId(appRole);
+        const loginId = nextLoginId(row.full_name);
 
         /* --- 1. auth user --- */
         const { data: createdUser, error: createErr } = await supabaseAdmin.auth.admin.createUser({
