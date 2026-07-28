@@ -24,6 +24,18 @@ export const Route = createFileRoute("/rakshak-platform/profile")({
   component: ProfilePage,
 });
 
+const ROLE_LABELS: Record<string, string> = {
+  team_leader: "Team leader",
+  team_member: "Team member",
+  mentor: "Mentor",
+  evaluator: "Evaluator",
+  cfi_admin: "Programme admin",
+  super_admin: "Super admin",
+  authority: "Authority",
+  finance: "Finance",
+  leadership_viewer: "Leadership viewer",
+};
+
 const FIELD_LABELS: Record<string, string> = {
   full_name: "Full name",
   email: "Email",
@@ -84,6 +96,7 @@ function ProfilePage() {
   const [err, setErr] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [roles, setRoles] = useState<string[]>([]);
+  const [teamName, setTeamName] = useState<string | null>(null);
   const [pct, setPct] = useState(0);
   const [missing, setMissing] = useState<string[]>([]);
   const [chequePath, setChequePath] = useState<string | null>(null);
@@ -115,6 +128,7 @@ function ProfilePage() {
     });
     setChequePath(p.cancelled_cheque_path ?? null);
     setRoles(r.roles ?? []);
+    if (r.team_name !== undefined) setTeamName(r.team_name ?? null);
     setPct(r.percentage ?? 0);
     setMissing(r.missing_fields ?? []);
   }, []);
