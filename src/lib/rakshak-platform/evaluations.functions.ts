@@ -286,6 +286,8 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
         z.string().min(1).max(80),
         z.number().min(0).max(1000),
       ),
+      // Used only when no rubric exists for the phase (freeform scoring).
+      freeformTotal: z.number().min(0).max(100).optional(),
       comments: z.string().max(4000).optional(),
       submit: z.boolean(),
     }).parse(input),
@@ -310,23 +312,66 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
       .single();
     if (subErr) throw subErr;
 
-    const { data: rubric, error: rubErr } = await supabase
+    const { data: rubric } = await supabase
       .from("rp_rubrics")
       .select("criteria, max_total_score, phase_weight")
       .eq("phase_number", submission.phase_number)
-      .single();
-    if (rubErr) throw rubErr;
+      .maybeSingle();
 
-    const criteria = (rubric.criteria as Array<{ key: string; max_score: number }>) ?? [];
+    const { data: templates } = await supabase
+      .from("rp_rubric_templates")
+      .select("criteria")
+      .eq("phase_number", submission.phase_number)
+      .eq("is_active", true)
+      .order("version", { ascending: false })
+      .limit(1);
+    const template = (templates ?? [])[0] ?? null;
+
+    const DEFAULT_PHASE_WEIGHT: Record<number, number> = { 0: 10, 1: 20, 2: 20, 3: 25, 4: 25 };
+    const weight =
+      Number(rubric?.phase_weight) || DEFAULT_PHASE_WEIGHT[submission.phase_number] || 20;
+
     let total = 0;
-    for (const c of criteria) {
-      const raw = Number(data.rubricScores[c.key] ?? 0);
-      const clamped = Math.max(0, Math.min(c.max_score, raw));
-      total += clamped;
+    let weighted = 0;
+    let rubricScoresOut: any = data.rubricScores;
+
+    if (template) {
+      // Structured template scoring: store an array breakdown.
+      const criteria =
+        ((template as any).criteria as Array<{
+          key: string;
+          label: string;
+          max_score: number;
+          weight?: number;
+        }>) ?? [];
+      let weightedNum = 0;
+      let weightedDen = 0;
+      const breakdown = criteria.map((c) => {
+        const w = Number(c.weight ?? 1) || 0;
+        const score = Math.max(0, Math.min(Number(c.max_score) || 0, Number(data.rubricScores[c.key] ?? 0)));
+        total += score;
+        weightedNum += score * w;
+        weightedDen += (Number(c.max_score) || 0) * w;
+        return { key: c.key, label: c.label, score, max_score: Number(c.max_score) || 0 };
+      });
+      const pct = weightedDen > 0 ? (weightedNum / weightedDen) * 100 : 0;
+      // Keep the leaderboard scale: contribution = percentage × phase weight.
+      weighted = Number(((pct / 100) * weight).toFixed(2));
+      rubricScoresOut = breakdown;
+    } else if (rubric) {
+      const criteria = (rubric.criteria as unknown as Array<{ key: string; max_score: number }>) ?? [];
+      for (const c of criteria) {
+        const raw = Number(data.rubricScores[c.key] ?? 0);
+        total += Math.max(0, Math.min(c.max_score, raw));
+      }
+      const max = Number(rubric.max_total_score) || 100;
+      weighted = Number(((total / max) * weight).toFixed(2));
+    } else {
+      // Freeform fallback: single 0–100 total.
+      total = Math.max(0, Math.min(100, Number(data.freeformTotal ?? 0)));
+      weighted = Number(((total / 100) * weight).toFixed(2));
+      rubricScoresOut = {};
     }
-    const max = Number(rubric.max_total_score) || 100;
-    const weight = Number(rubric.phase_weight) || 0;
-    const weighted = Number(((total / max) * weight).toFixed(2));
 
     // Fetch existing eval to build history entry (allows re-submission with change log).
     const { data: existing } = await supabase
