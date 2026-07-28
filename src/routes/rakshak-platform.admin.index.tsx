@@ -1239,7 +1239,7 @@ function AnalyticsPanel({ rows, mentors }: { rows: Enriched[]; mentors: MentorRo
 /* Admin quick access — grouped tiles mirroring the nav                  */
 /* ──────────────────────────────────────────────────────────────────── */
 
-type AdminTile = { to: string; label: string; icon: LucideIcon; desc?: string };
+type AdminTile = { to: string; label: string; icon: LucideIcon; desc?: string; soon?: boolean };
 
 const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: AdminTile[] }> = [
   {
@@ -1294,6 +1294,14 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/impact", label: "Programme impact", icon: TrendingUp, desc: "Public-facing headline numbers" },
       { to: "/rakshak-platform/admin/data", label: "Import & export", icon: Download },
       { to: "/rakshak-platform/admin/integrations", label: "Integrations", icon: Wrench },
+      {
+        to: "#whatsapp-notifications",
+        label: "WhatsApp notifications",
+        icon: MessageSquare,
+        desc: "Send deadline reminders, meeting links, and resource alerts to team leaders and mentors via WhatsApp. Powered by Heltar + Message91.",
+        soon: true,
+      },
+
       
       
     ],
