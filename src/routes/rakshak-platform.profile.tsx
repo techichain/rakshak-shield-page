@@ -251,10 +251,18 @@ function ProfilePage() {
           {roles.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1">
               {roles.map((r) => (
-                <span key={r} className="rounded-full bg-brand/10 px-2 py-0.5 text-xs text-brand">{r}</span>
+                <span key={r} className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-medium text-brand">
+                  {ROLE_LABELS[r] ?? r}
+                </span>
               ))}
             </div>
           )}
+          {isTeamRole && (teamName || form.college) && (
+            <div className="text-sm text-muted-foreground">
+              {[teamName, form.college].filter(Boolean).join(" · ")}
+            </div>
+          )}
+
         </div>
 
         {/* Completion */}
