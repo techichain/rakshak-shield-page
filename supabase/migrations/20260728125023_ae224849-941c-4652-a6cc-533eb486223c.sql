@@ -1,0 +1,2 @@
+ALTER TABLE public.rp_doubts DROP CONSTRAINT IF EXISTS rp_doubts_posted_by_role_check;
+ALTER TABLE public.rp_doubts ADD CONSTRAINT rp_doubts_posted_by_role_check CHECK (posted_by_role = ANY (ARRAY['team_leader'::text, 'team_member'::text, 'mentor'::text]));
