@@ -217,8 +217,27 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
       .eq("phase_number", submission.phase_number)
       .order("created_at", { ascending: true });
 
-    return { submission, rubric, template, myEval, locations: locations ?? [] };
+    // Read-only awareness: this team's other submissions across phases.
+    // BLIND REVIEW: no college / institution identity here either.
+    const { data: history } = await supabase
+      .from("rp_submissions")
+      .select("id, phase_number, title, status, submitted_at")
+      .eq("team_id", submission.team_id)
+      .neq("id", data.submissionId)
+      .order("phase_number", { ascending: true })
+      .order("submitted_at", { ascending: false, nullsFirst: false })
+      .limit(50);
+
+    return {
+      submission,
+      rubric,
+      template,
+      myEval,
+      locations: locations ?? [],
+      teamHistory: history ?? [],
+    };
   });
+
 
 /**
  * List every submission across all teams for the phase-wise browsing view,
@@ -286,6 +305,8 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
         z.string().min(1).max(80),
         z.number().min(0).max(1000),
       ),
+      // Optional per-criterion remarks (template scoring only), keyed by criterion key.
+      criterionComments: z.record(z.string().min(1).max(80), z.string().max(1000)).optional(),
       // Used only when no rubric exists for the phase (freeform scoring).
       freeformTotal: z.number().min(0).max(100).optional(),
       comments: z.string().max(4000).optional(),
@@ -352,7 +373,14 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
         total += score;
         weightedNum += score * w;
         weightedDen += (Number(c.max_score) || 0) * w;
-        return { key: c.key, label: c.label, score, max_score: Number(c.max_score) || 0 };
+        const comment = (data.criterionComments?.[c.key] ?? "").trim();
+        return {
+          key: c.key,
+          label: c.label,
+          score,
+          max_score: Number(c.max_score) || 0,
+          ...(comment ? { comment } : {}),
+        };
       });
       const pct = weightedDen > 0 ? (weightedNum / weightedDen) * 100 : 0;
       // Keep the leaderboard scale: contribution = percentage × phase weight.

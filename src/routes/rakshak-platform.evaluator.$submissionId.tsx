@@ -50,6 +50,7 @@ function ScoringPage() {
   );
   const hasRubric = criteria.length > 0;
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [criterionComments, setCriterionComments] = useState<Record<string, string>>({});
   const [freeformTotal, setFreeformTotal] = useState<number>(0);
   const [comments, setComments] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -62,13 +63,20 @@ function ScoringPage() {
     const prev: Record<string, number> = Array.isArray(raw)
       ? Object.fromEntries((raw as any[]).map((r) => [r.key, Number(r.score ?? 0)]))
       : ((raw ?? {}) as Record<string, number>);
+    const prevComments: Record<string, string> = Array.isArray(raw)
+      ? Object.fromEntries(
+          (raw as any[]).filter((r) => r?.comment).map((r) => [r.key, String(r.comment)]),
+        )
+      : {};
     criteria.forEach((c) => {
       initial[c.key] = Number(prev[c.key] ?? 0);
     });
     setScores(initial);
+    setCriterionComments(prevComments);
     setFreeformTotal(Number(data.myEval?.total_score ?? 0));
     setComments(data.myEval?.comments ?? "");
   }, [data, criteria]);
+
 
   const PHASE_WEIGHTS: Record<number, number> = { 0: 10, 1: 20, 2: 20, 3: 25, 4: 25 };
   const phaseNumber = Number(data?.submission?.phase_number ?? 0);
@@ -90,6 +98,7 @@ function ScoringPage() {
           submissionId,
           rubricScores: scores,
           ...(hasRubric ? {} : { freeformTotal }),
+          ...(template ? { criterionComments } : {}),
           comments,
           submit,
         },
@@ -186,6 +195,7 @@ function ScoringPage() {
             )}
 
             <SiteEvidencePanel locations={(data as any).locations ?? []} />
+            <TeamHistoryPanel history={(data as any).teamHistory ?? []} />
             <AnnexurePanel />
 
 
@@ -213,28 +223,48 @@ function ScoringPage() {
               <div className="mt-5 space-y-3">
                 {hasRubric ? (
                   criteria.map((c) => (
-                    <div key={c.key} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
-                      <div className="flex-1 min-w-[200px]">
-                        <div className="font-heading text-sm font-semibold">{c.label}</div>
-                        {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
+                    <div key={c.key} className="rounded-2xl border border-border bg-card p-4">
+                      <div className="flex items-center gap-4 flex-wrap">
+                        <div className="flex-1 min-w-[200px]">
+                          <div className="font-heading text-sm font-semibold">{c.label}</div>
+                          {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={0}
+                            max={c.max_score}
+                            step={1}
+                            value={scores[c.key] ?? 0}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
+                              setScores((s) => ({ ...s, [c.key]: clamped }));
+                            }}
+                            className="rp-input w-20 text-right font-mono"
+                          />
+                          <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          max={c.max_score}
-                          step={1}
-                          value={scores[c.key] ?? 0}
-                          onChange={(e) => {
-                            const v = Number(e.target.value);
-                            const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
-                            setScores((s) => ({ ...s, [c.key]: clamped }));
-                          }}
-                          className="rp-input w-20 text-right font-mono"
-                        />
-                        <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
-                      </div>
+                      {template && (
+                        <details className="mt-3" open={!!criterionComments[c.key]}>
+                          <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                            Add a remark for this criterion (optional)
+                          </summary>
+                          <textarea
+                            rows={2}
+                            maxLength={1000}
+                            value={criterionComments[c.key] ?? ""}
+                            onChange={(e) =>
+                              setCriterionComments((s) => ({ ...s, [c.key]: e.target.value }))
+                            }
+                            placeholder="Optional note on this criterion."
+                            className="rp-input mt-2 w-full text-sm"
+                          />
+                        </details>
+                      )}
                     </div>
+
                   ))
                 ) : (
                   <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
@@ -373,6 +403,41 @@ function SiteEvidencePanel({ locations }: { locations: any[] }) {
     </div>
   );
 }
+
+// Read-only awareness of the team's other submissions.
+// BLIND REVIEW: no college / institution identity is shown here.
+function TeamHistoryPanel({ history }: { history: any[] }) {
+  if (!history || history.length === 0) return null;
+  return (
+    <div className="mt-6">
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">
+        This team's submission history ({history.length})
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Other phases submitted by this team — read-only context. Institution identity stays hidden.
+      </p>
+      <ul className="mt-3 grid gap-2">
+        {history.map((h) => (
+          <li key={h.id} className="rounded-xl border border-border bg-card p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="font-heading text-sm font-semibold">
+                {h.title ?? `Submission ${String(h.id).slice(0, 6)}`}
+              </div>
+              <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full border border-border text-muted-foreground">
+                {h.status}
+              </span>
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              Phase {h.phase_number} — {PHASE_TITLES[h.phase_number]}
+              {h.submitted_at ? ` · ${new Date(h.submitted_at).toLocaleDateString()}` : ""}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 
 function AnnexurePanel() {
   const entries = [

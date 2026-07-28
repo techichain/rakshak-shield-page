@@ -45,29 +45,39 @@ export const createDoubt = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { team, isLeader, isMember, mentorProfileId } = await resolveTeamMembership(
+    const { team, isLeader, isMember, isMentor, mentorProfileId } = await resolveTeamMembership(
       context.supabase,
       context.userId,
       data.team_id,
     );
-    if (!isMember) throw new Error("Forbidden: not a member of this team");
+    // Team members raise doubts for their own team; the ASSIGNED mentor of the
+    // team may also raise one (addressed to admins) in that team's context.
+    if (!isMember && !isMentor) throw new Error("Forbidden: not a member of this team");
 
-    const posted_by_role = isLeader ? "team_leader" : "team_member";
+    const posted_by_role = isMentor && !isMember ? "mentor" : isLeader ? "team_leader" : "team_member";
     // 48h response window; a later scheduled job can auto-escalate anything overdue.
     const slaDueAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
-    const { data: inserted, error } = await context.supabase
+    const insertPayload = {
+      team_id: data.team_id,
+      phase_number: data.phase_number ?? null,
+      posted_by: context.userId,
+      posted_by_role,
+      question: data.question.trim(),
+      sla_due_at: slaDueAt,
+    };
+    // Mentors are authorised above but the insert policy on rp_doubts only
+    // covers team members, so mentor-raised doubts are written server-side.
+    const writer =
+      posted_by_role === "mentor"
+        ? (await import("@/integrations/supabase/client.server")).supabaseAdmin
+        : context.supabase;
+    const { data: inserted, error } = await writer
       .from("rp_doubts")
-      .insert({
-        team_id: data.team_id,
-        phase_number: data.phase_number ?? null,
-        posted_by: context.userId,
-        posted_by_role,
-        question: data.question.trim(),
-        sla_due_at: slaDueAt,
-      })
+      .insert(insertPayload)
       .select("*")
       .single();
     if (error) throw error;
+
 
     // notify mentor + admins (best-effort)
     try {
@@ -84,7 +94,9 @@ export const createDoubt = createServerFn({ method: "POST" })
         .map((rid) => ({
           recipient_id: rid,
           type: "doubt_created",
-          title: `New doubt from ${(team as any).team_name}`,
+          title: posted_by_role === "mentor"
+            ? `Mentor question — ${(team as any).team_name}`
+            : `New doubt from ${(team as any).team_name}`,
           message: data.question.slice(0, 200),
           action_link: mentorProfileId === rid
             ? "/rakshak-platform/mentor"

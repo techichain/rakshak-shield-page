@@ -54,10 +54,38 @@ function MentorDashboard() {
       if (!mentor) return;
       const { data } = await supabase
         .from("rp_teams")
-        .select("id, team_name, college, city, state, current_phase, status, risk_status, completion_percentage")
+        .select("id, team_name, college, city, state, current_phase, status, risk_status, completion_percentage, team_leader_id")
         .eq("assigned_mentor_id", mentor.id);
       const teamRows = data ?? [];
-      setTeams(teamRows);
+
+      // At-a-glance enrichment: leader name (public profile view only) + sites logged.
+      const teamIds = teamRows.map((t: any) => t.id);
+      const leaderIds = Array.from(
+        new Set(teamRows.map((t: any) => t.team_leader_id).filter(Boolean)),
+      ) as string[];
+      const [leadersRes, locsRes] = await Promise.all([
+        leaderIds.length
+          ? supabase.from("rp_profiles_public").select("id, full_name").in("id", leaderIds)
+          : Promise.resolve({ data: [] as any[] } as any),
+        teamIds.length
+          ? supabase.from("rp_locations").select("team_id").in("team_id", teamIds)
+          : Promise.resolve({ data: [] as any[] } as any),
+      ]);
+      const leaderNames: Record<string, string> = Object.fromEntries(
+        (leadersRes.data ?? []).map((p: any) => [p.id, p.full_name]),
+      );
+      const locCounts: Record<string, number> = {};
+      for (const l of locsRes.data ?? []) {
+        locCounts[l.team_id] = (locCounts[l.team_id] ?? 0) + 1;
+      }
+      setTeams(
+        teamRows.map((t: any) => ({
+          ...t,
+          leader_name: t.team_leader_id ? (leaderNames[t.team_leader_id] ?? null) : null,
+          location_count: locCounts[t.id] ?? 0,
+        })),
+      );
+
 
       // --- read-only overview numbers (existing tables only) ---
       const now = new Date();
@@ -212,7 +240,14 @@ function MentorDashboard() {
               >
                 <div className="font-heading text-lg font-semibold">{t.team_name}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{t.college} · {t.city}</div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Leader: <span className="text-foreground">{t.leader_name ?? "not assigned yet"}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {t.location_count} site{t.location_count === 1 ? "" : "s"} logged
+                </div>
                 <div className="mt-4 text-sm">Phase {t.current_phase} — {PHASE_TITLES[t.current_phase]}</div>
+
                 <div className="mt-3 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-brand" style={{ width: `${t.completion_percentage}%` }} />
                 </div>

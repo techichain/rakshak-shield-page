@@ -12,6 +12,8 @@ import { AuthorityEngagement } from "@/components/rakshak-platform/AuthorityEnga
 import { SubmissionKindBadge } from "@/components/rakshak-platform/SubmissionKindBadge";
 import { RubricScoreBreakdown } from "@/components/rakshak-platform/RubricScoreBreakdown";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
+import { listQuestionnairesForTeam } from "@/lib/rakshak-platform/questionnaires.functions";
+import { createDoubt } from "@/lib/rakshak-platform/doubts.functions";
 import {
   Loader2,
   UsersRound,
@@ -20,7 +22,10 @@ import {
   MapPin,
   ExternalLink,
   CalendarDays,
+  ClipboardList,
+  HelpCircle,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/rakshak-platform/mentor/teams/$teamId")({
   ssr: false,
@@ -272,10 +277,13 @@ function MentorTeamDetail() {
 
         {tab === "submissions" && (
           <div className="mt-8 space-y-8">
+            <MentorRaiseDoubt teamId={team.id} teamName={team.team_name} />
+            <TeamQuestionnairesPanel teamId={team.id} />
             <EvidenceRepository teamId={team.id} readOnly heading="Evidence & records filed by this team" />
             <MediaGallery teamId={team.id} readOnly heading="Site media from this team" />
             <AuthorityEngagement teamId={team.id} readOnly heading="Authority engagement by this team" />
             <TeamUpdates teamId={team.id} readOnly heading="Shared by this team (exam schedules, availability)" />
+
 
             {phaseNumbers.map((n) => {
               const subs = subsByPhase.get(n) ?? [];
@@ -504,3 +512,156 @@ function MentorTeamDetail() {
     </PlatformShell>
   );
 }
+
+/** Read-only view of the questionnaires this team has answered. */
+function TeamQuestionnairesPanel({ teamId }: { teamId: string }) {
+  const listQ = useServerFn(listQuestionnairesForTeam);
+  const [rows, setRows] = useState<any[]>([]);
+  const [busy, setBusy] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setBusy(true);
+      try {
+        const res = (await listQ({ data: { team_id: teamId } } as any)) as any;
+        if (!cancelled) setRows(res?.questionnaires ?? []);
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load");
+      } finally {
+        if (!cancelled) setBusy(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [teamId, listQ]);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <h2 className="font-heading text-lg font-semibold flex items-center gap-2">
+        <ClipboardList className="h-4 w-4" /> Questionnaires shared by this team
+      </h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Admin checklists and the answers this team submitted. Read-only.
+      </p>
+      {busy ? (
+        <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading questionnaires…
+        </div>
+      ) : error ? (
+        <div className="mt-4 text-sm text-muted-foreground">{error}</div>
+      ) : rows.length === 0 ? (
+        <div className="mt-4 text-sm text-muted-foreground">No questionnaires for this team yet.</div>
+      ) : (
+        <div className="mt-4 space-y-4">
+          {rows.map((q: any) => (
+            <div key={q.id} className="rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="font-medium">{q.title}</div>
+                <span className="text-xs text-muted-foreground">
+                  {q.phase_number != null ? `Phase ${q.phase_number}` : "All phases"}
+                </span>
+              </div>
+              {(q.responses ?? []).length === 0 ? (
+                <div className="mt-2 text-xs text-muted-foreground">No responses submitted yet.</div>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  {(q.responses ?? []).map((r: any) => (
+                    <div key={r.id} className="rounded-lg border border-border/60 p-3">
+                      <div className="text-xs text-muted-foreground">
+                        {r.rp_profiles?.full_name ?? "Team member"} · {fmtDate(r.submitted_at)}
+                      </div>
+                      <ul className="mt-2 space-y-2 text-sm">
+                        {((q.questions ?? []) as string[]).map((question: string, i: number) => (
+                          <li key={i}>
+                            <div className="text-xs text-muted-foreground">{question}</div>
+                            <div className="whitespace-pre-wrap">
+                              {(r.answers ?? [])[i] || "—"}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Lets the assigned mentor raise a question to admins in this team's context. */
+function MentorRaiseDoubt({ teamId, teamName }: { teamId: string; teamName: string }) {
+  const ask = useServerFn(createDoubt);
+  const [open, setOpen] = useState(false);
+  const [question, setQuestion] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+
+  async function submit() {
+    if (question.trim().length < 3) return;
+    setSaving(true); setError(null);
+    try {
+      await ask({ data: { team_id: teamId, question: question.trim() } } as any);
+      setQuestion(""); setOpen(false); setDone(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to send");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <h2 className="font-heading text-lg font-semibold flex items-center gap-2">
+        <HelpCircle className="h-4 w-4" /> Raise a doubt with the programme office
+      </h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Your question goes to the CFI admins, flagged as raised by you (the mentor) in the context of {teamName}.
+      </p>
+      {done && !open && (
+        <div className="mt-3 text-sm text-emerald-700">Sent — admins have been notified.</div>
+      )}
+      {!open ? (
+        <button
+          onClick={() => { setOpen(true); setDone(false); }}
+          className="mt-4 h-9 rounded-full bg-brand px-4 text-xs text-brand-foreground hover:bg-brand/90"
+        >
+          Ask a question
+        </button>
+      ) : (
+        <div className="mt-4 space-y-2">
+          <textarea
+            rows={3}
+            maxLength={2000}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="What do you need clarified?"
+            className="rp-input w-full"
+          />
+          {error && <div className="text-sm text-red-600">{error}</div>}
+          <div className="flex gap-2">
+            <button
+              disabled={saving || question.trim().length < 3}
+              onClick={() => void submit()}
+              className="h-9 rounded-full bg-brand px-4 text-xs text-brand-foreground hover:bg-brand/90 disabled:opacity-60"
+            >
+              {saving ? "Sending…" : "Send to admin"}
+            </button>
+            <button
+              onClick={() => { setOpen(false); setError(null); }}
+              className="h-9 rounded-full border border-border px-4 text-xs hover:border-brand/40"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+

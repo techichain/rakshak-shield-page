@@ -12,6 +12,12 @@ async function isOnTeam(supabase: any, teamId: string, userId: string) {
   return !!data;
 }
 
+async function isTeamMentor(supabase: any, teamId: string, userId: string) {
+  const { data } = await supabase.rpc("rp_is_team_mentor", { _team: teamId, _user: userId });
+  return !!data;
+}
+
+
 export const createQuestionnaire = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
@@ -53,9 +59,13 @@ export const listQuestionnairesForTeam = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const admin = await isAdmin(context.supabase, context.userId);
+    let mentor = false;
     if (!admin) {
       const onTeam = await isOnTeam(context.supabase, data.team_id, context.userId);
-      if (!onTeam) throw new Error("Forbidden");
+      if (!onTeam) {
+        mentor = await isTeamMentor(context.supabase, data.team_id, context.userId);
+        if (!mentor) throw new Error("Forbidden");
+      }
     }
 
     let qq = context.supabase
@@ -70,13 +80,19 @@ export const listQuestionnairesForTeam = createServerFn({ method: "POST" })
     const ids = (questionnaires ?? []).map((q: any) => q.id);
     let responses: any[] = [];
     if (ids.length) {
-      const { data: rows, error: rErr } = await context.supabase
+      // The assigned mentor is authorised above but has no direct RLS grant on
+      // rp_questionnaire_responses, so that read goes through the service client.
+      const reader = mentor
+        ? (await import("@/integrations/supabase/client.server")).supabaseAdmin
+        : context.supabase;
+      const { data: rows, error: rErr } = await reader
         .from("rp_questionnaire_responses")
         .select("id, questionnaire_id, team_id, respondent_id, answers, submitted_at, updated_at, rp_profiles:rp_profiles_public!respondent_id(full_name, email)")
         .in("questionnaire_id", ids);
       if (rErr) throw rErr;
       responses = rows ?? [];
     }
+
     const responsesByQ = new Map<string, any[]>();
     for (const r of responses) {
       const arr = responsesByQ.get(r.questionnaire_id) ?? [];
