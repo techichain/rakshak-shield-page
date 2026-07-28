@@ -402,7 +402,7 @@ export const upsertEvaluation = createServerFn({ method: "POST" })
       team_id: submission.team_id,
       phase_number: submission.phase_number,
       evaluator_id: userId,
-      rubric_scores: data.rubricScores,
+      rubric_scores: rubricScoresOut,
       total_score: total,
       weighted_score: weighted,
       comments: data.comments ?? null,
