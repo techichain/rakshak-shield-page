@@ -40,33 +40,60 @@ function ScoringPage() {
     enabled: !!userId && allowed,
   });
 
+  // Admin-authored rubric template wins; otherwise fall back to the legacy
+  // per-phase rubric; otherwise freeform scoring.
+  const template = (data as any)?.template ?? null;
   const criteria = useMemo<Criterion[]>(
-    () => ((data?.rubric?.criteria ?? []) as unknown as Criterion[]),
-    [data]
+    () =>
+      (((template?.criteria ?? data?.rubric?.criteria ?? []) as unknown) as Criterion[]),
+    [template, data]
   );
+  const hasRubric = criteria.length > 0;
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [freeformTotal, setFreeformTotal] = useState<number>(0);
   const [comments, setComments] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!data) return;
     const initial: Record<string, number> = {};
-    const prev = (data.myEval?.rubric_scores ?? {}) as Record<string, number>;
+    const raw = data.myEval?.rubric_scores;
+    // Structured breakdown (new) or key→score map (legacy).
+    const prev: Record<string, number> = Array.isArray(raw)
+      ? Object.fromEntries((raw as any[]).map((r) => [r.key, Number(r.score ?? 0)]))
+      : ((raw ?? {}) as Record<string, number>);
     criteria.forEach((c) => {
       initial[c.key] = Number(prev[c.key] ?? 0);
     });
     setScores(initial);
+    setFreeformTotal(Number(data.myEval?.total_score ?? 0));
     setComments(data.myEval?.comments ?? "");
   }, [data, criteria]);
 
-  const total = criteria.reduce((sum, c) => sum + Math.min(c.max_score, Math.max(0, Number(scores[c.key] ?? 0))), 0);
-  const max = Number(data?.rubric?.max_total_score ?? 100);
-  const weight = Number(data?.rubric?.phase_weight ?? 0);
+  const PHASE_WEIGHTS: Record<number, number> = { 0: 10, 1: 20, 2: 20, 3: 25, 4: 25 };
+  const phaseNumber = Number(data?.submission?.phase_number ?? 0);
+  const total = hasRubric
+    ? criteria.reduce((sum, c) => sum + Math.min(c.max_score, Math.max(0, Number(scores[c.key] ?? 0))), 0)
+    : freeformTotal;
+  const max = hasRubric
+    ? template
+      ? criteria.reduce((s, c) => s + Number(c.max_score ?? 0), 0)
+      : Number(data?.rubric?.max_total_score ?? 100)
+    : 100;
+  const weight = Number(data?.rubric?.phase_weight ?? PHASE_WEIGHTS[phaseNumber] ?? 20);
   const weighted = max > 0 ? (total / max) * weight : 0;
 
   const mutate = useMutation({
     mutationFn: (submit: boolean) =>
-      saveFn({ data: { submissionId, rubricScores: scores, comments, submit } }),
+      saveFn({
+        data: {
+          submissionId,
+          rubricScores: scores,
+          ...(hasRubric ? {} : { freeformTotal }),
+          comments,
+          submit,
+        },
+      }),
     onSuccess: (_, submit) => {
       setSavedAt(new Date().toLocaleTimeString());
       refetch();
