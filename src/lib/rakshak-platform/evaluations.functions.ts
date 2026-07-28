@@ -217,8 +217,27 @@ export const getSubmissionForScoring = createServerFn({ method: "GET" })
       .eq("phase_number", submission.phase_number)
       .order("created_at", { ascending: true });
 
-    return { submission, rubric, template, myEval, locations: locations ?? [] };
+    // Read-only awareness: this team's other submissions across phases.
+    // BLIND REVIEW: no college / institution identity here either.
+    const { data: history } = await supabase
+      .from("rp_submissions")
+      .select("id, phase_number, title, status, submitted_at")
+      .eq("team_id", submission.team_id)
+      .neq("id", data.submissionId)
+      .order("phase_number", { ascending: true })
+      .order("submitted_at", { ascending: false, nullsFirst: false })
+      .limit(50);
+
+    return {
+      submission,
+      rubric,
+      template,
+      myEval,
+      locations: locations ?? [],
+      teamHistory: history ?? [],
+    };
   });
+
 
 /**
  * List every submission across all teams for the phase-wise browsing view,
