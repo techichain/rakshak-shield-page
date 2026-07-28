@@ -359,6 +359,8 @@ export function PlatformShell({
                   { to: "/rakshak-platform/admin/teams/new", label: "Create a team", icon: UserCog, desc: "Team + leader + members, with login credentials" },
                   { to: "/rakshak-platform/admin/teams", label: "Teams", icon: UsersRound, desc: "Per-team hub: submissions, feedback, resources, meetings" },
                   { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: BellRing, desc: "Provision login IDs & passwords" },
+                  { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: UserCog, desc: "Contact, bank & completion details for everyone" },
+
                   { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: CalendarDays },
                   { to: "/rakshak-platform/admin/sessions", label: "My slots & announcements", icon: CalendarDays, desc: "Let teams book you, or announce to all teams" },
                 ]} />
