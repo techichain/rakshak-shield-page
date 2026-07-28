@@ -50,6 +50,7 @@ function ScoringPage() {
   );
   const hasRubric = criteria.length > 0;
   const [scores, setScores] = useState<Record<string, number>>({});
+  const [criterionComments, setCriterionComments] = useState<Record<string, string>>({});
   const [freeformTotal, setFreeformTotal] = useState<number>(0);
   const [comments, setComments] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -62,13 +63,20 @@ function ScoringPage() {
     const prev: Record<string, number> = Array.isArray(raw)
       ? Object.fromEntries((raw as any[]).map((r) => [r.key, Number(r.score ?? 0)]))
       : ((raw ?? {}) as Record<string, number>);
+    const prevComments: Record<string, string> = Array.isArray(raw)
+      ? Object.fromEntries(
+          (raw as any[]).filter((r) => r?.comment).map((r) => [r.key, String(r.comment)]),
+        )
+      : {};
     criteria.forEach((c) => {
       initial[c.key] = Number(prev[c.key] ?? 0);
     });
     setScores(initial);
+    setCriterionComments(prevComments);
     setFreeformTotal(Number(data.myEval?.total_score ?? 0));
     setComments(data.myEval?.comments ?? "");
   }, [data, criteria]);
+
 
   const PHASE_WEIGHTS: Record<number, number> = { 0: 10, 1: 20, 2: 20, 3: 25, 4: 25 };
   const phaseNumber = Number(data?.submission?.phase_number ?? 0);
