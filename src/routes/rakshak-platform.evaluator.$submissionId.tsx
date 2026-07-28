@@ -195,34 +195,72 @@ function ScoringPage() {
 
 
             <div className="mt-8">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">Rubric — {data.rubric.title}</div>
-              <p className="mt-2 text-sm text-muted-foreground">{data.rubric.description}</p>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                {template
+                  ? `Rubric — Phase ${phaseNumber} (v${template.version})`
+                  : data.rubric
+                    ? `Rubric — ${data.rubric.title}`
+                    : "Scoring"}
+              </div>
+              {!template && data.rubric?.description && (
+                <p className="mt-2 text-sm text-muted-foreground">{data.rubric.description}</p>
+              )}
+              {!hasRubric && (
+                <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                  No rubric defined for this phase yet. Enter an overall score out of 100.
+                </p>
+              )}
               <div className="mt-5 space-y-3">
-                {criteria.map((c) => (
-                  <div key={c.key} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
+                {hasRubric ? (
+                  criteria.map((c) => (
+                    <div key={c.key} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
+                      <div className="flex-1 min-w-[200px]">
+                        <div className="font-heading text-sm font-semibold">{c.label}</div>
+                        {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={c.max_score}
+                          step={1}
+                          value={scores[c.key] ?? 0}
+                          onChange={(e) => {
+                            const v = Number(e.target.value);
+                            const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
+                            setScores((s) => ({ ...s, [c.key]: clamped }));
+                          }}
+                          className="rp-input w-20 text-right font-mono"
+                        />
+                        <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4 flex-wrap">
                     <div className="flex-1 min-w-[200px]">
-                      <div className="font-heading text-sm font-semibold">{c.label}</div>
-                      {c.description && <div className="text-xs text-muted-foreground mt-0.5">{c.description}</div>}
+                      <div className="font-heading text-sm font-semibold">Overall score</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Freeform score for this submission.</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         min={0}
-                        max={c.max_score}
+                        max={100}
                         step={1}
-                        value={scores[c.key] ?? 0}
+                        value={freeformTotal}
                         onChange={(e) => {
                           const v = Number(e.target.value);
-                          const clamped = Math.max(0, Math.min(c.max_score, isNaN(v) ? 0 : v));
-                          setScores((s) => ({ ...s, [c.key]: clamped }));
+                          setFreeformTotal(Math.max(0, Math.min(100, isNaN(v) ? 0 : v)));
                         }}
                         className="rp-input w-20 text-right font-mono"
                       />
-                      <span className="text-xs text-muted-foreground font-mono">/ {c.max_score}</span>
+                      <span className="text-xs text-muted-foreground font-mono">/ 100</span>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
+
 
               <div className="mt-6">
                 <label className="text-xs uppercase tracking-wider text-muted-foreground">
