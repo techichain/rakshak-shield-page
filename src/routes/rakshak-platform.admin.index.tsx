@@ -1251,6 +1251,7 @@ const ADMIN_GROUPS: Array<{ id: string; label: string; tone: string; items: Admi
       { to: "/rakshak-platform/admin/onboarding", label: "Bulk onboarding", icon: Upload, desc: "Upload a CSV of teams, mentors or evaluators" },
       { to: "/rakshak-platform/admin/teams", label: "Teams", icon: Users, desc: "All teams · members · reports" },
       { to: "/rakshak-platform/admin/credentials", label: "Mentor & evaluator logins", icon: HeartHandshake, desc: "Provision login IDs & passwords" },
+      { to: "/rakshak-platform/admin/profiles", label: "Profiles", icon: HeartHandshake, desc: "Contact, bank & completion details for everyone" },
       { to: "/rakshak-platform/admin/meetings", label: "All meetings", icon: Calendar, desc: "Mentor-team sessions" },
     ],
   },

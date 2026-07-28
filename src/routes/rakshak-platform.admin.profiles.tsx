@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
@@ -171,9 +171,8 @@ function AdminProfilesPage() {
               </thead>
               <tbody>
                 {filtered.map((p) => (
-                  <>
+                  <Fragment key={p.id}>
                     <tr
-                      key={p.id}
                       onClick={() => setOpenId(openId === p.id ? null : p.id)}
                       className="cursor-pointer border-t border-border hover:bg-muted/40"
                     >
@@ -194,7 +193,7 @@ function AdminProfilesPage() {
                       </td>
                     </tr>
                     {openId === p.id && (
-                      <tr key={`${p.id}-detail`} className="border-t border-border bg-muted/20">
+                      <tr className="border-t border-border bg-muted/20">
                         <td colSpan={6} className="px-4 py-5">
                           <div className="grid gap-4 md:grid-cols-3">
                             <Detail label="Blood group" value={p.blood_group} />
@@ -234,7 +233,7 @@ function AdminProfilesPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
