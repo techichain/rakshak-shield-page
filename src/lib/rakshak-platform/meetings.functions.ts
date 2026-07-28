@@ -371,7 +371,23 @@ export const listMyMeetings = createServerFn({ method: "GET" })
     }
     const { data, error } = await query;
     if (error) throw new Error(error.message || "Failed to load meetings");
-    return { meetings: data ?? [] };
+
+    // All-teams broadcasts have no team_id, so RLS hides them from teams.
+    // Merge them in for everyone (they are, by definition, for every team).
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: broadcasts } = await supabaseAdmin
+      .from("rp_meetings")
+      .select("*, rp_teams(team_name), rp_meeting_attendees(profile_id, rsvp)")
+      .eq("audience", "all_teams")
+      .order("scheduled_start", { ascending: true })
+      .limit(200);
+
+    const byId = new Map<string, any>();
+    for (const m of [...(data ?? []), ...(broadcasts ?? [])]) byId.set((m as any).id, m);
+    const meetings = Array.from(byId.values()).sort(
+      (a: any, b: any) => +new Date(a.scheduled_start) - +new Date(b.scheduled_start),
+    );
+    return { meetings };
   });
 
 export const listAllMeetingsAdmin = createServerFn({ method: "GET" })
