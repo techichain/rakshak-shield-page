@@ -272,10 +272,13 @@ function MentorTeamDetail() {
 
         {tab === "submissions" && (
           <div className="mt-8 space-y-8">
+            <MentorRaiseDoubt teamId={team.id} teamName={team.team_name} />
+            <TeamQuestionnairesPanel teamId={team.id} />
             <EvidenceRepository teamId={team.id} readOnly heading="Evidence & records filed by this team" />
             <MediaGallery teamId={team.id} readOnly heading="Site media from this team" />
             <AuthorityEngagement teamId={team.id} readOnly heading="Authority engagement by this team" />
             <TeamUpdates teamId={team.id} readOnly heading="Shared by this team (exam schedules, availability)" />
+
 
             {phaseNumbers.map((n) => {
               const subs = subsByPhase.get(n) ?? [];
