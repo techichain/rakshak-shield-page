@@ -389,10 +389,12 @@ export function PlatformShell({
                 <NotificationBell userId={userId} />
                 <Link
                   to="/rakshak-platform/profile"
-                  className="hidden sm:block text-xs text-muted-foreground hover:text-brand max-w-[10rem] truncate"
+                  className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand max-w-[12rem] truncate"
                 >
-                  {fullName}
+                  <UserCog className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">My profile</span>
                 </Link>
+
                 <button
                   onClick={async () => {
                     await rpSignOut();
