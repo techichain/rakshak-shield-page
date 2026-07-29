@@ -92,7 +92,7 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
                     </div>
                     <div className="mt-1 text-sm whitespace-pre-wrap">{d.question}</div>
 
-                    {!d.sample && activeId !== d.id && (
+                    {activeId !== d.id && (
                       <button
                         type="button"
                         onClick={() => { setActiveId(d.id); setText(""); setErr(null); }}
