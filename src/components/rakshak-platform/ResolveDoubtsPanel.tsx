@@ -88,7 +88,7 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
                           Escalated{d.follow_up_count ? ` · ${d.follow_up_count} follow-up${d.follow_up_count > 1 ? "s" : ""}` : ""}
                         </span>
                       )}
-                      {d.sample && <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-amber-300 text-amber-700">Sample</span>}
+                      
                     </div>
                     <div className="mt-1 text-sm whitespace-pre-wrap">{d.question}</div>
 
