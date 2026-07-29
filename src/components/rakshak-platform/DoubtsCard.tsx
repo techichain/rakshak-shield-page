@@ -2,48 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { HelpCircle, Loader2, CheckCircle2, Clock } from "lucide-react";
 import { createDoubt, listTeamDoubts, followUpDoubt } from "@/lib/rakshak-platform/doubts.functions";
-
-const SAMPLE_DOUBTS = [
-  {
-    id: "sample-1",
-    question: "Which format should the phase-2 audit checklist follow — the mentor template or the annexure PDF?",
-    status: "pending",
-    posted_by_role: "team_leader",
-    posted_by_name: "Sample leader",
-    team_name: "Sample team",
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    resolution_text: null,
-    resolved_by_name: null,
-    resolved_at: null,
-    sample: true,
-  },
-  {
-    id: "sample-2",
-    question: "Can we count roadside vendors when measuring pedestrian volume at the junction?",
-    status: "resolved",
-    posted_by_role: "team_member",
-    posted_by_name: "Sample member",
-    team_name: "Sample team",
-    created_at: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(),
-    resolution_text: "Yes — include them but tag them separately in the raw count so we can subtract if needed.",
-    resolved_by_name: "Sample mentor",
-    resolved_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    sample: true,
-  },
-  {
-    id: "sample-3",
-    question: "Do we need to notarise the authority letter before Phase 4 submission?",
-    status: "pending",
-    posted_by_role: "team_member",
-    posted_by_name: "Sample member",
-    team_name: "Sample team",
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    resolution_text: null,
-    resolved_by_name: null,
-    resolved_at: null,
-    sample: true,
-  },
-];
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 
 function fmt(iso: string) {
   try { return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch { return iso; }
