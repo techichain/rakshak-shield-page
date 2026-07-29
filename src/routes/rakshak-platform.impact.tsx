@@ -150,11 +150,6 @@ function ImpactPage() {
         <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
           Every number on this page comes straight from the field — student teams documenting hazards, mentors signing off, authorities receiving formal pitches.
         </p>
-        {(data as any).using_dummy && (
-          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            Showing sample data — live numbers will appear as the programme progresses.
-          </div>
-        )}
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Stat
