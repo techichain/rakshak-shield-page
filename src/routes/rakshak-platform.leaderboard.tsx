@@ -6,6 +6,7 @@ import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/S
 import { getLeaderboard } from "@/lib/rakshak-platform/evaluations.functions";
 import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
+import { useRealtimeRefresh } from "@/lib/rakshak-platform/useRealtimeRefresh";
 
 import { Trophy, MapPin, Download, Printer } from "lucide-react";
 
@@ -46,10 +47,16 @@ function LeaderboardPage() {
     submittedTo: to ? new Date(to + "T23:59:59").toISOString() : null,
   }), [cohortId, phase, from, to]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["rp-leaderboard", filters],
     queryFn: () => fetchLeaderboard({ data: filters as any }),
   });
+
+  useRealtimeRefresh(
+    "public-leaderboard-realtime",
+    ["rp_evaluations", "rp_teams"],
+    () => { void refetch(); },
+  );
 
   const rows = data?.rows ?? [];
   const cohorts = data?.cohorts ?? [];
