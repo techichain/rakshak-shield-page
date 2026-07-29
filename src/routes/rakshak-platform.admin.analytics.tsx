@@ -8,7 +8,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend,
 } from "recharts";
-import { Loader2, SlidersHorizontal } from "lucide-react";
+import { Loader2, SlidersHorizontal, BarChart3 } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
