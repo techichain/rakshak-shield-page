@@ -870,13 +870,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_announcements_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_audit_logs: {
@@ -1055,13 +1048,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_authority_updates_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_authority_updates_report_id_fkey"
             columns: ["report_id"]
             isOneToOne: false
@@ -1171,13 +1157,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_bulk_imports_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_certificates: {
@@ -1244,13 +1223,6 @@ export type Database = {
             columns: ["member_profile_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_certificates_member_profile_id_fkey"
-            columns: ["member_profile_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -1494,13 +1466,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_doubts_escalated_to_fkey"
-            columns: ["escalated_to"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_doubts_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -1658,13 +1623,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_evaluations_evaluator_id_fkey"
-            columns: ["evaluator_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_evaluations_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
@@ -1750,13 +1708,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_evidence_files_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_evidence_records: {
@@ -1811,13 +1762,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_evidence_records_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -1882,13 +1826,6 @@ export type Database = {
             columns: ["reviewer_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_feedback_reviewer_id_fkey"
-            columns: ["reviewer_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -2398,13 +2335,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_meeting_attendees_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_meetings: {
@@ -2507,13 +2437,6 @@ export type Database = {
             columns: ["host_user_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_meetings_host_user_id_fkey"
-            columns: ["host_user_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -2625,13 +2548,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_mentor_applications_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_mentor_resources: {
@@ -2692,13 +2608,6 @@ export type Database = {
             columns: ["mentor_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_mentor_resources_mentor_id_fkey"
-            columns: ["mentor_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -2772,24 +2681,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_mentor_slots_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_mentor_slots_host_user_id_fkey"
             columns: ["host_user_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_mentor_slots_host_user_id_fkey"
-            columns: ["host_user_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -2875,13 +2770,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_mentor_team_requests_mentor_profile_id_fkey"
-            columns: ["mentor_profile_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_mentors: {
@@ -2930,13 +2818,6 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: true
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_mentors_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -3285,13 +3166,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_rubric_templates_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_rubrics: {
@@ -3468,13 +3342,6 @@ export type Database = {
             referencedRelation: "rp_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "rp_submission_files_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       rp_submissions: {
@@ -3541,13 +3408,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_submissions_submitted_by_fkey"
-            columns: ["submitted_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_submissions_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -3594,13 +3454,6 @@ export type Database = {
             columns: ["awarded_by"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_team_badges_awarded_by_fkey"
-            columns: ["awarded_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3672,13 +3525,6 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_team_members_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
           {
@@ -3830,13 +3676,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_team_updates_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_team_updates_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -3928,13 +3767,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "rp_teams_assigned_evaluator_id_fkey"
-            columns: ["assigned_evaluator_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "rp_teams_assigned_mentor_id_fkey"
             columns: ["assigned_mentor_id"]
             isOneToOne: false
@@ -3953,13 +3785,6 @@ export type Database = {
             columns: ["team_leader_id"]
             isOneToOne: false
             referencedRelation: "rp_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rp_teams_team_leader_id_fkey"
-            columns: ["team_leader_id"]
-            isOneToOne: false
-            referencedRelation: "rp_profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -4102,46 +3927,6 @@ export type Database = {
           timezone: string | null
           updated_at: string | null
         }
-        Insert: {
-          address?: string | null
-          avatar_url?: string | null
-          blood_group?: string | null
-          city?: string | null
-          college?: string | null
-          created_at?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string | null
-          jurisdiction_states?: string[] | null
-          login_id?: string | null
-          organization?: string | null
-          phone?: string | null
-          profile_completed_at?: string | null
-          state?: string | null
-          status?: string | null
-          timezone?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          address?: string | null
-          avatar_url?: string | null
-          blood_group?: string | null
-          city?: string | null
-          college?: string | null
-          created_at?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string | null
-          jurisdiction_states?: string[] | null
-          login_id?: string | null
-          organization?: string | null
-          phone?: string | null
-          profile_completed_at?: string | null
-          state?: string | null
-          status?: string | null
-          timezone?: string | null
-          updated_at?: string | null
-        }
         Relationships: []
       }
     }
@@ -4247,6 +4032,29 @@ export type Database = {
       rp_is_team_mentor: {
         Args: { _team: string; _user: string }
         Returns: boolean
+      }
+      rp_profiles_public_rows: {
+        Args: never
+        Returns: {
+          address: string
+          avatar_url: string
+          blood_group: string
+          city: string
+          college: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          jurisdiction_states: string[]
+          login_id: string
+          organization: string
+          phone: string
+          profile_completed_at: string
+          state: string
+          status: string
+          timezone: string
+          updated_at: string
+        }[]
       }
       rp_public_team_locations: {
         Args: { _team_id: string }
