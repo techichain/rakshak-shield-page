@@ -314,7 +314,7 @@ export function PlatformShell({
                 {!mentorOnly && <NavLink to="/rakshak-platform/knowledge" label="Knowledge" icon={BookOpen} />}
                 <NavLink to="/rakshak-platform/leaderboard" label="Leaderboard" icon={Trophy} />
                 <NavLink to="/rakshak-platform/impact" label="Impact" icon={Sparkles} />
-                {!mentorOnly && !isTeam && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
+                {(isAdmin || isEvaluator) && <NavLink to="/rakshak-platform/mentors" label="Mentors" icon={Users} />}
               </>
             )}
 
@@ -428,7 +428,7 @@ export function PlatformShell({
                     ...(!mentorOnly ? [{ to: "/rakshak-platform/knowledge", label: "Knowledge", icon: BookOpen }] : []),
                     { to: "/rakshak-platform/leaderboard", label: "Leaderboard", icon: Trophy },
                     { to: "/rakshak-platform/impact", label: "Impact", icon: Sparkles },
-                    ...(!mentorOnly && !isTeam ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
+                    ...(isAdmin || isEvaluator ? [{ to: "/rakshak-platform/mentors", label: "Mentors", icon: Users }] : []),
                   ]}
                   onPick={() => setMenuOpen(false)}
                 />
@@ -525,7 +525,6 @@ export function PlatformShell({
               <li><Link to="/rakshak-platform/knowledge">Knowledge hub</Link></li>
               <li><Link to="/rakshak-platform/leaderboard">Leaderboard</Link></li>
               <li><Link to="/rakshak-platform/impact">Impact</Link></li>
-              <li><Link to="/rakshak-platform/mentors">Mentor network</Link></li>
               
               <li><Link to="/rakshak-platform/mentor-apply">Become a mentor</Link></li>
               <li><Link to="/rakshak-platform">How it works</Link></li>
