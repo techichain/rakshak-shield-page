@@ -133,7 +133,7 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
                       {" · "}{d.posted_by_role}
                       {" · "}{d.team_name}
                       {" · "}{fmt(d.created_at)}
-                      {d.sample && <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-amber-300 text-amber-700">Sample</span>}
+                      
                     </div>
                     <div className="mt-1 text-sm whitespace-pre-wrap">{d.question}</div>
                     {d.escalated_at && (
