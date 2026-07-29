@@ -22,35 +22,6 @@ const searchSchema = z.object({
 
 const ALL_PHASES_VALUE = "all-phases";
 
-const DUMMY_PROFILES: Record<string, { full_name: string | null; email: string | null }> = {
-  "dummy-evaluator-1": { full_name: "Ananya Sharma", email: "ananya.evaluator@rakshak.test" },
-  "dummy-evaluator-2": { full_name: "Rohan Mehta", email: "rohan.evaluator@rakshak.test" },
-  "dummy-evaluator-3": { full_name: "Meera Nair", email: "meera.evaluator@rakshak.test" },
-  "dummy-evaluator-4": { full_name: "Kabir Sethi", email: "kabir.evaluator@rakshak.test" },
-  "dummy-evaluator-5": { full_name: "Fatima Khan", email: "fatima.evaluator@rakshak.test" },
-  "dummy-evaluator-6": { full_name: "Dev Patel", email: "dev.evaluator@rakshak.test" },
-};
-
-const DUMMY_EVALUATIONS: EvalRow[] = Array.from({ length: 96 }, (_, index) => {
-  const evaluatorNumber = (index % 6) + 1;
-  const phase = (index % 4) + 1;
-  const submissionNumber = Math.floor(index / 3) + 1;
-  const scoreBase = 58 + phase * 7 + evaluatorNumber * 1.4;
-  const scoreVariance = ((index * 5) % 17) - 8;
-  const submittedAt = new Date();
-  submittedAt.setDate(submittedAt.getDate() - (index % 42));
-
-  return {
-    id: `dummy-eval-${index + 1}`,
-    evaluator_id: `dummy-evaluator-${evaluatorNumber}`,
-    submission_id: `dummy-submission-${submissionNumber}`,
-    team_id: `dummy-team-${(index % 24) + 1}`,
-    phase_number: phase,
-    total_score: Math.max(42, Math.min(98, Number((scoreBase + scoreVariance).toFixed(1)))),
-    status: "submitted",
-    submitted_at: submittedAt.toISOString(),
-  };
-});
 
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
   validateSearch: zodValidator(searchSchema),
