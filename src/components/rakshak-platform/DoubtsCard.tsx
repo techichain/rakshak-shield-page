@@ -2,48 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { HelpCircle, Loader2, CheckCircle2, Clock } from "lucide-react";
 import { createDoubt, listTeamDoubts, followUpDoubt } from "@/lib/rakshak-platform/doubts.functions";
-
-const SAMPLE_DOUBTS = [
-  {
-    id: "sample-1",
-    question: "Which format should the phase-2 audit checklist follow — the mentor template or the annexure PDF?",
-    status: "pending",
-    posted_by_role: "team_leader",
-    posted_by_name: "Sample leader",
-    team_name: "Sample team",
-    created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    resolution_text: null,
-    resolved_by_name: null,
-    resolved_at: null,
-    sample: true,
-  },
-  {
-    id: "sample-2",
-    question: "Can we count roadside vendors when measuring pedestrian volume at the junction?",
-    status: "resolved",
-    posted_by_role: "team_member",
-    posted_by_name: "Sample member",
-    team_name: "Sample team",
-    created_at: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(),
-    resolution_text: "Yes — include them but tag them separately in the raw count so we can subtract if needed.",
-    resolved_by_name: "Sample mentor",
-    resolved_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    sample: true,
-  },
-  {
-    id: "sample-3",
-    question: "Do we need to notarise the authority letter before Phase 4 submission?",
-    status: "pending",
-    posted_by_role: "team_member",
-    posted_by_name: "Sample member",
-    team_name: "Sample team",
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    resolution_text: null,
-    resolved_by_name: null,
-    resolved_at: null,
-    sample: true,
-  },
-];
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 
 function fmt(iso: string) {
   try { return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch { return iso; }
@@ -103,8 +62,7 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
     }
   }
 
-  const usingDummy = doubts.length === 0;
-  const items = usingDummy ? SAMPLE_DOUBTS : doubts;
+  const items = doubts;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
@@ -150,13 +108,16 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
+      ) : items.length === 0 ? (
+        <EmptyState
+          className="mt-4"
+          tone="card"
+          icon={HelpCircle}
+          title="No doubts yet"
+          description="Your team hasn't raised any doubts yet."
+        />
       ) : (
         <>
-          {usingDummy && (
-            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/60 p-2 text-[11px] text-amber-800">
-              Showing sample doubts — real doubts from your team will replace these the moment anyone posts one.
-            </div>
-          )}
           <ul className="mt-3 space-y-3">
             {items.map((d) => (
               <li key={d.id} className="rounded-xl border border-border p-3">
@@ -172,7 +133,7 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
                       {" · "}{d.posted_by_role}
                       {" · "}{d.team_name}
                       {" · "}{fmt(d.created_at)}
-                      {d.sample && <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-amber-300 text-amber-700">Sample</span>}
+                      
                     </div>
                     <div className="mt-1 text-sm whitespace-pre-wrap">{d.question}</div>
                     {d.escalated_at && (
@@ -181,7 +142,7 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
                         {d.follow_up_count > 1 ? ` · ${d.follow_up_count} follow-ups` : ""}
                       </div>
                     )}
-                    {!d.sample && d.status !== "resolved" && (
+                    {d.status !== "resolved" && (
                       <button
                         type="button"
                         disabled={followingUp === d.id}

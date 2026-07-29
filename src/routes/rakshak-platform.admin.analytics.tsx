@@ -8,7 +8,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend,
 } from "recharts";
-import { Loader2, SlidersHorizontal } from "lucide-react";
+import { Loader2, SlidersHorizontal, BarChart3 } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -31,85 +32,18 @@ const PHASE_COLORS: Record<number, string> = {
   4: "#8b5cf6",
 };
 
-// ---- Dummy fallback data (used when DB has nothing yet) ----
-const DUMMY_TEAMS = (() => {
-  const specs = [
-    ...Array.from({ length: 8 }, () => ({ current_phase: 0, status: "active", final_score: 0 })),
-    ...Array.from({ length: 14 }, () => ({ current_phase: 1, status: "active", final_score: 42 + Math.random() * 15 })),
-    ...Array.from({ length: 18 }, () => ({ current_phase: 2, status: "active", final_score: 55 + Math.random() * 18 })),
-    ...Array.from({ length: 11 }, () => ({ current_phase: 3, status: "active", final_score: 68 + Math.random() * 15 })),
-    ...Array.from({ length: 6 }, () => ({ current_phase: 4, status: "completed", final_score: 78 + Math.random() * 15 })),
-    ...Array.from({ length: 4 }, () => ({ current_phase: 2, status: "at_risk", final_score: 35 + Math.random() * 10 })),
-    ...Array.from({ length: 3 }, () => ({ current_phase: 1, status: "dropped", final_score: 20 })),
-  ];
-  const colleges = ["IIT Bombay", "NIT Trichy", "BITS Pilani", "VIT Vellore", "IIIT Hyderabad", "DTU", "Anna Univ.", "Manipal"];
-  return specs.map((s, i) => ({
-    ...s,
-    id: null, // null = dummy row, disables click-through
-    team_name: `Team ${String(i + 1).padStart(2, "0")}`,
-    college: colleges[i % colleges.length],
-    completion_percentage: Math.min(100, Math.round((s.current_phase / 4) * 100 + Math.random() * 10)),
-  }));
-})();
+function ChartEmpty({ description = "No data yet — this chart will populate as records come in." }: { description?: string }) {
+  return (
+    <EmptyState
+      tone="muted"
+      icon={BarChart3}
+      title="No data yet"
+      description={description}
+      className="py-10"
+    />
+  );
+}
 
-const DUMMY_SUBS = (() => {
-  const arr: any[] = [];
-  const now = Date.now();
-  const phases = [0, 1, 1, 2, 2, 2, 3, 3, 4];
-  const statuses = ["submitted", "mentor_approved", "admin_approved", "completed", "revision_requested"];
-  for (let w = 11; w >= 0; w--) {
-    const count = 6 + Math.floor(Math.random() * 10);
-    for (let i = 0; i < count; i++) {
-      const d = new Date(now - w * 7 * 86400000 - Math.random() * 6 * 86400000);
-      arr.push({
-        phase_number: phases[Math.floor(Math.random() * phases.length)],
-        status: statuses[Math.floor(Math.random() * statuses.length)],
-        submitted_at: d.toISOString(),
-        created_at: d.toISOString(),
-      });
-    }
-  }
-  return arr;
-})();
-
-const DUMMY_MENTORS = [
-  { current_team_count: 8, rating: 4.9, rp_profiles: { full_name: "Aarav Sharma" } },
-  { current_team_count: 7, rating: 4.7, rp_profiles: { full_name: "Priya Menon" } },
-  { current_team_count: 6, rating: 4.8, rp_profiles: { full_name: "Rohan Kapoor" } },
-  { current_team_count: 6, rating: 4.5, rp_profiles: { full_name: "Isha Verma" } },
-  { current_team_count: 5, rating: 4.6, rp_profiles: { full_name: "Karan Iyer" } },
-  { current_team_count: 5, rating: 4.4, rp_profiles: { full_name: "Neha Reddy" } },
-  { current_team_count: 4, rating: 4.7, rp_profiles: { full_name: "Vikram Singh" } },
-  { current_team_count: 3, rating: 4.3, rp_profiles: { full_name: "Ananya Das" } },
-];
-
-const DUMMY_LOCS = (() => {
-  const states = ["Maharashtra", "Karnataka", "Tamil Nadu", "Delhi", "Gujarat", "Uttar Pradesh", "West Bengal", "Kerala", "Rajasthan", "Telangana"];
-  const sev = ["critical", "high", "medium", "low"] as const;
-  const out: any[] = [];
-  states.forEach((st) => {
-    const n = 8 + Math.floor(Math.random() * 15);
-    for (let i = 0; i < n; i++) {
-      out.push({ state: st, severity: sev[Math.floor(Math.random() * sev.length)] });
-    }
-  });
-  return out;
-})();
-
-const DUMMY_EVALS = (() => {
-  const arr: any[] = [];
-  for (let phase = 1; phase <= 4; phase++) {
-    const n = 10 + Math.floor(Math.random() * 15);
-    for (let i = 0; i < n; i++) {
-      arr.push({
-        phase_number: phase,
-        weighted_score: 45 + phase * 6 + Math.random() * 25,
-        status: "submitted",
-      });
-    }
-  }
-  return arr;
-})();
 
 function AnalyticsPage() {
   const navigate = useNavigate();
@@ -120,7 +54,7 @@ function AnalyticsPage() {
   const [locs, setLocs] = useState<any[]>([]);
   const [evals, setEvals] = useState<any[]>([]);
   const [busy, setBusy] = useState(true);
-  const [usingDummy, setUsingDummy] = useState(false);
+  
 
   const loadSettings = useServerFn(getAnalyticsSettings);
   const saveSettings = useServerFn(updateAnalyticsSettings);
@@ -152,36 +86,17 @@ function AnalyticsPage() {
           supabase.from("rp_locations").select("id, severity, state"),
           supabase.from("rp_evaluations").select("phase_number, weighted_score, status"),
         ]);
-        const tData = t.data ?? [];
-        const sData = s.data ?? [];
-        const mData = m.data ?? [];
-        const lData = l.data ?? [];
-        const eData = e.data ?? [];
-        const empty = tData.length === 0 && sData.length === 0 && mData.length === 0 && lData.length === 0 && eData.length === 0;
-        if (empty) {
-          setTeams(DUMMY_TEAMS);
-          setSubs(DUMMY_SUBS);
-          setMentors(DUMMY_MENTORS);
-          setLocs(DUMMY_LOCS);
-          setEvals(DUMMY_EVALS);
-          setUsingDummy(true);
-        } else {
-          setTeams(tData.length ? tData : DUMMY_TEAMS);
-          setSubs(sData.length ? sData : DUMMY_SUBS);
-          setMentors(mData.length ? mData : DUMMY_MENTORS);
-          setLocs(lData.length ? lData : DUMMY_LOCS);
-          setEvals(eData.length ? eData : DUMMY_EVALS);
-          setUsingDummy(
-            tData.length === 0 || sData.length === 0 || mData.length === 0 || lData.length === 0 || eData.length === 0,
-          );
-        }
+        setTeams(t.data ?? []);
+        setSubs(s.data ?? []);
+        setMentors(m.data ?? []);
+        setLocs(l.data ?? []);
+        setEvals(e.data ?? []);
       } catch {
-        setTeams(DUMMY_TEAMS);
-        setSubs(DUMMY_SUBS);
-        setMentors(DUMMY_MENTORS);
-        setLocs(DUMMY_LOCS);
-        setEvals(DUMMY_EVALS);
-        setUsingDummy(true);
+        setTeams([]);
+        setSubs([]);
+        setMentors([]);
+        setLocs([]);
+        setEvals([]);
       }
       setBusy(false);
     })();
@@ -337,14 +252,11 @@ function AnalyticsPage() {
         <p className="text-muted-foreground mt-2 max-w-2xl">
           Cohort progress, evaluation performance, submission throughput, mentor load, and hazard hotspots.
         </p>
-        {usingDummy && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">
-            Showing sample data — no live records yet in one or more datasets.
-          </div>
-        )}
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="Teams overview (click a bar for details)" wide>
+            {teamsOverview.length === 0 ? <ChartEmpty /> : (
+            <>
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={teamsOverview} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -375,9 +287,12 @@ function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
             <PhaseLegend />
+            </>
+            )}
           </Card>
 
           <Card title="Score distribution">
+            {evals.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={scoreDistribution}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -387,9 +302,11 @@ function AnalyticsPage() {
                 <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card title="Evaluation status mix">
+            {evalStatusMix.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie data={evalStatusMix} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
@@ -399,9 +316,11 @@ function AnalyticsPage() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card title="Team status mix">
+            {statusDist.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie data={statusDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
@@ -411,9 +330,11 @@ function AnalyticsPage() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card title="Submissions per week by phase (last 12)" wide>
+            {subs.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={subsByWeek}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -428,9 +349,12 @@ function AnalyticsPage() {
                 <Bar dataKey="phase4" name="Phase 4" stackId="w" fill={PHASE_COLORS[4]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
+
           <Card title="Top mentors by team load">
+            {mentorLoad.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={mentorLoad} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -440,6 +364,7 @@ function AnalyticsPage() {
                 <Bar dataKey="teams" fill="#8b5cf6" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card
@@ -502,6 +427,7 @@ function AnalyticsPage() {
               </Popover>
             }
           >
+            {hazardByState.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={hazardByState}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -515,6 +441,7 @@ function AnalyticsPage() {
                 <Bar dataKey="low" stackId="a" fill="#84cc16" />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
         </div>

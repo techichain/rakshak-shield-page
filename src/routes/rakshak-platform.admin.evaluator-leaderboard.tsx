@@ -11,7 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertTriangle, CalendarIcon, X } from "lucide-react";
+import { Loader2, AlertTriangle, CalendarIcon, X, Trophy } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({
@@ -22,35 +23,6 @@ const searchSchema = z.object({
 
 const ALL_PHASES_VALUE = "all-phases";
 
-const DUMMY_PROFILES: Record<string, { full_name: string | null; email: string | null }> = {
-  "dummy-evaluator-1": { full_name: "Ananya Sharma", email: "ananya.evaluator@rakshak.test" },
-  "dummy-evaluator-2": { full_name: "Rohan Mehta", email: "rohan.evaluator@rakshak.test" },
-  "dummy-evaluator-3": { full_name: "Meera Nair", email: "meera.evaluator@rakshak.test" },
-  "dummy-evaluator-4": { full_name: "Kabir Sethi", email: "kabir.evaluator@rakshak.test" },
-  "dummy-evaluator-5": { full_name: "Fatima Khan", email: "fatima.evaluator@rakshak.test" },
-  "dummy-evaluator-6": { full_name: "Dev Patel", email: "dev.evaluator@rakshak.test" },
-};
-
-const DUMMY_EVALUATIONS: EvalRow[] = Array.from({ length: 96 }, (_, index) => {
-  const evaluatorNumber = (index % 6) + 1;
-  const phase = (index % 4) + 1;
-  const submissionNumber = Math.floor(index / 3) + 1;
-  const scoreBase = 58 + phase * 7 + evaluatorNumber * 1.4;
-  const scoreVariance = ((index * 5) % 17) - 8;
-  const submittedAt = new Date();
-  submittedAt.setDate(submittedAt.getDate() - (index % 42));
-
-  return {
-    id: `dummy-eval-${index + 1}`,
-    evaluator_id: `dummy-evaluator-${evaluatorNumber}`,
-    submission_id: `dummy-submission-${submissionNumber}`,
-    team_id: `dummy-team-${(index % 24) + 1}`,
-    phase_number: phase,
-    total_score: Math.max(42, Math.min(98, Number((scoreBase + scoreVariance).toFixed(1)))),
-    status: "submitted",
-    submitted_at: submittedAt.toISOString(),
-  };
-});
 
 export const Route = createFileRoute("/rakshak-platform/admin/evaluator-leaderboard")({
   validateSearch: zodValidator(searchSchema),
@@ -87,7 +59,7 @@ function EvaluatorLeaderboard() {
   const [profiles, setProfiles] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [usingDummy, setUsingDummy] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const fromDate = search.from ? parseISO(search.from) : undefined;
   const toDate = search.to ? parseISO(search.to) : undefined;
@@ -98,6 +70,8 @@ function EvaluatorLeaderboard() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     (async () => {
+      setBusy(true);
+      setFetchError(null);
       try {
         const { data, error: dbErr } = await supabase
           .from("rp_evaluations")
@@ -107,30 +81,25 @@ function EvaluatorLeaderboard() {
           .limit(2000);
         if (dbErr) throw new Error(dbErr.message);
         const list = (data ?? []) as EvalRow[];
-        if (list.length === 0) {
-          setRows(DUMMY_EVALUATIONS);
-          setProfiles(DUMMY_PROFILES);
-          setUsingDummy(true);
-          return;
-        }
         setRows(list);
-        setUsingDummy(false);
         const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
         if (ids.length) {
           const { data: profs, error: profErr } = await supabase
             .from("rp_profiles").select("id, full_name, email").in("id", ids);
           if (!profErr) setProfiles(Object.fromEntries((profs ?? []).map((p) => [p.id, p])));
+        } else {
+          setProfiles({});
         }
       } catch (err) {
         setFetchError(err instanceof Error ? err.message : "Failed to load evaluations");
-        setRows(DUMMY_EVALUATIONS);
-        setProfiles(DUMMY_PROFILES);
-        setUsingDummy(true);
+        setRows([]);
+        setProfiles({});
       } finally {
         setBusy(false);
       }
     })();
-  }, [loading, userId, isAdmin, navigate]);
+  }, [loading, userId, isAdmin, navigate, reloadKey]);
+
 
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {
@@ -272,17 +241,31 @@ function EvaluatorLeaderboard() {
           </div>
         )}
 
-        {usingDummy && (
-          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            Showing sample data. Real evaluator analytics will appear here automatically once evaluations exist{fetchError ? " (live evaluation data could not be loaded)" : ""}.
-          </div>
-        )}
-
+        {fetchError ? (
+          <EmptyState
+            className="mt-8"
+            tone="card"
+            icon={AlertTriangle}
+            title="Couldn't load evaluator data"
+            description={fetchError}
+            action={{ label: "Try again", onClick: () => setReloadKey((k) => k + 1) }}
+          />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            className="mt-8"
+            tone="card"
+            icon={Trophy}
+            title="No evaluations yet"
+            description="Evaluator scores will appear here once submissions are reviewed."
+          />
+        ) : (
+          <>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <Stat label="Evaluators active" value={leaderboard.length} />
           <Stat label="Submitted scores (scoped)" value={filteredRows.length} />
           <Stat label="Avg score (scoped)" value={filteredRows.length ? (filteredRows.reduce((a, b) => a + Number(b.total_score), 0) / filteredRows.length).toFixed(1) : "—"} />
         </div>
+
 
         <h2 className="mt-14 font-heading text-2xl tracking-tight flex items-center gap-2">
           Evaluator activity
@@ -342,6 +325,8 @@ function EvaluatorLeaderboard() {
             </tbody>
           </table>
         </div>
+          </>
+        )}
       </Section>
     </PlatformShell>
   );

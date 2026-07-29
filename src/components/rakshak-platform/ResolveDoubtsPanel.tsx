@@ -2,29 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { HelpCircle, Loader2, Clock } from "lucide-react";
 import { listPendingDoubtsForResolver, resolveDoubt } from "@/lib/rakshak-platform/doubts.functions";
-
-const SAMPLE = [
-  {
-    id: "sample-a",
-    team_name: "Sample team",
-    posted_by_name: "Sample leader",
-    posted_by_role: "team_leader",
-    question: "Which format should the phase-2 audit checklist follow — mentor template or annexure?",
-    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    phase_number: 2,
-    sample: true,
-  },
-  {
-    id: "sample-b",
-    team_name: "Sample team",
-    posted_by_name: "Sample member",
-    posted_by_role: "team_member",
-    question: "Do we need to notarise the authority letter before submission?",
-    created_at: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
-    phase_number: 4,
-    sample: true,
-  },
-];
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 
 function fmt(iso: string) {
   try { return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch { return iso; }
@@ -69,8 +47,7 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
     }
   }
 
-  const usingDummy = items.length === 0;
-  const rows = usingDummy ? SAMPLE : items;
+  const rows = items;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
@@ -78,20 +55,23 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
         <HelpCircle className="h-5 w-5 text-brand" />
         <h2 className="font-heading text-lg font-semibold">{title}</h2>
         {!busy && (
-          <span className="ml-auto text-xs text-muted-foreground">{usingDummy ? "0 pending" : `${items.length} pending`}</span>
+          <span className="ml-auto text-xs text-muted-foreground">{`${items.length} pending`}</span>
         )}
       </div>
       {busy ? (
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
+      ) : rows.length === 0 ? (
+        <EmptyState
+          className="mt-4"
+          tone="card"
+          icon={HelpCircle}
+          title="No doubts yet"
+          description="Nothing pending right now — doubts raised by teams will appear here."
+        />
       ) : (
         <>
-          {usingDummy && (
-            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 p-2 text-[11px] text-amber-800">
-              Nothing pending right now — showing sample entries so you know what to expect.
-            </div>
-          )}
           <ul className="mt-3 space-y-3">
             {rows.map((d: any) => (
               <li key={d.id} className="rounded-xl border border-border p-3">
@@ -108,11 +88,11 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
                           Escalated{d.follow_up_count ? ` · ${d.follow_up_count} follow-up${d.follow_up_count > 1 ? "s" : ""}` : ""}
                         </span>
                       )}
-                      {d.sample && <span className="ml-2 text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full border border-amber-300 text-amber-700">Sample</span>}
+                      
                     </div>
                     <div className="mt-1 text-sm whitespace-pre-wrap">{d.question}</div>
 
-                    {!d.sample && activeId !== d.id && (
+                    {activeId !== d.id && (
                       <button
                         type="button"
                         onClick={() => { setActiveId(d.id); setText(""); setErr(null); }}
@@ -121,7 +101,7 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
                         Resolve
                       </button>
                     )}
-                    {!d.sample && activeId === d.id && (
+                    {activeId === d.id && (
                       <div className="mt-2 space-y-2">
                         <textarea
                           rows={3}

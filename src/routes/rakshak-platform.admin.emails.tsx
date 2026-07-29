@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useServerFn } from '@tanstack/react-start'
 import { useRPAuth } from '@/lib/rakshak-platform/auth'
 import { PlatformShell, Section } from '@/components/rakshak-platform/Shell'
+import { EmptyState } from '@/components/rakshak-platform/EmptyState'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -43,12 +44,6 @@ const TEMPLATE_OPTIONS = [
   { value: 'admin-deadline-evaluator', label: 'Evaluator — evaluation deadline', hint: 'Reminds evaluators to score assigned teams.' },
 ] as const
 
-const DUMMY_CAMPAIGNS = [
-  { id: 'd1', template_name: 'admin-deadline-team',      subject_override: null,             audience: { type: 'team_leaders' },  status: 'sent',   recipient_count: 42, success_count: 41, failed_count: 1, sent_at: new Date(Date.now() - 2 * 86400000).toISOString(), created_at: new Date(Date.now() - 2 * 86400000).toISOString() },
-  { id: 'd2', template_name: 'admin-deadline-mentor',    subject_override: null,             audience: { type: 'all_mentors' },   status: 'sent',   recipient_count: 18, success_count: 18, failed_count: 0, sent_at: new Date(Date.now() - 5 * 86400000).toISOString(), created_at: new Date(Date.now() - 5 * 86400000).toISOString() },
-  { id: 'd3', template_name: 'admin-deadline-evaluator', subject_override: 'Scoring due Fri', audience: { type: 'all_evaluators' }, status: 'sent',  recipient_count: 12, success_count: 11, failed_count: 1, sent_at: new Date(Date.now() - 9 * 86400000).toISOString(), created_at: new Date(Date.now() - 9 * 86400000).toISOString() },
-  { id: 'd4', template_name: 'admin-deadline-team',      subject_override: null,             audience: { type: 'team_and_mentor' }, status: 'queued', recipient_count: 60, success_count: 0,  failed_count: 0, sent_at: null,                                              created_at: new Date(Date.now() - 12 * 86400000).toISOString() },
-]
 
 
 function MassEmailComposer() {
@@ -86,28 +81,16 @@ function MassEmailComposer() {
   const [sending, setSending] = useState(false)
   const [testing, setTesting] = useState(false)
   const [campaigns, setCampaigns] = useState<any[]>([])
-  const [campaignsDummy, setCampaignsDummy] = useState(false)
 
 
   useEffect(() => {
     if (!isAdmin) return
     loadScopes({}).then(setScopes).catch(() => toast.error('Failed to load cohorts/teams'))
     loadCampaigns({})
-      .then((r: any) => {
-        const rows = r?.campaigns ?? []
-        if (rows.length === 0) {
-          setCampaigns(DUMMY_CAMPAIGNS)
-          setCampaignsDummy(true)
-        } else {
-          setCampaigns(rows)
-          setCampaignsDummy(false)
-        }
-      })
-      .catch(() => {
-        setCampaigns(DUMMY_CAMPAIGNS)
-        setCampaignsDummy(true)
-      })
+      .then((r: any) => setCampaigns(r?.campaigns ?? []))
+      .catch(() => setCampaigns([]))
   }, [isAdmin, loadScopes, loadCampaigns])
+
 
   useEffect(() => { setPreview(null) }, [audienceType, cohortId, teamId, customEmails])
 
@@ -368,14 +351,17 @@ function MassEmailComposer() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center justify-between gap-2">
                   <span>Recent campaigns</span>
-                  {campaignsDummy && (
-                    <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800">sample</span>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0 space-y-2 max-h-72 overflow-auto">
                 {campaigns.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No campaigns yet.</p>
+                  <EmptyState
+                    tone="card"
+                    icon={Mail}
+                    title="No campaigns sent yet"
+                    description="Email campaigns you send will show delivery stats here."
+                  />
+
                 ) : campaigns.slice(0, 8).map((r) => (
                   <div key={r.id} className="border-b last:border-b-0 pb-2 last:pb-0">
                     <div className="flex items-center justify-between gap-2">

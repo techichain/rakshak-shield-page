@@ -39,7 +39,7 @@ function AdminReviewsPage() {
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); }
   }, [loading, userId, isAdmin, navigate]);
 
-  // Best-effort mentor analytics from live data; dummy fallback if empty/errors
+  // Mentor analytics from live data only; empty state when there is nothing yet
   useEffect(() => {
     if (!isAdmin) return;
     (async () => {

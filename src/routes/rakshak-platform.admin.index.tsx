@@ -138,20 +138,6 @@ function mentorColor(id: string | null) {
   return MENTOR_PALETTE[h % MENTOR_PALETTE.length];
 }
 
-/* deterministic small int from id */
-function seedInt(id: string, salt: number, mod: number) {
-  let h = salt;
-  for (let i = 0; i < id.length; i++) h = (h * 33 + id.charCodeAt(i)) >>> 0;
-  return h % mod;
-}
-
-/* Day offset for mock dates so they stay stable per team. */
-function mockDateFromId(id: string, salt: number, range = 60) {
-  const offset = seedInt(id, salt, range) - range / 2;
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString();
-}
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
@@ -180,6 +166,7 @@ function AdminDashboard() {
   const [progress, setProgress] = useState<Record<string, Phase[]>>({});
   const [evals, setEvals] = useState<Eval[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [tab, setTab] = useState<"leaderboard" | "tracker" | "mentorboard" | "analytics">("leaderboard");
   const [busy, setBusy] = useState(false);
 
@@ -195,14 +182,22 @@ function AdminDashboard() {
   async function load() {
     setBusy(true);
     try {
-      const [{ data: t }, { data: m }, { data: pp }, { data: ev }] = await Promise.all([
+      const [{ data: t }, { data: m }, { data: pp }, { data: ev }, { data: fb }] = await Promise.all([
         supabase.from("rp_teams").select("id, team_name, college, city, state, current_phase, status, risk_status, completion_percentage, final_score, evaluated_phases, assigned_mentor_id, team_leader_id, last_activity_at").order("final_score", { ascending: false, nullsFirst: false }),
         supabase.from("rp_mentors").select("id, profile_id, organization"),
         supabase.from("rp_team_phase_progress").select("team_id, phase_number, status, completion_percentage, deadline"),
         supabase.from("rp_evaluations").select("team_id, phase_number, weighted_score, status"),
+        supabase.from("rp_feedback").select("team_id"),
       ]);
       const teamRows = (t ?? []) as TeamRow[];
       setTeams(teamRows);
+
+      const fbCounts: Record<string, number> = {};
+      (fb ?? []).forEach((row: any) => {
+        if (row.team_id) fbCounts[row.team_id] = (fbCounts[row.team_id] ?? 0) + 1;
+      });
+      setFeedbackCounts(fbCounts);
+
 
       const profileIds = new Set<string>();
       (m ?? []).forEach((x: any) => x.profile_id && profileIds.add(x.profile_id));
@@ -266,13 +261,13 @@ function AdminDashboard() {
         phases,
         tScore, p1, p2, p3, p4,
         nextDeadline,
-        commentsCount: seedInt(t.id, 3, 24),
+        commentsCount: feedbackCounts[t.id] ?? 0,
         tasksCompleted,
         tasksTotal: TASK_COLUMNS.length,
       };
     });
 
-  }, [teams, mentors, progress, evals, profiles]);
+  }, [teams, mentors, progress, evals, profiles, feedbackCounts]);
 
   /* Mutators */
   async function reassignMentor(teamId: string, mentorId: string | null) {
@@ -773,15 +768,13 @@ function TrackerPanel({
     });
   }, [rows, q, mentorFilter]);
 
-  function statusForTask(r: Enriched, phase: number, key: string): string {
-    // map a phase progress into the spec's many task statuses by deterministic offset
+  function statusForTask(r: Enriched, phase: number, _key: string): string {
+    // Real phase progress status, mapped to the tracker's status vocabulary.
     const p = r.phases.find((x) => x.phase_number === phase);
     if (!p) return "not_started";
-    // Slight variance per task key so different tasks of the same phase look distinct
     if (p.status === "completed" || p.status === "admin_approved" || p.status === "mentor_approved") return "completed";
-    if (p.status === "submitted" || p.status === "resubmitted") {
-      return seedInt(r.id + key, 5, 3) === 0 ? "reviewed" : "submitted";
-    }
+    if (p.status === "under_mentor_review" || p.status === "under_admin_review") return "reviewed";
+    if (p.status === "submitted" || p.status === "resubmitted") return "submitted";
     if (p.status === "draft") return "in_progress";
     if (p.status === "changes_requested" || p.status === "rejected") return "needs_revision";
     return "not_started";
