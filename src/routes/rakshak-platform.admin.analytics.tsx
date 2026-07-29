@@ -32,6 +32,18 @@ const PHASE_COLORS: Record<number, string> = {
   4: "#8b5cf6",
 };
 
+function ChartEmpty({ description = "No data yet — this chart will populate as records come in." }: { description?: string }) {
+  return (
+    <EmptyState
+      tone="muted"
+      icon={BarChart3}
+      title="No data yet"
+      description={description}
+      className="py-10"
+    />
+  );
+}
+
 
 function AnalyticsPage() {
   const navigate = useNavigate();
