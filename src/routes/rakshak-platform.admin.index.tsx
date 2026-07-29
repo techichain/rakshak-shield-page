@@ -180,6 +180,7 @@ function AdminDashboard() {
   const [progress, setProgress] = useState<Record<string, Phase[]>>({});
   const [evals, setEvals] = useState<Eval[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [feedbackCounts, setFeedbackCounts] = useState<Record<string, number>>({});
   const [tab, setTab] = useState<"leaderboard" | "tracker" | "mentorboard" | "analytics">("leaderboard");
   const [busy, setBusy] = useState(false);
 
