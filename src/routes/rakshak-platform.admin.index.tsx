@@ -138,20 +138,6 @@ function mentorColor(id: string | null) {
   return MENTOR_PALETTE[h % MENTOR_PALETTE.length];
 }
 
-/* deterministic small int from id */
-function seedInt(id: string, salt: number, mod: number) {
-  let h = salt;
-  for (let i = 0; i < id.length; i++) h = (h * 33 + id.charCodeAt(i)) >>> 0;
-  return h % mod;
-}
-
-/* Day offset for mock dates so they stay stable per team. */
-function mockDateFromId(id: string, salt: number, range = 60) {
-  const offset = seedInt(id, salt, range) - range / 2;
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toISOString();
-}
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
