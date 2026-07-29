@@ -47,8 +47,7 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
     }
   }
 
-  const usingDummy = items.length === 0;
-  const rows = usingDummy ? SAMPLE : items;
+  const rows = items;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
@@ -56,20 +55,23 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
         <HelpCircle className="h-5 w-5 text-brand" />
         <h2 className="font-heading text-lg font-semibold">{title}</h2>
         {!busy && (
-          <span className="ml-auto text-xs text-muted-foreground">{usingDummy ? "0 pending" : `${items.length} pending`}</span>
+          <span className="ml-auto text-xs text-muted-foreground">{`${items.length} pending`}</span>
         )}
       </div>
       {busy ? (
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
+      ) : rows.length === 0 ? (
+        <EmptyState
+          className="mt-4"
+          tone="card"
+          icon={HelpCircle}
+          title="No doubts yet"
+          description="Nothing pending right now — doubts raised by teams will appear here."
+        />
       ) : (
         <>
-          {usingDummy && (
-            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 p-2 text-[11px] text-amber-800">
-              Nothing pending right now — showing sample entries so you know what to expect.
-            </div>
-          )}
           <ul className="mt-3 space-y-3">
             {rows.map((d: any) => (
               <li key={d.id} className="rounded-xl border border-border p-3">
