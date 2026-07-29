@@ -108,13 +108,16 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
         <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading…
         </div>
+      ) : items.length === 0 ? (
+        <EmptyState
+          className="mt-4"
+          tone="card"
+          icon={HelpCircle}
+          title="No doubts yet"
+          description="Your team hasn't raised any doubts yet."
+        />
       ) : (
         <>
-          {usingDummy && (
-            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/60 p-2 text-[11px] text-amber-800">
-              Showing sample doubts — real doubts from your team will replace these the moment anyone posts one.
-            </div>
-          )}
           <ul className="mt-3 space-y-3">
             {items.map((d) => (
               <li key={d.id} className="rounded-xl border border-border p-3">
