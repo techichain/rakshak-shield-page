@@ -242,6 +242,8 @@ function AnalyticsPage() {
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="Teams overview (click a bar for details)" wide>
+            {teamsOverview.length === 0 ? <ChartEmpty /> : (
+            <>
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={teamsOverview} margin={{ bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -272,9 +274,12 @@ function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
             <PhaseLegend />
+            </>
+            )}
           </Card>
 
           <Card title="Score distribution">
+            {evals.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={scoreDistribution}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -284,9 +289,11 @@ function AnalyticsPage() {
                 <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card title="Evaluation status mix">
+            {evalStatusMix.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie data={evalStatusMix} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
@@ -296,9 +303,11 @@ function AnalyticsPage() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card title="Team status mix">
+            {statusDist.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <PieChart>
                 <Pie data={statusDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label>
@@ -308,9 +317,11 @@ function AnalyticsPage() {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card title="Submissions per week by phase (last 12)" wide>
+            {subs.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={subsByWeek}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -325,7 +336,9 @@ function AnalyticsPage() {
                 <Bar dataKey="phase4" name="Phase 4" stackId="w" fill={PHASE_COLORS[4]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
+
 
           <Card title="Top mentors by team load">
             {mentorLoad.length === 0 ? <ChartEmpty /> : (
