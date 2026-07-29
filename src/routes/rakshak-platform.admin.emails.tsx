@@ -80,28 +80,16 @@ function MassEmailComposer() {
   const [sending, setSending] = useState(false)
   const [testing, setTesting] = useState(false)
   const [campaigns, setCampaigns] = useState<any[]>([])
-  const [campaignsDummy, setCampaignsDummy] = useState(false)
 
 
   useEffect(() => {
     if (!isAdmin) return
     loadScopes({}).then(setScopes).catch(() => toast.error('Failed to load cohorts/teams'))
     loadCampaigns({})
-      .then((r: any) => {
-        const rows = r?.campaigns ?? []
-        if (rows.length === 0) {
-          setCampaigns(DUMMY_CAMPAIGNS)
-          setCampaignsDummy(true)
-        } else {
-          setCampaigns(rows)
-          setCampaignsDummy(false)
-        }
-      })
-      .catch(() => {
-        setCampaigns(DUMMY_CAMPAIGNS)
-        setCampaignsDummy(true)
-      })
+      .then((r: any) => setCampaigns(r?.campaigns ?? []))
+      .catch(() => setCampaigns([]))
   }, [isAdmin, loadScopes, loadCampaigns])
+
 
   useEffect(() => { setPreview(null) }, [audienceType, cohortId, teamId, customEmails])
 
