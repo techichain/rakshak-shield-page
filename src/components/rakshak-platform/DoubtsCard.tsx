@@ -142,7 +142,7 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
                         {d.follow_up_count > 1 ? ` · ${d.follow_up_count} follow-ups` : ""}
                       </div>
                     )}
-                    {!d.sample && d.status !== "resolved" && (
+                    {d.status !== "resolved" && (
                       <button
                         type="button"
                         disabled={followingUp === d.id}
