@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, AlertTriangle, CalendarIcon, X, Trophy } from "lucide-react";
 import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { cn } from "@/lib/utils";
+import { useRealtimeRefresh } from "@/lib/rakshak-platform/useRealtimeRefresh";
 
 const searchSchema = z.object({
   from: z.string().optional(),
