@@ -101,7 +101,7 @@ export function ResolveDoubtsPanel({ title = "Doubts to resolve" }: { title?: st
                         Resolve
                       </button>
                     )}
-                    {!d.sample && activeId === d.id && (
+                    {activeId === d.id && (
                       <div className="mt-2 space-y-2">
                         <textarea
                           rows={3}
