@@ -203,9 +203,25 @@ function BookMentorPage() {
         )}
 
         {isError && (
-          <div className="mt-10 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {(error as any)?.message ?? "Could not load availability."}
-          </div>
+          (() => {
+            const msg = (error as any)?.message ?? "Could not load availability.";
+            const noMentor = String(msg).includes("assigned mentor yet");
+            return noMentor ? (
+              <div className="mt-10 rounded-2xl border border-border bg-muted/40 p-6 text-sm">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-4 w-4 text-brand mt-0.5" />
+                  <p className="text-muted-foreground">
+                    You don't have an assigned mentor yet — check back soon or
+                    contact your programme admin.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-10 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {msg}
+              </div>
+            );
+          })()
         )}
 
         {data && !data.leader_connected && (
