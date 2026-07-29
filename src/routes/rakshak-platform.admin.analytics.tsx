@@ -399,6 +399,7 @@ function AnalyticsPage() {
               </Popover>
             }
           >
+            {hazardByState.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={hazardByState}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -412,6 +413,7 @@ function AnalyticsPage() {
                 <Bar dataKey="low" stackId="a" fill="#84cc16" />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
         </div>
