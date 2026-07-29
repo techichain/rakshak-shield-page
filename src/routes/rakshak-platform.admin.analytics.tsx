@@ -328,6 +328,7 @@ function AnalyticsPage() {
           </Card>
 
           <Card title="Top mentors by team load">
+            {mentorLoad.length === 0 ? <ChartEmpty /> : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={mentorLoad} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -337,6 +338,7 @@ function AnalyticsPage() {
                 <Bar dataKey="teams" fill="#8b5cf6" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </Card>
 
           <Card
