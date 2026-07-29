@@ -7,7 +7,7 @@ import { PHASE_TITLES } from "@/lib/rakshak-platform/constants";
 import { MapPin, Trophy, Share2 } from "lucide-react";
 
 const getPublicTeam = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ slug: z.string().min(1).max(200) }).parse(d))
+  .validator((d: unknown) => z.object({ slug: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: team, error } = await (supabaseAdmin as any)

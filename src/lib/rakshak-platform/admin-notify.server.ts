@@ -59,7 +59,7 @@ export async function notifyAdminsOfRoleRequest(args: {
     const { data: existingNotifications } = await supabaseAdmin
       .from('rp_notifications')
       .select('recipient_id')
-      .eq('related_entity_type', 'rp_role_approvals')
+      .eq('related_entity_type', 'rp_mentor_applications')
       .eq('related_entity_id', args.approvalId)
       .eq('type', 'role_request')
       .in('recipient_id', adminIds)
@@ -74,7 +74,7 @@ export async function notifyAdminsOfRoleRequest(args: {
       title,
       message,
       type: 'role_request',
-      related_entity_type: 'rp_role_approvals',
+      related_entity_type: 'rp_mentor_applications',
       related_entity_id: args.approvalId ?? null,
       action_link: '/rakshak-platform/admin/access-requests',
     })

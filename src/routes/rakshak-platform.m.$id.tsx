@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useRPAuth } from "@/lib/rakshak-platform/auth";
 
 const getPublicMentor = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({ id: z.string().uuid() }).parse(d)
   )
   .handler(async ({ data }) => {
