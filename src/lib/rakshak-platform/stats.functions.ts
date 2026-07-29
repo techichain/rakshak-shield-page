@@ -94,66 +94,6 @@ export const getPublicImpactStats = createServerFn({ method: "GET" })
       locationRows: locations,
     };
 
-    const isAllEmpty =
-      real.teams === 0 &&
-      real.locations === 0 &&
-      real.finalLocations === 0 &&
-      real.authorityReports === 0 &&
-      real.certificates === 0 &&
-      real.institutions === 0 &&
-      real.cities === 0 &&
-      real.states === 0 &&
-      real.stakeholderSurveys === 0 &&
-      real.topCities.length === 0;
-
-    if (isAllEmpty) {
-      return {
-        teams: 45,
-        locations: 320,
-        finalLocations: 180,
-        authorityReports: 90,
-        certificates: 60,
-        institutions: 4,
-        cities: 6,
-        states: 5,
-        stakeholderSurveys: 52,
-        topCities: [
-          { city: "Bengaluru", count: 42 },
-          { city: "Mumbai", count: 36 },
-          { city: "Delhi", count: 31 },
-          { city: "Pune", count: 24 },
-          { city: "Hyderabad", count: 19 },
-          { city: "Chennai", count: 16 },
-        ],
-        institutionsList: [
-          { name: "IIT Delhi", count: 6 },
-          { name: "IIT Bombay", count: 5 },
-          { name: "DTU", count: 4 },
-          { name: "NIT Calicut", count: 3 },
-        ],
-        citiesList: [
-          { name: "Bengaluru", count: 8 },
-          { name: "Mumbai", count: 7 },
-          { name: "Delhi", count: 6 },
-          { name: "Pune", count: 4 },
-          { name: "Hyderabad", count: 3 },
-          { name: "Chennai", count: 2 },
-        ],
-        statesList: [
-          { name: "Karnataka", count: 8 },
-          { name: "Maharashtra", count: 7 },
-          { name: "Delhi", count: 6 },
-          { name: "Telangana", count: 3 },
-          { name: "Tamil Nadu", count: 2 },
-        ],
-        locationRows: [
-          { id: "s1", name: "Silk Board Junction", city: "Bengaluru", state: "Karnataka", latitude: 12.9172, longitude: 77.6229, authority: "BBMP", risk: "critical" },
-          { id: "s2", name: "Sion Circle", city: "Mumbai", state: "Maharashtra", latitude: 19.0403, longitude: 72.8624, authority: "MCGM", risk: "high" },
-          { id: "s3", name: "ITO Crossing", city: "Delhi", state: "Delhi", latitude: 28.6289, longitude: 77.2410, authority: "PWD Delhi", risk: "high" },
-        ],
-        using_dummy: true as const,
-      };
-    }
-
     return { ...real, using_dummy: false as const };
   });
+
