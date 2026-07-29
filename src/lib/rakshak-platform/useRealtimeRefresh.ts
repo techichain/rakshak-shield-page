@@ -26,9 +26,8 @@ export function useRealtimeRefresh(
     const channel = supabase.channel(channelName);
     for (const table of tableKey.split(",")) {
       channel.on(
-        // @ts-expect-error - supabase-js overload narrowing for postgres_changes
-        "postgres_changes",
-        { event: "*", schema: "public", table },
+        "postgres_changes" as never,
+        { event: "*", schema: "public", table } as never,
         () => {
           if (timer) clearTimeout(timer);
           timer = setTimeout(() => cbRef.current(), debounceMs);
