@@ -178,6 +178,15 @@ function AdminDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, userId, isAdmin]);
 
+  useRealtimeRefresh(
+    "admin-leaderboard-realtime",
+    ["rp_teams", "rp_evaluations", "rp_team_phase_progress"],
+    () => { load(); },
+    { enabled: !loading && !!userId && isAdmin },
+  );
+
+
+
 
   async function load() {
     setBusy(true);

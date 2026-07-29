@@ -100,6 +100,15 @@ function EvaluatorLeaderboard() {
     })();
   }, [loading, userId, isAdmin, navigate, reloadKey]);
 
+  useRealtimeRefresh(
+    "admin-evaluator-leaderboard-realtime",
+    ["rp_evaluations"],
+    () => setReloadKey((k) => k + 1),
+    { enabled: !loading && !!userId && isAdmin },
+  );
+
+
+
 
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import {
   getAnalyticsSettings, updateAnalyticsSettings,
 } from "@/lib/rakshak-platform/analytics-settings.functions";
+import { useRealtimeRefresh } from "@/lib/rakshak-platform/useRealtimeRefresh";
 
 
 export const Route = createFileRoute("/rakshak-platform/admin/analytics")({
@@ -54,6 +55,7 @@ function AnalyticsPage() {
   const [locs, setLocs] = useState<any[]>([]);
   const [evals, setEvals] = useState<any[]>([]);
   const [busy, setBusy] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
   
 
   const loadSettings = useServerFn(getAnalyticsSettings);
@@ -100,7 +102,14 @@ function AnalyticsPage() {
       }
       setBusy(false);
     })();
-  }, [loading, userId, isAdmin, navigate]);
+  }, [loading, userId, isAdmin, navigate, reloadKey]);
+
+  useRealtimeRefresh(
+    "admin-analytics-realtime",
+    ["rp_teams", "rp_evaluations", "rp_team_phase_progress"],
+    () => setReloadKey((k) => k + 1),
+    { enabled: !loading && !!userId && isAdmin },
+  );
 
   const statusDist = useMemo(() => {
     const m: Record<string, { value: number; teamNames: string[] }> = {};
