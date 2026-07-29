@@ -21,10 +21,15 @@ function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Guard against a pre-hydration native form submit (page reloads silently).
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => setHydrated(true), []);
 
   useEffect(() => {
     if (!loading && isAdmin) navigate({ to: "/rakshak-mentor/admin" });
   }, [loading, isAdmin, navigate]);
+
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
