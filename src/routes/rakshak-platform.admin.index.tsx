@@ -782,15 +782,13 @@ function TrackerPanel({
     });
   }, [rows, q, mentorFilter]);
 
-  function statusForTask(r: Enriched, phase: number, key: string): string {
-    // map a phase progress into the spec's many task statuses by deterministic offset
+  function statusForTask(r: Enriched, phase: number, _key: string): string {
+    // Real phase progress status, mapped to the tracker's status vocabulary.
     const p = r.phases.find((x) => x.phase_number === phase);
     if (!p) return "not_started";
-    // Slight variance per task key so different tasks of the same phase look distinct
     if (p.status === "completed" || p.status === "admin_approved" || p.status === "mentor_approved") return "completed";
-    if (p.status === "submitted" || p.status === "resubmitted") {
-      return seedInt(r.id + key, 5, 3) === 0 ? "reviewed" : "submitted";
-    }
+    if (p.status === "under_mentor_review" || p.status === "under_admin_review") return "reviewed";
+    if (p.status === "submitted" || p.status === "resubmitted") return "submitted";
     if (p.status === "draft") return "in_progress";
     if (p.status === "changes_requested" || p.status === "rejected") return "needs_revision";
     return "not_started";
