@@ -239,11 +239,6 @@ function AnalyticsPage() {
         <p className="text-muted-foreground mt-2 max-w-2xl">
           Cohort progress, evaluation performance, submission throughput, mentor load, and hazard hotspots.
         </p>
-        {usingDummy && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800">
-            Showing sample data — no live records yet in one or more datasets.
-          </div>
-        )}
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="Teams overview (click a bar for details)" wide>
