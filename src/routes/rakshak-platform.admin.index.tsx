@@ -195,14 +195,22 @@ function AdminDashboard() {
   async function load() {
     setBusy(true);
     try {
-      const [{ data: t }, { data: m }, { data: pp }, { data: ev }] = await Promise.all([
+      const [{ data: t }, { data: m }, { data: pp }, { data: ev }, { data: fb }] = await Promise.all([
         supabase.from("rp_teams").select("id, team_name, college, city, state, current_phase, status, risk_status, completion_percentage, final_score, evaluated_phases, assigned_mentor_id, team_leader_id, last_activity_at").order("final_score", { ascending: false, nullsFirst: false }),
         supabase.from("rp_mentors").select("id, profile_id, organization"),
         supabase.from("rp_team_phase_progress").select("team_id, phase_number, status, completion_percentage, deadline"),
         supabase.from("rp_evaluations").select("team_id, phase_number, weighted_score, status"),
+        supabase.from("rp_feedback").select("team_id"),
       ]);
       const teamRows = (t ?? []) as TeamRow[];
       setTeams(teamRows);
+
+      const fbCounts: Record<string, number> = {};
+      (fb ?? []).forEach((row: any) => {
+        if (row.team_id) fbCounts[row.team_id] = (fbCounts[row.team_id] ?? 0) + 1;
+      });
+      setFeedbackCounts(fbCounts);
+
 
       const profileIds = new Set<string>();
       (m ?? []).forEach((x: any) => x.profile_id && profileIds.add(x.profile_id));
