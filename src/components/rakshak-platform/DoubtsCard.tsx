@@ -62,8 +62,7 @@ export function DoubtsCard({ teamId, phaseNumber }: { teamId: string; phaseNumbe
     }
   }
 
-  const usingDummy = doubts.length === 0;
-  const items = usingDummy ? SAMPLE_DOUBTS : doubts;
+  const items = doubts;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
