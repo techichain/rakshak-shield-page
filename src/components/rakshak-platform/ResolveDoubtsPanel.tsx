@@ -2,29 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { HelpCircle, Loader2, Clock } from "lucide-react";
 import { listPendingDoubtsForResolver, resolveDoubt } from "@/lib/rakshak-platform/doubts.functions";
-
-const SAMPLE = [
-  {
-    id: "sample-a",
-    team_name: "Sample team",
-    posted_by_name: "Sample leader",
-    posted_by_role: "team_leader",
-    question: "Which format should the phase-2 audit checklist follow — mentor template or annexure?",
-    created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    phase_number: 2,
-    sample: true,
-  },
-  {
-    id: "sample-b",
-    team_name: "Sample team",
-    posted_by_name: "Sample member",
-    posted_by_role: "team_member",
-    question: "Do we need to notarise the authority letter before submission?",
-    created_at: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(),
-    phase_number: 4,
-    sample: true,
-  },
-];
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 
 function fmt(iso: string) {
   try { return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch { return iso; }
