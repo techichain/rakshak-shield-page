@@ -275,13 +275,13 @@ function AdminDashboard() {
         phases,
         tScore, p1, p2, p3, p4,
         nextDeadline,
-        commentsCount: seedInt(t.id, 3, 24),
+        commentsCount: feedbackCounts[t.id] ?? 0,
         tasksCompleted,
         tasksTotal: TASK_COLUMNS.length,
       };
     });
 
-  }, [teams, mentors, progress, evals, profiles]);
+  }, [teams, mentors, progress, evals, profiles, feedbackCounts]);
 
   /* Mutators */
   async function reassignMentor(teamId: string, mentorId: string | null) {
