@@ -240,17 +240,31 @@ function EvaluatorLeaderboard() {
           </div>
         )}
 
-        {usingDummy && (
-          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            Showing sample data. Real evaluator analytics will appear here automatically once evaluations exist{fetchError ? " (live evaluation data could not be loaded)" : ""}.
-          </div>
-        )}
-
+        {fetchError ? (
+          <EmptyState
+            className="mt-8"
+            tone="card"
+            icon={AlertTriangle}
+            title="Couldn't load evaluator data"
+            description={fetchError}
+            action={{ label: "Try again", onClick: () => setReloadKey((k) => k + 1) }}
+          />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            className="mt-8"
+            tone="card"
+            icon={Trophy}
+            title="No evaluations yet"
+            description="Evaluator scores will appear here once submissions are reviewed."
+          />
+        ) : (
+          <>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <Stat label="Evaluators active" value={leaderboard.length} />
           <Stat label="Submitted scores (scoped)" value={filteredRows.length} />
           <Stat label="Avg score (scoped)" value={filteredRows.length ? (filteredRows.reduce((a, b) => a + Number(b.total_score), 0) / filteredRows.length).toFixed(1) : "—"} />
         </div>
+
 
         <h2 className="mt-14 font-heading text-2xl tracking-tight flex items-center gap-2">
           Evaluator activity
