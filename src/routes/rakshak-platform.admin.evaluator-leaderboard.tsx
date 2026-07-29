@@ -324,6 +324,8 @@ function EvaluatorLeaderboard() {
             </tbody>
           </table>
         </div>
+          </>
+        )}
       </Section>
     </PlatformShell>
   );
