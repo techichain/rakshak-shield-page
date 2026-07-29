@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { PlatformShell, Section, Eyebrow } from "@/components/rakshak-platform/Shell";
 import { Users, Star, ArrowUpRight } from "lucide-react";
+import { rpRequireRole } from "@/lib/rakshak-platform/auth";
 
 const listPublicMentors = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -35,6 +36,12 @@ const listPublicMentors = createServerFn({ method: "GET" }).handler(async () => 
 });
 
 export const Route = createFileRoute("/rakshak-platform/mentors")({
+  ssr: false,
+  // Oversight-only directory: admins and evaluators. Teams book their own
+  // assigned mentor via /rakshak-platform/team/book-mentor.
+  beforeLoad: async () => {
+    await rpRequireRole(["super_admin", "cfi_admin", "evaluator"]);
+  },
   loader: ({ context }) =>
     context.queryClient.ensureQueryData({
       queryKey: ["rp-public-mentors"],

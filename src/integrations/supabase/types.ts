@@ -4008,6 +4008,10 @@ export type Database = {
         Returns: boolean
       }
       rp_is_admin: { Args: { _user_id: string }; Returns: boolean }
+      rp_is_assigned_mentor: {
+        Args: { _mentor: string; _user: string }
+        Returns: boolean
+      }
       rp_is_mail_participant: {
         Args: { _thread: string; _user: string }
         Returns: boolean

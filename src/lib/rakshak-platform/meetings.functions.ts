@@ -476,7 +476,7 @@ async function resolveTeamLeaderMentor(
     .maybeSingle();
   if (!team) throw new Error("You are not registered as a team leader.");
   if (!team.assigned_mentor_id) {
-    throw new Error("Your team has no assigned mentor yet. Ask an admin to assign one.");
+    throw new Error("You don't have an assigned mentor yet — check back soon or contact your programme admin.");
   }
   const { data: mentor } = await supabaseAdmin
     .from("rp_mentors")

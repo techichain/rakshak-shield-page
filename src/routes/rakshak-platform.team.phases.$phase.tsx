@@ -299,7 +299,7 @@ function PhaseDetail() {
                 <li>Get authority response receipts where relevant.</li>
                 <li>If blocked, request a 1:1 with your mentor.</li>
               </ul>
-              <Link to="/rakshak-platform/mentors" className="text-brand text-sm font-medium inline-block mt-2">Find a mentor →</Link>
+              <Link to="/rakshak-platform/team/book-mentor" className="text-brand text-sm font-medium inline-block mt-2">Book a session with your mentor →</Link>
             </div>
           </div>
         </div>
