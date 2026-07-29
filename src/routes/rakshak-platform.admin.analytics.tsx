@@ -41,7 +41,7 @@ function AnalyticsPage() {
   const [locs, setLocs] = useState<any[]>([]);
   const [evals, setEvals] = useState<any[]>([]);
   const [busy, setBusy] = useState(true);
-  const [usingDummy, setUsingDummy] = useState(false);
+  
 
   const loadSettings = useServerFn(getAnalyticsSettings);
   const saveSettings = useServerFn(updateAnalyticsSettings);
