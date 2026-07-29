@@ -342,12 +342,10 @@ export const resolveLoginIdToEmail = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const login_id = data.login_id.trim().toLowerCase();
     if (!login_id) return { email: null as string | null };
-    console.log("[resolveLoginId]", login_id);
     const { data: row } = await supabaseAdmin
       .from("rp_profiles")
       .select("email")
       .eq("login_id", login_id)
       .maybeSingle();
-    console.log("[resolveLoginId] result:", row?.email ?? "NOT FOUND");
     return { email: (row?.email as string | undefined) ?? null };
   });

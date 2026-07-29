@@ -61,16 +61,19 @@ function AuthPage() {
     try {
       const r: any = await resolveLoginId({ data: { login_id: value } });
       if (!r?.email) {
-        setError("Login ID not recognized.");
+        setError("Login ID or password is incorrect.");
         return;
       }
       const email = r.email;
       const { error: signErr } = await supabase.auth.signInWithPassword({ email, password });
-      if (signErr) throw signErr;
+      if (signErr) {
+        setError("Login ID or password is incorrect.");
+        return;
+      }
       const target = safeRedirect(redirect);
       navigate({ to: target });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not sign in.");
+    } catch {
+      setError("Login ID or password is incorrect.");
     } finally {
       setBusy(false);
     }
