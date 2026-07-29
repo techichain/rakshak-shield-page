@@ -35,6 +35,12 @@ const listPublicMentors = createServerFn({ method: "GET" }).handler(async () => 
 });
 
 export const Route = createFileRoute("/rakshak-platform/mentors")({
+  ssr: false,
+  // Oversight-only directory: admins and evaluators. Teams book their own
+  // assigned mentor via /rakshak-platform/team/book-mentor.
+  beforeLoad: async () => {
+    await rpRequireRole(["super_admin", "cfi_admin", "evaluator"]);
+  },
   loader: ({ context }) =>
     context.queryClient.ensureQueryData({
       queryKey: ["rp-public-mentors"],
