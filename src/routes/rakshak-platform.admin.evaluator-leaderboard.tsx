@@ -11,7 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertTriangle, CalendarIcon, X } from "lucide-react";
+import { Loader2, AlertTriangle, CalendarIcon, X, Trophy } from "lucide-react";
+import { EmptyState } from "@/components/rakshak-platform/EmptyState";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({
