@@ -58,7 +58,7 @@ function EvaluatorLeaderboard() {
   const [profiles, setProfiles] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
   const [busy, setBusy] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [usingDummy, setUsingDummy] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const fromDate = search.from ? parseISO(search.from) : undefined;
   const toDate = search.to ? parseISO(search.to) : undefined;
@@ -69,6 +69,8 @@ function EvaluatorLeaderboard() {
     if (!userId) { navigate({ to: "/rakshak-platform/auth" }); return; }
     if (!isAdmin) { navigate({ to: "/rakshak-platform/dashboard" }); return; }
     (async () => {
+      setBusy(true);
+      setFetchError(null);
       try {
         const { data, error: dbErr } = await supabase
           .from("rp_evaluations")
@@ -78,30 +80,25 @@ function EvaluatorLeaderboard() {
           .limit(2000);
         if (dbErr) throw new Error(dbErr.message);
         const list = (data ?? []) as EvalRow[];
-        if (list.length === 0) {
-          setRows(DUMMY_EVALUATIONS);
-          setProfiles(DUMMY_PROFILES);
-          setUsingDummy(true);
-          return;
-        }
         setRows(list);
-        setUsingDummy(false);
         const ids = Array.from(new Set(list.map((r) => r.evaluator_id).filter(Boolean) as string[]));
         if (ids.length) {
           const { data: profs, error: profErr } = await supabase
             .from("rp_profiles").select("id, full_name, email").in("id", ids);
           if (!profErr) setProfiles(Object.fromEntries((profs ?? []).map((p) => [p.id, p])));
+        } else {
+          setProfiles({});
         }
       } catch (err) {
         setFetchError(err instanceof Error ? err.message : "Failed to load evaluations");
-        setRows(DUMMY_EVALUATIONS);
-        setProfiles(DUMMY_PROFILES);
-        setUsingDummy(true);
+        setRows([]);
+        setProfiles({});
       } finally {
         setBusy(false);
       }
     })();
-  }, [loading, userId, isAdmin, navigate]);
+  }, [loading, userId, isAdmin, navigate, reloadKey]);
+
 
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {
