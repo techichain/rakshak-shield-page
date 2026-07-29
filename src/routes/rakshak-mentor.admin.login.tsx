@@ -95,11 +95,12 @@ function AdminLogin() {
           )}
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !hydrated}
             className="w-full bg-[#4A35FF] text-white text-sm font-semibold py-2.5 rounded-md hover:bg-[#3A28D9] disabled:opacity-50 transition"
           >
             {submitting ? "Please wait…" : "Sign in"}
           </button>
+
         </form>
         <p className="mt-5 text-xs text-slate-400 text-center">
           Access is restricted to CFI core-team admins.
