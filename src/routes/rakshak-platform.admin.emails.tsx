@@ -350,14 +350,17 @@ function MassEmailComposer() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center justify-between gap-2">
                   <span>Recent campaigns</span>
-                  {campaignsDummy && (
-                    <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-800">sample</span>
-                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0 space-y-2 max-h-72 overflow-auto">
                 {campaigns.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No campaigns yet.</p>
+                  <EmptyState
+                    tone="card"
+                    icon={Mail}
+                    title="No campaigns sent yet"
+                    description="Email campaigns you send will show delivery stats here."
+                  />
+
                 ) : campaigns.slice(0, 8).map((r) => (
                   <div key={r.id} className="border-b last:border-b-0 pb-2 last:pb-0">
                     <div className="flex items-center justify-between gap-2">
