@@ -73,36 +73,17 @@ function AnalyticsPage() {
           supabase.from("rp_locations").select("id, severity, state"),
           supabase.from("rp_evaluations").select("phase_number, weighted_score, status"),
         ]);
-        const tData = t.data ?? [];
-        const sData = s.data ?? [];
-        const mData = m.data ?? [];
-        const lData = l.data ?? [];
-        const eData = e.data ?? [];
-        const empty = tData.length === 0 && sData.length === 0 && mData.length === 0 && lData.length === 0 && eData.length === 0;
-        if (empty) {
-          setTeams(DUMMY_TEAMS);
-          setSubs(DUMMY_SUBS);
-          setMentors(DUMMY_MENTORS);
-          setLocs(DUMMY_LOCS);
-          setEvals(DUMMY_EVALS);
-          setUsingDummy(true);
-        } else {
-          setTeams(tData.length ? tData : DUMMY_TEAMS);
-          setSubs(sData.length ? sData : DUMMY_SUBS);
-          setMentors(mData.length ? mData : DUMMY_MENTORS);
-          setLocs(lData.length ? lData : DUMMY_LOCS);
-          setEvals(eData.length ? eData : DUMMY_EVALS);
-          setUsingDummy(
-            tData.length === 0 || sData.length === 0 || mData.length === 0 || lData.length === 0 || eData.length === 0,
-          );
-        }
+        setTeams(t.data ?? []);
+        setSubs(s.data ?? []);
+        setMentors(m.data ?? []);
+        setLocs(l.data ?? []);
+        setEvals(e.data ?? []);
       } catch {
-        setTeams(DUMMY_TEAMS);
-        setSubs(DUMMY_SUBS);
-        setMentors(DUMMY_MENTORS);
-        setLocs(DUMMY_LOCS);
-        setEvals(DUMMY_EVALS);
-        setUsingDummy(true);
+        setTeams([]);
+        setSubs([]);
+        setMentors([]);
+        setLocs([]);
+        setEvals([]);
       }
       setBusy(false);
     })();
