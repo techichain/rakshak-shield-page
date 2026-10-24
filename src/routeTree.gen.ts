@@ -9,140 +9,130 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
-import { Route as RakshakPlatformRouteImport } from './routes/rakshak-platform'
-import { Route as RakshakMentorRouteImport } from './routes/rakshak-mentor'
-import { Route as GigriderChecklistRouteImport } from './routes/gigrider-checklist'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RakshakPlatformIndexRouteImport } from './routes/rakshak-platform.index'
-import { Route as RakshakMentorIndexRouteImport } from './routes/rakshak-mentor.index'
-import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
-import { Route as RakshakPlatformUnauthorizedRouteImport } from './routes/rakshak-platform.unauthorized'
-import { Route as RakshakPlatformSponsorRouteImport } from './routes/rakshak-platform.sponsor'
-import { Route as RakshakPlatformProfileRouteImport } from './routes/rakshak-platform.profile'
-import { Route as RakshakPlatformNotificationsRouteImport } from './routes/rakshak-platform.notifications'
-import { Route as RakshakPlatformMentorsRouteImport } from './routes/rakshak-platform.mentors'
-import { Route as RakshakPlatformMentorApplyRouteImport } from './routes/rakshak-platform.mentor-apply'
-import { Route as RakshakPlatformMemberRouteImport } from './routes/rakshak-platform.member'
-import { Route as RakshakPlatformMeetingsRouteImport } from './routes/rakshak-platform.meetings'
-import { Route as RakshakPlatformMapRouteImport } from './routes/rakshak-platform.map'
-import { Route as RakshakPlatformMailsRouteImport } from './routes/rakshak-platform.mails'
-import { Route as RakshakPlatformLeaderboardRouteImport } from './routes/rakshak-platform.leaderboard'
-import { Route as RakshakPlatformKnowledgeRouteImport } from './routes/rakshak-platform.knowledge'
-import { Route as RakshakPlatformImpactRouteImport } from './routes/rakshak-platform.impact'
-import { Route as RakshakPlatformEvaluatorRouteImport } from './routes/rakshak-platform.evaluator'
-import { Route as RakshakPlatformDashboardRouteImport } from './routes/rakshak-platform.dashboard'
-import { Route as RakshakPlatformAuthorityRouteImport } from './routes/rakshak-platform.authority'
-import { Route as RakshakPlatformAdminRouteImport } from './routes/rakshak-platform.admin'
-import { Route as RakshakMentorApplyRouteImport } from './routes/rakshak-mentor.apply'
-import { Route as RakshakMentorAdminRouteImport } from './routes/rakshak-mentor.admin'
-import { Route as GigriderChecklistObserverRouteImport } from './routes/gigrider-checklist.observer'
-import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
-import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
+import { Route as GigriderChecklistRouteImport } from './routes/gigrider-checklist'
+import { Route as RakshakMentorRouteImport } from './routes/rakshak-mentor'
+import { Route as RakshakPlatformRouteImport } from './routes/rakshak-platform'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
-import { Route as RakshakPlatformTeamIndexRouteImport } from './routes/rakshak-platform.team.index'
-import { Route as RakshakPlatformMentorIndexRouteImport } from './routes/rakshak-platform.mentor.index'
-import { Route as RakshakPlatformKnowledgeIndexRouteImport } from './routes/rakshak-platform.knowledge.index'
-import { Route as RakshakPlatformEvaluatorIndexRouteImport } from './routes/rakshak-platform.evaluator.index'
-import { Route as RakshakPlatformAuthIndexRouteImport } from './routes/rakshak-platform.auth.index'
-import { Route as RakshakPlatformAdminIndexRouteImport } from './routes/rakshak-platform.admin.index'
-import { Route as RakshakMentorAdminIndexRouteImport } from './routes/rakshak-mentor.admin.index'
-import { Route as GigriderChecklistObserverIndexRouteImport } from './routes/gigrider-checklist.observer.index'
-import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrider-checklist.admin.index'
-import { Route as RakshakPlatformVerifySlugRouteImport } from './routes/rakshak-platform.verify.$slug'
-import { Route as RakshakPlatformTeamUpdatesRouteImport } from './routes/rakshak-platform.team.updates'
-import { Route as RakshakPlatformTeamReportsRouteImport } from './routes/rakshak-platform.team.reports'
-import { Route as RakshakPlatformTeamMediaRouteImport } from './routes/rakshak-platform.team.media'
-import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
-import { Route as RakshakPlatformTeamEvidenceRouteImport } from './routes/rakshak-platform.team.evidence'
-import { Route as RakshakPlatformTeamBookMentorRouteImport } from './routes/rakshak-platform.team.book-mentor'
-import { Route as RakshakPlatformTeamBookAdminRouteImport } from './routes/rakshak-platform.team.book-admin'
-import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
-import { Route as RakshakPlatformShareTeamIdRouteImport } from './routes/rakshak-platform.share.$teamId'
-import { Route as RakshakPlatformSessionIdRouteImport } from './routes/rakshak-platform.session.$id'
-import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/rakshak-platform.reports.$teamId'
-import { Route as RakshakPlatformMentorResourcesRouteImport } from './routes/rakshak-platform.mentor.resources'
-import { Route as RakshakPlatformMentorAvailabilityRouteImport } from './routes/rakshak-platform.mentor.availability'
-import { Route as RakshakPlatformMIdRouteImport } from './routes/rakshak-platform.m.$id'
-import { Route as RakshakPlatformLeaderboardPrintRouteImport } from './routes/rakshak-platform.leaderboard_.print'
-import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
-import { Route as RakshakPlatformImpactStatesRouteImport } from './routes/rakshak-platform.impact_.states'
-import { Route as RakshakPlatformImpactInstitutionsRouteImport } from './routes/rakshak-platform.impact_.institutions'
-import { Route as RakshakPlatformImpactCitiesRouteImport } from './routes/rakshak-platform.impact_.cities'
-import { Route as RakshakPlatformEvaluatorReportsRouteImport } from './routes/rakshak-platform.evaluator.reports'
-import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
-import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
-import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
-import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
-import { Route as RakshakPlatformAdminSessionsRouteImport } from './routes/rakshak-platform.admin.sessions'
-import { Route as RakshakPlatformAdminRubricsRouteImport } from './routes/rakshak-platform.admin.rubrics'
-import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
-import { Route as RakshakPlatformAdminResourcesRouteImport } from './routes/rakshak-platform.admin.resources'
-import { Route as RakshakPlatformAdminRanksRouteImport } from './routes/rakshak-platform.admin.ranks'
-import { Route as RakshakPlatformAdminProfilesRouteImport } from './routes/rakshak-platform.admin.profiles'
-import { Route as RakshakPlatformAdminOnboardingRouteImport } from './routes/rakshak-platform.admin.onboarding'
-import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
-import { Route as RakshakPlatformAdminMeetingsRouteImport } from './routes/rakshak-platform.admin.meetings'
-import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/rakshak-platform.admin.integrations'
-import { Route as RakshakPlatformAdminEvaluatorsRouteImport } from './routes/rakshak-platform.admin.evaluators'
-import { Route as RakshakPlatformAdminEvaluatorLeaderboardRouteImport } from './routes/rakshak-platform.admin.evaluator-leaderboard'
-import { Route as RakshakPlatformAdminEmailsRouteImport } from './routes/rakshak-platform.admin.emails'
-import { Route as RakshakPlatformAdminDoubtsRouteImport } from './routes/rakshak-platform.admin.doubts'
-import { Route as RakshakPlatformAdminDataRouteImport } from './routes/rakshak-platform.admin.data'
-import { Route as RakshakPlatformAdminCredentialsRouteImport } from './routes/rakshak-platform.admin.credentials'
-import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
-import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
-import { Route as RakshakMentorUploadTokenRouteImport } from './routes/rakshak-mentor.upload.$token'
-import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-mentor.apply.success'
-import { Route as RakshakMentorAdminLoginRouteImport } from './routes/rakshak-mentor.admin.login'
-import { Route as RakshakMentorAdminAnalyticsRouteImport } from './routes/rakshak-mentor.admin.analytics'
-import { Route as RakshakMentorAdminIdRouteImport } from './routes/rakshak-mentor.admin.$id'
-import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
-import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
-import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
-import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
-import { Route as ApiMeetingIcsMeetingIdRouteImport } from './routes/api/meeting-ics.$meetingId'
-import { Route as ApiGigriderPhotoUploadRouteImport } from './routes/api/gigrider.photo-upload'
+import { Route as GigriderChecklistIndexRouteImport } from './routes/gigrider-checklist.index'
+import { Route as GigriderChecklistAdminRouteImport } from './routes/gigrider-checklist.admin'
+import { Route as GigriderChecklistLoginRouteImport } from './routes/gigrider-checklist.login'
+import { Route as GigriderChecklistObserverRouteImport } from './routes/gigrider-checklist.observer'
+import { Route as RakshakMentorIndexRouteImport } from './routes/rakshak-mentor.index'
+import { Route as RakshakMentorAdminRouteImport } from './routes/rakshak-mentor.admin'
+import { Route as RakshakMentorApplyRouteImport } from './routes/rakshak-mentor.apply'
+import { Route as RakshakPlatformIndexRouteImport } from './routes/rakshak-platform.index'
+import { Route as RakshakPlatformAdminRouteImport } from './routes/rakshak-platform.admin'
+import { Route as RakshakPlatformAuthorityRouteImport } from './routes/rakshak-platform.authority'
+import { Route as RakshakPlatformDashboardRouteImport } from './routes/rakshak-platform.dashboard'
+import { Route as RakshakPlatformEvaluatorRouteImport } from './routes/rakshak-platform.evaluator'
+import { Route as RakshakPlatformImpactRouteImport } from './routes/rakshak-platform.impact'
+import { Route as RakshakPlatformKnowledgeRouteImport } from './routes/rakshak-platform.knowledge'
+import { Route as RakshakPlatformLeaderboardRouteImport } from './routes/rakshak-platform.leaderboard'
+import { Route as RakshakPlatformMailsRouteImport } from './routes/rakshak-platform.mails'
+import { Route as RakshakPlatformMapRouteImport } from './routes/rakshak-platform.map'
+import { Route as RakshakPlatformMeetingsRouteImport } from './routes/rakshak-platform.meetings'
+import { Route as RakshakPlatformMemberRouteImport } from './routes/rakshak-platform.member'
+import { Route as RakshakPlatformMentorApplyRouteImport } from './routes/rakshak-platform.mentor-apply'
+import { Route as RakshakPlatformMentorsRouteImport } from './routes/rakshak-platform.mentors'
+import { Route as RakshakPlatformNotificationsRouteImport } from './routes/rakshak-platform.notifications'
+import { Route as RakshakPlatformProfileRouteImport } from './routes/rakshak-platform.profile'
+import { Route as RakshakPlatformSponsorRouteImport } from './routes/rakshak-platform.sponsor'
+import { Route as RakshakPlatformUnauthorizedRouteImport } from './routes/rakshak-platform.unauthorized'
 import { Route as ApiDocsFileRouteImport } from './routes/api/docs.$file'
-import { Route as RakshakPlatformTeamReportsIndexRouteImport } from './routes/rakshak-platform.team.reports.index'
-import { Route as RakshakPlatformTeamPhasesIndexRouteImport } from './routes/rakshak-platform.team.phases.index'
-import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/rakshak-platform.team.locations.index'
-import { Route as RakshakPlatformAdminTeamsIndexRouteImport } from './routes/rakshak-platform.admin.teams.index'
-import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rakshak-platform.team.phases.$phase'
-import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
-import { Route as RakshakPlatformMentorTeamsTeamIdRouteImport } from './routes/rakshak-platform.mentor.teams.$teamId'
-import { Route as RakshakPlatformMeetingsIcsMeetingIdRouteImport } from './routes/rakshak-platform.meetings.ics.$meetingId'
-import { Route as RakshakPlatformAdminTeamsNewRouteImport } from './routes/rakshak-platform.admin.teams.new'
-import { Route as RakshakPlatformAdminTeamsTeamIdRouteImport } from './routes/rakshak-platform.admin.teams.$teamId'
-import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
-import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
-import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
-import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as ApiPublicHooksRpNotifyDispatcherRouteImport } from './routes/api/public/hooks/rp-notify-dispatcher'
-import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
-import { Route as ApiPublicHooksRpDeadlineSweepRouteImport } from './routes/api/public/hooks/rp-deadline-sweep'
-import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
-import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
-import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
-import { Route as ApiPublicHooksKeepaliveRouteImport } from './routes/api/public/hooks/keepalive'
-import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
-import { Route as ApiPublicHooksDoubtRemindersRouteImport } from './routes/api/public/hooks/doubt-reminders'
-import { Route as ApiPublicHooksDeadlineWhatsappRemindersRouteImport } from './routes/api/public/hooks/deadline-whatsapp-reminders'
+import { Route as ApiGigriderPhotoUploadRouteImport } from './routes/api/gigrider.photo-upload'
+import { Route as ApiMeetingIcsMeetingIdRouteImport } from './routes/api/meeting-ics.$meetingId'
+import { Route as GigriderChecklistAdminIndexRouteImport } from './routes/gigrider-checklist.admin.index'
+import { Route as GigriderChecklistAdminIdRouteImport } from './routes/gigrider-checklist.admin.$id'
+import { Route as GigriderChecklistObserverIndexRouteImport } from './routes/gigrider-checklist.observer.index'
+import { Route as GigriderChecklistObserverIdRouteImport } from './routes/gigrider-checklist.observer.$id'
+import { Route as GigriderChecklistObserverNewRouteImport } from './routes/gigrider-checklist.observer.new'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
+import { Route as RakshakMentorAdminIndexRouteImport } from './routes/rakshak-mentor.admin.index'
+import { Route as RakshakMentorAdminIdRouteImport } from './routes/rakshak-mentor.admin.$id'
+import { Route as RakshakMentorAdminAnalyticsRouteImport } from './routes/rakshak-mentor.admin.analytics'
+import { Route as RakshakMentorAdminLoginRouteImport } from './routes/rakshak-mentor.admin.login'
+import { Route as RakshakMentorApplySuccessRouteImport } from './routes/rakshak-mentor.apply.success'
+import { Route as RakshakMentorUploadTokenRouteImport } from './routes/rakshak-mentor.upload.$token'
+import { Route as RakshakPlatformAdminIndexRouteImport } from './routes/rakshak-platform.admin.index'
+import { Route as RakshakPlatformAdminAnalyticsRouteImport } from './routes/rakshak-platform.admin.analytics'
+import { Route as RakshakPlatformAdminCertificatesRouteImport } from './routes/rakshak-platform.admin.certificates'
+import { Route as RakshakPlatformAdminCredentialsRouteImport } from './routes/rakshak-platform.admin.credentials'
+import { Route as RakshakPlatformAdminDataRouteImport } from './routes/rakshak-platform.admin.data'
+import { Route as RakshakPlatformAdminDoubtsRouteImport } from './routes/rakshak-platform.admin.doubts'
+import { Route as RakshakPlatformAdminEmailsRouteImport } from './routes/rakshak-platform.admin.emails'
+import { Route as RakshakPlatformAdminEvaluatorLeaderboardRouteImport } from './routes/rakshak-platform.admin.evaluator-leaderboard'
+import { Route as RakshakPlatformAdminEvaluatorsRouteImport } from './routes/rakshak-platform.admin.evaluators'
+import { Route as RakshakPlatformAdminIntegrationsRouteImport } from './routes/rakshak-platform.admin.integrations'
+import { Route as RakshakPlatformAdminMeetingsRouteImport } from './routes/rakshak-platform.admin.meetings'
+import { Route as RakshakPlatformAdminMentorApplicationsRouteImport } from './routes/rakshak-platform.admin.mentor-applications'
+import { Route as RakshakPlatformAdminOnboardingRouteImport } from './routes/rakshak-platform.admin.onboarding'
+import { Route as RakshakPlatformAdminProfilesRouteImport } from './routes/rakshak-platform.admin.profiles'
+import { Route as RakshakPlatformAdminRanksRouteImport } from './routes/rakshak-platform.admin.ranks'
+import { Route as RakshakPlatformAdminResourcesRouteImport } from './routes/rakshak-platform.admin.resources'
+import { Route as RakshakPlatformAdminReviewsRouteImport } from './routes/rakshak-platform.admin.reviews'
+import { Route as RakshakPlatformAdminRubricsRouteImport } from './routes/rakshak-platform.admin.rubrics'
+import { Route as RakshakPlatformAdminSessionsRouteImport } from './routes/rakshak-platform.admin.sessions'
+import { Route as RakshakPlatformAuthIndexRouteImport } from './routes/rakshak-platform.auth.index'
+import { Route as RakshakPlatformAuthCalendarCallbackRouteImport } from './routes/rakshak-platform.auth.calendar-callback'
+import { Route as RakshakPlatformAuthCallbackRouteImport } from './routes/rakshak-platform.auth.callback'
+import { Route as RakshakPlatformBookMentorIdRouteImport } from './routes/rakshak-platform.book.$mentorId'
+import { Route as RakshakPlatformEvaluatorIndexRouteImport } from './routes/rakshak-platform.evaluator.index'
+import { Route as RakshakPlatformEvaluatorSubmissionIdRouteImport } from './routes/rakshak-platform.evaluator.$submissionId'
+import { Route as RakshakPlatformEvaluatorReportsRouteImport } from './routes/rakshak-platform.evaluator.reports'
+import { Route as RakshakPlatformImpactCitiesRouteImport } from './routes/rakshak-platform.impact_.cities'
+import { Route as RakshakPlatformImpactInstitutionsRouteImport } from './routes/rakshak-platform.impact_.institutions'
+import { Route as RakshakPlatformImpactStatesRouteImport } from './routes/rakshak-platform.impact_.states'
+import { Route as RakshakPlatformKnowledgeIndexRouteImport } from './routes/rakshak-platform.knowledge.index'
+import { Route as RakshakPlatformKnowledgeSlugRouteImport } from './routes/rakshak-platform.knowledge.$slug'
+import { Route as RakshakPlatformLeaderboardPrintRouteImport } from './routes/rakshak-platform.leaderboard_.print'
+import { Route as RakshakPlatformMIdRouteImport } from './routes/rakshak-platform.m.$id'
+import { Route as RakshakPlatformMentorIndexRouteImport } from './routes/rakshak-platform.mentor.index'
+import { Route as RakshakPlatformMentorAvailabilityRouteImport } from './routes/rakshak-platform.mentor.availability'
+import { Route as RakshakPlatformMentorResourcesRouteImport } from './routes/rakshak-platform.mentor.resources'
+import { Route as RakshakPlatformReportsTeamIdRouteImport } from './routes/rakshak-platform.reports.$teamId'
+import { Route as RakshakPlatformSessionIdRouteImport } from './routes/rakshak-platform.session.$id'
+import { Route as RakshakPlatformShareTeamIdRouteImport } from './routes/rakshak-platform.share.$teamId'
+import { Route as RakshakPlatformTSlugRouteImport } from './routes/rakshak-platform.t.$slug'
+import { Route as RakshakPlatformTeamIndexRouteImport } from './routes/rakshak-platform.team.index'
+import { Route as RakshakPlatformTeamBookAdminRouteImport } from './routes/rakshak-platform.team.book-admin'
+import { Route as RakshakPlatformTeamBookMentorRouteImport } from './routes/rakshak-platform.team.book-mentor'
+import { Route as RakshakPlatformTeamEvidenceRouteImport } from './routes/rakshak-platform.team.evidence'
+import { Route as RakshakPlatformTeamLocationsRouteImport } from './routes/rakshak-platform.team.locations'
+import { Route as RakshakPlatformTeamMediaRouteImport } from './routes/rakshak-platform.team.media'
+import { Route as RakshakPlatformTeamReportsRouteImport } from './routes/rakshak-platform.team.reports'
+import { Route as RakshakPlatformTeamUpdatesRouteImport } from './routes/rakshak-platform.team.updates'
+import { Route as RakshakPlatformVerifySlugRouteImport } from './routes/rakshak-platform.verify.$slug'
 import { Route as ApiPublicHooksAdminDigestRouteImport } from './routes/api/public/hooks/admin-digest'
+import { Route as ApiPublicHooksDeadlineWhatsappRemindersRouteImport } from './routes/api/public/hooks/deadline-whatsapp-reminders'
+import { Route as ApiPublicHooksDoubtRemindersRouteImport } from './routes/api/public/hooks/doubt-reminders'
+import { Route as ApiPublicHooksHealthPingRouteImport } from './routes/api/public/hooks/health-ping'
+import { Route as ApiPublicHooksKeepaliveRouteImport } from './routes/api/public/hooks/keepalive'
+import { Route as ApiPublicHooksMeetingRemindersRouteImport } from './routes/api/public/hooks/meeting-reminders'
+import { Route as ApiPublicHooksMentorUploadRouteImport } from './routes/api/public/hooks/mentor-upload'
+import { Route as ApiPublicHooksResendWebhookRouteImport } from './routes/api/public/hooks/resend-webhook'
+import { Route as ApiPublicHooksRpDeadlineSweepRouteImport } from './routes/api/public/hooks/rp-deadline-sweep'
+import { Route as ApiPublicHooksRpMeetingSelftestRouteImport } from './routes/api/public/hooks/rp-meeting-selftest'
+import { Route as ApiPublicHooksRpNotifyDispatcherRouteImport } from './routes/api/public/hooks/rp-notify-dispatcher'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as RakshakPlatformAdminPrintDatasetRouteImport } from './routes/rakshak-platform.admin.print.$dataset'
+import { Route as RakshakPlatformAdminTeamsIndexRouteImport } from './routes/rakshak-platform.admin.teams.index'
+import { Route as RakshakPlatformAdminTeamsTeamIdRouteImport } from './routes/rakshak-platform.admin.teams.$teamId'
+import { Route as RakshakPlatformAdminTeamsNewRouteImport } from './routes/rakshak-platform.admin.teams.new'
+import { Route as RakshakPlatformMeetingsIcsMeetingIdRouteImport } from './routes/rakshak-platform.meetings.ics.$meetingId'
+import { Route as RakshakPlatformMentorTeamsTeamIdRouteImport } from './routes/rakshak-platform.mentor.teams.$teamId'
+import { Route as RakshakPlatformTeamLocationsIndexRouteImport } from './routes/rakshak-platform.team.locations.index'
+import { Route as RakshakPlatformTeamLocationsIdRouteImport } from './routes/rakshak-platform.team.locations.$id'
+import { Route as RakshakPlatformTeamPhasesIndexRouteImport } from './routes/rakshak-platform.team.phases.index'
+import { Route as RakshakPlatformTeamPhasesPhaseRouteImport } from './routes/rakshak-platform.team.phases.$phase'
+import { Route as RakshakPlatformTeamReportsIndexRouteImport } from './routes/rakshak-platform.team.reports.index'
 
-const UnsubscribeRoute = UnsubscribeRouteImport.update({
-  id: '/unsubscribe',
-  path: '/unsubscribe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RakshakPlatformRoute = RakshakPlatformRouteImport.update({
-  id: '/rakshak-platform',
-  path: '/rakshak-platform',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RakshakMentorRoute = RakshakMentorRouteImport.update({
-  id: '/rakshak-mentor',
-  path: '/rakshak-mentor',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GigriderChecklistRoute = GigriderChecklistRouteImport.update({
@@ -150,100 +140,76 @@ const GigriderChecklistRoute = GigriderChecklistRouteImport.update({
   path: '/gigrider-checklist',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const RakshakMentorRoute = RakshakMentorRouteImport.update({
+  id: '/rakshak-mentor',
+  path: '/rakshak-mentor',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RakshakPlatformIndexRoute = RakshakPlatformIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => RakshakPlatformRoute,
+const RakshakPlatformRoute = RakshakPlatformRouteImport.update({
+  id: '/rakshak-platform',
+  path: '/rakshak-platform',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const RakshakMentorIndexRoute = RakshakMentorIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => RakshakMentorRoute,
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GigriderChecklistIndexRoute = GigriderChecklistIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => GigriderChecklistRoute,
 } as any)
-const RakshakPlatformUnauthorizedRoute =
-  RakshakPlatformUnauthorizedRouteImport.update({
-    id: '/unauthorized',
-    path: '/unauthorized',
-    getParentRoute: () => RakshakPlatformRoute,
+const GigriderChecklistAdminRoute = GigriderChecklistAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => GigriderChecklistRoute,
+} as any)
+const GigriderChecklistLoginRoute = GigriderChecklistLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => GigriderChecklistRoute,
+} as any)
+const GigriderChecklistObserverRoute =
+  GigriderChecklistObserverRouteImport.update({
+    id: '/observer',
+    path: '/observer',
+    getParentRoute: () => GigriderChecklistRoute,
   } as any)
-const RakshakPlatformSponsorRoute = RakshakPlatformSponsorRouteImport.update({
-  id: '/sponsor',
-  path: '/sponsor',
+const RakshakMentorIndexRoute = RakshakMentorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RakshakMentorRoute,
+} as any)
+const RakshakMentorAdminRoute = RakshakMentorAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => RakshakMentorRoute,
+} as any)
+const RakshakMentorApplyRoute = RakshakMentorApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => RakshakMentorRoute,
+} as any)
+const RakshakPlatformIndexRoute = RakshakPlatformIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
-const RakshakPlatformProfileRoute = RakshakPlatformProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
+const RakshakPlatformAdminRoute = RakshakPlatformAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
-const RakshakPlatformNotificationsRoute =
-  RakshakPlatformNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformMentorsRoute = RakshakPlatformMentorsRouteImport.update({
-  id: '/mentors',
-  path: '/mentors',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformMentorApplyRoute =
-  RakshakPlatformMentorApplyRouteImport.update({
-    id: '/mentor-apply',
-    path: '/mentor-apply',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformMemberRoute = RakshakPlatformMemberRouteImport.update({
-  id: '/member',
-  path: '/member',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformMeetingsRoute = RakshakPlatformMeetingsRouteImport.update({
-  id: '/meetings',
-  path: '/meetings',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformMapRoute = RakshakPlatformMapRouteImport.update({
-  id: '/map',
-  path: '/map',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformMailsRoute = RakshakPlatformMailsRouteImport.update({
-  id: '/mails',
-  path: '/mails',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformLeaderboardRoute =
-  RakshakPlatformLeaderboardRouteImport.update({
-    id: '/leaderboard',
-    path: '/leaderboard',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformKnowledgeRoute =
-  RakshakPlatformKnowledgeRouteImport.update({
-    id: '/knowledge',
-    path: '/knowledge',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformImpactRoute = RakshakPlatformImpactRouteImport.update({
-  id: '/impact',
-  path: '/impact',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformEvaluatorRoute =
-  RakshakPlatformEvaluatorRouteImport.update({
-    id: '/evaluator',
-    path: '/evaluator',
+const RakshakPlatformAuthorityRoute =
+  RakshakPlatformAuthorityRouteImport.update({
+    id: '/authority',
+    path: '/authority',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
 const RakshakPlatformDashboardRoute =
@@ -252,394 +218,113 @@ const RakshakPlatformDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformAuthorityRoute =
-  RakshakPlatformAuthorityRouteImport.update({
-    id: '/authority',
-    path: '/authority',
+const RakshakPlatformEvaluatorRoute =
+  RakshakPlatformEvaluatorRouteImport.update({
+    id: '/evaluator',
+    path: '/evaluator',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformAdminRoute = RakshakPlatformAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const RakshakPlatformImpactRoute = RakshakPlatformImpactRouteImport.update({
+  id: '/impact',
+  path: '/impact',
   getParentRoute: () => RakshakPlatformRoute,
 } as any)
-const RakshakMentorApplyRoute = RakshakMentorApplyRouteImport.update({
-  id: '/apply',
-  path: '/apply',
-  getParentRoute: () => RakshakMentorRoute,
-} as any)
-const RakshakMentorAdminRoute = RakshakMentorAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => RakshakMentorRoute,
-} as any)
-const GigriderChecklistObserverRoute =
-  GigriderChecklistObserverRouteImport.update({
-    id: '/observer',
-    path: '/observer',
-    getParentRoute: () => GigriderChecklistRoute,
+const RakshakPlatformKnowledgeRoute =
+  RakshakPlatformKnowledgeRouteImport.update({
+    id: '/knowledge',
+    path: '/knowledge',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const GigriderChecklistLoginRoute = GigriderChecklistLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => GigriderChecklistRoute,
+const RakshakPlatformLeaderboardRoute =
+  RakshakPlatformLeaderboardRouteImport.update({
+    id: '/leaderboard',
+    path: '/leaderboard',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformMailsRoute = RakshakPlatformMailsRouteImport.update({
+  id: '/mails',
+  path: '/mails',
+  getParentRoute: () => RakshakPlatformRoute,
 } as any)
-const GigriderChecklistAdminRoute = GigriderChecklistAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => GigriderChecklistRoute,
+const RakshakPlatformMapRoute = RakshakPlatformMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => RakshakPlatformRoute,
 } as any)
-const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
-  id: '/email/unsubscribe',
-  path: '/email/unsubscribe',
+const RakshakPlatformMeetingsRoute = RakshakPlatformMeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformMemberRoute = RakshakPlatformMemberRouteImport.update({
+  id: '/member',
+  path: '/member',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformMentorApplyRoute =
+  RakshakPlatformMentorApplyRouteImport.update({
+    id: '/mentor-apply',
+    path: '/mentor-apply',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformMentorsRoute = RakshakPlatformMentorsRouteImport.update({
+  id: '/mentors',
+  path: '/mentors',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformNotificationsRoute =
+  RakshakPlatformNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformProfileRoute = RakshakPlatformProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformSponsorRoute = RakshakPlatformSponsorRouteImport.update({
+  id: '/sponsor',
+  path: '/sponsor',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformUnauthorizedRoute =
+  RakshakPlatformUnauthorizedRouteImport.update({
+    id: '/unauthorized',
+    path: '/unauthorized',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const ApiDocsFileRoute = ApiDocsFileRouteImport.update({
+  id: '/api/docs/$file',
+  path: '/api/docs/$file',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RakshakPlatformTeamIndexRoute =
-  RakshakPlatformTeamIndexRouteImport.update({
-    id: '/team/',
-    path: '/team/',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformMentorIndexRoute =
-  RakshakPlatformMentorIndexRouteImport.update({
-    id: '/mentor/',
-    path: '/mentor/',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformKnowledgeIndexRoute =
-  RakshakPlatformKnowledgeIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => RakshakPlatformKnowledgeRoute,
-  } as any)
-const RakshakPlatformEvaluatorIndexRoute =
-  RakshakPlatformEvaluatorIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => RakshakPlatformEvaluatorRoute,
-  } as any)
-const RakshakPlatformAuthIndexRoute =
-  RakshakPlatformAuthIndexRouteImport.update({
-    id: '/auth/',
-    path: '/auth/',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformAdminIndexRoute =
-  RakshakPlatformAdminIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakMentorAdminIndexRoute = RakshakMentorAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => RakshakMentorAdminRoute,
+const ApiGigriderPhotoUploadRoute = ApiGigriderPhotoUploadRouteImport.update({
+  id: '/api/gigrider/photo-upload',
+  path: '/api/gigrider/photo-upload',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const GigriderChecklistObserverIndexRoute =
-  GigriderChecklistObserverIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => GigriderChecklistObserverRoute,
-  } as any)
+const ApiMeetingIcsMeetingIdRoute = ApiMeetingIcsMeetingIdRouteImport.update({
+  id: '/api/meeting-ics/$meetingId',
+  path: '/api/meeting-ics/$meetingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GigriderChecklistAdminIndexRoute =
   GigriderChecklistAdminIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => GigriderChecklistAdminRoute,
   } as any)
-const RakshakPlatformVerifySlugRoute =
-  RakshakPlatformVerifySlugRouteImport.update({
-    id: '/verify/$slug',
-    path: '/verify/$slug',
-    getParentRoute: () => RakshakPlatformRoute,
+const GigriderChecklistAdminIdRoute =
+  GigriderChecklistAdminIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => GigriderChecklistAdminRoute,
   } as any)
-const RakshakPlatformTeamUpdatesRoute =
-  RakshakPlatformTeamUpdatesRouteImport.update({
-    id: '/team/updates',
-    path: '/team/updates',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTeamReportsRoute =
-  RakshakPlatformTeamReportsRouteImport.update({
-    id: '/team/reports',
-    path: '/team/reports',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTeamMediaRoute =
-  RakshakPlatformTeamMediaRouteImport.update({
-    id: '/team/media',
-    path: '/team/media',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTeamLocationsRoute =
-  RakshakPlatformTeamLocationsRouteImport.update({
-    id: '/team/locations',
-    path: '/team/locations',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTeamEvidenceRoute =
-  RakshakPlatformTeamEvidenceRouteImport.update({
-    id: '/team/evidence',
-    path: '/team/evidence',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTeamBookMentorRoute =
-  RakshakPlatformTeamBookMentorRouteImport.update({
-    id: '/team/book-mentor',
-    path: '/team/book-mentor',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTeamBookAdminRoute =
-  RakshakPlatformTeamBookAdminRouteImport.update({
-    id: '/team/book-admin',
-    path: '/team/book-admin',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformTSlugRoute = RakshakPlatformTSlugRouteImport.update({
-  id: '/t/$slug',
-  path: '/t/$slug',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformShareTeamIdRoute =
-  RakshakPlatformShareTeamIdRouteImport.update({
-    id: '/share/$teamId',
-    path: '/share/$teamId',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformSessionIdRoute =
-  RakshakPlatformSessionIdRouteImport.update({
-    id: '/session/$id',
-    path: '/session/$id',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformReportsTeamIdRoute =
-  RakshakPlatformReportsTeamIdRouteImport.update({
-    id: '/reports/$teamId',
-    path: '/reports/$teamId',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformMentorResourcesRoute =
-  RakshakPlatformMentorResourcesRouteImport.update({
-    id: '/mentor/resources',
-    path: '/mentor/resources',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformMentorAvailabilityRoute =
-  RakshakPlatformMentorAvailabilityRouteImport.update({
-    id: '/mentor/availability',
-    path: '/mentor/availability',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformMIdRoute = RakshakPlatformMIdRouteImport.update({
-  id: '/m/$id',
-  path: '/m/$id',
-  getParentRoute: () => RakshakPlatformRoute,
-} as any)
-const RakshakPlatformLeaderboardPrintRoute =
-  RakshakPlatformLeaderboardPrintRouteImport.update({
-    id: '/leaderboard_/print',
-    path: '/leaderboard/print',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformKnowledgeSlugRoute =
-  RakshakPlatformKnowledgeSlugRouteImport.update({
-    id: '/$slug',
-    path: '/$slug',
-    getParentRoute: () => RakshakPlatformKnowledgeRoute,
-  } as any)
-const RakshakPlatformImpactStatesRoute =
-  RakshakPlatformImpactStatesRouteImport.update({
-    id: '/impact_/states',
-    path: '/impact/states',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformImpactInstitutionsRoute =
-  RakshakPlatformImpactInstitutionsRouteImport.update({
-    id: '/impact_/institutions',
-    path: '/impact/institutions',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformImpactCitiesRoute =
-  RakshakPlatformImpactCitiesRouteImport.update({
-    id: '/impact_/cities',
-    path: '/impact/cities',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformEvaluatorReportsRoute =
-  RakshakPlatformEvaluatorReportsRouteImport.update({
-    id: '/reports',
-    path: '/reports',
-    getParentRoute: () => RakshakPlatformEvaluatorRoute,
-  } as any)
-const RakshakPlatformEvaluatorSubmissionIdRoute =
-  RakshakPlatformEvaluatorSubmissionIdRouteImport.update({
-    id: '/$submissionId',
-    path: '/$submissionId',
-    getParentRoute: () => RakshakPlatformEvaluatorRoute,
-  } as any)
-const RakshakPlatformBookMentorIdRoute =
-  RakshakPlatformBookMentorIdRouteImport.update({
-    id: '/book/$mentorId',
-    path: '/book/$mentorId',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformAuthCallbackRoute =
-  RakshakPlatformAuthCallbackRouteImport.update({
-    id: '/auth/callback',
-    path: '/auth/callback',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformAuthCalendarCallbackRoute =
-  RakshakPlatformAuthCalendarCallbackRouteImport.update({
-    id: '/auth/calendar-callback',
-    path: '/auth/calendar-callback',
-    getParentRoute: () => RakshakPlatformRoute,
-  } as any)
-const RakshakPlatformAdminSessionsRoute =
-  RakshakPlatformAdminSessionsRouteImport.update({
-    id: '/sessions',
-    path: '/sessions',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminRubricsRoute =
-  RakshakPlatformAdminRubricsRouteImport.update({
-    id: '/rubrics',
-    path: '/rubrics',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminReviewsRoute =
-  RakshakPlatformAdminReviewsRouteImport.update({
-    id: '/reviews',
-    path: '/reviews',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminResourcesRoute =
-  RakshakPlatformAdminResourcesRouteImport.update({
-    id: '/resources',
-    path: '/resources',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminRanksRoute =
-  RakshakPlatformAdminRanksRouteImport.update({
-    id: '/ranks',
-    path: '/ranks',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminProfilesRoute =
-  RakshakPlatformAdminProfilesRouteImport.update({
-    id: '/profiles',
-    path: '/profiles',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminOnboardingRoute =
-  RakshakPlatformAdminOnboardingRouteImport.update({
-    id: '/onboarding',
-    path: '/onboarding',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminMentorApplicationsRoute =
-  RakshakPlatformAdminMentorApplicationsRouteImport.update({
-    id: '/mentor-applications',
-    path: '/mentor-applications',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminMeetingsRoute =
-  RakshakPlatformAdminMeetingsRouteImport.update({
-    id: '/meetings',
-    path: '/meetings',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminIntegrationsRoute =
-  RakshakPlatformAdminIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminEvaluatorsRoute =
-  RakshakPlatformAdminEvaluatorsRouteImport.update({
-    id: '/evaluators',
-    path: '/evaluators',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminEvaluatorLeaderboardRoute =
-  RakshakPlatformAdminEvaluatorLeaderboardRouteImport.update({
-    id: '/evaluator-leaderboard',
-    path: '/evaluator-leaderboard',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminEmailsRoute =
-  RakshakPlatformAdminEmailsRouteImport.update({
-    id: '/emails',
-    path: '/emails',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminDoubtsRoute =
-  RakshakPlatformAdminDoubtsRouteImport.update({
-    id: '/doubts',
-    path: '/doubts',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminDataRoute =
-  RakshakPlatformAdminDataRouteImport.update({
-    id: '/data',
-    path: '/data',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminCredentialsRoute =
-  RakshakPlatformAdminCredentialsRouteImport.update({
-    id: '/credentials',
-    path: '/credentials',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminCertificatesRoute =
-  RakshakPlatformAdminCertificatesRouteImport.update({
-    id: '/certificates',
-    path: '/certificates',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakPlatformAdminAnalyticsRoute =
-  RakshakPlatformAdminAnalyticsRouteImport.update({
-    id: '/analytics',
-    path: '/analytics',
-    getParentRoute: () => RakshakPlatformAdminRoute,
-  } as any)
-const RakshakMentorUploadTokenRoute =
-  RakshakMentorUploadTokenRouteImport.update({
-    id: '/upload/$token',
-    path: '/upload/$token',
-    getParentRoute: () => RakshakMentorRoute,
-  } as any)
-const RakshakMentorApplySuccessRoute =
-  RakshakMentorApplySuccessRouteImport.update({
-    id: '/success',
-    path: '/success',
-    getParentRoute: () => RakshakMentorApplyRoute,
-  } as any)
-const RakshakMentorAdminLoginRoute = RakshakMentorAdminLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => RakshakMentorAdminRoute,
-} as any)
-const RakshakMentorAdminAnalyticsRoute =
-  RakshakMentorAdminAnalyticsRouteImport.update({
-    id: '/analytics',
-    path: '/analytics',
-    getParentRoute: () => RakshakMentorAdminRoute,
-  } as any)
-const RakshakMentorAdminIdRoute = RakshakMentorAdminIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => RakshakMentorAdminRoute,
-} as any)
-const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
-  id: '/lovable/email/suppression',
-  path: '/lovable/email/suppression',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GigriderChecklistObserverNewRoute =
-  GigriderChecklistObserverNewRouteImport.update({
-    id: '/new',
-    path: '/new',
+const GigriderChecklistObserverIndexRoute =
+  GigriderChecklistObserverIndexRouteImport.update({
+    id: '/',
+    path: '/',
     getParentRoute: () => GigriderChecklistObserverRoute,
   } as any)
 const GigriderChecklistObserverIdRoute =
@@ -648,162 +333,346 @@ const GigriderChecklistObserverIdRoute =
     path: '/$id',
     getParentRoute: () => GigriderChecklistObserverRoute,
   } as any)
-const GigriderChecklistAdminIdRoute =
-  GigriderChecklistAdminIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => GigriderChecklistAdminRoute,
+const GigriderChecklistObserverNewRoute =
+  GigriderChecklistObserverNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => GigriderChecklistObserverRoute,
   } as any)
-const ApiMeetingIcsMeetingIdRoute = ApiMeetingIcsMeetingIdRouteImport.update({
-  id: '/api/meeting-ics/$meetingId',
-  path: '/api/meeting-ics/$meetingId',
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGigriderPhotoUploadRoute = ApiGigriderPhotoUploadRouteImport.update({
-  id: '/api/gigrider/photo-upload',
-  path: '/api/gigrider/photo-upload',
-  getParentRoute: () => rootRouteImport,
+const RakshakMentorAdminIndexRoute = RakshakMentorAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RakshakMentorAdminRoute,
 } as any)
-const ApiDocsFileRoute = ApiDocsFileRouteImport.update({
-  id: '/api/docs/$file',
-  path: '/api/docs/$file',
-  getParentRoute: () => rootRouteImport,
+const RakshakMentorAdminIdRoute = RakshakMentorAdminIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RakshakMentorAdminRoute,
 } as any)
-const RakshakPlatformTeamReportsIndexRoute =
-  RakshakPlatformTeamReportsIndexRouteImport.update({
+const RakshakMentorAdminAnalyticsRoute =
+  RakshakMentorAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => RakshakMentorAdminRoute,
+  } as any)
+const RakshakMentorAdminLoginRoute = RakshakMentorAdminLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => RakshakMentorAdminRoute,
+} as any)
+const RakshakMentorApplySuccessRoute =
+  RakshakMentorApplySuccessRouteImport.update({
+    id: '/success',
+    path: '/success',
+    getParentRoute: () => RakshakMentorApplyRoute,
+  } as any)
+const RakshakMentorUploadTokenRoute =
+  RakshakMentorUploadTokenRouteImport.update({
+    id: '/upload/$token',
+    path: '/upload/$token',
+    getParentRoute: () => RakshakMentorRoute,
+  } as any)
+const RakshakPlatformAdminIndexRoute =
+  RakshakPlatformAdminIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => RakshakPlatformTeamReportsRoute,
+    getParentRoute: () => RakshakPlatformAdminRoute,
   } as any)
-const RakshakPlatformTeamPhasesIndexRoute =
-  RakshakPlatformTeamPhasesIndexRouteImport.update({
-    id: '/team/phases/',
-    path: '/team/phases/',
+const RakshakPlatformAdminAnalyticsRoute =
+  RakshakPlatformAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminCertificatesRoute =
+  RakshakPlatformAdminCertificatesRouteImport.update({
+    id: '/certificates',
+    path: '/certificates',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminCredentialsRoute =
+  RakshakPlatformAdminCredentialsRouteImport.update({
+    id: '/credentials',
+    path: '/credentials',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminDataRoute =
+  RakshakPlatformAdminDataRouteImport.update({
+    id: '/data',
+    path: '/data',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminDoubtsRoute =
+  RakshakPlatformAdminDoubtsRouteImport.update({
+    id: '/doubts',
+    path: '/doubts',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminEmailsRoute =
+  RakshakPlatformAdminEmailsRouteImport.update({
+    id: '/emails',
+    path: '/emails',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminEvaluatorLeaderboardRoute =
+  RakshakPlatformAdminEvaluatorLeaderboardRouteImport.update({
+    id: '/evaluator-leaderboard',
+    path: '/evaluator-leaderboard',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminEvaluatorsRoute =
+  RakshakPlatformAdminEvaluatorsRouteImport.update({
+    id: '/evaluators',
+    path: '/evaluators',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminIntegrationsRoute =
+  RakshakPlatformAdminIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminMeetingsRoute =
+  RakshakPlatformAdminMeetingsRouteImport.update({
+    id: '/meetings',
+    path: '/meetings',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminMentorApplicationsRoute =
+  RakshakPlatformAdminMentorApplicationsRouteImport.update({
+    id: '/mentor-applications',
+    path: '/mentor-applications',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminOnboardingRoute =
+  RakshakPlatformAdminOnboardingRouteImport.update({
+    id: '/onboarding',
+    path: '/onboarding',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminProfilesRoute =
+  RakshakPlatformAdminProfilesRouteImport.update({
+    id: '/profiles',
+    path: '/profiles',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminRanksRoute =
+  RakshakPlatformAdminRanksRouteImport.update({
+    id: '/ranks',
+    path: '/ranks',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminResourcesRoute =
+  RakshakPlatformAdminResourcesRouteImport.update({
+    id: '/resources',
+    path: '/resources',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminReviewsRoute =
+  RakshakPlatformAdminReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminRubricsRoute =
+  RakshakPlatformAdminRubricsRouteImport.update({
+    id: '/rubrics',
+    path: '/rubrics',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminSessionsRoute =
+  RakshakPlatformAdminSessionsRouteImport.update({
+    id: '/sessions',
+    path: '/sessions',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAuthIndexRoute =
+  RakshakPlatformAuthIndexRouteImport.update({
+    id: '/auth/',
+    path: '/auth/',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformTeamLocationsIndexRoute =
-  RakshakPlatformTeamLocationsIndexRouteImport.update({
+const RakshakPlatformAuthCalendarCallbackRoute =
+  RakshakPlatformAuthCalendarCallbackRouteImport.update({
+    id: '/auth/calendar-callback',
+    path: '/auth/calendar-callback',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformAuthCallbackRoute =
+  RakshakPlatformAuthCallbackRouteImport.update({
+    id: '/auth/callback',
+    path: '/auth/callback',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformBookMentorIdRoute =
+  RakshakPlatformBookMentorIdRouteImport.update({
+    id: '/book/$mentorId',
+    path: '/book/$mentorId',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformEvaluatorIndexRoute =
+  RakshakPlatformEvaluatorIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => RakshakPlatformTeamLocationsRoute,
+    getParentRoute: () => RakshakPlatformEvaluatorRoute,
   } as any)
-const RakshakPlatformAdminTeamsIndexRoute =
-  RakshakPlatformAdminTeamsIndexRouteImport.update({
-    id: '/teams/',
-    path: '/teams/',
-    getParentRoute: () => RakshakPlatformAdminRoute,
+const RakshakPlatformEvaluatorSubmissionIdRoute =
+  RakshakPlatformEvaluatorSubmissionIdRouteImport.update({
+    id: '/$submissionId',
+    path: '/$submissionId',
+    getParentRoute: () => RakshakPlatformEvaluatorRoute,
   } as any)
-const RakshakPlatformTeamPhasesPhaseRoute =
-  RakshakPlatformTeamPhasesPhaseRouteImport.update({
-    id: '/team/phases/$phase',
-    path: '/team/phases/$phase',
+const RakshakPlatformEvaluatorReportsRoute =
+  RakshakPlatformEvaluatorReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => RakshakPlatformEvaluatorRoute,
+  } as any)
+const RakshakPlatformImpactCitiesRoute =
+  RakshakPlatformImpactCitiesRouteImport.update({
+    id: '/impact_/cities',
+    path: '/impact/cities',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformTeamLocationsIdRoute =
-  RakshakPlatformTeamLocationsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => RakshakPlatformTeamLocationsRoute,
-  } as any)
-const RakshakPlatformMentorTeamsTeamIdRoute =
-  RakshakPlatformMentorTeamsTeamIdRouteImport.update({
-    id: '/mentor/teams/$teamId',
-    path: '/mentor/teams/$teamId',
+const RakshakPlatformImpactInstitutionsRoute =
+  RakshakPlatformImpactInstitutionsRouteImport.update({
+    id: '/impact_/institutions',
+    path: '/impact/institutions',
     getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformMeetingsIcsMeetingIdRoute =
-  RakshakPlatformMeetingsIcsMeetingIdRouteImport.update({
-    id: '/ics/$meetingId',
-    path: '/ics/$meetingId',
-    getParentRoute: () => RakshakPlatformMeetingsRoute,
+const RakshakPlatformImpactStatesRoute =
+  RakshakPlatformImpactStatesRouteImport.update({
+    id: '/impact_/states',
+    path: '/impact/states',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const RakshakPlatformAdminTeamsNewRoute =
-  RakshakPlatformAdminTeamsNewRouteImport.update({
-    id: '/teams/new',
-    path: '/teams/new',
-    getParentRoute: () => RakshakPlatformAdminRoute,
+const RakshakPlatformKnowledgeIndexRoute =
+  RakshakPlatformKnowledgeIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => RakshakPlatformKnowledgeRoute,
   } as any)
-const RakshakPlatformAdminTeamsTeamIdRoute =
-  RakshakPlatformAdminTeamsTeamIdRouteImport.update({
-    id: '/teams/$teamId',
-    path: '/teams/$teamId',
-    getParentRoute: () => RakshakPlatformAdminRoute,
+const RakshakPlatformKnowledgeSlugRoute =
+  RakshakPlatformKnowledgeSlugRouteImport.update({
+    id: '/$slug',
+    path: '/$slug',
+    getParentRoute: () => RakshakPlatformKnowledgeRoute,
   } as any)
-const RakshakPlatformAdminPrintDatasetRoute =
-  RakshakPlatformAdminPrintDatasetRouteImport.update({
-    id: '/print/$dataset',
-    path: '/print/$dataset',
-    getParentRoute: () => RakshakPlatformAdminRoute,
+const RakshakPlatformLeaderboardPrintRoute =
+  RakshakPlatformLeaderboardPrintRouteImport.update({
+    id: '/leaderboard_/print',
+    path: '/leaderboard/print',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const LovableEmailTransactionalSendRoute =
-  LovableEmailTransactionalSendRouteImport.update({
-    id: '/lovable/email/transactional/send',
-    path: '/lovable/email/transactional/send',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailTransactionalPreviewRoute =
-  LovableEmailTransactionalPreviewRouteImport.update({
-    id: '/lovable/email/transactional/preview',
-    path: '/lovable/email/transactional/preview',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LovableEmailQueueProcessRoute =
-  LovableEmailQueueProcessRouteImport.update({
-    id: '/lovable/email/queue/process',
-    path: '/lovable/email/queue/process',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksRpNotifyDispatcherRoute =
-  ApiPublicHooksRpNotifyDispatcherRouteImport.update({
-    id: '/api/public/hooks/rp-notify-dispatcher',
-    path: '/api/public/hooks/rp-notify-dispatcher',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksRpMeetingSelftestRoute =
-  ApiPublicHooksRpMeetingSelftestRouteImport.update({
-    id: '/api/public/hooks/rp-meeting-selftest',
-    path: '/api/public/hooks/rp-meeting-selftest',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksRpDeadlineSweepRoute =
-  ApiPublicHooksRpDeadlineSweepRouteImport.update({
-    id: '/api/public/hooks/rp-deadline-sweep',
-    path: '/api/public/hooks/rp-deadline-sweep',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksResendWebhookRoute =
-  ApiPublicHooksResendWebhookRouteImport.update({
-    id: '/api/public/hooks/resend-webhook',
-    path: '/api/public/hooks/resend-webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksMentorUploadRoute =
-  ApiPublicHooksMentorUploadRouteImport.update({
-    id: '/api/public/hooks/mentor-upload',
-    path: '/api/public/hooks/mentor-upload',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksMeetingRemindersRoute =
-  ApiPublicHooksMeetingRemindersRouteImport.update({
-    id: '/api/public/hooks/meeting-reminders',
-    path: '/api/public/hooks/meeting-reminders',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksKeepaliveRoute = ApiPublicHooksKeepaliveRouteImport.update({
-  id: '/api/public/hooks/keepalive',
-  path: '/api/public/hooks/keepalive',
-  getParentRoute: () => rootRouteImport,
+const RakshakPlatformMIdRoute = RakshakPlatformMIdRouteImport.update({
+  id: '/m/$id',
+  path: '/m/$id',
+  getParentRoute: () => RakshakPlatformRoute,
 } as any)
-const ApiPublicHooksHealthPingRoute =
-  ApiPublicHooksHealthPingRouteImport.update({
-    id: '/api/public/hooks/health-ping',
-    path: '/api/public/hooks/health-ping',
-    getParentRoute: () => rootRouteImport,
+const RakshakPlatformMentorIndexRoute =
+  RakshakPlatformMentorIndexRouteImport.update({
+    id: '/mentor/',
+    path: '/mentor/',
+    getParentRoute: () => RakshakPlatformRoute,
   } as any)
-const ApiPublicHooksDoubtRemindersRoute =
-  ApiPublicHooksDoubtRemindersRouteImport.update({
-    id: '/api/public/hooks/doubt-reminders',
-    path: '/api/public/hooks/doubt-reminders',
+const RakshakPlatformMentorAvailabilityRoute =
+  RakshakPlatformMentorAvailabilityRouteImport.update({
+    id: '/mentor/availability',
+    path: '/mentor/availability',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformMentorResourcesRoute =
+  RakshakPlatformMentorResourcesRouteImport.update({
+    id: '/mentor/resources',
+    path: '/mentor/resources',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformReportsTeamIdRoute =
+  RakshakPlatformReportsTeamIdRouteImport.update({
+    id: '/reports/$teamId',
+    path: '/reports/$teamId',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformSessionIdRoute =
+  RakshakPlatformSessionIdRouteImport.update({
+    id: '/session/$id',
+    path: '/session/$id',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformShareTeamIdRoute =
+  RakshakPlatformShareTeamIdRouteImport.update({
+    id: '/share/$teamId',
+    path: '/share/$teamId',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTSlugRoute = RakshakPlatformTSlugRouteImport.update({
+  id: '/t/$slug',
+  path: '/t/$slug',
+  getParentRoute: () => RakshakPlatformRoute,
+} as any)
+const RakshakPlatformTeamIndexRoute =
+  RakshakPlatformTeamIndexRouteImport.update({
+    id: '/team/',
+    path: '/team/',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamBookAdminRoute =
+  RakshakPlatformTeamBookAdminRouteImport.update({
+    id: '/team/book-admin',
+    path: '/team/book-admin',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamBookMentorRoute =
+  RakshakPlatformTeamBookMentorRouteImport.update({
+    id: '/team/book-mentor',
+    path: '/team/book-mentor',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamEvidenceRoute =
+  RakshakPlatformTeamEvidenceRouteImport.update({
+    id: '/team/evidence',
+    path: '/team/evidence',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamLocationsRoute =
+  RakshakPlatformTeamLocationsRouteImport.update({
+    id: '/team/locations',
+    path: '/team/locations',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamMediaRoute =
+  RakshakPlatformTeamMediaRouteImport.update({
+    id: '/team/media',
+    path: '/team/media',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamReportsRoute =
+  RakshakPlatformTeamReportsRouteImport.update({
+    id: '/team/reports',
+    path: '/team/reports',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamUpdatesRoute =
+  RakshakPlatformTeamUpdatesRouteImport.update({
+    id: '/team/updates',
+    path: '/team/updates',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformVerifySlugRoute =
+  RakshakPlatformVerifySlugRouteImport.update({
+    id: '/verify/$slug',
+    path: '/verify/$slug',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const ApiPublicHooksAdminDigestRoute =
+  ApiPublicHooksAdminDigestRouteImport.update({
+    id: '/api/public/hooks/admin-digest',
+    path: '/api/public/hooks/admin-digest',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksDeadlineWhatsappRemindersRoute =
@@ -812,11 +681,142 @@ const ApiPublicHooksDeadlineWhatsappRemindersRoute =
     path: '/api/public/hooks/deadline-whatsapp-reminders',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksAdminDigestRoute =
-  ApiPublicHooksAdminDigestRouteImport.update({
-    id: '/api/public/hooks/admin-digest',
-    path: '/api/public/hooks/admin-digest',
+const ApiPublicHooksDoubtRemindersRoute =
+  ApiPublicHooksDoubtRemindersRouteImport.update({
+    id: '/api/public/hooks/doubt-reminders',
+    path: '/api/public/hooks/doubt-reminders',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksHealthPingRoute =
+  ApiPublicHooksHealthPingRouteImport.update({
+    id: '/api/public/hooks/health-ping',
+    path: '/api/public/hooks/health-ping',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksKeepaliveRoute = ApiPublicHooksKeepaliveRouteImport.update({
+  id: '/api/public/hooks/keepalive',
+  path: '/api/public/hooks/keepalive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksMeetingRemindersRoute =
+  ApiPublicHooksMeetingRemindersRouteImport.update({
+    id: '/api/public/hooks/meeting-reminders',
+    path: '/api/public/hooks/meeting-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksMentorUploadRoute =
+  ApiPublicHooksMentorUploadRouteImport.update({
+    id: '/api/public/hooks/mentor-upload',
+    path: '/api/public/hooks/mentor-upload',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksResendWebhookRoute =
+  ApiPublicHooksResendWebhookRouteImport.update({
+    id: '/api/public/hooks/resend-webhook',
+    path: '/api/public/hooks/resend-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksRpDeadlineSweepRoute =
+  ApiPublicHooksRpDeadlineSweepRouteImport.update({
+    id: '/api/public/hooks/rp-deadline-sweep',
+    path: '/api/public/hooks/rp-deadline-sweep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksRpMeetingSelftestRoute =
+  ApiPublicHooksRpMeetingSelftestRouteImport.update({
+    id: '/api/public/hooks/rp-meeting-selftest',
+    path: '/api/public/hooks/rp-meeting-selftest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksRpNotifyDispatcherRoute =
+  ApiPublicHooksRpNotifyDispatcherRouteImport.update({
+    id: '/api/public/hooks/rp-notify-dispatcher',
+    path: '/api/public/hooks/rp-notify-dispatcher',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const RakshakPlatformAdminPrintDatasetRoute =
+  RakshakPlatformAdminPrintDatasetRouteImport.update({
+    id: '/print/$dataset',
+    path: '/print/$dataset',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminTeamsIndexRoute =
+  RakshakPlatformAdminTeamsIndexRouteImport.update({
+    id: '/teams/',
+    path: '/teams/',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminTeamsTeamIdRoute =
+  RakshakPlatformAdminTeamsTeamIdRouteImport.update({
+    id: '/teams/$teamId',
+    path: '/teams/$teamId',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformAdminTeamsNewRoute =
+  RakshakPlatformAdminTeamsNewRouteImport.update({
+    id: '/teams/new',
+    path: '/teams/new',
+    getParentRoute: () => RakshakPlatformAdminRoute,
+  } as any)
+const RakshakPlatformMeetingsIcsMeetingIdRoute =
+  RakshakPlatformMeetingsIcsMeetingIdRouteImport.update({
+    id: '/ics/$meetingId',
+    path: '/ics/$meetingId',
+    getParentRoute: () => RakshakPlatformMeetingsRoute,
+  } as any)
+const RakshakPlatformMentorTeamsTeamIdRoute =
+  RakshakPlatformMentorTeamsTeamIdRouteImport.update({
+    id: '/mentor/teams/$teamId',
+    path: '/mentor/teams/$teamId',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamLocationsIndexRoute =
+  RakshakPlatformTeamLocationsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => RakshakPlatformTeamLocationsRoute,
+  } as any)
+const RakshakPlatformTeamLocationsIdRoute =
+  RakshakPlatformTeamLocationsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => RakshakPlatformTeamLocationsRoute,
+  } as any)
+const RakshakPlatformTeamPhasesIndexRoute =
+  RakshakPlatformTeamPhasesIndexRouteImport.update({
+    id: '/team/phases/',
+    path: '/team/phases/',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamPhasesPhaseRoute =
+  RakshakPlatformTeamPhasesPhaseRouteImport.update({
+    id: '/team/phases/$phase',
+    path: '/team/phases/$phase',
+    getParentRoute: () => RakshakPlatformRoute,
+  } as any)
+const RakshakPlatformTeamReportsIndexRoute =
+  RakshakPlatformTeamReportsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => RakshakPlatformTeamReportsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1562,25 +1562,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/unsubscribe': {
-      id: '/unsubscribe'
-      path: '/unsubscribe'
-      fullPath: '/unsubscribe'
-      preLoaderRoute: typeof UnsubscribeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rakshak-platform': {
-      id: '/rakshak-platform'
-      path: '/rakshak-platform'
-      fullPath: '/rakshak-platform'
-      preLoaderRoute: typeof RakshakPlatformRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rakshak-mentor': {
-      id: '/rakshak-mentor'
-      path: '/rakshak-mentor'
-      fullPath: '/rakshak-mentor'
-      preLoaderRoute: typeof RakshakMentorRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gigrider-checklist': {
@@ -1590,179 +1576,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/rakshak-mentor': {
+      id: '/rakshak-mentor'
+      path: '/rakshak-mentor'
+      fullPath: '/rakshak-mentor'
+      preLoaderRoute: typeof RakshakMentorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/rakshak-platform/': {
-      id: '/rakshak-platform/'
-      path: '/'
-      fullPath: '/rakshak-platform/'
-      preLoaderRoute: typeof RakshakPlatformIndexRouteImport
-      parentRoute: typeof RakshakPlatformRoute
+    '/rakshak-platform': {
+      id: '/rakshak-platform'
+      path: '/rakshak-platform'
+      fullPath: '/rakshak-platform'
+      preLoaderRoute: typeof RakshakPlatformRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/rakshak-mentor/': {
-      id: '/rakshak-mentor/'
-      path: '/'
-      fullPath: '/rakshak-mentor/'
-      preLoaderRoute: typeof RakshakMentorIndexRouteImport
-      parentRoute: typeof RakshakMentorRoute
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/gigrider-checklist/': {
       id: '/gigrider-checklist/'
       path: '/'
       fullPath: '/gigrider-checklist/'
       preLoaderRoute: typeof GigriderChecklistIndexRouteImport
-      parentRoute: typeof GigriderChecklistRoute
-    }
-    '/rakshak-platform/unauthorized': {
-      id: '/rakshak-platform/unauthorized'
-      path: '/unauthorized'
-      fullPath: '/rakshak-platform/unauthorized'
-      preLoaderRoute: typeof RakshakPlatformUnauthorizedRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/sponsor': {
-      id: '/rakshak-platform/sponsor'
-      path: '/sponsor'
-      fullPath: '/rakshak-platform/sponsor'
-      preLoaderRoute: typeof RakshakPlatformSponsorRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/profile': {
-      id: '/rakshak-platform/profile'
-      path: '/profile'
-      fullPath: '/rakshak-platform/profile'
-      preLoaderRoute: typeof RakshakPlatformProfileRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/notifications': {
-      id: '/rakshak-platform/notifications'
-      path: '/notifications'
-      fullPath: '/rakshak-platform/notifications'
-      preLoaderRoute: typeof RakshakPlatformNotificationsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/mentors': {
-      id: '/rakshak-platform/mentors'
-      path: '/mentors'
-      fullPath: '/rakshak-platform/mentors'
-      preLoaderRoute: typeof RakshakPlatformMentorsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/mentor-apply': {
-      id: '/rakshak-platform/mentor-apply'
-      path: '/mentor-apply'
-      fullPath: '/rakshak-platform/mentor-apply'
-      preLoaderRoute: typeof RakshakPlatformMentorApplyRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/member': {
-      id: '/rakshak-platform/member'
-      path: '/member'
-      fullPath: '/rakshak-platform/member'
-      preLoaderRoute: typeof RakshakPlatformMemberRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/meetings': {
-      id: '/rakshak-platform/meetings'
-      path: '/meetings'
-      fullPath: '/rakshak-platform/meetings'
-      preLoaderRoute: typeof RakshakPlatformMeetingsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/map': {
-      id: '/rakshak-platform/map'
-      path: '/map'
-      fullPath: '/rakshak-platform/map'
-      preLoaderRoute: typeof RakshakPlatformMapRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/mails': {
-      id: '/rakshak-platform/mails'
-      path: '/mails'
-      fullPath: '/rakshak-platform/mails'
-      preLoaderRoute: typeof RakshakPlatformMailsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/leaderboard': {
-      id: '/rakshak-platform/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/rakshak-platform/leaderboard'
-      preLoaderRoute: typeof RakshakPlatformLeaderboardRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/knowledge': {
-      id: '/rakshak-platform/knowledge'
-      path: '/knowledge'
-      fullPath: '/rakshak-platform/knowledge'
-      preLoaderRoute: typeof RakshakPlatformKnowledgeRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/impact': {
-      id: '/rakshak-platform/impact'
-      path: '/impact'
-      fullPath: '/rakshak-platform/impact'
-      preLoaderRoute: typeof RakshakPlatformImpactRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/evaluator': {
-      id: '/rakshak-platform/evaluator'
-      path: '/evaluator'
-      fullPath: '/rakshak-platform/evaluator'
-      preLoaderRoute: typeof RakshakPlatformEvaluatorRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/dashboard': {
-      id: '/rakshak-platform/dashboard'
-      path: '/dashboard'
-      fullPath: '/rakshak-platform/dashboard'
-      preLoaderRoute: typeof RakshakPlatformDashboardRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/authority': {
-      id: '/rakshak-platform/authority'
-      path: '/authority'
-      fullPath: '/rakshak-platform/authority'
-      preLoaderRoute: typeof RakshakPlatformAuthorityRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/admin': {
-      id: '/rakshak-platform/admin'
-      path: '/admin'
-      fullPath: '/rakshak-platform/admin'
-      preLoaderRoute: typeof RakshakPlatformAdminRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-mentor/apply': {
-      id: '/rakshak-mentor/apply'
-      path: '/apply'
-      fullPath: '/rakshak-mentor/apply'
-      preLoaderRoute: typeof RakshakMentorApplyRouteImport
-      parentRoute: typeof RakshakMentorRoute
-    }
-    '/rakshak-mentor/admin': {
-      id: '/rakshak-mentor/admin'
-      path: '/admin'
-      fullPath: '/rakshak-mentor/admin'
-      preLoaderRoute: typeof RakshakMentorAdminRouteImport
-      parentRoute: typeof RakshakMentorRoute
-    }
-    '/gigrider-checklist/observer': {
-      id: '/gigrider-checklist/observer'
-      path: '/observer'
-      fullPath: '/gigrider-checklist/observer'
-      preLoaderRoute: typeof GigriderChecklistObserverRouteImport
-      parentRoute: typeof GigriderChecklistRoute
-    }
-    '/gigrider-checklist/login': {
-      id: '/gigrider-checklist/login'
-      path: '/login'
-      fullPath: '/gigrider-checklist/login'
-      preLoaderRoute: typeof GigriderChecklistLoginRouteImport
       parentRoute: typeof GigriderChecklistRoute
     }
     '/gigrider-checklist/admin': {
@@ -1772,445 +1618,172 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GigriderChecklistAdminRouteImport
       parentRoute: typeof GigriderChecklistRoute
     }
-    '/email/unsubscribe': {
-      id: '/email/unsubscribe'
-      path: '/email/unsubscribe'
-      fullPath: '/email/unsubscribe'
-      preLoaderRoute: typeof EmailUnsubscribeRouteImport
-      parentRoute: typeof rootRouteImport
+    '/gigrider-checklist/login': {
+      id: '/gigrider-checklist/login'
+      path: '/login'
+      fullPath: '/gigrider-checklist/login'
+      preLoaderRoute: typeof GigriderChecklistLoginRouteImport
+      parentRoute: typeof GigriderChecklistRoute
     }
-    '/rakshak-platform/team/': {
-      id: '/rakshak-platform/team/'
-      path: '/team'
-      fullPath: '/rakshak-platform/team/'
-      preLoaderRoute: typeof RakshakPlatformTeamIndexRouteImport
-      parentRoute: typeof RakshakPlatformRoute
+    '/gigrider-checklist/observer': {
+      id: '/gigrider-checklist/observer'
+      path: '/observer'
+      fullPath: '/gigrider-checklist/observer'
+      preLoaderRoute: typeof GigriderChecklistObserverRouteImport
+      parentRoute: typeof GigriderChecklistRoute
     }
-    '/rakshak-platform/mentor/': {
-      id: '/rakshak-platform/mentor/'
-      path: '/mentor'
-      fullPath: '/rakshak-platform/mentor/'
-      preLoaderRoute: typeof RakshakPlatformMentorIndexRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/knowledge/': {
-      id: '/rakshak-platform/knowledge/'
+    '/rakshak-mentor/': {
+      id: '/rakshak-mentor/'
       path: '/'
-      fullPath: '/rakshak-platform/knowledge/'
-      preLoaderRoute: typeof RakshakPlatformKnowledgeIndexRouteImport
-      parentRoute: typeof RakshakPlatformKnowledgeRoute
-    }
-    '/rakshak-platform/evaluator/': {
-      id: '/rakshak-platform/evaluator/'
-      path: '/'
-      fullPath: '/rakshak-platform/evaluator/'
-      preLoaderRoute: typeof RakshakPlatformEvaluatorIndexRouteImport
-      parentRoute: typeof RakshakPlatformEvaluatorRoute
-    }
-    '/rakshak-platform/auth/': {
-      id: '/rakshak-platform/auth/'
-      path: '/auth'
-      fullPath: '/rakshak-platform/auth/'
-      preLoaderRoute: typeof RakshakPlatformAuthIndexRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/admin/': {
-      id: '/rakshak-platform/admin/'
-      path: '/'
-      fullPath: '/rakshak-platform/admin/'
-      preLoaderRoute: typeof RakshakPlatformAdminIndexRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-mentor/admin/': {
-      id: '/rakshak-mentor/admin/'
-      path: '/'
-      fullPath: '/rakshak-mentor/admin/'
-      preLoaderRoute: typeof RakshakMentorAdminIndexRouteImport
-      parentRoute: typeof RakshakMentorAdminRoute
-    }
-    '/gigrider-checklist/observer/': {
-      id: '/gigrider-checklist/observer/'
-      path: '/'
-      fullPath: '/gigrider-checklist/observer/'
-      preLoaderRoute: typeof GigriderChecklistObserverIndexRouteImport
-      parentRoute: typeof GigriderChecklistObserverRoute
-    }
-    '/gigrider-checklist/admin/': {
-      id: '/gigrider-checklist/admin/'
-      path: '/'
-      fullPath: '/gigrider-checklist/admin/'
-      preLoaderRoute: typeof GigriderChecklistAdminIndexRouteImport
-      parentRoute: typeof GigriderChecklistAdminRoute
-    }
-    '/rakshak-platform/verify/$slug': {
-      id: '/rakshak-platform/verify/$slug'
-      path: '/verify/$slug'
-      fullPath: '/rakshak-platform/verify/$slug'
-      preLoaderRoute: typeof RakshakPlatformVerifySlugRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/updates': {
-      id: '/rakshak-platform/team/updates'
-      path: '/team/updates'
-      fullPath: '/rakshak-platform/team/updates'
-      preLoaderRoute: typeof RakshakPlatformTeamUpdatesRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/reports': {
-      id: '/rakshak-platform/team/reports'
-      path: '/team/reports'
-      fullPath: '/rakshak-platform/team/reports'
-      preLoaderRoute: typeof RakshakPlatformTeamReportsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/media': {
-      id: '/rakshak-platform/team/media'
-      path: '/team/media'
-      fullPath: '/rakshak-platform/team/media'
-      preLoaderRoute: typeof RakshakPlatformTeamMediaRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/locations': {
-      id: '/rakshak-platform/team/locations'
-      path: '/team/locations'
-      fullPath: '/rakshak-platform/team/locations'
-      preLoaderRoute: typeof RakshakPlatformTeamLocationsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/evidence': {
-      id: '/rakshak-platform/team/evidence'
-      path: '/team/evidence'
-      fullPath: '/rakshak-platform/team/evidence'
-      preLoaderRoute: typeof RakshakPlatformTeamEvidenceRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/book-mentor': {
-      id: '/rakshak-platform/team/book-mentor'
-      path: '/team/book-mentor'
-      fullPath: '/rakshak-platform/team/book-mentor'
-      preLoaderRoute: typeof RakshakPlatformTeamBookMentorRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/book-admin': {
-      id: '/rakshak-platform/team/book-admin'
-      path: '/team/book-admin'
-      fullPath: '/rakshak-platform/team/book-admin'
-      preLoaderRoute: typeof RakshakPlatformTeamBookAdminRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/t/$slug': {
-      id: '/rakshak-platform/t/$slug'
-      path: '/t/$slug'
-      fullPath: '/rakshak-platform/t/$slug'
-      preLoaderRoute: typeof RakshakPlatformTSlugRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/share/$teamId': {
-      id: '/rakshak-platform/share/$teamId'
-      path: '/share/$teamId'
-      fullPath: '/rakshak-platform/share/$teamId'
-      preLoaderRoute: typeof RakshakPlatformShareTeamIdRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/session/$id': {
-      id: '/rakshak-platform/session/$id'
-      path: '/session/$id'
-      fullPath: '/rakshak-platform/session/$id'
-      preLoaderRoute: typeof RakshakPlatformSessionIdRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/reports/$teamId': {
-      id: '/rakshak-platform/reports/$teamId'
-      path: '/reports/$teamId'
-      fullPath: '/rakshak-platform/reports/$teamId'
-      preLoaderRoute: typeof RakshakPlatformReportsTeamIdRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/mentor/resources': {
-      id: '/rakshak-platform/mentor/resources'
-      path: '/mentor/resources'
-      fullPath: '/rakshak-platform/mentor/resources'
-      preLoaderRoute: typeof RakshakPlatformMentorResourcesRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/mentor/availability': {
-      id: '/rakshak-platform/mentor/availability'
-      path: '/mentor/availability'
-      fullPath: '/rakshak-platform/mentor/availability'
-      preLoaderRoute: typeof RakshakPlatformMentorAvailabilityRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/m/$id': {
-      id: '/rakshak-platform/m/$id'
-      path: '/m/$id'
-      fullPath: '/rakshak-platform/m/$id'
-      preLoaderRoute: typeof RakshakPlatformMIdRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/leaderboard_/print': {
-      id: '/rakshak-platform/leaderboard_/print'
-      path: '/leaderboard/print'
-      fullPath: '/rakshak-platform/leaderboard/print'
-      preLoaderRoute: typeof RakshakPlatformLeaderboardPrintRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/knowledge/$slug': {
-      id: '/rakshak-platform/knowledge/$slug'
-      path: '/$slug'
-      fullPath: '/rakshak-platform/knowledge/$slug'
-      preLoaderRoute: typeof RakshakPlatformKnowledgeSlugRouteImport
-      parentRoute: typeof RakshakPlatformKnowledgeRoute
-    }
-    '/rakshak-platform/impact_/states': {
-      id: '/rakshak-platform/impact_/states'
-      path: '/impact/states'
-      fullPath: '/rakshak-platform/impact/states'
-      preLoaderRoute: typeof RakshakPlatformImpactStatesRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/impact_/institutions': {
-      id: '/rakshak-platform/impact_/institutions'
-      path: '/impact/institutions'
-      fullPath: '/rakshak-platform/impact/institutions'
-      preLoaderRoute: typeof RakshakPlatformImpactInstitutionsRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/impact_/cities': {
-      id: '/rakshak-platform/impact_/cities'
-      path: '/impact/cities'
-      fullPath: '/rakshak-platform/impact/cities'
-      preLoaderRoute: typeof RakshakPlatformImpactCitiesRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/evaluator/reports': {
-      id: '/rakshak-platform/evaluator/reports'
-      path: '/reports'
-      fullPath: '/rakshak-platform/evaluator/reports'
-      preLoaderRoute: typeof RakshakPlatformEvaluatorReportsRouteImport
-      parentRoute: typeof RakshakPlatformEvaluatorRoute
-    }
-    '/rakshak-platform/evaluator/$submissionId': {
-      id: '/rakshak-platform/evaluator/$submissionId'
-      path: '/$submissionId'
-      fullPath: '/rakshak-platform/evaluator/$submissionId'
-      preLoaderRoute: typeof RakshakPlatformEvaluatorSubmissionIdRouteImport
-      parentRoute: typeof RakshakPlatformEvaluatorRoute
-    }
-    '/rakshak-platform/book/$mentorId': {
-      id: '/rakshak-platform/book/$mentorId'
-      path: '/book/$mentorId'
-      fullPath: '/rakshak-platform/book/$mentorId'
-      preLoaderRoute: typeof RakshakPlatformBookMentorIdRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/auth/callback': {
-      id: '/rakshak-platform/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/rakshak-platform/auth/callback'
-      preLoaderRoute: typeof RakshakPlatformAuthCallbackRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/auth/calendar-callback': {
-      id: '/rakshak-platform/auth/calendar-callback'
-      path: '/auth/calendar-callback'
-      fullPath: '/rakshak-platform/auth/calendar-callback'
-      preLoaderRoute: typeof RakshakPlatformAuthCalendarCallbackRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/admin/sessions': {
-      id: '/rakshak-platform/admin/sessions'
-      path: '/sessions'
-      fullPath: '/rakshak-platform/admin/sessions'
-      preLoaderRoute: typeof RakshakPlatformAdminSessionsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/rubrics': {
-      id: '/rakshak-platform/admin/rubrics'
-      path: '/rubrics'
-      fullPath: '/rakshak-platform/admin/rubrics'
-      preLoaderRoute: typeof RakshakPlatformAdminRubricsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/reviews': {
-      id: '/rakshak-platform/admin/reviews'
-      path: '/reviews'
-      fullPath: '/rakshak-platform/admin/reviews'
-      preLoaderRoute: typeof RakshakPlatformAdminReviewsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/resources': {
-      id: '/rakshak-platform/admin/resources'
-      path: '/resources'
-      fullPath: '/rakshak-platform/admin/resources'
-      preLoaderRoute: typeof RakshakPlatformAdminResourcesRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/ranks': {
-      id: '/rakshak-platform/admin/ranks'
-      path: '/ranks'
-      fullPath: '/rakshak-platform/admin/ranks'
-      preLoaderRoute: typeof RakshakPlatformAdminRanksRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/profiles': {
-      id: '/rakshak-platform/admin/profiles'
-      path: '/profiles'
-      fullPath: '/rakshak-platform/admin/profiles'
-      preLoaderRoute: typeof RakshakPlatformAdminProfilesRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/onboarding': {
-      id: '/rakshak-platform/admin/onboarding'
-      path: '/onboarding'
-      fullPath: '/rakshak-platform/admin/onboarding'
-      preLoaderRoute: typeof RakshakPlatformAdminOnboardingRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/mentor-applications': {
-      id: '/rakshak-platform/admin/mentor-applications'
-      path: '/mentor-applications'
-      fullPath: '/rakshak-platform/admin/mentor-applications'
-      preLoaderRoute: typeof RakshakPlatformAdminMentorApplicationsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/meetings': {
-      id: '/rakshak-platform/admin/meetings'
-      path: '/meetings'
-      fullPath: '/rakshak-platform/admin/meetings'
-      preLoaderRoute: typeof RakshakPlatformAdminMeetingsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/integrations': {
-      id: '/rakshak-platform/admin/integrations'
-      path: '/integrations'
-      fullPath: '/rakshak-platform/admin/integrations'
-      preLoaderRoute: typeof RakshakPlatformAdminIntegrationsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/evaluators': {
-      id: '/rakshak-platform/admin/evaluators'
-      path: '/evaluators'
-      fullPath: '/rakshak-platform/admin/evaluators'
-      preLoaderRoute: typeof RakshakPlatformAdminEvaluatorsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/evaluator-leaderboard': {
-      id: '/rakshak-platform/admin/evaluator-leaderboard'
-      path: '/evaluator-leaderboard'
-      fullPath: '/rakshak-platform/admin/evaluator-leaderboard'
-      preLoaderRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/emails': {
-      id: '/rakshak-platform/admin/emails'
-      path: '/emails'
-      fullPath: '/rakshak-platform/admin/emails'
-      preLoaderRoute: typeof RakshakPlatformAdminEmailsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/doubts': {
-      id: '/rakshak-platform/admin/doubts'
-      path: '/doubts'
-      fullPath: '/rakshak-platform/admin/doubts'
-      preLoaderRoute: typeof RakshakPlatformAdminDoubtsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/data': {
-      id: '/rakshak-platform/admin/data'
-      path: '/data'
-      fullPath: '/rakshak-platform/admin/data'
-      preLoaderRoute: typeof RakshakPlatformAdminDataRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/credentials': {
-      id: '/rakshak-platform/admin/credentials'
-      path: '/credentials'
-      fullPath: '/rakshak-platform/admin/credentials'
-      preLoaderRoute: typeof RakshakPlatformAdminCredentialsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/certificates': {
-      id: '/rakshak-platform/admin/certificates'
-      path: '/certificates'
-      fullPath: '/rakshak-platform/admin/certificates'
-      preLoaderRoute: typeof RakshakPlatformAdminCertificatesRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/admin/analytics': {
-      id: '/rakshak-platform/admin/analytics'
-      path: '/analytics'
-      fullPath: '/rakshak-platform/admin/analytics'
-      preLoaderRoute: typeof RakshakPlatformAdminAnalyticsRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-mentor/upload/$token': {
-      id: '/rakshak-mentor/upload/$token'
-      path: '/upload/$token'
-      fullPath: '/rakshak-mentor/upload/$token'
-      preLoaderRoute: typeof RakshakMentorUploadTokenRouteImport
+      fullPath: '/rakshak-mentor/'
+      preLoaderRoute: typeof RakshakMentorIndexRouteImport
       parentRoute: typeof RakshakMentorRoute
     }
-    '/rakshak-mentor/apply/success': {
-      id: '/rakshak-mentor/apply/success'
-      path: '/success'
-      fullPath: '/rakshak-mentor/apply/success'
-      preLoaderRoute: typeof RakshakMentorApplySuccessRouteImport
-      parentRoute: typeof RakshakMentorApplyRoute
+    '/rakshak-mentor/admin': {
+      id: '/rakshak-mentor/admin'
+      path: '/admin'
+      fullPath: '/rakshak-mentor/admin'
+      preLoaderRoute: typeof RakshakMentorAdminRouteImport
+      parentRoute: typeof RakshakMentorRoute
     }
-    '/rakshak-mentor/admin/login': {
-      id: '/rakshak-mentor/admin/login'
-      path: '/login'
-      fullPath: '/rakshak-mentor/admin/login'
-      preLoaderRoute: typeof RakshakMentorAdminLoginRouteImport
-      parentRoute: typeof RakshakMentorAdminRoute
+    '/rakshak-mentor/apply': {
+      id: '/rakshak-mentor/apply'
+      path: '/apply'
+      fullPath: '/rakshak-mentor/apply'
+      preLoaderRoute: typeof RakshakMentorApplyRouteImport
+      parentRoute: typeof RakshakMentorRoute
     }
-    '/rakshak-mentor/admin/analytics': {
-      id: '/rakshak-mentor/admin/analytics'
-      path: '/analytics'
-      fullPath: '/rakshak-mentor/admin/analytics'
-      preLoaderRoute: typeof RakshakMentorAdminAnalyticsRouteImport
-      parentRoute: typeof RakshakMentorAdminRoute
+    '/rakshak-platform/': {
+      id: '/rakshak-platform/'
+      path: '/'
+      fullPath: '/rakshak-platform/'
+      preLoaderRoute: typeof RakshakPlatformIndexRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/rakshak-mentor/admin/$id': {
-      id: '/rakshak-mentor/admin/$id'
-      path: '/$id'
-      fullPath: '/rakshak-mentor/admin/$id'
-      preLoaderRoute: typeof RakshakMentorAdminIdRouteImport
-      parentRoute: typeof RakshakMentorAdminRoute
+    '/rakshak-platform/admin': {
+      id: '/rakshak-platform/admin'
+      path: '/admin'
+      fullPath: '/rakshak-platform/admin'
+      preLoaderRoute: typeof RakshakPlatformAdminRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/lovable/email/suppression': {
-      id: '/lovable/email/suppression'
-      path: '/lovable/email/suppression'
-      fullPath: '/lovable/email/suppression'
-      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/authority': {
+      id: '/rakshak-platform/authority'
+      path: '/authority'
+      fullPath: '/rakshak-platform/authority'
+      preLoaderRoute: typeof RakshakPlatformAuthorityRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/gigrider-checklist/observer/new': {
-      id: '/gigrider-checklist/observer/new'
-      path: '/new'
-      fullPath: '/gigrider-checklist/observer/new'
-      preLoaderRoute: typeof GigriderChecklistObserverNewRouteImport
-      parentRoute: typeof GigriderChecklistObserverRoute
+    '/rakshak-platform/dashboard': {
+      id: '/rakshak-platform/dashboard'
+      path: '/dashboard'
+      fullPath: '/rakshak-platform/dashboard'
+      preLoaderRoute: typeof RakshakPlatformDashboardRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/gigrider-checklist/observer/$id': {
-      id: '/gigrider-checklist/observer/$id'
-      path: '/$id'
-      fullPath: '/gigrider-checklist/observer/$id'
-      preLoaderRoute: typeof GigriderChecklistObserverIdRouteImport
-      parentRoute: typeof GigriderChecklistObserverRoute
+    '/rakshak-platform/evaluator': {
+      id: '/rakshak-platform/evaluator'
+      path: '/evaluator'
+      fullPath: '/rakshak-platform/evaluator'
+      preLoaderRoute: typeof RakshakPlatformEvaluatorRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/gigrider-checklist/admin/$id': {
-      id: '/gigrider-checklist/admin/$id'
-      path: '/$id'
-      fullPath: '/gigrider-checklist/admin/$id'
-      preLoaderRoute: typeof GigriderChecklistAdminIdRouteImport
-      parentRoute: typeof GigriderChecklistAdminRoute
+    '/rakshak-platform/impact': {
+      id: '/rakshak-platform/impact'
+      path: '/impact'
+      fullPath: '/rakshak-platform/impact'
+      preLoaderRoute: typeof RakshakPlatformImpactRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/meeting-ics/$meetingId': {
-      id: '/api/meeting-ics/$meetingId'
-      path: '/api/meeting-ics/$meetingId'
-      fullPath: '/api/meeting-ics/$meetingId'
-      preLoaderRoute: typeof ApiMeetingIcsMeetingIdRouteImport
+    '/rakshak-platform/knowledge': {
+      id: '/rakshak-platform/knowledge'
+      path: '/knowledge'
+      fullPath: '/rakshak-platform/knowledge'
+      preLoaderRoute: typeof RakshakPlatformKnowledgeRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/leaderboard': {
+      id: '/rakshak-platform/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/rakshak-platform/leaderboard'
+      preLoaderRoute: typeof RakshakPlatformLeaderboardRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/mails': {
+      id: '/rakshak-platform/mails'
+      path: '/mails'
+      fullPath: '/rakshak-platform/mails'
+      preLoaderRoute: typeof RakshakPlatformMailsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/map': {
+      id: '/rakshak-platform/map'
+      path: '/map'
+      fullPath: '/rakshak-platform/map'
+      preLoaderRoute: typeof RakshakPlatformMapRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/meetings': {
+      id: '/rakshak-platform/meetings'
+      path: '/meetings'
+      fullPath: '/rakshak-platform/meetings'
+      preLoaderRoute: typeof RakshakPlatformMeetingsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/member': {
+      id: '/rakshak-platform/member'
+      path: '/member'
+      fullPath: '/rakshak-platform/member'
+      preLoaderRoute: typeof RakshakPlatformMemberRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/mentor-apply': {
+      id: '/rakshak-platform/mentor-apply'
+      path: '/mentor-apply'
+      fullPath: '/rakshak-platform/mentor-apply'
+      preLoaderRoute: typeof RakshakPlatformMentorApplyRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/mentors': {
+      id: '/rakshak-platform/mentors'
+      path: '/mentors'
+      fullPath: '/rakshak-platform/mentors'
+      preLoaderRoute: typeof RakshakPlatformMentorsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/notifications': {
+      id: '/rakshak-platform/notifications'
+      path: '/notifications'
+      fullPath: '/rakshak-platform/notifications'
+      preLoaderRoute: typeof RakshakPlatformNotificationsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/profile': {
+      id: '/rakshak-platform/profile'
+      path: '/profile'
+      fullPath: '/rakshak-platform/profile'
+      preLoaderRoute: typeof RakshakPlatformProfileRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/sponsor': {
+      id: '/rakshak-platform/sponsor'
+      path: '/sponsor'
+      fullPath: '/rakshak-platform/sponsor'
+      preLoaderRoute: typeof RakshakPlatformSponsorRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/unauthorized': {
+      id: '/rakshak-platform/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/rakshak-platform/unauthorized'
+      preLoaderRoute: typeof RakshakPlatformUnauthorizedRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/api/docs/$file': {
+      id: '/api/docs/$file'
+      path: '/api/docs/$file'
+      fullPath: '/api/docs/$file'
+      preLoaderRoute: typeof ApiDocsFileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/gigrider/photo-upload': {
@@ -2220,172 +1793,445 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGigriderPhotoUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/docs/$file': {
-      id: '/api/docs/$file'
-      path: '/api/docs/$file'
-      fullPath: '/api/docs/$file'
-      preLoaderRoute: typeof ApiDocsFileRouteImport
+    '/api/meeting-ics/$meetingId': {
+      id: '/api/meeting-ics/$meetingId'
+      path: '/api/meeting-ics/$meetingId'
+      fullPath: '/api/meeting-ics/$meetingId'
+      preLoaderRoute: typeof ApiMeetingIcsMeetingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/rakshak-platform/team/reports/': {
-      id: '/rakshak-platform/team/reports/'
+    '/gigrider-checklist/admin/': {
+      id: '/gigrider-checklist/admin/'
       path: '/'
-      fullPath: '/rakshak-platform/team/reports/'
-      preLoaderRoute: typeof RakshakPlatformTeamReportsIndexRouteImport
-      parentRoute: typeof RakshakPlatformTeamReportsRoute
+      fullPath: '/gigrider-checklist/admin/'
+      preLoaderRoute: typeof GigriderChecklistAdminIndexRouteImport
+      parentRoute: typeof GigriderChecklistAdminRoute
     }
-    '/rakshak-platform/team/phases/': {
-      id: '/rakshak-platform/team/phases/'
-      path: '/team/phases'
-      fullPath: '/rakshak-platform/team/phases/'
-      preLoaderRoute: typeof RakshakPlatformTeamPhasesIndexRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/locations/': {
-      id: '/rakshak-platform/team/locations/'
-      path: '/'
-      fullPath: '/rakshak-platform/team/locations/'
-      preLoaderRoute: typeof RakshakPlatformTeamLocationsIndexRouteImport
-      parentRoute: typeof RakshakPlatformTeamLocationsRoute
-    }
-    '/rakshak-platform/admin/teams/': {
-      id: '/rakshak-platform/admin/teams/'
-      path: '/teams'
-      fullPath: '/rakshak-platform/admin/teams/'
-      preLoaderRoute: typeof RakshakPlatformAdminTeamsIndexRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
-    }
-    '/rakshak-platform/team/phases/$phase': {
-      id: '/rakshak-platform/team/phases/$phase'
-      path: '/team/phases/$phase'
-      fullPath: '/rakshak-platform/team/phases/$phase'
-      preLoaderRoute: typeof RakshakPlatformTeamPhasesPhaseRouteImport
-      parentRoute: typeof RakshakPlatformRoute
-    }
-    '/rakshak-platform/team/locations/$id': {
-      id: '/rakshak-platform/team/locations/$id'
+    '/gigrider-checklist/admin/$id': {
+      id: '/gigrider-checklist/admin/$id'
       path: '/$id'
-      fullPath: '/rakshak-platform/team/locations/$id'
-      preLoaderRoute: typeof RakshakPlatformTeamLocationsIdRouteImport
-      parentRoute: typeof RakshakPlatformTeamLocationsRoute
+      fullPath: '/gigrider-checklist/admin/$id'
+      preLoaderRoute: typeof GigriderChecklistAdminIdRouteImport
+      parentRoute: typeof GigriderChecklistAdminRoute
     }
-    '/rakshak-platform/mentor/teams/$teamId': {
-      id: '/rakshak-platform/mentor/teams/$teamId'
-      path: '/mentor/teams/$teamId'
-      fullPath: '/rakshak-platform/mentor/teams/$teamId'
-      preLoaderRoute: typeof RakshakPlatformMentorTeamsTeamIdRouteImport
+    '/gigrider-checklist/observer/': {
+      id: '/gigrider-checklist/observer/'
+      path: '/'
+      fullPath: '/gigrider-checklist/observer/'
+      preLoaderRoute: typeof GigriderChecklistObserverIndexRouteImport
+      parentRoute: typeof GigriderChecklistObserverRoute
+    }
+    '/gigrider-checklist/observer/$id': {
+      id: '/gigrider-checklist/observer/$id'
+      path: '/$id'
+      fullPath: '/gigrider-checklist/observer/$id'
+      preLoaderRoute: typeof GigriderChecklistObserverIdRouteImport
+      parentRoute: typeof GigriderChecklistObserverRoute
+    }
+    '/gigrider-checklist/observer/new': {
+      id: '/gigrider-checklist/observer/new'
+      path: '/new'
+      fullPath: '/gigrider-checklist/observer/new'
+      preLoaderRoute: typeof GigriderChecklistObserverNewRouteImport
+      parentRoute: typeof GigriderChecklistObserverRoute
+    }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rakshak-mentor/admin/': {
+      id: '/rakshak-mentor/admin/'
+      path: '/'
+      fullPath: '/rakshak-mentor/admin/'
+      preLoaderRoute: typeof RakshakMentorAdminIndexRouteImport
+      parentRoute: typeof RakshakMentorAdminRoute
+    }
+    '/rakshak-mentor/admin/$id': {
+      id: '/rakshak-mentor/admin/$id'
+      path: '/$id'
+      fullPath: '/rakshak-mentor/admin/$id'
+      preLoaderRoute: typeof RakshakMentorAdminIdRouteImport
+      parentRoute: typeof RakshakMentorAdminRoute
+    }
+    '/rakshak-mentor/admin/analytics': {
+      id: '/rakshak-mentor/admin/analytics'
+      path: '/analytics'
+      fullPath: '/rakshak-mentor/admin/analytics'
+      preLoaderRoute: typeof RakshakMentorAdminAnalyticsRouteImport
+      parentRoute: typeof RakshakMentorAdminRoute
+    }
+    '/rakshak-mentor/admin/login': {
+      id: '/rakshak-mentor/admin/login'
+      path: '/login'
+      fullPath: '/rakshak-mentor/admin/login'
+      preLoaderRoute: typeof RakshakMentorAdminLoginRouteImport
+      parentRoute: typeof RakshakMentorAdminRoute
+    }
+    '/rakshak-mentor/apply/success': {
+      id: '/rakshak-mentor/apply/success'
+      path: '/success'
+      fullPath: '/rakshak-mentor/apply/success'
+      preLoaderRoute: typeof RakshakMentorApplySuccessRouteImport
+      parentRoute: typeof RakshakMentorApplyRoute
+    }
+    '/rakshak-mentor/upload/$token': {
+      id: '/rakshak-mentor/upload/$token'
+      path: '/upload/$token'
+      fullPath: '/rakshak-mentor/upload/$token'
+      preLoaderRoute: typeof RakshakMentorUploadTokenRouteImport
+      parentRoute: typeof RakshakMentorRoute
+    }
+    '/rakshak-platform/admin/': {
+      id: '/rakshak-platform/admin/'
+      path: '/'
+      fullPath: '/rakshak-platform/admin/'
+      preLoaderRoute: typeof RakshakPlatformAdminIndexRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/analytics': {
+      id: '/rakshak-platform/admin/analytics'
+      path: '/analytics'
+      fullPath: '/rakshak-platform/admin/analytics'
+      preLoaderRoute: typeof RakshakPlatformAdminAnalyticsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/certificates': {
+      id: '/rakshak-platform/admin/certificates'
+      path: '/certificates'
+      fullPath: '/rakshak-platform/admin/certificates'
+      preLoaderRoute: typeof RakshakPlatformAdminCertificatesRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/credentials': {
+      id: '/rakshak-platform/admin/credentials'
+      path: '/credentials'
+      fullPath: '/rakshak-platform/admin/credentials'
+      preLoaderRoute: typeof RakshakPlatformAdminCredentialsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/data': {
+      id: '/rakshak-platform/admin/data'
+      path: '/data'
+      fullPath: '/rakshak-platform/admin/data'
+      preLoaderRoute: typeof RakshakPlatformAdminDataRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/doubts': {
+      id: '/rakshak-platform/admin/doubts'
+      path: '/doubts'
+      fullPath: '/rakshak-platform/admin/doubts'
+      preLoaderRoute: typeof RakshakPlatformAdminDoubtsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/emails': {
+      id: '/rakshak-platform/admin/emails'
+      path: '/emails'
+      fullPath: '/rakshak-platform/admin/emails'
+      preLoaderRoute: typeof RakshakPlatformAdminEmailsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/evaluator-leaderboard': {
+      id: '/rakshak-platform/admin/evaluator-leaderboard'
+      path: '/evaluator-leaderboard'
+      fullPath: '/rakshak-platform/admin/evaluator-leaderboard'
+      preLoaderRoute: typeof RakshakPlatformAdminEvaluatorLeaderboardRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/evaluators': {
+      id: '/rakshak-platform/admin/evaluators'
+      path: '/evaluators'
+      fullPath: '/rakshak-platform/admin/evaluators'
+      preLoaderRoute: typeof RakshakPlatformAdminEvaluatorsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/integrations': {
+      id: '/rakshak-platform/admin/integrations'
+      path: '/integrations'
+      fullPath: '/rakshak-platform/admin/integrations'
+      preLoaderRoute: typeof RakshakPlatformAdminIntegrationsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/meetings': {
+      id: '/rakshak-platform/admin/meetings'
+      path: '/meetings'
+      fullPath: '/rakshak-platform/admin/meetings'
+      preLoaderRoute: typeof RakshakPlatformAdminMeetingsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/mentor-applications': {
+      id: '/rakshak-platform/admin/mentor-applications'
+      path: '/mentor-applications'
+      fullPath: '/rakshak-platform/admin/mentor-applications'
+      preLoaderRoute: typeof RakshakPlatformAdminMentorApplicationsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/onboarding': {
+      id: '/rakshak-platform/admin/onboarding'
+      path: '/onboarding'
+      fullPath: '/rakshak-platform/admin/onboarding'
+      preLoaderRoute: typeof RakshakPlatformAdminOnboardingRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/profiles': {
+      id: '/rakshak-platform/admin/profiles'
+      path: '/profiles'
+      fullPath: '/rakshak-platform/admin/profiles'
+      preLoaderRoute: typeof RakshakPlatformAdminProfilesRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/ranks': {
+      id: '/rakshak-platform/admin/ranks'
+      path: '/ranks'
+      fullPath: '/rakshak-platform/admin/ranks'
+      preLoaderRoute: typeof RakshakPlatformAdminRanksRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/resources': {
+      id: '/rakshak-platform/admin/resources'
+      path: '/resources'
+      fullPath: '/rakshak-platform/admin/resources'
+      preLoaderRoute: typeof RakshakPlatformAdminResourcesRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/reviews': {
+      id: '/rakshak-platform/admin/reviews'
+      path: '/reviews'
+      fullPath: '/rakshak-platform/admin/reviews'
+      preLoaderRoute: typeof RakshakPlatformAdminReviewsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/rubrics': {
+      id: '/rakshak-platform/admin/rubrics'
+      path: '/rubrics'
+      fullPath: '/rakshak-platform/admin/rubrics'
+      preLoaderRoute: typeof RakshakPlatformAdminRubricsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/sessions': {
+      id: '/rakshak-platform/admin/sessions'
+      path: '/sessions'
+      fullPath: '/rakshak-platform/admin/sessions'
+      preLoaderRoute: typeof RakshakPlatformAdminSessionsRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/auth/': {
+      id: '/rakshak-platform/auth/'
+      path: '/auth'
+      fullPath: '/rakshak-platform/auth/'
+      preLoaderRoute: typeof RakshakPlatformAuthIndexRouteImport
       parentRoute: typeof RakshakPlatformRoute
     }
-    '/rakshak-platform/meetings/ics/$meetingId': {
-      id: '/rakshak-platform/meetings/ics/$meetingId'
-      path: '/ics/$meetingId'
-      fullPath: '/rakshak-platform/meetings/ics/$meetingId'
-      preLoaderRoute: typeof RakshakPlatformMeetingsIcsMeetingIdRouteImport
-      parentRoute: typeof RakshakPlatformMeetingsRoute
+    '/rakshak-platform/auth/calendar-callback': {
+      id: '/rakshak-platform/auth/calendar-callback'
+      path: '/auth/calendar-callback'
+      fullPath: '/rakshak-platform/auth/calendar-callback'
+      preLoaderRoute: typeof RakshakPlatformAuthCalendarCallbackRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/rakshak-platform/admin/teams/new': {
-      id: '/rakshak-platform/admin/teams/new'
-      path: '/teams/new'
-      fullPath: '/rakshak-platform/admin/teams/new'
-      preLoaderRoute: typeof RakshakPlatformAdminTeamsNewRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
+    '/rakshak-platform/auth/callback': {
+      id: '/rakshak-platform/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/rakshak-platform/auth/callback'
+      preLoaderRoute: typeof RakshakPlatformAuthCallbackRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/rakshak-platform/admin/teams/$teamId': {
-      id: '/rakshak-platform/admin/teams/$teamId'
-      path: '/teams/$teamId'
-      fullPath: '/rakshak-platform/admin/teams/$teamId'
-      preLoaderRoute: typeof RakshakPlatformAdminTeamsTeamIdRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
+    '/rakshak-platform/book/$mentorId': {
+      id: '/rakshak-platform/book/$mentorId'
+      path: '/book/$mentorId'
+      fullPath: '/rakshak-platform/book/$mentorId'
+      preLoaderRoute: typeof RakshakPlatformBookMentorIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/rakshak-platform/admin/print/$dataset': {
-      id: '/rakshak-platform/admin/print/$dataset'
-      path: '/print/$dataset'
-      fullPath: '/rakshak-platform/admin/print/$dataset'
-      preLoaderRoute: typeof RakshakPlatformAdminPrintDatasetRouteImport
-      parentRoute: typeof RakshakPlatformAdminRoute
+    '/rakshak-platform/evaluator/': {
+      id: '/rakshak-platform/evaluator/'
+      path: '/'
+      fullPath: '/rakshak-platform/evaluator/'
+      preLoaderRoute: typeof RakshakPlatformEvaluatorIndexRouteImport
+      parentRoute: typeof RakshakPlatformEvaluatorRoute
     }
-    '/lovable/email/transactional/send': {
-      id: '/lovable/email/transactional/send'
-      path: '/lovable/email/transactional/send'
-      fullPath: '/lovable/email/transactional/send'
-      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/evaluator/$submissionId': {
+      id: '/rakshak-platform/evaluator/$submissionId'
+      path: '/$submissionId'
+      fullPath: '/rakshak-platform/evaluator/$submissionId'
+      preLoaderRoute: typeof RakshakPlatformEvaluatorSubmissionIdRouteImport
+      parentRoute: typeof RakshakPlatformEvaluatorRoute
     }
-    '/lovable/email/transactional/preview': {
-      id: '/lovable/email/transactional/preview'
-      path: '/lovable/email/transactional/preview'
-      fullPath: '/lovable/email/transactional/preview'
-      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/evaluator/reports': {
+      id: '/rakshak-platform/evaluator/reports'
+      path: '/reports'
+      fullPath: '/rakshak-platform/evaluator/reports'
+      preLoaderRoute: typeof RakshakPlatformEvaluatorReportsRouteImport
+      parentRoute: typeof RakshakPlatformEvaluatorRoute
     }
-    '/lovable/email/queue/process': {
-      id: '/lovable/email/queue/process'
-      path: '/lovable/email/queue/process'
-      fullPath: '/lovable/email/queue/process'
-      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/impact_/cities': {
+      id: '/rakshak-platform/impact_/cities'
+      path: '/impact/cities'
+      fullPath: '/rakshak-platform/impact/cities'
+      preLoaderRoute: typeof RakshakPlatformImpactCitiesRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/rp-notify-dispatcher': {
-      id: '/api/public/hooks/rp-notify-dispatcher'
-      path: '/api/public/hooks/rp-notify-dispatcher'
-      fullPath: '/api/public/hooks/rp-notify-dispatcher'
-      preLoaderRoute: typeof ApiPublicHooksRpNotifyDispatcherRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/impact_/institutions': {
+      id: '/rakshak-platform/impact_/institutions'
+      path: '/impact/institutions'
+      fullPath: '/rakshak-platform/impact/institutions'
+      preLoaderRoute: typeof RakshakPlatformImpactInstitutionsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/rp-meeting-selftest': {
-      id: '/api/public/hooks/rp-meeting-selftest'
-      path: '/api/public/hooks/rp-meeting-selftest'
-      fullPath: '/api/public/hooks/rp-meeting-selftest'
-      preLoaderRoute: typeof ApiPublicHooksRpMeetingSelftestRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/impact_/states': {
+      id: '/rakshak-platform/impact_/states'
+      path: '/impact/states'
+      fullPath: '/rakshak-platform/impact/states'
+      preLoaderRoute: typeof RakshakPlatformImpactStatesRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/rp-deadline-sweep': {
-      id: '/api/public/hooks/rp-deadline-sweep'
-      path: '/api/public/hooks/rp-deadline-sweep'
-      fullPath: '/api/public/hooks/rp-deadline-sweep'
-      preLoaderRoute: typeof ApiPublicHooksRpDeadlineSweepRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/knowledge/': {
+      id: '/rakshak-platform/knowledge/'
+      path: '/'
+      fullPath: '/rakshak-platform/knowledge/'
+      preLoaderRoute: typeof RakshakPlatformKnowledgeIndexRouteImport
+      parentRoute: typeof RakshakPlatformKnowledgeRoute
     }
-    '/api/public/hooks/resend-webhook': {
-      id: '/api/public/hooks/resend-webhook'
-      path: '/api/public/hooks/resend-webhook'
-      fullPath: '/api/public/hooks/resend-webhook'
-      preLoaderRoute: typeof ApiPublicHooksResendWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/knowledge/$slug': {
+      id: '/rakshak-platform/knowledge/$slug'
+      path: '/$slug'
+      fullPath: '/rakshak-platform/knowledge/$slug'
+      preLoaderRoute: typeof RakshakPlatformKnowledgeSlugRouteImport
+      parentRoute: typeof RakshakPlatformKnowledgeRoute
     }
-    '/api/public/hooks/mentor-upload': {
-      id: '/api/public/hooks/mentor-upload'
-      path: '/api/public/hooks/mentor-upload'
-      fullPath: '/api/public/hooks/mentor-upload'
-      preLoaderRoute: typeof ApiPublicHooksMentorUploadRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/leaderboard_/print': {
+      id: '/rakshak-platform/leaderboard_/print'
+      path: '/leaderboard/print'
+      fullPath: '/rakshak-platform/leaderboard/print'
+      preLoaderRoute: typeof RakshakPlatformLeaderboardPrintRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/meeting-reminders': {
-      id: '/api/public/hooks/meeting-reminders'
-      path: '/api/public/hooks/meeting-reminders'
-      fullPath: '/api/public/hooks/meeting-reminders'
-      preLoaderRoute: typeof ApiPublicHooksMeetingRemindersRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/m/$id': {
+      id: '/rakshak-platform/m/$id'
+      path: '/m/$id'
+      fullPath: '/rakshak-platform/m/$id'
+      preLoaderRoute: typeof RakshakPlatformMIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/keepalive': {
-      id: '/api/public/hooks/keepalive'
-      path: '/api/public/hooks/keepalive'
-      fullPath: '/api/public/hooks/keepalive'
-      preLoaderRoute: typeof ApiPublicHooksKeepaliveRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/mentor/': {
+      id: '/rakshak-platform/mentor/'
+      path: '/mentor'
+      fullPath: '/rakshak-platform/mentor/'
+      preLoaderRoute: typeof RakshakPlatformMentorIndexRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/health-ping': {
-      id: '/api/public/hooks/health-ping'
-      path: '/api/public/hooks/health-ping'
-      fullPath: '/api/public/hooks/health-ping'
-      preLoaderRoute: typeof ApiPublicHooksHealthPingRouteImport
-      parentRoute: typeof rootRouteImport
+    '/rakshak-platform/mentor/availability': {
+      id: '/rakshak-platform/mentor/availability'
+      path: '/mentor/availability'
+      fullPath: '/rakshak-platform/mentor/availability'
+      preLoaderRoute: typeof RakshakPlatformMentorAvailabilityRouteImport
+      parentRoute: typeof RakshakPlatformRoute
     }
-    '/api/public/hooks/doubt-reminders': {
-      id: '/api/public/hooks/doubt-reminders'
-      path: '/api/public/hooks/doubt-reminders'
-      fullPath: '/api/public/hooks/doubt-reminders'
-      preLoaderRoute: typeof ApiPublicHooksDoubtRemindersRouteImport
+    '/rakshak-platform/mentor/resources': {
+      id: '/rakshak-platform/mentor/resources'
+      path: '/mentor/resources'
+      fullPath: '/rakshak-platform/mentor/resources'
+      preLoaderRoute: typeof RakshakPlatformMentorResourcesRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/reports/$teamId': {
+      id: '/rakshak-platform/reports/$teamId'
+      path: '/reports/$teamId'
+      fullPath: '/rakshak-platform/reports/$teamId'
+      preLoaderRoute: typeof RakshakPlatformReportsTeamIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/session/$id': {
+      id: '/rakshak-platform/session/$id'
+      path: '/session/$id'
+      fullPath: '/rakshak-platform/session/$id'
+      preLoaderRoute: typeof RakshakPlatformSessionIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/share/$teamId': {
+      id: '/rakshak-platform/share/$teamId'
+      path: '/share/$teamId'
+      fullPath: '/rakshak-platform/share/$teamId'
+      preLoaderRoute: typeof RakshakPlatformShareTeamIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/t/$slug': {
+      id: '/rakshak-platform/t/$slug'
+      path: '/t/$slug'
+      fullPath: '/rakshak-platform/t/$slug'
+      preLoaderRoute: typeof RakshakPlatformTSlugRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/': {
+      id: '/rakshak-platform/team/'
+      path: '/team'
+      fullPath: '/rakshak-platform/team/'
+      preLoaderRoute: typeof RakshakPlatformTeamIndexRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/book-admin': {
+      id: '/rakshak-platform/team/book-admin'
+      path: '/team/book-admin'
+      fullPath: '/rakshak-platform/team/book-admin'
+      preLoaderRoute: typeof RakshakPlatformTeamBookAdminRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/book-mentor': {
+      id: '/rakshak-platform/team/book-mentor'
+      path: '/team/book-mentor'
+      fullPath: '/rakshak-platform/team/book-mentor'
+      preLoaderRoute: typeof RakshakPlatformTeamBookMentorRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/evidence': {
+      id: '/rakshak-platform/team/evidence'
+      path: '/team/evidence'
+      fullPath: '/rakshak-platform/team/evidence'
+      preLoaderRoute: typeof RakshakPlatformTeamEvidenceRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/locations': {
+      id: '/rakshak-platform/team/locations'
+      path: '/team/locations'
+      fullPath: '/rakshak-platform/team/locations'
+      preLoaderRoute: typeof RakshakPlatformTeamLocationsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/media': {
+      id: '/rakshak-platform/team/media'
+      path: '/team/media'
+      fullPath: '/rakshak-platform/team/media'
+      preLoaderRoute: typeof RakshakPlatformTeamMediaRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/reports': {
+      id: '/rakshak-platform/team/reports'
+      path: '/team/reports'
+      fullPath: '/rakshak-platform/team/reports'
+      preLoaderRoute: typeof RakshakPlatformTeamReportsRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/updates': {
+      id: '/rakshak-platform/team/updates'
+      path: '/team/updates'
+      fullPath: '/rakshak-platform/team/updates'
+      preLoaderRoute: typeof RakshakPlatformTeamUpdatesRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/verify/$slug': {
+      id: '/rakshak-platform/verify/$slug'
+      path: '/verify/$slug'
+      fullPath: '/rakshak-platform/verify/$slug'
+      preLoaderRoute: typeof RakshakPlatformVerifySlugRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/api/public/hooks/admin-digest': {
+      id: '/api/public/hooks/admin-digest'
+      path: '/api/public/hooks/admin-digest'
+      fullPath: '/api/public/hooks/admin-digest'
+      preLoaderRoute: typeof ApiPublicHooksAdminDigestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/deadline-whatsapp-reminders': {
@@ -2395,12 +2241,166 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksDeadlineWhatsappRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/admin-digest': {
-      id: '/api/public/hooks/admin-digest'
-      path: '/api/public/hooks/admin-digest'
-      fullPath: '/api/public/hooks/admin-digest'
-      preLoaderRoute: typeof ApiPublicHooksAdminDigestRouteImport
+    '/api/public/hooks/doubt-reminders': {
+      id: '/api/public/hooks/doubt-reminders'
+      path: '/api/public/hooks/doubt-reminders'
+      fullPath: '/api/public/hooks/doubt-reminders'
+      preLoaderRoute: typeof ApiPublicHooksDoubtRemindersRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/health-ping': {
+      id: '/api/public/hooks/health-ping'
+      path: '/api/public/hooks/health-ping'
+      fullPath: '/api/public/hooks/health-ping'
+      preLoaderRoute: typeof ApiPublicHooksHealthPingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/keepalive': {
+      id: '/api/public/hooks/keepalive'
+      path: '/api/public/hooks/keepalive'
+      fullPath: '/api/public/hooks/keepalive'
+      preLoaderRoute: typeof ApiPublicHooksKeepaliveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/meeting-reminders': {
+      id: '/api/public/hooks/meeting-reminders'
+      path: '/api/public/hooks/meeting-reminders'
+      fullPath: '/api/public/hooks/meeting-reminders'
+      preLoaderRoute: typeof ApiPublicHooksMeetingRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/mentor-upload': {
+      id: '/api/public/hooks/mentor-upload'
+      path: '/api/public/hooks/mentor-upload'
+      fullPath: '/api/public/hooks/mentor-upload'
+      preLoaderRoute: typeof ApiPublicHooksMentorUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/resend-webhook': {
+      id: '/api/public/hooks/resend-webhook'
+      path: '/api/public/hooks/resend-webhook'
+      fullPath: '/api/public/hooks/resend-webhook'
+      preLoaderRoute: typeof ApiPublicHooksResendWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/rp-deadline-sweep': {
+      id: '/api/public/hooks/rp-deadline-sweep'
+      path: '/api/public/hooks/rp-deadline-sweep'
+      fullPath: '/api/public/hooks/rp-deadline-sweep'
+      preLoaderRoute: typeof ApiPublicHooksRpDeadlineSweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/rp-meeting-selftest': {
+      id: '/api/public/hooks/rp-meeting-selftest'
+      path: '/api/public/hooks/rp-meeting-selftest'
+      fullPath: '/api/public/hooks/rp-meeting-selftest'
+      preLoaderRoute: typeof ApiPublicHooksRpMeetingSelftestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/rp-notify-dispatcher': {
+      id: '/api/public/hooks/rp-notify-dispatcher'
+      path: '/api/public/hooks/rp-notify-dispatcher'
+      fullPath: '/api/public/hooks/rp-notify-dispatcher'
+      preLoaderRoute: typeof ApiPublicHooksRpNotifyDispatcherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rakshak-platform/admin/print/$dataset': {
+      id: '/rakshak-platform/admin/print/$dataset'
+      path: '/print/$dataset'
+      fullPath: '/rakshak-platform/admin/print/$dataset'
+      preLoaderRoute: typeof RakshakPlatformAdminPrintDatasetRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/teams/': {
+      id: '/rakshak-platform/admin/teams/'
+      path: '/teams'
+      fullPath: '/rakshak-platform/admin/teams/'
+      preLoaderRoute: typeof RakshakPlatformAdminTeamsIndexRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/teams/$teamId': {
+      id: '/rakshak-platform/admin/teams/$teamId'
+      path: '/teams/$teamId'
+      fullPath: '/rakshak-platform/admin/teams/$teamId'
+      preLoaderRoute: typeof RakshakPlatformAdminTeamsTeamIdRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/admin/teams/new': {
+      id: '/rakshak-platform/admin/teams/new'
+      path: '/teams/new'
+      fullPath: '/rakshak-platform/admin/teams/new'
+      preLoaderRoute: typeof RakshakPlatformAdminTeamsNewRouteImport
+      parentRoute: typeof RakshakPlatformAdminRoute
+    }
+    '/rakshak-platform/meetings/ics/$meetingId': {
+      id: '/rakshak-platform/meetings/ics/$meetingId'
+      path: '/ics/$meetingId'
+      fullPath: '/rakshak-platform/meetings/ics/$meetingId'
+      preLoaderRoute: typeof RakshakPlatformMeetingsIcsMeetingIdRouteImport
+      parentRoute: typeof RakshakPlatformMeetingsRoute
+    }
+    '/rakshak-platform/mentor/teams/$teamId': {
+      id: '/rakshak-platform/mentor/teams/$teamId'
+      path: '/mentor/teams/$teamId'
+      fullPath: '/rakshak-platform/mentor/teams/$teamId'
+      preLoaderRoute: typeof RakshakPlatformMentorTeamsTeamIdRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/locations/': {
+      id: '/rakshak-platform/team/locations/'
+      path: '/'
+      fullPath: '/rakshak-platform/team/locations/'
+      preLoaderRoute: typeof RakshakPlatformTeamLocationsIndexRouteImport
+      parentRoute: typeof RakshakPlatformTeamLocationsRoute
+    }
+    '/rakshak-platform/team/locations/$id': {
+      id: '/rakshak-platform/team/locations/$id'
+      path: '/$id'
+      fullPath: '/rakshak-platform/team/locations/$id'
+      preLoaderRoute: typeof RakshakPlatformTeamLocationsIdRouteImport
+      parentRoute: typeof RakshakPlatformTeamLocationsRoute
+    }
+    '/rakshak-platform/team/phases/': {
+      id: '/rakshak-platform/team/phases/'
+      path: '/team/phases'
+      fullPath: '/rakshak-platform/team/phases/'
+      preLoaderRoute: typeof RakshakPlatformTeamPhasesIndexRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/phases/$phase': {
+      id: '/rakshak-platform/team/phases/$phase'
+      path: '/team/phases/$phase'
+      fullPath: '/rakshak-platform/team/phases/$phase'
+      preLoaderRoute: typeof RakshakPlatformTeamPhasesPhaseRouteImport
+      parentRoute: typeof RakshakPlatformRoute
+    }
+    '/rakshak-platform/team/reports/': {
+      id: '/rakshak-platform/team/reports/'
+      path: '/'
+      fullPath: '/rakshak-platform/team/reports/'
+      preLoaderRoute: typeof RakshakPlatformTeamReportsIndexRouteImport
+      parentRoute: typeof RakshakPlatformTeamReportsRoute
     }
   }
 }
