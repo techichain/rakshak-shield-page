@@ -17,7 +17,8 @@ function DefaultPending() {
   );
 }
 
-function DefaultErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function DefaultErrorComponent({ error: caughtError, reset }: { error: unknown; reset: () => void }) {
+  const error = caughtError instanceof Error ? caughtError : new Error(String(caughtError));
   report("route-error", error);
   const router = useRouter();
   const dev = isDevMode();
